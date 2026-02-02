@@ -32,17 +32,44 @@
     }
 
     /* CONTENT */
-    main {
-      max-width: 960px;
-      padding: 3rem 1.5rem;
-    }
+   main {
+  max-width: 960px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 3rem 1.25rem; /* mobile default */
+}
+
+/* Tablet */
+@media (min-width: 640px) {
+  main {
+    padding-left: 3rem;
+    padding-right: 3rem;
+  }
+}
+
+/* Desktop / laptop */
+@media (min-width: 1024px) {
+  main {
+    padding-left: 6rem;
+    padding-right: 6rem;
+  }
+}
+
+/* Large desktop */
+@media (min-width: 1280px) {
+  main {
+    padding-left: 8rem;
+    padding-right: 8rem;
+  }
+}
+
 
     .intro {
-      font-size: 2rem;
+      font-size: 1rem;
       max-width: 640px;
     }
     .top
-      {font-size: 3rem;
+      {font-size: 2rem;
        max-width: 640px;
       }
     @media (max-width: 768px) {
