@@ -1,101 +1,95 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Khushali Haji</title>
+  <meta charset="UTF-8">
+  <title>Khushali Haji</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<style>
-  body {
-    margin: 0;
-    font-family: Georgia, serif;
-    line-height: 1.6;
-  }
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      line-height: 1.6;
+      color: #111;
+    }
 
-  /* HERO */
-  .hero {
-    position: relative;
-    height: 100vh;
-    overflow: hidden;
-  }
+    /* HERO IMAGE */
+    .hero {
+      position: relative;
+      height: 65vh; /* rectangular, not square */
+      overflow: hidden;
+    }
 
-  .hero img {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 120%;
-    transform: translate(-50%, -50%);
-    transition: transform 0.2s ease-out;
-  }
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background-image: url("https://khushalimhaji.wordpress.com/wp-content/uploads/2026/01/screenshot-2026-02-02-at-6.01.25-am.png");
+      background-size: cover;
+      background-position: center;
+      transform: scale(1);
+      transition: transform 0.1s linear;
+      will-change: transform;
+    }
 
-  .hero-text {
-    position: relative;
-    z-index: 2;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    padding-left: 10%;
-    color: white;
-    font-size: 2rem;
-    background: linear-gradient(to right, rgba(0,0,0,0.6), rgba(0,0,0,0));
-  }
+    /* CONTENT */
+    main {
+      max-width: 960px;
+      padding: 3rem 1.5rem;
+    }
 
-  /* CONTENT */
-  .content {
-    max-width: 900px;
-    margin: 4rem auto;
-    padding: 0 1.5rem;
-    font-size: 1.05rem;
-  }
-</style>
+    .intro {
+      font-size: 1.15rem;
+      max-width: 640px;
+    }
+
+    @media (max-width: 768px) {
+      .hero {
+        height: 50vh;
+      }
+
+      .intro {
+        font-size: 1rem;
+      }
+    }
+  </style>
 </head>
 
 <body>
 
-<!-- HERO SECTION -->
-<section class="hero">
-  <img id="heroImage"
-    src="https://khushalimhaji.wordpress.com/wp-content/uploads/2026/02/samples-elephant.png"
-    alt=""
-  >
-  <div class="hero-text">
-    <strong>Hello.</strong>&nbsp;I’m Khushali.
-  </div>
-</section>
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-bg" id="heroBg"></div>
+  </section>
 
-<!-- MAIN CONTENT -->
-<section class="content">
-  <p>
-    I’m a multimedia journalist, filmmaker, and researcher interested in how people experience systems, cities, and power — and how storytelling can bring data to life.
-  </p>
+  <!-- BODY TEXT -->
+  <main>
+    <p class="intro">
+      <strong>Hello.</strong> I’m Khushali, a multimedia journalist, filmmaker, and researcher interested in how people experience systems, cities, and power — and how storytelling can bring data to life.
+    </p>
 
-  <p>
-    When I trained as an urban designer in India at CEPT University, I kept noticing what didn’t fit on the page: the messiness of daily life, the politics, and the emotions that shape cities.
-  </p>
+    <p class="intro">
+      When I trained as an urban designer in India at CEPT University, learning how cities are planned on paper, I kept noticing what didn’t fit on the page: the messiness of daily life, the politics that operated at different scales, and the emotions and aspirations that make a city what it is.
+    </p>
 
-  <p>
-    Storytelling eventually pulled me into journalism and filmmaking. I’ve reported on asylum policies, carbon credit markets, domestic violence, and interfaith communities, and made films about connection, ambition, and belonging.
-  </p>
+    <p class="intro">
+      Studying International Reporting and Documentary Filmmaking at the Newmark Graduate School of Journalism (CUNY), I learned to follow stories in the space between policy, data, and lived reality, and to use different media to tell them.
+    </p>
 
-  <p>
-    My work has been recognized by the Silurians Press Club, and my short documentary received a Special Jury Mention at the 2025 Woodstock Film Festival.
-  </p>
+    <p class="intro">
+      I’m always drawn to stories where systems meet lived experience.
+    </p>
+  </main>
 
-  <p>
-    Explore my work:
-    <strong>Reporting</strong> · <strong>Urban / Design</strong> · <strong>Videos</strong> · <strong>Writing</strong>
-  </p>
-</section>
+  <!-- SCROLL ZOOM SCRIPT -->
+  <script>
+    const heroBg = document.getElementById("heroBg");
 
-<script>
-  const heroImage = document.getElementById("heroImage");
-
-  window.addEventListener("scroll", () => {
-    const scrollY = window.scrollY;
-    heroImage.style.transform =
-      `translate(-50%, -50%) scale(${1 + scrollY / 2000})`;
-  });
-</script>
+    window.addEventListener("scroll", () => {
+      const scrollY = window.scrollY;
+      const scale = 1 + scrollY / 2000; // slower, elegant zoom
+      heroBg.style.transform = `scale(${scale})`;
+    });
+  </script>
 
 </body>
 </html>
