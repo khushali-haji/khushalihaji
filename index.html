@@ -1,12 +1,101 @@
-<body>
-  <header>
-    <h1>Khushali Haji</h1>
-    <p>Journalist · Filmmaker · Researcher</p>
-  </header>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Khushali Haji</title>
 
-  <main>
-    <section id="about"></section>
-    <section id="work"></section>
-    <section id="contact"></section>
-  </main>
+<style>
+  body {
+    margin: 0;
+    font-family: Georgia, serif;
+    line-height: 1.6;
+  }
+
+  /* HERO */
+  .hero {
+    position: relative;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .hero img {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 120%;
+    transform: translate(-50%, -50%);
+    transition: transform 0.2s ease-out;
+  }
+
+  .hero-text {
+    position: relative;
+    z-index: 2;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    padding-left: 10%;
+    color: white;
+    font-size: 2rem;
+    background: linear-gradient(to right, rgba(0,0,0,0.6), rgba(0,0,0,0));
+  }
+
+  /* CONTENT */
+  .content {
+    max-width: 900px;
+    margin: 4rem auto;
+    padding: 0 1.5rem;
+    font-size: 1.05rem;
+  }
+</style>
+</head>
+
+<body>
+
+<!-- HERO SECTION -->
+<section class="hero">
+  <img id="heroImage"
+    src="https://khushalimhaji.wordpress.com/wp-content/uploads/2026/02/samples-elephant.png"
+    alt=""
+  >
+  <div class="hero-text">
+    <strong>Hello.</strong>&nbsp;I’m Khushali.
+  </div>
+</section>
+
+<!-- MAIN CONTENT -->
+<section class="content">
+  <p>
+    I’m a multimedia journalist, filmmaker, and researcher interested in how people experience systems, cities, and power — and how storytelling can bring data to life.
+  </p>
+
+  <p>
+    When I trained as an urban designer in India at CEPT University, I kept noticing what didn’t fit on the page: the messiness of daily life, the politics, and the emotions that shape cities.
+  </p>
+
+  <p>
+    Storytelling eventually pulled me into journalism and filmmaking. I’ve reported on asylum policies, carbon credit markets, domestic violence, and interfaith communities, and made films about connection, ambition, and belonging.
+  </p>
+
+  <p>
+    My work has been recognized by the Silurians Press Club, and my short documentary received a Special Jury Mention at the 2025 Woodstock Film Festival.
+  </p>
+
+  <p>
+    Explore my work:
+    <strong>Reporting</strong> · <strong>Urban / Design</strong> · <strong>Videos</strong> · <strong>Writing</strong>
+  </p>
+</section>
+
+<script>
+  const heroImage = document.getElementById("heroImage");
+
+  window.addEventListener("scroll", () => {
+    const scrollY = window.scrollY;
+    heroImage.style.transform =
+      `translate(-50%, -50%) scale(${1 + scrollY / 2000})`;
+  });
+</script>
+
 </body>
+</html>
