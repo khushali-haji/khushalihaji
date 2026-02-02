@@ -6,6 +6,83 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <style>
+
+/* HEADER */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+}
+
+.header-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Name */
+.site-title a {
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  color: #111;
+}
+
+/* Navigation */
+.site-nav {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.site-nav a {
+  font-size: 0.85rem;
+  text-decoration: none;
+  color: #111;
+  opacity: 0.85;
+}
+
+.site-nav a:hover {
+  opacity: 1;
+}
+
+/* Contact button */
+.contact-btn {
+  padding: 0.4rem 0.75rem;
+  border: 1px solid #111;
+  border-radius: 999px;
+  font-size: 0.8rem;
+}
+
+/* Tablet */
+@media (max-width: 900px) {
+  .site-nav {
+    gap: 1rem;
+  }
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  .header-inner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .site-nav {
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+}
+
+    
     body {
       margin: 0;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
@@ -65,7 +142,7 @@
 
 
     .intro {
-      font-size: 1rem;
+      font-size: 1.15rem;
       max-width: 640px;
     }
     .top
@@ -110,6 +187,25 @@
 
 <body>
 
+<header class="site-header">
+  <div class="header-inner">
+    <!-- Left: Name -->
+    <div class="site-title">
+      <a href="https://khushali-haji.github.io/khushalihaji/">Khushali Haji</a>
+    </div>
+
+    <!-- Right: Navigation -->
+    <nav class="site-nav">
+      <a href="https://khushalimhaji.wordpress.com/reporting/">Reporting</a>
+      <a href="https://khushalimhaji.wordpress.com/urban-design/">Urban / Design</a>
+      <a href="https://khushalimhaji.wordpress.com/videos/">Video</a>
+      <a href="https://khushalimhaji.wordpress.com/misc-projects/">Misc Projects</a>
+      <a href="mailto:khushali.haji@gmail.com" class="contact-btn">Contact</a>
+    </nav>
+  </div>
+</header>
+
+  
   <!-- HERO -->
   <section class="hero">
     <div class="hero-bg" id="heroBg"></div>
