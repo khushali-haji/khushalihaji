@@ -106,9 +106,9 @@
   transform: scale(1);
   transition:
     transform 0.1s linear,
-    opacity 1.2s ease-in-out;
+    opacity 1s ease-in-out;
   will-change: transform, opacity;
-  opacity: 1;
+  opacity: 0;
 }
 
 
@@ -146,11 +146,11 @@
 
 
     .intro {
-      font-size: 1.15rem;
+      font-size: 1.1rem;
       max-width: 640px;
     }
     .top
-      {font-size: 1.5rem;
+      {font-size: 1.2rem;
        max-width: 640px;
       }
     @media (max-width: 768px) {
@@ -255,28 +255,44 @@ I’m always interested in collaborating with people and teams who want to tell 
   ];
 
   let currentIndex = 0;
+  let imagesLoaded = 0;
 
-  // set first image
-  heroBg.style.backgroundImage = `url(${images[0]})`;
+  // PRELOAD IMAGES
+  images.forEach(src => {
+    const img = new Image();
+    img.src = src;
+    img.onload = () => {
+      imagesLoaded++;
+      if (imagesLoaded === images.length) {
+        startSlideshow();
+      }
+    };
+  });
 
-  // slideshow
-  setInterval(() => {
-    heroBg.style.opacity = 0;
+  function startSlideshow() {
+    heroBg.style.backgroundImage = `url(${images[0]})`;
+    heroBg.style.opacity = 1;
 
-    setTimeout(() => {
-      currentIndex = (currentIndex + 1) % images.length;
-      heroBg.style.backgroundImage = `url(${images[currentIndex]})`;
-      heroBg.style.opacity = 1;
-    }, 1200);
-  }, 4500);
+    setInterval(() => {
+      heroBg.style.opacity = 0;
 
-  // scroll zoom
+      setTimeout(() => {
+        currentIndex = (currentIndex + 1) % images.length;
+        heroBg.style.backgroundImage = `url(${images[currentIndex]})`;
+        heroBg.style.opacity = 1;
+      }, 1000);
+
+    }, 4500);
+  }
+
+  // SCROLL ZOOM (unchanged)
   window.addEventListener("scroll", () => {
     const scrollY = window.scrollY;
     const scale = 1 + scrollY / 2500;
     heroBg.style.transform = `scale(${scale})`;
   });
 </script>
+
 
   
 <footer class="site-footer">
