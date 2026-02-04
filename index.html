@@ -98,15 +98,19 @@
     }
 
     .hero-bg {
-      position: absolute;
-      inset: 0;
-      background-image: url("https://khushalimhaji.wordpress.com/wp-content/uploads/2026/01/screenshot-2026-02-02-at-6.01.25-am.png");
-      background-size: cover;
-      background-position: center;
-      transform: scale(1);
-      transition: transform 0.1s linear;
-      will-change: transform;
-    }
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  transform: scale(1);
+  transition:
+    transform 0.1s linear,
+    opacity 1.2s ease-in-out;
+  will-change: transform, opacity;
+  opacity: 1;
+}
+
 
     /* CONTENT */
    main {
@@ -235,15 +239,45 @@ I’m always interested in collaborating with people and teams who want to tell 
   </main>
 
   <!-- SCROLL ZOOM SCRIPT -->
-  <script>
-    const heroBg = document.getElementById("heroBg");
+<script>
+  const heroBg = document.getElementById("heroBg");
 
-    window.addEventListener("scroll", () => {
-      const scrollY = window.scrollY;
-      const scale = 1 + scrollY / 2500; // slower, elegant zoom
-      heroBg.style.transform = `scale(${scale})`;
-    });
-  </script>
+  const images = [
+    "images/hero-01.jpg",
+    "images/hero-02.jpg",
+    "images/hero-03.jpg",
+    "images/hero-04.jpg",
+    "images/hero-05.jpg",
+    "images/hero-06.jpg",
+    "images/hero-07.jpg",
+    "images/hero-08.jpg",
+    "images/hero-09.jpg"
+  ];
+
+  let currentIndex = 0;
+
+  // set first image
+  heroBg.style.backgroundImage = `url(${images[0]})`;
+
+  // slideshow
+  setInterval(() => {
+    heroBg.style.opacity = 0;
+
+    setTimeout(() => {
+      currentIndex = (currentIndex + 1) % images.length;
+      heroBg.style.backgroundImage = `url(${images[currentIndex]})`;
+      heroBg.style.opacity = 1;
+    }, 1200);
+  }, 4500);
+
+  // scroll zoom
+  window.addEventListener("scroll", () => {
+    const scrollY = window.scrollY;
+    const scale = 1 + scrollY / 2500;
+    heroBg.style.transform = `scale(${scale})`;
+  });
+</script>
+
   
 <footer class="site-footer">
   © 2026 Khushali Haji. All rights reserved.
