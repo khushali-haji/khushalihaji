@@ -97,7 +97,7 @@
       overflow: hidden;
     }
 
-    .hero-bg {
+.hero-bg {
   position: absolute;
   inset: 0;
   background-size: cover;
@@ -105,12 +105,16 @@
   background-repeat: no-repeat;
   transform: scale(1);
   transition:
-    transform 0.1s linear,
-    opacity 1s ease-in-out;
-  will-change: transform, opacity;
+    opacity 1.2s ease-in-out,
+    transform 0.1s linear;
+  will-change: opacity, transform;
   opacity: 0;
-  background-image: url("images/hero-01.jpg");
 }
+
+.hero-bg.active {
+  opacity: 1;
+}
+
 
 
     /* CONTENT */
@@ -213,8 +217,10 @@
   
   <!-- HERO -->
   <section class="hero">
-    <div class="hero-bg" id="heroBg"></div>
+  <div class="hero-bg hero-a"></div>
+  <div class="hero-bg hero-b"></div>
   </section>
+
 
   <!-- BODY TEXT -->
   <main>
@@ -246,8 +252,6 @@ You can explore my journalism under <strong>Reporting</strong>, urban and graphi
 
   <!-- SCROLL ZOOM SCRIPT -->
 <script>
-  const heroBg = document.getElementById("heroBg");
-
   const images = [
     "images/hero-01.jpg",
     "images/hero-02.jpg",
@@ -260,30 +264,39 @@ You can explore my journalism under <strong>Reporting</strong>, urban and graphi
     "images/hero-09.jpg"
   ];
 
-  let currentIndex = 0;
+  const heroA = document.querySelector(".hero-a");
+  const heroB = document.querySelector(".hero-b");
 
-  // Set first image immediately
-  heroBg.style.backgroundImage = `url(${images[0]})`;
-  heroBg.style.opacity = 1;
+  let current = 0;
+  let showingA = true;
 
-  // Slideshow
+  // Set initial image
+  heroA.style.backgroundImage = `url(${images[0]})`;
+  heroA.classList.add("active");
+
   setInterval(() => {
-    heroBg.style.opacity = 0;
+    const next = (current + 1) % images.length;
 
-    setTimeout(() => {
-      currentIndex = (currentIndex + 1) % images.length;
-      heroBg.style.backgroundImage = `url(${images[currentIndex]})`;
-      heroBg.style.opacity = 1;
-    }, 800);
+    const incoming = showingA ? heroB : heroA;
+    const outgoing = showingA ? heroA : heroB;
+
+    incoming.style.backgroundImage = `url(${images[next]})`;
+    incoming.classList.add("active");
+    outgoing.classList.remove("active");
+
+    current = next;
+    showingA = !showingA;
 
   }, 4500);
 
-  // Scroll zoom
+  // Scroll zoom (applies to both layers)
   window.addEventListener("scroll", () => {
     const scale = 1 + window.scrollY / 2500;
-    heroBg.style.transform = `scale(${scale})`;
+    heroA.style.transform = `scale(${scale})`;
+    heroB.style.transform = `scale(${scale})`;
   });
 </script>
+
 
 
 
