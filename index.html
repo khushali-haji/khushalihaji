@@ -109,6 +109,7 @@
     opacity 1s ease-in-out;
   will-change: transform, opacity;
   opacity: 0;
+  background-image: url("images/hero-01.jpg");
 }
 
 
@@ -248,56 +249,42 @@ You can explore my journalism under <strong>Reporting</strong>, urban and graphi
   const heroBg = document.getElementById("heroBg");
 
   const images = [
-  "/khushalihaji/images/hero-01.jpg",
-  "/khushalihaji/images/hero-02.jpg",
-  "/khushalihaji/images/hero-03.jpg",
-  "/khushalihaji/images/hero-04.jpg",
-  "/khushalihaji/images/hero-05.jpg",
-  "/khushalihaji/images/hero-06.jpg",
-  "/khushalihaji/images/hero-07.jpg",
-  "/khushalihaji/images/hero-08.jpg",
-  "/khushalihaji/images/hero-09.jpg"
-];
-
+    "images/hero-01.jpg",
+    "images/hero-02.jpg",
+    "images/hero-03.jpg",
+    "images/hero-04.jpg",
+    "images/hero-05.jpg",
+    "images/hero-06.jpg",
+    "images/hero-07.jpg",
+    "images/hero-08.jpg",
+    "images/hero-09.jpg"
+  ];
 
   let currentIndex = 0;
-  let imagesLoaded = 0;
 
-  // PRELOAD IMAGES
-  images.forEach(src => {
-    const img = new Image();
-    img.src = src;
-    img.onload = () => {
-      imagesLoaded++;
-      if (imagesLoaded === images.length) {
-        startSlideshow();
-      }
-    };
-  });
+  // Set first image immediately
+  heroBg.style.backgroundImage = `url(${images[0]})`;
+  heroBg.style.opacity = 1;
 
-  function startSlideshow() {
-    heroBg.style.backgroundImage = `url(${images[0]})`;
-    heroBg.style.opacity = 1;
+  // Slideshow
+  setInterval(() => {
+    heroBg.style.opacity = 0;
 
-    setInterval(() => {
-      heroBg.style.opacity = 0;
+    setTimeout(() => {
+      currentIndex = (currentIndex + 1) % images.length;
+      heroBg.style.backgroundImage = `url(${images[currentIndex]})`;
+      heroBg.style.opacity = 1;
+    }, 800);
 
-      setTimeout(() => {
-        currentIndex = (currentIndex + 1) % images.length;
-        heroBg.style.backgroundImage = `url(${images[currentIndex]})`;
-        heroBg.style.opacity = 1;
-      }, 1000);
+  }, 4500);
 
-    }, 4500);
-  }
-
-  // SCROLL ZOOM (unchanged)
+  // Scroll zoom
   window.addEventListener("scroll", () => {
-    const scrollY = window.scrollY;
-    const scale = 1 + scrollY / 2500;
+    const scale = 1 + window.scrollY / 2500;
     heroBg.style.transform = `scale(${scale})`;
   });
 </script>
+
 
 
   
