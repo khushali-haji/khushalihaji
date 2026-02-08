@@ -1,1 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reporting — Khushali Haji</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: #fff;
+      color: #111;
+    }
+
+    /* HEADER */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.25rem 2rem;
+      border-bottom: 1px solid #e5e5e5;
+    }
+
+    header .name {
+      font-size: 1rem;
+      font-weight: 500;
+    }
+
+    nav {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    nav a {
+      text-decoration: none;
+      font-size: 0.85rem;
+      color: #111;
+    }
+
+    .contact-btn {
+      padding: 0.4rem 0.75rem;
+      border: 1px solid #111;
+      border-radius: 2px;
+      font-size: 0.75rem;
+    }
+
+    /* PAGE */
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem;
+    }
+
+    h1 {
+      font-size: 1.4rem;
+      font-weight: 500;
+      margin-bottom: 2.5rem;
+    }
+
+    /* GRID */
+    .story-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+    }
+
+    @media (max-width: 900px) {
+      .story-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 600px) {
+      .story-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* CARD */
+    .story-card {
+      position: relative;
+      aspect-ratio: 1 / 1;
+      overflow: hidden;
+      text-decoration: none;
+      color: white;
+    }
+
+    .story-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* OVERLAY */
+    .story-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to top,
+        rgba(0,0,0,0.85),
+        rgba(0,0,0,0.25),
+        rgba(0,0,0,0)
+      );
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+
+      transform: translateY(100%);
+      transition: transform 0.4s ease;
+    }
+
+    .story-card:hover .story-overlay {
+      transform: translateY(0);
+    }
+
+    .story-overlay h3 {
+      font-size: 0.95rem;
+      font-weight: 500;
+      margin: 0 0 0.5rem 0;
+      line-height: 1.3;
+    }
+
+    .story-overlay .dek {
+      font-size: 0.8rem;
+      margin: 0 0 0.5rem 0;
+    }
+
+    .story-overlay .meta {
+      font-size: 0.7rem;
+      opacity: 0.9;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="name">Khushali Haji</div>
+    <nav>
+      <a href="reporting.html">Reporting</a>
+      <a href="urban.html">Urban / Design</a>
+      <a href="video.html">Video</a>
+      <a href="misc.html">Misc Projects</a>
+      <a class="contact-btn" href="mailto:khushali.haji@gmail.com">Contact</a>
+    </nav>
+  </header>
+
+  <!-- CONTENT -->
+  <main>
+    <h1>Reporting</h1>
+
+    <section class="story-grid">
+
+      <!-- STORY 1 -->
+      <a class="story-card" href="https://khushalimhaji.wordpress.com/reporting/" target="_blank">
+        <img src="images/reporting-01.jpg" alt="">
+        <div class="story-overlay">
+          <h3>Headline of Story One Goes Here</h3>
+          <p class="dek">One-sentence dek describing the investigation or reported piece.</p>
+          <p class="meta"><em>Publication Name</em> · 2024</p>
+        </div>
+      </a>
+
+      <!-- STORY 2 -->
+      <a class="story-card" href="#" target="_blank">
+        <img src="images/reporting-02.jpg" alt="">
+        <div class="story-overlay">
+          <h3>Headline of Story Two Goes Here</h3>
+          <p class="dek">Short dek summarizing the reporting focus.</p>
+          <p class="meta"><em>Publication Name</em> · 2023</p>
+        </div>
+      </a>
+
+      <!-- STORY 3 -->
+      <a class="story-card" href="#" target="_blank">
+        <img src="images/reporting-03.jpg" alt="">
+        <div class="story-overlay">
+          <h3>Headline of Story Three Goes Here</h3>
+          <p class="dek">Contextual dek that adds stakes or impact.</p>
+          <p class="meta"><em>Publication Name</em> · 2023</p>
+        </div>
+      </a>
+
+      <!-- STORY 4 -->
+      <a class="story-card" href="#" target="_blank">
+        <img src="images/reporting-04.jpg" alt="">
+        <div class="story-overlay">
+          <h3>Headline of Story Four Goes Here</h3>
+          <p class="dek">Investigative or long-form reporting description.</p>
+          <p class="meta"><em>Publication Name</em> · 2022</p>
+        </div>
+      </a>
+
+      <!-- STORY 5 -->
+      <a class="story-card" href="#" target="_blank">
+        <img src="images/reporting-05.jpg" alt="">
+        <div class="story-overlay">
+          <h3>Headline of Story Five Goes Here</h3>
+          <p class="dek">Dek explaining community, policy, or human impact.</p>
+          <p class="meta"><em>Publication Name</em> · 2022</p>
+        </div>
+      </a>
+
+      <!-- STORY 6 -->
+      <a class="story-card" href="#" target="_blank">
+        <img src="images/reporting-06.jpg" alt="">
+        <div class="story-overlay">
+          <h3>Headline of Story Six Goes Here</h3>
+          <p class="dek">Short descriptive dek for the piece.</p>
+          <p class="meta"><em>Publication Name</em> · 2021</p>
+        </div>
+      </a>
+
+    </section>
+  </main>
+
+</body>
+</html>
 
