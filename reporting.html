@@ -105,9 +105,10 @@
 /* ---------- GRID ---------- */
 .reporting-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 2rem;
-  padding: 1.5rem 3rem 4rem;
+  grid-template-columns: repeat(3, minmax(0, 360px));
+  gap: 3rem;              /* more white space between cards */
+  padding: 2rem 4rem 5rem;
+  justify-content: center; /* keeps grid centered */
 }
 
 @media (max-width: 1024px) {
@@ -129,10 +130,10 @@
   text-decoration: none;
   color: inherit;
   background: #000;
-  border-radius: 16px;
+  aspect-ratio: 1 / 1;   /* PERFECT SQUARE */
   overflow: hidden;
   position: relative;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
   transition: transform 0.4s ease, box-shadow 0.4s ease;
 }
 
