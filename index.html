@@ -92,10 +92,14 @@
 
     /* HERO IMAGE */
     .hero {
-      position: relative;
-       height: 80vh; /* rectangular, not square */
-      overflow: hidden;
-    }
+  position: relative;
+  max-width: 1100px;     /* controls how wide hero can get */
+  height: 70vh;          /* slightly shorter = more editorial */
+  margin: 3rem auto;     /* centers hero + adds white space */
+  padding: 0 1.25rem;    /* white space on small screens */
+  overflow: hidden;
+}
+
 
 .hero-bg {
   position: absolute;
@@ -103,7 +107,7 @@
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  transform: scale(1);
+  transform: scale(0.98);
   transition:
     opacity 1.2s ease-in-out,
     transform 0.1s linear;
@@ -161,7 +165,10 @@
     @media (max-width: 768px) {
       .hero {
         height: 50vh;
-      }
+        margin: 2rem auto;
+        padding: 0 1rem;
+        border-radius: 2px; /* almost invisible, just softens edges */
+       }
 
       .intro {
         font-size: 1rem;
@@ -289,7 +296,7 @@ You can explore my journalism under <strong>Reporting</strong>, urban and graphi
 
   // Scroll zoom (applies to both layers)
   window.addEventListener("scroll", () => {
-    const scale = 1 + window.scrollY / 2500;
+    const scale = 0.98 + window.scrollY / 4000;
     heroA.style.transform = `scale(${scale})`;
     heroB.style.transform = `scale(${scale})`;
   });
