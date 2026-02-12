@@ -119,6 +119,22 @@
   opacity: 1;
 }
 
+/* ===== VENN STACK ===== */
+
+.venn-stack {
+  position: relative;
+  width: 700px;
+  max-width: 90%;
+}
+
+.venn-step {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+}
 
 
     /* CONTENT */
@@ -197,6 +213,28 @@
   }
 }
 
+/* ===== SCROLL SNAP SECTIONS ===== */
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  scroll-snap-type: y mandatory;
+  overflow-y: scroll;
+}
+
+.snap-section {
+  height: 100vh;
+  scroll-snap-align: start;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+    
   </style>
 </head>
 
@@ -223,13 +261,16 @@
 
   
   <!-- HERO -->
-  <section class="hero">
+<section class="hero snap-section">
   <div class="hero-bg hero-a"></div>
   <div class="hero-bg hero-b"></div>
-  </section>
+</section>
+
 
 
   <!-- BODY TEXT -->
+ <section class="snap-section">
+   
   <main>
     <p class="top">
       <strong>Hello.</strong> I’m Khushali, a researcher, multimedia journalist and filmmaker, interested in how people experience <strong> systems, cities, and power</strong>, and how storytelling can bring data and policy to life.
@@ -255,7 +296,19 @@ Now based in <strong>New York</strong>, I work across journalism, video, and res
 You can explore my journalism under <strong>Reporting</strong>, urban and graphic design work under <strong>Urban / Design</strong>, video projects under <strong>Videos</strong>, and essays and long-form writing under <strong>Writing</strong>.
 </p>
        
-  </main>
+ </main>
+</section>
+
+  <section class="snap-section">
+  <div class="venn-stack">
+    <img src="icons/venn_1.png" class="venn-step step1">
+    <img src="icons/venn_2.png" class="venn-step step2">
+    <img src="icons/venn_3.png" class="venn-step step3">
+    <img src="icons/venn_4.png" class="venn-step step4">
+    <img src="icons/venn_5.png" class="venn-step step5">
+  </div>
+</section>
+
 
   <!-- SCROLL ZOOM SCRIPT -->
 <script>
@@ -302,6 +355,34 @@ You can explore my journalism under <strong>Reporting</strong>, urban and graphi
   });
 </script>
 
+<script>
+/* ===== VENN SCROLL ANIMATION ===== */
+
+const vennSteps = document.querySelectorAll(".venn-step");
+const vennSection = document.querySelector(".venn-stack").parentElement;
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+
+      vennSteps.forEach((step, index) => {
+        setTimeout(() => {
+          step.style.opacity = 1;
+        }, index * 700);
+      });
+
+    } else {
+      vennSteps.forEach(step => {
+        step.style.opacity = 0;
+      });
+    }
+  });
+}, {
+  threshold: 0.5
+});
+
+observer.observe(vennSection);
+</script>
 
 
 
