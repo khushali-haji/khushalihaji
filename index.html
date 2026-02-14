@@ -245,29 +245,35 @@ main {
 
 /* TABLET VIEW (between 768px and 1024px) */
 @media (max-width: 1024px) and (min-width: 769px) {
-  .section-content {
-    display: block; /* Stack elements */
+  /* Only style section-1 */
+  #section-1 .section-content {
+    display: block;
     position: relative;
   }
   
-  .section-text {
+  #section-1 .section-text {
     font-size: 1.1rem;
-    margin-bottom: -2.5rem; /* Reduced space below text */
+    margin-bottom: 0.5rem; /* Small space after text */
   }
   
-  .section-animation {
+  #section-1 .section-animation {
     position: relative;
-    width: 60%; /* Proportional width */
-    margin-left: auto; /* Right align */
+    width: 60%;
+    margin-left: auto;
     margin-right: 0;
-    margin-top: -8rem; /* Negative margin pulls it up */
-    margin-bottom: 2rem; /* Space before next section */
-    min-height: 300px;
-    justify-content: flex-end; /* Align content to right */
+    margin-top: 0; /* No gap */
+    margin-bottom: 0;
+    min-height: auto; /* FIXED: Remove min-height */
+    justify-content: flex-end;
   }
   
-  .animation-layers {
-    max-width: 100%; /* Use full container width */
+  #section-1 .animation-layers {
+    max-width: 100%;
+  }
+  
+  /* Reduce gap before section-2 */
+  #section-2 {
+    padding-top: 1.5rem;
   }
 }
 
@@ -280,9 +286,10 @@ main {
     border-radius: 2px;
   }
 
-  .section-content {
+  /* Only style section-1 */
+  #section-1 .section-content {
     display: flex;
-    flex-direction: column; /* Column layout */
+    flex-direction: column;
   }
 
   .intro,
@@ -294,21 +301,26 @@ main {
     padding: 2rem 1.25rem;
   }
   
-  .section-text {
-    order: 1; /* Text comes first */
-    margin-bottom: -1.5rem;
+  #section-1 .section-text {
+    order: 1;
+    margin-bottom: 1rem; /* Small space after text */
   }
   
-  .section-animation {
-    order: 2; /* Animation comes AFTER text */
-    min-height: auto;
-    margin-bottom: 2rem; /* Space before next section */
+  #section-1 .section-animation {
+    order: 2;
+    min-height: auto; /* FIXED: Remove min-height */
+    margin-bottom: 0;
     width: 100%;
     justify-content: center;
   }
   
-  .animation-layers {
-    max-width: 350px; /* Good size for mobile */
+  #section-1 .animation-layers {
+    max-width: 350px;
+  }
+  
+  /* Reduce gap before section-2 */
+  #section-2 {
+    padding-top: 1rem;
   }
 }
 
