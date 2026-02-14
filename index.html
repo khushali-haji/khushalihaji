@@ -85,12 +85,12 @@ body {
   background: #fff;
 }
 
-/* HERO IMAGE - Full size, no bottom margin */
+/* HERO IMAGE - No bottom margin */
 .hero {
   position: relative;
   max-width: 1100px;
   height: 70vh;
-  margin: 3rem auto 0rem; /* No bottom margin from 3rem to 1rem */
+  margin: 3rem auto 0; /* NO bottom margin */
   padding: 0 1.25rem;
   overflow: hidden;
 }
@@ -111,13 +111,13 @@ body {
   opacity: 1;
 }
 
-/* SCROLL SECTIONS - Reduced spacing */
+/* SCROLL SECTIONS - COMPACT spacing */
 .scroll-section {
-  min-height: 100vh;
+  min-height: auto; /* Changed from 100vh to auto */
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0rem 1.25rem;
+  padding: 3rem 1.25rem; /* Compact padding */
   background: #fff;
   position: relative;
   opacity: 0;
@@ -150,7 +150,7 @@ body {
   justify-content: center;
   align-items: center;
   min-height: 400px;
-  overflow: visible; /* Prevent cutting off animation */
+  overflow: visible;
 }
 
 /* Layered PNG Animation - SLOWER FADE IN */
@@ -159,7 +159,7 @@ body {
   width: 100%;
   max-width: 500px;
   height: auto;
-  overflow: visible; /* Ensure layers aren't cut off */
+  overflow: visible;
 }
 
 .animation-layer {
@@ -268,7 +268,7 @@ main {
 @media (max-width: 768px) {
   .hero {
     height: 50vh;
-    margin: 2rem auto 0.5rem; /* Reduced spacing on mobile too */
+    margin: 2rem auto 0;
     padding: 0 1rem;
     border-radius: 2px;
   }
@@ -279,8 +279,7 @@ main {
   }
   
   .scroll-section {
-    min-height: auto;
-    padding: 1rem 1.25rem;
+    padding: 2rem 1.25rem; /* Reduced on mobile */
   }
   
   .section-animation {
@@ -384,17 +383,6 @@ main {
     </div>
     <div class="section-animation">
       <!-- Add your next animation layers here when ready -->
-      <!-- Example structure:
-      <div class="animation-layers">
-        <div class="animation-layer">
-          <img src="icons/animation2_1.png" alt="Animation 2 layer 1">
-        </div>
-        <div class="animation-layer">
-          <img src="icons/animation2_2.png" alt="Animation 2 layer 2">
-        </div>
-        ... add more layers as needed
-      </div>
-      -->
     </div>
   </div>
 </section>
