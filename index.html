@@ -82,6 +82,7 @@ body {
   font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   line-height: 1.6;
   color: #111;
+  background: #fff;
 }
 
 /* HERO IMAGE */
@@ -89,7 +90,7 @@ body {
   position: relative;
   max-width: 1100px;
   height: 70vh;
-  margin: 3rem auto;
+  margin: 3rem auto 0;
   padding: 0 1.25rem;
   overflow: hidden;
 }
@@ -110,16 +111,24 @@ body {
   opacity: 1;
 }
 
-/* SCROLL SECTIONS */
+/* SCROLL SECTIONS - Overlapping design */
 .scroll-section {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 4rem 1.25rem;
+  padding: 2rem 1.25rem;
+  background: #fff;
+  position: relative;
+  margin-top: -20vh; /* Overlap with previous section */
   opacity: 0;
   transform: translateY(30px);
   transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+/* First section overlaps with hero */
+.scroll-section:first-of-type {
+  margin-top: -30vh;
 }
 
 .scroll-section.visible {
@@ -164,7 +173,7 @@ body {
   width: 100%;
   height: auto;
   opacity: 0;
-  transition: opacity 0.8s ease-out;
+  transition: opacity 1s ease-out; /* Faster fade-in */
 }
 
 .animation-layer img {
@@ -173,30 +182,30 @@ body {
   display: block;
 }
 
-/* Staggered fade-in for each layer */
+/* Faster staggered fade-in for each layer */
 .scroll-section.visible .animation-layer:nth-child(1) {
   opacity: 1;
-  transition-delay: 0.2s;
+  transition-delay: 0.3s;
 }
 
 .scroll-section.visible .animation-layer:nth-child(2) {
   opacity: 1;
-  transition-delay: 0.5s;
+  transition-delay: 0.6s;
 }
 
 .scroll-section.visible .animation-layer:nth-child(3) {
   opacity: 1;
-  transition-delay: 0.8s;
+  transition-delay: 0.7s;
 }
 
 .scroll-section.visible .animation-layer:nth-child(4) {
   opacity: 1;
-  transition-delay: 1.1s;
+  transition-delay: 0.9s;
 }
 
 .scroll-section.visible .animation-layer:nth-child(5) {
   opacity: 1;
-  transition-delay: 1.4s;
+  transition-delay: 1s;
 }
 
 /* REGULAR CONTENT - After scroll sections */
@@ -258,12 +267,20 @@ main {
   .animation-layers {
     max-width: 400px;
   }
+  
+  .scroll-section {
+    margin-top: -10vh; /* Less overlap on smaller screens */
+  }
+  
+  .scroll-section:first-of-type {
+    margin-top: -15vh;
+  }
 }
 
 @media (max-width: 768px) {
   .hero {
     height: 50vh;
-    margin: 2rem auto;
+    margin: 2rem auto 0;
     padding: 0 1rem;
     border-radius: 2px;
   }
@@ -275,7 +292,12 @@ main {
   
   .scroll-section {
     min-height: auto;
-    padding: 3rem 1.25rem;
+    padding: 2rem 1.25rem;
+    margin-top: -5vh;
+  }
+  
+  .scroll-section:first-of-type {
+    margin-top: -10vh;
   }
   
   .section-animation {
@@ -292,6 +314,7 @@ main {
   color: #888;
   padding: 2rem 1.25rem;
   text-align: center;
+  margin-top: 3rem;
 }
 
 @media (min-width: 640px) {
