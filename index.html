@@ -90,7 +90,7 @@ body {
   position: relative;
   max-width: 1100px;
   height: 70vh;
-  margin: 3rem auto 0; /* NO bottom margin */
+  margin: 3rem auto 0;
   padding: 0 1.25rem;
   overflow: hidden;
 }
@@ -111,15 +111,15 @@ body {
   opacity: 1;
 }
 
-/* SCROLL SECTIONS - COMPACT spacing */
+/* SCROLL SECTIONS - COMPACT spacing, NO background */
 .scroll-section {
-  min-height: auto; /* Changed from 100vh to auto */
+  min-height: auto;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 3rem 1.25rem; /* Compact padding */
-  background: #fff;
+  padding: 3rem 1.25rem;
   position: relative;
+  /* REMOVED: background: #fff; - This was causing the white rectangle */
   opacity: 0;
   transform: translateY(30px);
   transition: opacity 0.8s ease-out, transform 0.8s ease-out;
@@ -279,7 +279,7 @@ main {
   }
   
   .scroll-section {
-    padding: 2rem 1.25rem; /* Reduced on mobile */
+    padding: 2rem 1.25rem;
   }
   
   .section-animation {
