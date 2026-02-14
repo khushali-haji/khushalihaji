@@ -85,15 +85,14 @@ body {
   background: #fff;
 }
 
-/* HERO IMAGE */
+/* HERO IMAGE - Full size, no cutting */
 .hero {
   position: relative;
   max-width: 1100px;
   height: 70vh;
-  margin: 3rem auto 0;
+  margin: 3rem auto;
   padding: 0 1.25rem;
   overflow: hidden;
-  z-index: 1; /* Keep hero on top when scrolling back */
 }
 
 .hero-bg {
@@ -112,39 +111,23 @@ body {
   opacity: 1;
 }
 
-/* SCROLL SECTIONS - Overlapping design */
+/* SCROLL SECTIONS - Reduced spacing */
 .scroll-section {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 2rem 1.25rem;
+  padding: 1rem 1.25rem; /* Reduced from 2rem */
   background: #fff;
   position: relative;
-  z-index: 2; /* Sections appear above hero */
   opacity: 0;
   transform: translateY(30px);
   transition: opacity 0.8s ease-out, transform 0.8s ease-out;
 }
 
-/* Create spacing using padding instead of negative margins */
-.scroll-section:first-of-type {
-  padding-top: 0;
-  margin-top: 0;
-}
-
 .scroll-section.visible {
   opacity: 1;
   transform: translateY(0);
-}
-
-/* Wrapper to control spacing between sections */
-.sections-wrapper {
-  background: #fff;
-  position: relative;
-  z-index: 2;
-  margin-top: -30vh; /* Only pull the wrapper up to overlap hero */
-  padding-top: 4rem; /* Space for first section */
 }
 
 .section-content {
@@ -278,16 +261,12 @@ main {
   .animation-layers {
     max-width: 400px;
   }
-  
-  .sections-wrapper {
-    margin-top: -15vh;
-  }
 }
 
 @media (max-width: 768px) {
   .hero {
     height: 50vh;
-    margin: 2rem auto 0;
+    margin: 2rem auto;
     padding: 0 1rem;
     border-radius: 2px;
   }
@@ -299,12 +278,7 @@ main {
   
   .scroll-section {
     min-height: auto;
-    padding: 2rem 1.25rem;
-  }
-  
-  .sections-wrapper {
-    margin-top: -10vh;
-    padding-top: 2rem;
+    padding: 1rem 1.25rem;
   }
   
   .section-animation {
@@ -357,14 +331,11 @@ main {
   </div>
 </header>
 
-<!-- HERO -->
+<!-- HERO - Full size -->
 <section class="hero">
   <div class="hero-bg hero-a"></div>
   <div class="hero-bg hero-b"></div>
 </section>
-
-<!-- SECTIONS WRAPPER - Prevents cutting off hero when scrolling back -->
-<div class="sections-wrapper">
 
 <!-- FIRST SCROLL SECTION - Venn Diagram Animation -->
 <section class="scroll-section" id="section-1">
@@ -481,8 +452,6 @@ main {
     </div>
   </div>
 </section>
-
-</div> <!-- End sections-wrapper -->
 
 <!-- SCRIPTS -->
 <script>
