@@ -252,19 +252,22 @@ main {
   
   .section-text {
     font-size: 1.1rem;
-    margin-bottom: 2rem;
+    margin-bottom: 0.5rem; /* Reduced space below text */
   }
   
   .section-animation {
     position: relative;
-    left: -3rem; /* Move to the left */
-    margin-top: 1rem; /* Space below text */
-    min-height: 350px;
-    justify-content: flex-start; /* Align to left */
+    width: 60%; /* Proportional width */
+    margin-left: auto; /* Right align */
+    margin-right: 0;
+    margin-top: 0; /* No extra top margin */
+    margin-bottom: 2rem; /* Space before next section */
+    min-height: 300px;
+    justify-content: flex-end; /* Align content to right */
   }
   
   .animation-layers {
-    max-width: 450px;
+    max-width: 100%; /* Use full container width */
   }
 }
 
@@ -278,8 +281,8 @@ main {
   }
 
   .section-content {
-    grid-template-columns: 1fr; /* Single column */
-    gap: 2rem;
+    display: flex;
+    flex-direction: column; /* Column layout */
   }
 
   .intro,
@@ -291,19 +294,21 @@ main {
     padding: 2rem 1.25rem;
   }
   
+  .section-text {
+    order: 1; /* Text comes first */
+    margin-bottom: 1.5rem;
+  }
+  
   .section-animation {
     order: 2; /* Animation comes AFTER text */
     min-height: auto;
-    margin-top: 1.5rem; /* Space below text */
-  }
-  
-  .section-text {
-    order: 1; /* Text comes first */
+    margin-bottom: 2rem; /* Space before next section */
+    width: 100%;
+    justify-content: center;
   }
   
   .animation-layers {
-    max-width: 100%; /* Full width on mobile */
-    max-width: 400px; /* But capped at reasonable size */
+    max-width: 350px; /* Good size for mobile */
   }
 }
 
