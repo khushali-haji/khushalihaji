@@ -93,6 +93,7 @@ body {
   margin: 3rem auto 0;
   padding: 0 1.25rem;
   overflow: hidden;
+  z-index: 1; /* Keep hero on top when scrolling back */
 }
 
 .hero-bg {
@@ -120,20 +121,30 @@ body {
   padding: 2rem 1.25rem;
   background: #fff;
   position: relative;
-  margin-top: -20vh; /* Overlap with previous section */
+  z-index: 2; /* Sections appear above hero */
   opacity: 0;
   transform: translateY(30px);
   transition: opacity 0.8s ease-out, transform 0.8s ease-out;
 }
 
-/* First section overlaps with hero */
+/* Create spacing using padding instead of negative margins */
 .scroll-section:first-of-type {
-  margin-top: -30vh;
+  padding-top: 0;
+  margin-top: 0;
 }
 
 .scroll-section.visible {
   opacity: 1;
   transform: translateY(0);
+}
+
+/* Wrapper to control spacing between sections */
+.sections-wrapper {
+  background: #fff;
+  position: relative;
+  z-index: 2;
+  margin-top: -30vh; /* Only pull the wrapper up to overlap hero */
+  padding-top: 4rem; /* Space for first section */
 }
 
 .section-content {
@@ -158,7 +169,7 @@ body {
   min-height: 400px;
 }
 
-/* Layered PNG Animation */
+/* Layered PNG Animation - SLOWER FADE IN */
 .animation-layers {
   position: relative;
   width: 100%;
@@ -173,7 +184,7 @@ body {
   width: 100%;
   height: auto;
   opacity: 0;
-  transition: opacity 1s ease-out; /* Faster fade-in */
+  transition: opacity 1.2s ease-out; /* SLOWER: 1.2 seconds fade */
 }
 
 .animation-layer img {
@@ -182,30 +193,30 @@ body {
   display: block;
 }
 
-/* Faster staggered fade-in for each layer */
+/* SLOWER staggered fade-in for each layer */
 .scroll-section.visible .animation-layer:nth-child(1) {
   opacity: 1;
-  transition-delay: 0.3s;
+  transition-delay: 0.3s; /* Layer 1: starts at 0.3s */
 }
 
 .scroll-section.visible .animation-layer:nth-child(2) {
   opacity: 1;
-  transition-delay: 0.6s;
+  transition-delay: 0.8s; /* Layer 2: starts at 0.8s */
 }
 
 .scroll-section.visible .animation-layer:nth-child(3) {
   opacity: 1;
-  transition-delay: 0.7s;
+  transition-delay: 1.3s; /* Layer 3: starts at 1.3s */
 }
 
 .scroll-section.visible .animation-layer:nth-child(4) {
   opacity: 1;
-  transition-delay: 0.9s;
+  transition-delay: 1.8s; /* Layer 4: starts at 1.8s */
 }
 
 .scroll-section.visible .animation-layer:nth-child(5) {
   opacity: 1;
-  transition-delay: 1s;
+  transition-delay: 2.3s; /* Layer 5: starts at 2.3s */
 }
 
 /* REGULAR CONTENT - After scroll sections */
@@ -268,11 +279,7 @@ main {
     max-width: 400px;
   }
   
-  .scroll-section {
-    margin-top: -10vh; /* Less overlap on smaller screens */
-  }
-  
-  .scroll-section:first-of-type {
+  .sections-wrapper {
     margin-top: -15vh;
   }
 }
@@ -293,11 +300,11 @@ main {
   .scroll-section {
     min-height: auto;
     padding: 2rem 1.25rem;
-    margin-top: -5vh;
   }
   
-  .scroll-section:first-of-type {
+  .sections-wrapper {
     margin-top: -10vh;
+    padding-top: 2rem;
   }
   
   .section-animation {
@@ -355,6 +362,9 @@ main {
   <div class="hero-bg hero-a"></div>
   <div class="hero-bg hero-b"></div>
 </section>
+
+<!-- SECTIONS WRAPPER - Prevents cutting off hero when scrolling back -->
+<div class="sections-wrapper">
 
 <!-- FIRST SCROLL SECTION - Venn Diagram Animation -->
 <section class="scroll-section" id="section-1">
@@ -471,6 +481,8 @@ main {
     </div>
   </div>
 </section>
+
+</div> <!-- End sections-wrapper -->
 
 <!-- SCRIPTS -->
 <script>
