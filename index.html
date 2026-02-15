@@ -152,10 +152,18 @@ body {
   overflow: visible;
 }
 
-/* DESKTOP: Section-1 stays in grid */
+/* DESKTOP: Section-1 specific - push graphic down diagonally */
 #section-1 {
   padding-top: 1rem;
   padding-bottom: 3rem;
+}
+
+#section-1 .section-content {
+  align-items: flex-start; /* Top align instead of center */
+}
+
+#section-1 .section-animation {
+  margin-top: 3rem; /* Push down diagonally */
 }
 
 /* Layered PNG Animation */
@@ -163,7 +171,7 @@ body {
   position: relative;
   width: 100%;
   max-width: 450px;
-  height: 450px; /* Fixed height to prevent overflow */
+  height: 450px;
 }
 
 .animation-layer {
@@ -263,7 +271,7 @@ main {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 2rem;
+    gap: 1rem; /* Reduced gap */
   }
   
   #section-1 .section-text {
@@ -272,13 +280,24 @@ main {
   }
   
   #section-1 .section-animation {
-    width: 60%;
-    align-self: flex-end; /* Right align */
+    width: 70%; /* Larger width */
+    align-self: flex-end;
+    margin-top: 0; /* Reset desktop margin */
   }
   
   #section-1 .animation-layers {
     max-width: 100%;
-    height: 350px;
+    height: 300px; /* Reduced height for crop effect */
+    overflow: hidden; /* Crop top/bottom */
+  }
+  
+  #section-1 .animation-layer img {
+    width: 120%; /* Zoom in 20% */
+    height: 120%;
+    object-fit: cover; /* Crop instead of contain */
+    object-position: center; /* Center the crop */
+    margin-left: -10%; /* Re-center after zoom */
+    margin-top: -10%;
   }
   
   /* Other sections single column */
@@ -298,6 +317,7 @@ main {
 
   .section-text {
     padding-left: 2rem;
+    padding-right: 2rem; /* Same padding on both sides */
   }
 
   /* Section-1: Stack vertically */
@@ -309,7 +329,7 @@ main {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 2rem;
+    gap: 1rem; /* Reduced gap */
   }
 
   .intro,
@@ -327,11 +347,22 @@ main {
   
   #section-1 .section-animation {
     width: 100%;
+    margin-top: 0; /* Reset desktop margin */
   }
   
   #section-1 .animation-layers {
-    max-width: 300px;
-    height: 300px;
+    max-width: 350px; /* Larger size */
+    height: 280px; /* Reduced height for crop effect */
+    overflow: hidden; /* Crop top/bottom */
+  }
+  
+  #section-1 .animation-layer img {
+    width: 130%; /* Zoom in 30% */
+    height: 130%;
+    object-fit: cover; /* Crop instead of contain */
+    object-position: center;
+    margin-left: -15%; /* Re-center after zoom */
+    margin-top: -15%;
   }
   
   /* Other sections single column */
