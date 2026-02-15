@@ -85,7 +85,7 @@ body {
   background: #fff;
 }
 
-/* HERO IMAGE - No bottom margin */
+/* HERO IMAGE */
 .hero {
   position: relative;
   max-width: 1100px;
@@ -111,7 +111,7 @@ body {
   opacity: 1;
 }
 
-/* SCROLL SECTIONS - COMPACT spacing, NO background */
+/* SCROLL SECTIONS */
 .scroll-section {
   min-height: auto;
   display: flex;
@@ -122,11 +122,6 @@ body {
   opacity: 0;
   transform: translateY(30px);
   transition: opacity 0.8s ease-out, transform 0.8s ease-out;
-}
-
-/* DESKTOP: Reduce space between hero and first para */
-#section-1 {
-  padding-top: 1rem; /* Reduced from 3rem */
 }
 
 .scroll-section.visible {
@@ -146,7 +141,7 @@ body {
 .section-text {
   font-size: 1.2rem;
   max-width: 620px;
-  padding-left: 3rem; /* DESKTOP: Increased left padding */
+  padding-left: 3rem;
 }
 
 .section-animation {
@@ -157,12 +152,18 @@ body {
   overflow: visible;
 }
 
-/* Layered PNG Animation - SLOWER FADE IN */
+/* DESKTOP: Section-1 stays in grid */
+#section-1 {
+  padding-top: 1rem;
+  padding-bottom: 3rem;
+}
+
+/* Layered PNG Animation */
 .animation-layers {
   position: relative;
   width: 100%;
-  max-width: 450px; /* Slightly smaller for desktop */
-  height: auto;
+  max-width: 450px;
+  height: 450px; /* Fixed height to prevent overflow */
 }
 
 .animation-layer {
@@ -170,21 +171,19 @@ body {
   top: 0;
   left: 0;
   width: 100%;
-  height: auto;
+  height: 100%;
   opacity: 0;
   transition: opacity 1.2s ease-out;
 }
 
 .animation-layer img {
   width: 100%;
-  height: auto;
+  height: 100%;
   display: block;
-  object-fit: contain; /* Maintain aspect ratio */
-  max-height: 450px; /* Crop height for desktop */
-  object-position: center; /* Center the crop */
+  object-fit: contain;
 }
 
-/* SLOWER staggered fade-in for each layer */
+/* Staggered fade-in */
 .scroll-section.visible .animation-layer:nth-child(1) {
   opacity: 1;
   transition-delay: 0.3s;
@@ -210,7 +209,6 @@ body {
   transition-delay: 2.3s;
 }
 
-/* REGULAR CONTENT - After scroll sections */
 main {
   max-width: 960px;
   margin-left: auto;
@@ -253,44 +251,39 @@ main {
 /* TABLET VIEW (between 768px and 1024px) */
 @media (max-width: 1024px) and (min-width: 769px) {
   .section-text {
-    padding-left: 3rem; /* TABLET: Increased left padding */
+    padding-left: 3rem;
   }
   
-  /* Make section-1 a complete block with proper stacking */
+  /* Section-1: Stack vertically */
   #section-1 {
-    padding-bottom: 2rem; /* Space after entire section */
+    padding-bottom: 3rem;
   }
   
   #section-1 .section-content {
     display: flex;
-    flex-direction: column; /* Stack vertically */
-    gap: 1.5rem; /* Space between text and graphic */
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2rem;
   }
   
   #section-1 .section-text {
     font-size: 1.1rem;
-    order: 1; /* Text first */
+    width: 100%;
   }
   
   #section-1 .section-animation {
-    order: 2; /* Graphic second */
     width: 60%;
-    margin-left: auto;
-    margin-right: 0;
-    justify-content: flex-end;
+    align-self: flex-end; /* Right align */
   }
   
   #section-1 .animation-layers {
     max-width: 100%;
+    height: 350px;
   }
   
-  #section-1 .animation-layer img {
-    max-height: none; /* Full height on tablet */
-  }
-  
-  /* Section-2 starts after section-1 is complete */
-  #section-2 {
-    padding-top: 3rem; /* Normal padding */
+  /* Other sections single column */
+  .section-content {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -304,18 +297,19 @@ main {
   }
 
   .section-text {
-    padding-left: 2rem; /* MOBILE: Increased left padding */
+    padding-left: 2rem;
   }
 
-  /* Make section-1 a complete block with proper stacking */
+  /* Section-1: Stack vertically */
   #section-1 {
-    padding-bottom: 2rem; /* Space after entire section */
+    padding-bottom: 2rem;
   }
   
   #section-1 .section-content {
     display: flex;
-    flex-direction: column; /* Stack vertically */
-    gap: 1.5rem; /* Space between text and graphic */
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
   }
 
   .intro,
@@ -328,26 +322,21 @@ main {
   }
   
   #section-1 .section-text {
-    order: 1; /* Text first */
+    width: 100%;
   }
   
   #section-1 .section-animation {
-    order: 2; /* Graphic second */
     width: 100%;
-    justify-content: center;
   }
   
   #section-1 .animation-layers {
-    max-width: 350px;
+    max-width: 300px;
+    height: 300px;
   }
   
-  #section-1 .animation-layer img {
-    max-height: none; /* Full height on mobile */
-  }
-  
-  /* Section-2 starts after section-1 is complete */
-  #section-2 {
-    padding-top: 2rem; /* Normal padding */
+  /* Other sections single column */
+  .section-content {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -392,7 +381,7 @@ main {
   </div>
 </header>
 
-<!-- HERO - Full size -->
+<!-- HERO -->
 <section class="hero">
   <div class="hero-bg hero-a"></div>
   <div class="hero-bg hero-b"></div>
@@ -408,23 +397,18 @@ main {
     </div>
     <div class="section-animation">
       <div class="animation-layers">
-        <!-- Layer 1 - First PNG -->
         <div class="animation-layer">
           <img src="icons/venn_1.png" alt="Venn diagram layer 1">
         </div>
-        <!-- Layer 2 - Second PNG -->
         <div class="animation-layer">
           <img src="icons/venn_2.png" alt="Venn diagram layer 2">
         </div>
-        <!-- Layer 3 - Third PNG -->
         <div class="animation-layer">
           <img src="icons/venn_3.png" alt="Venn diagram layer 3">
         </div>
-        <!-- Layer 4 - Fourth PNG -->
         <div class="animation-layer">
           <img src="icons/venn_4.png" alt="Venn diagram layer 4">
         </div>
-        <!-- Layer 5 - Fifth PNG -->
         <div class="animation-layer">
           <img src="icons/venn_5.png" alt="Venn diagram layer 5">
         </div>
@@ -433,7 +417,7 @@ main {
   </div>
 </section>
 
-<!-- SECOND SCROLL SECTION - Placeholder for next animation -->
+<!-- SECOND SCROLL SECTION -->
 <section class="scroll-section" id="section-2">
   <div class="section-content">
     <div class="section-text">
@@ -442,12 +426,12 @@ main {
       </p>
     </div>
     <div class="section-animation">
-      <!-- Add your next animation layers here when ready -->
+      <!-- Add animation here -->
     </div>
   </div>
 </section>
 
-<!-- THIRD SCROLL SECTION - Placeholder -->
+<!-- THIRD SCROLL SECTION -->
 <section class="scroll-section" id="section-3">
   <div class="section-content">
     <div class="section-text">
@@ -456,12 +440,12 @@ main {
       </p>
     </div>
     <div class="section-animation">
-      <!-- Add animation layers here -->
+      <!-- Add animation here -->
     </div>
   </div>
 </section>
 
-<!-- FOURTH SCROLL SECTION - Placeholder -->
+<!-- FOURTH SCROLL SECTION -->
 <section class="scroll-section" id="section-4">
   <div class="section-content">
     <div class="section-text">
@@ -470,12 +454,12 @@ main {
       </p>
     </div>
     <div class="section-animation">
-      <!-- Add animation layers here -->
+      <!-- Add animation here -->
     </div>
   </div>
 </section>
 
-<!-- FIFTH SCROLL SECTION - Placeholder -->
+<!-- FIFTH SCROLL SECTION -->
 <section class="scroll-section" id="section-5">
   <div class="section-content">
     <div class="section-text">
@@ -484,12 +468,12 @@ main {
       </p>
     </div>
     <div class="section-animation">
-      <!-- Add animation layers here -->
+      <!-- Add animation here -->
     </div>
   </div>
 </section>
 
-<!-- SIXTH SCROLL SECTION - Placeholder -->
+<!-- SIXTH SCROLL SECTION -->
 <section class="scroll-section" id="section-6">
   <div class="section-content">
     <div class="section-text">
@@ -498,12 +482,11 @@ main {
       </p>
     </div>
     <div class="section-animation">
-      <!-- Add animation layers here -->
+      <!-- Add animation here -->
     </div>
   </div>
 </section>
 
-<!-- SCRIPTS -->
 <script>
   // Hero image carousel
   const images = [
@@ -522,13 +505,11 @@ main {
   let current = 0;
   let showingA = true;
 
-  // Set initial image
   heroA.style.backgroundImage = `url(${images[0]})`;
   heroA.classList.add("active");
 
   setInterval(() => {
     const next = (current + 1) % images.length;
-
     const incoming = showingA ? heroB : heroA;
     const outgoing = showingA ? heroA : heroB;
 
@@ -538,21 +519,19 @@ main {
 
     current = next;
     showingA = !showingA;
-
   }, 4500);
 
-  // Scroll zoom (applies to both layers)
   window.addEventListener("scroll", () => {
     const scale = 0.98 + window.scrollY / 4000;
     heroA.style.transform = `scale(${scale})`;
     heroB.style.transform = `scale(${scale})`;
   });
 
-  // Scroll-triggered animations using Intersection Observer
+  // Scroll-triggered animations
   const observerOptions = {
     root: null,
     rootMargin: '0px',
-    threshold: 0.3 // Trigger when 30% of section is visible
+    threshold: 0.3
   };
 
   const observer = new IntersectionObserver((entries) => {
@@ -560,14 +539,9 @@ main {
       if (entry.isIntersecting) {
         entry.target.classList.add('visible');
       }
-      // Optional: Uncomment to re-trigger animation when scrolling back
-      // else {
-      //   entry.target.classList.remove('visible');
-      // }
     });
   }, observerOptions);
 
-  // Observe all scroll sections
   document.querySelectorAll('.scroll-section').forEach(section => {
     observer.observe(section);
   });
