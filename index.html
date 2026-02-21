@@ -159,7 +159,7 @@ body {
 #section-4,
 #section-5 {
   padding-top: 1rem;
-  padding-bottom: 0.5rem;
+  padding-bottom: 2rem; /* Increased space between paras */
 }
 
 #section-1 .section-content,
@@ -176,6 +176,16 @@ body {
 #section-4 .section-animation,
 #section-5 .section-animation {
   margin-top: 2rem;
+}
+
+/* Venn icon - shift more to the right */
+#section-1 .section-animation {
+  margin-left: 2rem;
+}
+
+/* Grid icon - smaller size */
+#section-2 .animation-layers {
+  max-width: 320px;
 }
 
 #section-6 {
@@ -208,13 +218,13 @@ body {
   object-fit: contain;
 }
 
-/* City graphic scale animation - starts small then grows */
-#section-5 .animation-layer:last-child {
+/* City graphic scale animation - only layer 2 scales */
+#section-5 .animation-layer:nth-child(2) {
   transform: scale(0.8);
   transition: opacity 1.2s ease-out, transform 1.2s ease-out;
 }
 
-#section-5.visible .animation-layer:last-child {
+#section-5.visible .animation-layer:nth-child(2) {
   transform: scale(1);
 }
 
@@ -232,6 +242,21 @@ body {
 .scroll-section.visible .animation-layer:nth-child(3) {
   opacity: 1;
   transition-delay: 1.3s;
+}
+
+/* Video icon - increased delay for layer 2 */
+#section-3.visible .animation-layer:nth-child(2) {
+  transition-delay: 1.5s;
+}
+
+/* Globe icon - increased delay for layer 2 */
+#section-4.visible .animation-layer:nth-child(2) {
+  transition-delay: 1.5s;
+}
+
+/* City icon - increased delay for layer 2 */
+#section-5.visible .animation-layer:nth-child(2) {
+  transition-delay: 1.5s;
 }
 
 main {
@@ -263,7 +288,7 @@ main {
 }
 
 .intro {
-  font-size: 1rem;
+  font-size: 1.2rem; /* Same as .top */
   max-width: 620px;
   margin-bottom: 2rem;
 }
@@ -432,7 +457,7 @@ main {
       <a href="https://khushalimhaji.wordpress.com/urban-design/">Urban / Design</a>
       <a href="https://khushalimhaji.wordpress.com/videos/">Video</a>
       <a href="https://khushalimhaji.wordpress.com/misc-projects/">Misc Projects</a>
-      <a href="mailto:khushali.haji@gmail.com" class="contact-btn">Contact</a>
+      <a href="/cdn-cgi/l/email-protection#f09b98858398919c99de98919a99b0979d91999cde939f9d" class="contact-btn">Contact</a>
     </nav>
   </div>
 </header>
@@ -570,7 +595,7 @@ main {
   </div>
 </section>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
   // Hero image carousel
   const images = [
     "images/hero-01.jpg",
