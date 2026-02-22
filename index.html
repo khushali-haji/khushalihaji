@@ -159,7 +159,7 @@ body {
 #section-4,
 #section-5 {
   padding-top: 1rem;
-  padding-bottom: 2rem; /* Increased space between paras */
+  padding-bottom: 2rem;
 }
 
 #section-1 .section-content,
@@ -185,20 +185,20 @@ body {
 
 /* Grid icon - smaller size */
 #section-2 .animation-layers {
-  max-width: 320px;
+  max-width: 280px;
 }
 
 #section-6 {
   padding-top: 0.5rem;
 }
 
-/* Layered PNG Animation - All graphics same dimensions */
+/* Layered PNG Animation - Smaller icons */
 .animation-layers {
   position: relative;
   width: 100%;
-  max-width: 400px;
+  max-width: 350px; /* Smaller size */
   height: auto;
-  aspect-ratio: 794 / 574; /* Match your image dimensions */
+  aspect-ratio: 794 / 574;
 }
 
 .animation-layer {
@@ -216,46 +216,87 @@ body {
   height: 100%;
   display: block;
   object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
 }
 
-/* City graphic scale animation - only layer 2 scales */
+/* VENN ICON - Layers replace each other */
+#section-1.visible .animation-layer:nth-child(1) {
+  opacity: 1;
+  transition-delay: 0.3s;
+}
+
+#section-1.visible .animation-layer:nth-child(2) {
+  opacity: 1;
+  transition-delay: 0.8s;
+}
+
+/* Hide layer 1 when layer 2 starts */
+#section-1.visible .animation-layer:nth-child(1) {
+  transition: opacity 0s 0.8s; /* Instant hide when layer 2 appears */
+}
+
+#section-1.visible .animation-layer:nth-child(3) {
+  opacity: 1;
+  transition-delay: 1.5s;
+}
+
+/* Hide layer 2 when layer 3 starts */
+#section-1.visible .animation-layer:nth-child(2) {
+  transition: opacity 0s 1.5s;
+}
+
+/* GRID ICON - Layer 2 replaces layer 1 */
+#section-2.visible .animation-layer:nth-child(1) {
+  opacity: 1;
+  transition-delay: 0.3s;
+  transition: opacity 0s 0.8s; /* Hide when layer 2 appears */
+}
+
+#section-2.visible .animation-layer:nth-child(2) {
+  opacity: 1;
+  transition-delay: 0.8s;
+}
+
+/* VIDEO ICON - Layer 2 replaces layer 1 */
+#section-3.visible .animation-layer:nth-child(1) {
+  opacity: 1;
+  transition-delay: 0.3s;
+  transition: opacity 0s 1.5s; /* Hide when layer 2 appears */
+}
+
+#section-3.visible .animation-layer:nth-child(2) {
+  opacity: 1;
+  transition-delay: 1.5s;
+}
+
+/* GLOBE ICON - Layer 2 replaces layer 1 (no layer 3) */
+#section-4.visible .animation-layer:nth-child(1) {
+  opacity: 1;
+  transition-delay: 0.3s;
+  transition: opacity 0s 1.5s;
+}
+
+#section-4.visible .animation-layer:nth-child(2) {
+  opacity: 1;
+  transition-delay: 1.5s;
+}
+
+/* CITY ICON - Layer 2 stacks on top of layer 1 (both visible) */
 #section-5 .animation-layer:nth-child(2) {
   transform: scale(0.8);
   transition: opacity 1.2s ease-out, transform 1.2s ease-out;
 }
 
-#section-5.visible .animation-layer:nth-child(2) {
-  transform: scale(1);
-}
-
-/* Staggered fade-in for all graphics */
-.scroll-section.visible .animation-layer:nth-child(1) {
+#section-5.visible .animation-layer:nth-child(1) {
   opacity: 1;
   transition-delay: 0.3s;
 }
 
-.scroll-section.visible .animation-layer:nth-child(2) {
-  opacity: 1;
-  transition-delay: 0.8s;
-}
-
-.scroll-section.visible .animation-layer:nth-child(3) {
-  opacity: 1;
-  transition-delay: 1.3s;
-}
-
-/* Video icon - increased delay for layer 2 */
-#section-3.visible .animation-layer:nth-child(2) {
-  transition-delay: 1.5s;
-}
-
-/* Globe icon - increased delay for layer 2 */
-#section-4.visible .animation-layer:nth-child(2) {
-  transition-delay: 1.5s;
-}
-
-/* City icon - increased delay for layer 2 */
 #section-5.visible .animation-layer:nth-child(2) {
+  opacity: 1;
+  transform: scale(1);
   transition-delay: 1.5s;
 }
 
@@ -288,7 +329,7 @@ main {
 }
 
 .intro {
-  font-size: 1.2rem; /* Same as .top */
+  font-size: 1.2rem;
   max-width: 620px;
   margin-bottom: 2rem;
 }
@@ -457,7 +498,7 @@ main {
       <a href="https://khushalimhaji.wordpress.com/urban-design/">Urban / Design</a>
       <a href="https://khushalimhaji.wordpress.com/videos/">Video</a>
       <a href="https://khushalimhaji.wordpress.com/misc-projects/">Misc Projects</a>
-      <a href="/cdn-cgi/l/email-protection#f09b98858398919c99de98919a99b0979d91999cde939f9d" class="contact-btn">Contact</a>
+      <a href="mailto:khushali.haji@gmail.com" class="contact-btn">Contact</a>
     </nav>
   </div>
 </header>
@@ -536,7 +577,7 @@ main {
   </div>
 </section>
 
-<!-- FOURTH SCROLL SECTION - Globe Animation -->
+<!-- FOURTH SCROLL SECTION - Globe Animation (2 layers only) -->
 <section class="scroll-section" id="section-4">
   <div class="section-content">
     <div class="section-text">
@@ -552,15 +593,12 @@ main {
         <div class="animation-layer">
           <img src="icons/globe_2.png" alt="Globe layer 2">
         </div>
-        <div class="animation-layer">
-          <img src="icons/globe_3.png" alt="Globe layer 3">
-        </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- FIFTH SCROLL SECTION - City Animation (with scale effect) -->
+<!-- FIFTH SCROLL SECTION - City Animation (layers stack) -->
 <section class="scroll-section" id="section-5">
   <div class="section-content">
     <div class="section-text">
@@ -595,7 +633,7 @@ main {
   </div>
 </section>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
   // Hero image carousel
   const images = [
     "images/hero-01.jpg",
