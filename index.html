@@ -85,11 +85,11 @@ body {
   background: #fff;
 }
 
-/* HERO GALLERY - Square, Interactive */
+/* HERO GALLERY - Landscape Rectangle */
 .hero-gallery {
   position: relative;
-  max-width: 600px; /* Narrower, more square */
-  height: 600px;
+  max-width: 800px; /* Wider */
+  height: 450px; /* Shorter */
   margin: 3rem auto;
   overflow: hidden;
 }
@@ -169,16 +169,26 @@ body {
 
 /* CONTENT SECTIONS */
 .content-wrapper {
-  max-width: 900px;
+  max-width: 1000px;
   margin: 0 auto;
-  padding: 2rem 4rem; /* Increased left padding */
+  padding: 2rem 1rem;
 }
 
 .text-block {
-  font-size: 1.3rem; /* Bigger text */
+  font-size: 1.3rem;
   line-height: 1.7;
   margin-bottom: 3rem;
   color: #111;
+  padding-left: 5rem; /* Increased left padding */
+  padding-right: 20%; /* Text takes 2/3rds from left, 1/3rd empty on right */
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+.text-block.visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 /* First paragraph */
@@ -186,21 +196,40 @@ body {
   text-align: left;
 }
 
-/* Center-aligned questions with spacing */
+/* Center-aligned questions with spacing - stacked vertically */
 .center-questions {
   text-align: center;
   font-style: italic;
   font-weight: bold;
-  margin: 4rem 0; /* Extra vertical spacing */
+  margin: 4rem 0;
   font-size: 1.4rem;
-  line-height: 1.8;
+  line-height: 2.2; /* More space between stacked questions */
+  padding-left: 15%; /* More padding from both sides */
+  padding-right: 15%;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
 }
 
-/* Icon containers - right aligned */
+.center-questions.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Icon containers - right aligned with more right padding */
 .icon-container {
   display: flex;
   justify-content: flex-end;
   margin: 3rem 0;
+  padding-right: 8rem; /* Increased right padding */
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+.icon-container.visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .icon-container.venn-icon {
@@ -295,25 +324,30 @@ body {
 /* TABLET VIEW */
 @media (max-width: 1024px) and (min-width: 769px) {
   .hero-gallery {
-    max-width: 500px;
-    height: 500px;
+    max-width: 700px;
+    height: 400px;
   }
 
   .content-wrapper {
-    padding: 2rem 3rem;
+    padding: 2rem 2rem;
   }
 
   .text-block {
     font-size: 1.2rem;
+    padding-left: 3rem;
+    padding-right: 15%;
   }
 
   .center-questions {
     font-size: 1.3rem;
+    padding-left: 10%;
+    padding-right: 10%;
   }
 
   /* Icons stack centered below paragraphs */
   .icon-container {
     justify-content: center;
+    padding-right: 0;
   }
 
   .animation-layers {
@@ -325,7 +359,7 @@ body {
 @media (max-width: 768px) {
   .hero-gallery {
     max-width: 90vw;
-    height: 90vw;
+    height: 60vw; /* Landscape ratio */
     margin: 2rem auto;
   }
 
@@ -344,22 +378,28 @@ body {
   }
 
   .content-wrapper {
-    padding: 2rem;
+    padding: 2rem 1rem;
   }
 
   .text-block {
     font-size: 1.1rem;
     margin-bottom: 2rem;
+    padding-left: 2rem;
+    padding-right: 10%;
   }
 
   .center-questions {
     font-size: 1.2rem;
     margin: 3rem 0;
+    padding-left: 8%;
+    padding-right: 8%;
+    line-height: 2;
   }
 
   /* Icons stack centered below paragraphs */
   .icon-container {
     justify-content: center;
+    padding-right: 0;
   }
 
   .animation-layers {
@@ -387,7 +427,7 @@ body {
       <a href="https://khushalimhaji.wordpress.com/urban-design/">Urban / Design</a>
       <a href="https://khushalimhaji.wordpress.com/videos/">Video</a>
       <a href="https://khushalimhaji.wordpress.com/misc-projects/">Misc Projects</a>
-      <a href="mailto:khushali.haji@gmail.com" class="contact-btn">Contact</a>
+      <a href="/cdn-cgi/l/email-protection#711a19040219101d185f19101b1831161c10181d5f121e1c" class="contact-btn">Contact</a>
     </nav>
   </div>
 </header>
@@ -482,7 +522,7 @@ body {
 
 </div>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
   // Hero gallery navigation
   const slides = document.querySelectorAll('.hero-slide');
   const prevBtn = document.querySelector('.hero-prev');
@@ -535,19 +575,20 @@ body {
     if (e.key === 'ArrowRight') nextSlide();
   });
 
-  // Icon scroll animations
-  const iconObserver = new IntersectionObserver((entries) => {
+  // Scroll-triggered animations for ALL elements (text and icons)
+  const scrollObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
         entry.target.classList.add('visible');
       }
     });
   }, {
-    threshold: 0.3
+    threshold: 0.2 // Trigger when 20% visible
   });
 
-  document.querySelectorAll('.icon-container').forEach(icon => {
-    iconObserver.observe(icon);
+  // Observe all text blocks, questions, and icons
+  document.querySelectorAll('.text-block, .center-questions, .icon-container').forEach(element => {
+    scrollObserver.observe(element);
   });
 </script>
 
