@@ -85,19 +85,21 @@ body {
   background: #fff;
 }
 
-/* HERO GALLERY - Landscape Rectangle */
+/* HERO GALLERY - Landscape Rectangle with peek of adjacent slides */
 .hero-gallery {
   position: relative;
-  max-width: 800px; /* Wider */
-  height: 450px; /* Shorter */
+  max-width: 900px; /* Wider to accommodate peek */
+  height: 450px;
   margin: 3rem auto;
-  overflow: hidden;
+  overflow: visible; /* Allow adjacent slides to peek */
 }
 
 .hero-slides {
   position: relative;
-  width: 100%;
+  width: 70%; /* Center slide takes 70% */
   height: 100%;
+  margin: 0 auto;
+  overflow: hidden;
 }
 
 .hero-slide {
@@ -105,13 +107,30 @@ body {
   width: 100%;
   height: 100%;
   opacity: 0;
-  transition: opacity 0.5s ease-in-out;
+  transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
   pointer-events: none;
+  z-index: 1;
 }
 
 .hero-slide.active {
   opacity: 1;
   pointer-events: auto;
+  z-index: 2;
+}
+
+/* Previous and next slides peek from sides */
+.hero-slide.prev-peek {
+  opacity: 0.4;
+  transform: translateX(-80%) scale(0.85);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.hero-slide.next-peek {
+  opacity: 0.4;
+  transform: translateX(80%) scale(0.85);
+  z-index: 0;
+  pointer-events: none;
 }
 
 .hero-slide img {
@@ -175,12 +194,12 @@ body {
 }
 
 .text-block {
-  font-size: 1.3rem;
+  font-size: 1.2rem; /* Reduced from 1.3rem - more compact */
   line-height: 1.7;
   margin-bottom: 3rem;
   color: #111;
-  padding-left: 5rem; /* Increased left padding */
-  padding-right: 30%; /* Text takes 2/3rds from left, 1/3rd empty on right */
+  padding-left: 5rem;
+  padding-right: 30%; /* Increased from 20% */
   opacity: 0;
   transform: translateY(20px);
   transition: opacity 0.8s ease-out, transform 0.8s ease-out;
@@ -196,16 +215,16 @@ body {
   text-align: left;
 }
 
-/* Center-aligned questions with spacing - stacked vertically */
+/* Center-aligned questions - same size as body, italic only, centered */
 .center-questions {
   text-align: center;
   font-style: italic;
-  font-weight: bold;
+  font-weight: normal; /* Removed bold */
   margin: 4rem 0;
-  font-size: 1.4rem;
-  line-height: 2.2; /* More space between stacked questions */
-  padding-left: 25%; /* More padding from both sides */
-  padding-right: 25%;
+  font-size: 1.2rem; /* Same as body text */
+  line-height: 2.2;
+  padding-left: 20%; /* Increased from 15% */
+  padding-right: 20%; /* Increased from 15% */
   opacity: 0;
   transform: translateY(20px);
   transition: opacity 0.8s ease-out, transform 0.8s ease-out;
@@ -333,15 +352,15 @@ body {
   }
 
   .text-block {
-    font-size: 1.2rem;
+    font-size: 1.1rem; /* Reduced - more compact */
     padding-left: 3rem;
-    padding-right: 23%;
+    padding-right: 22%; /* Increased from 15% */
   }
 
   .center-questions {
-    font-size: 1.3rem;
-    padding-left: 12%;
-    padding-right: 12%;
+    font-size: 1.1rem; /* Same as body text */
+    padding-left: 15%; /* Increased from 10% */
+    padding-right: 15%; /* Increased from 10% */
   }
 
   /* Icons stack centered below paragraphs */
@@ -523,7 +542,7 @@ body {
 </div>
 
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-  // Hero gallery navigation
+  // Hero gallery navigation with peek effect
   const slides = document.querySelectorAll('.hero-slide');
   const prevBtn = document.querySelector('.hero-prev');
   const nextBtn = document.querySelector('.hero-next');
@@ -531,8 +550,17 @@ body {
   let currentSlide = 0;
 
   function showSlide(index) {
-    slides.forEach(slide => slide.classList.remove('active'));
-    slides[index].classList.add('active');
+    slides.forEach((slide, i) => {
+      slide.classList.remove('active', 'prev-peek', 'next-peek');
+      
+      if (i === index) {
+        slide.classList.add('active');
+      } else if (i === (index - 1 + slides.length) % slides.length) {
+        slide.classList.add('prev-peek');
+      } else if (i === (index + 1) % slides.length) {
+        slide.classList.add('next-peek');
+      }
+    });
     caption.textContent = slides[index].dataset.caption;
   }
 
@@ -545,6 +573,9 @@ body {
     currentSlide = (currentSlide - 1 + slides.length) % slides.length;
     showSlide(currentSlide);
   }
+
+  // Initialize with peek effect
+  showSlide(0);
 
   nextBtn.addEventListener('click', nextSlide);
   prevBtn.addEventListener('click', prevSlide);
