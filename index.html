@@ -85,52 +85,53 @@ body {
   background: #fff;
 }
 
-/* HERO GALLERY - Landscape Rectangle with peek of adjacent slides */
+/* HERO GALLERY - Carousel with cropped peek of adjacent slides */
 .hero-gallery {
   position: relative;
-  max-width: 900px; /* Wider to accommodate peek */
+  max-width: 1000px;
   height: 450px;
   margin: 3rem auto;
-  overflow: visible; /* Allow adjacent slides to peek */
+  overflow: hidden; /* Crop the sides */
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .hero-slides {
   position: relative;
-  width: 70%; /* Center slide takes 70% */
-  height: 100%;
+  width: 800px; /* Main image width */
+  height: 450px;
   margin: 0 auto;
-  overflow: hidden;
 }
 
 .hero-slide {
   position: absolute;
-  width: 100%;
-  height: 100%;
+  width: 800px;
+  height: 450px;
   opacity: 0;
-  transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+  transition: all 0.5s ease-in-out;
   pointer-events: none;
-  z-index: 1;
 }
 
 .hero-slide.active {
   opacity: 1;
-  pointer-events: auto;
+  left: 0;
   z-index: 2;
+  pointer-events: auto;
 }
 
-/* Previous and next slides peek from sides */
+/* Previous slide - cropped peek on left */
 .hero-slide.prev-peek {
-  opacity: 0.4;
-  transform: translateX(-80%) scale(0.85);
-  z-index: 0;
-  pointer-events: none;
+  opacity: 0.6;
+  left: -700px; /* Mostly off-screen, shows ~100px on left */
+  z-index: 1;
 }
 
+/* Next slide - cropped peek on right */
 .hero-slide.next-peek {
-  opacity: 0.4;
-  transform: translateX(80%) scale(0.85);
-  z-index: 0;
-  pointer-events: none;
+  opacity: 0.6;
+  left: 700px; /* Mostly off-screen, shows ~100px on right */
+  z-index: 1;
 }
 
 .hero-slide img {
@@ -220,7 +221,7 @@ body {
   text-align: center;
   font-style: italic;
   font-weight: normal; /* Removed bold */
-  margin: 4rem 0;
+  margin: 5rem 0; /* Increased from 4rem - more space above and below */
   font-size: 1.2rem; /* Same as body text */
   line-height: 2.2;
   padding-left: 20%; /* Increased from 15% */
