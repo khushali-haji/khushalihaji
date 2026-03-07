@@ -85,118 +85,139 @@ body {
   background: #fff;
 }
 
-/* HERO IMAGE */
-.hero {
+/* HERO GALLERY - Square, Interactive */
+.hero-gallery {
   position: relative;
-  max-width: 1100px;
-  height: 70vh;
-  margin: 3rem auto 0;
-  padding: 0 1.25rem;
+  max-width: 600px; /* Narrower, more square */
+  height: 600px;
+  margin: 3rem auto;
   overflow: hidden;
 }
 
-.hero-bg {
-  position: absolute;
-  inset: 0;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  transform: scale(0.98);
-  transition: opacity 1.2s ease-in-out, transform 0.1s linear;
-  will-change: opacity, transform;
-  opacity: 0;
-}
-
-.hero-bg.active {
-  opacity: 1;
-}
-
-/* SCROLL SECTIONS */
-.scroll-section {
-  min-height: auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 3rem 1.25rem;
+.hero-slides {
   position: relative;
-  opacity: 0;
-  transform: translateY(30px);
-  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
-}
-
-.scroll-section.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.section-content {
-  max-width: 1200px;
   width: 100%;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 4rem;
-  align-items: center;
+  height: 100%;
 }
 
-.section-text {
+.hero-slide {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+  pointer-events: none;
+}
+
+.hero-slide.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.hero-slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Black and white filter for hero-04 */
+.hero-slide.bw img {
+  filter: grayscale(100%);
+}
+
+/* Navigation arrows */
+.hero-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.8);
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
   font-size: 1.2rem;
-  max-width: 620px;
-  padding-left: 3rem;
-}
-
-.section-animation {
-  position: relative;
   display: flex;
-  justify-content: center;
   align-items: center;
-  overflow: visible;
+  justify-content: center;
+  z-index: 10;
+  transition: background 0.2s;
 }
 
-/* DESKTOP: Push graphics down diagonally */
-#section-1,
-#section-2,
-#section-3,
-#section-4,
-#section-5 {
-  padding-top: 1rem;
-  padding-bottom: 2rem;
+.hero-nav:hover {
+  background: rgba(255, 255, 255, 1);
 }
 
-#section-1 .section-content,
-#section-2 .section-content,
-#section-3 .section-content,
-#section-4 .section-content,
-#section-5 .section-content {
-  align-items: flex-start;
+.hero-prev {
+  left: 1rem;
 }
 
-#section-1 .section-animation,
-#section-2 .section-animation,
-#section-3 .section-animation,
-#section-4 .section-animation,
-#section-5 .section-animation {
-  margin-top: 4rem; /* Increased from 2rem - more diagonal */
+.hero-next {
+  right: 1rem;
 }
 
-/* Venn icon - shift more to the right */
-#section-1 .section-animation {
-  margin-left: 2rem;
+/* Caption */
+.hero-caption {
+  text-align: center;
+  margin-top: 1rem;
+  font-style: italic;
+  font-size: 0.9rem;
+  color: #666;
+  min-height: 2.5rem;
 }
 
-/* Grid icon - smaller size */
-#section-2 .animation-layers {
-  max-width: 230px; /* Reduced from 280px */
+/* CONTENT SECTIONS */
+.content-wrapper {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 4rem; /* Increased left padding */
 }
 
-#section-6 {
-  padding-top: 0.5rem;
+.text-block {
+  font-size: 1.3rem; /* Bigger text */
+  line-height: 1.7;
+  margin-bottom: 3rem;
+  color: #111;
 }
 
-/* Layered PNG Animation - Smaller icons in desktop */
+/* First paragraph */
+.intro-text {
+  text-align: left;
+}
+
+/* Center-aligned questions with spacing */
+.center-questions {
+  text-align: center;
+  font-style: italic;
+  font-weight: bold;
+  margin: 4rem 0; /* Extra vertical spacing */
+  font-size: 1.4rem;
+  line-height: 1.8;
+}
+
+/* Icon containers - right aligned */
+.icon-container {
+  display: flex;
+  justify-content: flex-end;
+  margin: 3rem 0;
+}
+
+.icon-container.venn-icon {
+  margin-top: 2rem;
+  margin-bottom: 4rem;
+}
+
+.icon-container.city-icon {
+  margin-top: 2rem;
+  margin-bottom: 4rem;
+}
+
+/* Animated icons - larger now */
 .animation-layers {
   position: relative;
   width: 100%;
-  max-width: 300px; /* Reduced from 350px */
+  max-width: 400px; /* Larger icons */
   height: auto;
   aspect-ratio: 794 / 574;
 }
@@ -221,264 +242,132 @@ body {
   -webkit-user-drag: none;
 }
 
-/* VENN ICON - Layers replace each other */
-#section-1.visible .animation-layer:nth-child(1) {
+/* VENN ICON - Slower transitions, more time between */
+.venn-icon.visible .animation-layer:nth-child(1) {
   opacity: 1;
-  transition-delay: 0.3s;
+  transition-delay: 0.5s;
 }
 
-#section-1.visible .animation-layer:nth-child(2) {
+.venn-icon.visible .animation-layer:nth-child(2) {
   opacity: 1;
-  transition-delay: 0.8s;
+  transition-delay: 1.5s; /* Increased delay */
 }
 
-/* Hide layer 1 when layer 2 starts */
-#section-1.visible .animation-layer:nth-child(1) {
-  transition: opacity 0s 0.8s;
-}
-
-#section-1.visible .animation-layer:nth-child(3) {
-  opacity: 1;
-  transition-delay: 2.2s; /* Increased delay - more time between 2 and 3 */
-}
-
-/* Hide layer 2 when layer 3 starts */
-#section-1.visible .animation-layer:nth-child(2) {
-  transition: opacity 0s 2.2s;
-}
-
-/* GRID ICON - Layer 2 replaces layer 1 */
-#section-2.visible .animation-layer:nth-child(1) {
-  opacity: 1;
-  transition-delay: 0.3s;
-  transition: opacity 0s 0.8s; /* Hide when layer 2 appears */
-}
-
-#section-2.visible .animation-layer:nth-child(2) {
-  opacity: 1;
-  transition-delay: 0.8s;
-}
-
-/* VIDEO ICON - Layer 2 replaces layer 1 */
-#section-3.visible .animation-layer:nth-child(1) {
-  opacity: 1;
-  transition-delay: 0.3s;
-  transition: opacity 0s 1.5s; /* Hide when layer 2 appears */
-}
-
-#section-3.visible .animation-layer:nth-child(2) {
-  opacity: 1;
-  transition-delay: 1.5s;
-}
-
-/* GLOBE ICON - Layer 2 replaces layer 1 (no layer 3) */
-#section-4.visible .animation-layer:nth-child(1) {
-  opacity: 1;
-  transition-delay: 0.3s;
+.venn-icon.visible .animation-layer:nth-child(1) {
   transition: opacity 0s 1.5s;
 }
 
-#section-4.visible .animation-layer:nth-child(2) {
+.venn-icon.visible .animation-layer:nth-child(3) {
   opacity: 1;
-  transition-delay: 1.5s;
+  transition-delay: 3s; /* More time between 2 and 3 */
 }
 
-/* CITY ICON - Layer 2 stacks on top of layer 1 (both visible) */
-#section-5 .animation-layer:nth-child(2) {
-  transform: scale(0.92); /* More subtle zoom - was 0.8 */
+.venn-icon.visible .animation-layer:nth-child(2) {
+  transition: opacity 0s 3s;
+}
+
+/* CITY ICON - Layer 2 stacks on layer 1 */
+.city-icon .animation-layer:nth-child(2) {
+  transform: scale(0.92);
   transition: opacity 1.2s ease-out, transform 1.2s ease-out;
 }
 
-#section-5.visible .animation-layer:nth-child(1) {
+.city-icon.visible .animation-layer:nth-child(1) {
   opacity: 1;
-  transition-delay: 0.3s;
+  transition-delay: 0.5s;
 }
 
-#section-5.visible .animation-layer:nth-child(2) {
+.city-icon.visible .animation-layer:nth-child(2) {
   opacity: 1;
   transform: scale(1);
-  transition-delay: 1.5s;
+  transition-delay: 2s;
 }
 
-main {
-  max-width: 960px;
-  margin-left: auto;
-  margin-right: auto;
-  padding: 3rem 1.25rem;
-}
-
-@media (min-width: 640px) {
-  main {
-    padding-left: 3rem;
-    padding-right: 3rem;
-  }
-}
-
-@media (min-width: 1024px) {
-  main {
-    padding-left: 6rem;
-    padding-right: 6rem;
-  }
-}
-
-@media (min-width: 1280px) {
-  main {
-    padding-left: 8rem;
-    padding-right: 8rem;
-  }
-}
-
-.intro {
-  font-size: 1.2rem;
-  max-width: 620px;
-  margin-bottom: 2rem;
-}
-
-.top {
-  font-size: 1.2rem;
-  max-width: 620px;
-}
-
-/* TABLET VIEW (between 768px and 1024px) */
-@media (max-width: 1024px) and (min-width: 769px) {
-  .section-text {
-    padding-left: 3rem;
-  }
-  
-  #section-1,
-  #section-2,
-  #section-3,
-  #section-4,
-  #section-5 {
-    padding-bottom: 0.5rem;
-  }
-  
-  #section-1 .section-content,
-  #section-2 .section-content,
-  #section-3 .section-content,
-  #section-4 .section-content,
-  #section-5 .section-content {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1.5rem;
-  }
-  
-  #section-1 .section-text,
-  #section-2 .section-text,
-  #section-3 .section-text,
-  #section-4 .section-text,
-  #section-5 .section-text {
-    font-size: 1.1rem;
-    width: 100%;
-  }
-  
-  #section-1 .section-animation,
-  #section-2 .section-animation,
-  #section-3 .section-animation,
-  #section-4 .section-animation,
-  #section-5 .section-animation {
-    width: 45%; /* Reduced from 50% - smaller icons */
-    align-self: flex-end;
-    margin-top: 0;
-  }
-  
-  .animation-layers {
-    max-width: 100%;
-  }
-  
-  .section-content {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* MOBILE VIEW (768px and below) */
-@media (max-width: 768px) {
-  .hero {
-    height: 50vh;
-    margin: 2rem auto 0;
-    padding: 0 1rem;
-    border-radius: 2px;
-  }
-
-  .section-text {
-    padding-left: 2rem;
-    padding-right: 2rem;
-  }
-
-  #section-1,
-  #section-2,
-  #section-3,
-  #section-4,
-  #section-5 {
-    padding-bottom: 0.5rem;
-  }
-  
-  #section-1 .section-content,
-  #section-2 .section-content,
-  #section-3 .section-content,
-  #section-4 .section-content,
-  #section-5 .section-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1.5rem;
-  }
-
-  .intro,
-  .section-text {
-    font-size: 1rem;
-  }
-  
-  .scroll-section {
-    padding: 2rem 1.25rem;
-  }
-  
-  #section-1 .section-text,
-  #section-2 .section-text,
-  #section-3 .section-text,
-  #section-4 .section-text,
-  #section-5 .section-text {
-    width: 100%;
-    padding-left: 2rem;
-    padding-right: 2rem;
-  }
-  
-  #section-1 .section-animation,
-  #section-2 .section-animation,
-  #section-3 .section-animation,
-  #section-4 .section-animation,
-  #section-5 .section-animation {
-    width: 100%;
-    margin-top: 0;
-  }
-  
-  .animation-layers {
-    max-width: 280px;
-  }
-  
-  .section-content {
-    grid-template-columns: 1fr;
-  }
-}
-
+/* Footer */
 .site-footer {
   font-size: 0.75rem;
   color: #888;
-  padding: 2rem 1.25rem;
+  padding: 3rem 4rem;
   text-align: center;
-  margin-top: 3rem;
+  margin-top: 4rem;
 }
 
-@media (min-width: 640px) {
-  .site-footer {
-    padding: 2.5rem 3rem;
+/* TABLET VIEW */
+@media (max-width: 1024px) and (min-width: 769px) {
+  .hero-gallery {
+    max-width: 500px;
+    height: 500px;
+  }
+
+  .content-wrapper {
+    padding: 2rem 3rem;
+  }
+
+  .text-block {
+    font-size: 1.2rem;
+  }
+
+  .center-questions {
+    font-size: 1.3rem;
+  }
+
+  /* Icons stack centered below paragraphs */
+  .icon-container {
+    justify-content: center;
+  }
+
+  .animation-layers {
+    max-width: 350px;
   }
 }
 
-@media (min-width: 1024px) {
+/* MOBILE VIEW */
+@media (max-width: 768px) {
+  .hero-gallery {
+    max-width: 90vw;
+    height: 90vw;
+    margin: 2rem auto;
+  }
+
+  .hero-nav {
+    width: 35px;
+    height: 35px;
+    font-size: 1rem;
+  }
+
+  .hero-prev {
+    left: 0.5rem;
+  }
+
+  .hero-next {
+    right: 0.5rem;
+  }
+
+  .content-wrapper {
+    padding: 2rem;
+  }
+
+  .text-block {
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+  }
+
+  .center-questions {
+    font-size: 1.2rem;
+    margin: 3rem 0;
+  }
+
+  /* Icons stack centered below paragraphs */
+  .icon-container {
+    justify-content: center;
+  }
+
+  .animation-layers {
+    max-width: 280px;
+  }
+
   .site-footer {
-    padding: 3rem 6rem;
+    padding: 2rem;
   }
 }
 
@@ -498,198 +387,167 @@ main {
       <a href="https://khushalimhaji.wordpress.com/urban-design/">Urban / Design</a>
       <a href="https://khushalimhaji.wordpress.com/videos/">Video</a>
       <a href="https://khushalimhaji.wordpress.com/misc-projects/">Misc Projects</a>
-      <a href="/cdn-cgi/l/email-protection#bad1d2cfc9d2dbd6d394d2dbd0d3faddd7dbd3d694d9d5d7" class="contact-btn">Contact</a>
+      <a href="mailto:khushali.haji@gmail.com" class="contact-btn">Contact</a>
     </nav>
   </div>
 </header>
 
-<!-- HERO -->
-<section class="hero">
-  <div class="hero-bg hero-a"></div>
-  <div class="hero-bg hero-b"></div>
-</section>
-
-<!-- FIRST SCROLL SECTION - Venn Diagram Animation -->
-<section class="scroll-section" id="section-1">
-  <div class="section-content">
-    <div class="section-text">
-      <p class="top">
-        <br>
-        <br>
-        <strong>Hello.</strong> I'm Khushali, a researcher, multimedia journalist and filmmaker, interested in how people experience <strong>systems, cities, </strong>and<strong> power</strong>, and how storytelling can bring data and policy to life.
-      </p>
+<!-- HERO GALLERY -->
+<div class="hero-gallery">
+  <div class="hero-slides">
+    <div class="hero-slide active" data-caption="Tactical urbanism design in Coimbatore, India (Urban Design Collective)">
+      <img src="images/hero-01.jpg" alt="Tactical urbanism Coimbatore">
     </div>
-    <div class="section-animation">
-      <div class="animation-layers">
-        <div class="animation-layer">
-          <img src="icons/venn_1.png" alt="Venn diagram layer 1">
-        </div>
-        <div class="animation-layer">
-          <img src="icons/venn_2.png" alt="Venn diagram layer 2">
-        </div>
-        <div class="animation-layer">
-          <img src="icons/venn_3.png" alt="Venn diagram layer 3">
-        </div>
+    <div class="hero-slide bw" data-caption="Mapping infrastructure issues in Vadaj, India">
+      <img src="images/hero-04.jpg" alt="Infrastructure mapping Vadaj">
+    </div>
+    <div class="hero-slide" data-caption="Investigative reporting Bong County, Liberia (New Narratives)">
+      <img src="images/hero-05.jpg" alt="Reporting in Liberia">
+    </div>
+    <div class="hero-slide" data-caption="Street photography, New York, USA">
+      <img src="images/hero-08.png" alt="Street photography NYC">
+    </div>
+  </div>
+  
+  <button class="hero-nav hero-prev" aria-label="Previous">‹</button>
+  <button class="hero-nav hero-next" aria-label="Next">›</button>
+</div>
+
+<div class="hero-caption" id="heroCaption">Tactical urbanism design in Coimbatore, India (Urban Design Collective)</div>
+
+<!-- CONTENT -->
+<div class="content-wrapper">
+  
+  <!-- First paragraph - left aligned -->
+  <div class="text-block intro-text">
+    <strong>Hello.</strong> I'm Khushali, a researcher, multimedia journalist and filmmaker, interested in how people experience <strong>systems, cities,</strong> and <strong>power</strong>, and how storytelling can bring data and policy to life.
+  </div>
+
+  <!-- Venn diagram - right aligned -->
+  <div class="icon-container venn-icon">
+    <div class="animation-layers">
+      <div class="animation-layer">
+        <img src="icons/venn_1.png" alt="Venn diagram layer 1">
+      </div>
+      <div class="animation-layer">
+        <img src="icons/venn_2.png" alt="Venn diagram layer 2">
+      </div>
+      <div class="animation-layer">
+        <img src="icons/venn_3.png" alt="Venn diagram layer 3">
       </div>
     </div>
   </div>
-</section>
 
-<!-- SECOND SCROLL SECTION - Grid Animation -->
-<section class="scroll-section" id="section-2">
-  <div class="section-content">
-    <div class="section-text">
-      <p class="top">
-        I trained as an urban designer at CEPT University in India, learning how cities are planned on paper through land-use, zoning, and infrastructure. But what stayed with me were the things that didn't quite fit on those pages: the messiness of everyday life, the politics operating at different scales, and the emotions, negotiations, and aspirations of the people who actually live within those lines. I kept asking: <em>Who is the city really for? Who gets left out? And how do people navigate systems that weren't built with them in mind?</em>
-      </p>
-    </div>
-    <div class="section-animation">
-      <div class="animation-layers">
-        <div class="animation-layer">
-          <img src="icons/grid_1.png" alt="Grid layer 1">
-        </div>
-        <div class="animation-layer">
-          <img src="icons/grid_2.png" alt="Grid layer 2">
-        </div>
+  <!-- Second paragraph - left aligned -->
+  <div class="text-block">
+    I trained as an urban designer at CEPT University in India, learning how cities are planned on paper through land-use, zoning, and infrastructure. But what stayed with me were the things that didn't quite fit on those pages: the messiness of everyday life, the politics operating at different scales, and the emotions, negotiations, and aspirations of the people who actually live within those lines. I kept asking:
+  </div>
+
+  <!-- Three questions - center aligned, italic, bold -->
+  <div class="center-questions">
+    Who is the city really for? Who gets left out? And how do people navigate systems that weren't built with them in mind?
+  </div>
+
+  <!-- Third paragraph - left aligned -->
+  <div class="text-block">
+    Looking for ways to explore those questions, I turned to local theater, research essays, and character-driven fiction. Storytelling became a way to research – to listen closely, sit with contradiction, and bring lived experience into abstract or technical conversations. I later studied <strong>International Reporting</strong> and <strong>Documentary Filmmaking</strong> at the Newmark Graduate School of Journalism (CUNY), where I learned to follow stories in the space between policy, data, and lived reality, and use different media to tell them.
+  </div>
+
+  <!-- Fourth paragraph - left aligned -->
+  <div class="text-block">
+    Since then, my work has moved across formats and geographies, from investigative reporting on carbon credit markets in Liberia, to coverage of asylum policy and public health in the U.S., to community engagement and research for a crowd-management project in Varanasi. I've reported on issues ranging from domestic violence to interfaith community-building, and made short films about connection, ambition, and belonging. My reporting has been recognized by the <strong>Silurians Press Club</strong>, and my short documentary received a <strong>Special Jury Mention</strong> at the <strong>2025 Woodstock Film Festival</strong>.
+  </div>
+
+  <!-- Fifth paragraph - left aligned -->
+  <div class="text-block">
+    Now based in <strong>New York</strong>, I work across journalism, video, and research-driven storytelling, always drawn to projects where <strong>systems meet lived experience</strong>. I'm especially interested in roles that sit between <strong>urban planning</strong>, <strong>public policy</strong>, and <strong>content or narrative strategy</strong>, work that involves research, creative engagement, and communicating complex ideas clearly and responsibly.
+  </div>
+
+  <!-- City icon - right aligned -->
+  <div class="icon-container city-icon">
+    <div class="animation-layers">
+      <div class="animation-layer">
+        <img src="icons/city_1.png" alt="City layer 1">
+      </div>
+      <div class="animation-layer">
+        <img src="icons/city_2.png" alt="City layer 2">
       </div>
     </div>
   </div>
-</section>
 
-<!-- THIRD SCROLL SECTION - Video Animation -->
-<section class="scroll-section" id="section-3">
-  <div class="section-content">
-    <div class="section-text">
-      <p class="top">
-        Looking for ways to explore those questions, I turned to local theater, research essays, and character-driven fiction. Storytelling became a way to research – to listen closely, sit with contradiction, and bring lived experience into abstract or technical conversations. I later studied <strong>International Reporting</strong> and <strong>Documentary Filmmaking</strong> at the Newmark Graduate School of Journalism (CUNY), where I learned to follow stories in the space between policy, data, and lived reality, and use different media to tell them.
-      </p>
-    </div>
-    <div class="section-animation">
-      <div class="animation-layers">
-        <div class="animation-layer">
-          <img src="icons/video_1.png" alt="Video layer 1">
-        </div>
-        <div class="animation-layer">
-          <img src="icons/video_2.png" alt="Video layer 2">
-        </div>
-      </div>
-    </div>
+  <!-- Final paragraph - left aligned -->
+  <div class="text-block">
+    You can explore my journalism under <strong>Reporting</strong>, urban and graphic design work under <strong>Urban / Design</strong>, video projects under <strong>Videos</strong>, and essays and long-form writing under <strong>Writing</strong>.
   </div>
-</section>
 
-<!-- FOURTH SCROLL SECTION - Globe Animation (2 layers only) -->
-<section class="scroll-section" id="section-4">
-  <div class="section-content">
-    <div class="section-text">
-      <p class="top">
-        Since then, my work has moved across formats and geographies, from investigative reporting on carbon credit markets in Liberia, to coverage of asylum policy and public health in the U.S., to community engagement and research for a crowd-management project in Varanasi. I've reported on issues ranging from domestic violence to interfaith community-building, and made short films about connection, ambition, and belonging. My reporting has been recognized by the <strong>Silurians Press Club</strong>, and my short documentary received a <strong>Special Jury Mention</strong> at the <strong>2025 Woodstock Film Festival</strong>.
-      </p>
-    </div>
-    <div class="section-animation">
-      <div class="animation-layers">
-        <div class="animation-layer">
-          <img src="icons/globe_1.png" alt="Globe layer 1">
-        </div>
-        <div class="animation-layer">
-          <img src="icons/globe_2.png" alt="Globe layer 2">
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
+</div>
 
-<!-- FIFTH SCROLL SECTION - City Animation (layers stack) -->
-<section class="scroll-section" id="section-5">
-  <div class="section-content">
-    <div class="section-text">
-      <p class="top">
-        Now based in <strong>New York</strong>, I work across journalism, video, and research-driven storytelling, always drawn to projects where <strong>systems meet lived experience</strong>. I'm especially interested in roles that sit between <strong>urban planning</strong>, <strong>public policy</strong>, and <strong>content or narrative strategy</strong>, work that involves research, creative engagement, and communicating complex ideas clearly and responsibly.
-      </p>
-    </div>
-    <div class="section-animation">
-      <div class="animation-layers">
-        <div class="animation-layer">
-          <img src="icons/city_1.png" alt="City layer 1">
-        </div>
-        <div class="animation-layer">
-          <img src="icons/city_2.png" alt="City layer 2">
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
+<script>
+  // Hero gallery navigation
+  const slides = document.querySelectorAll('.hero-slide');
+  const prevBtn = document.querySelector('.hero-prev');
+  const nextBtn = document.querySelector('.hero-next');
+  const caption = document.getElementById('heroCaption');
+  let currentSlide = 0;
 
-<!-- SIXTH SCROLL SECTION - No Animation -->
-<section class="scroll-section" id="section-6">
-  <div class="section-content">
-    <div class="section-text">
-      <p class="intro">
-        You can explore my journalism under <strong>Reporting</strong>, urban and graphic design work under <strong>Urban / Design</strong>, video projects under <strong>Videos</strong>, and essays and long-form writing under <strong>Writing</strong>.
-      </p>
-    </div>
-    <div class="section-animation">
-      <!-- No animation for final section -->
-    </div>
-  </div>
-</section>
+  function showSlide(index) {
+    slides.forEach(slide => slide.classList.remove('active'));
+    slides[index].classList.add('active');
+    caption.textContent = slides[index].dataset.caption;
+  }
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-  // Hero image carousel
-  const images = [
-    "images/hero-01.jpg",
-    "images/hero-02.jpg",
-    "images/hero-08.png",
-    "images/hero-04.jpg",
-    "images/hero-05.jpg",
-    "images/hero-06.jpg",
-    "images/hero-09.png",
-  ];
+  function nextSlide() {
+    currentSlide = (currentSlide + 1) % slides.length;
+    showSlide(currentSlide);
+  }
 
-  const heroA = document.querySelector(".hero-a");
-  const heroB = document.querySelector(".hero-b");
+  function prevSlide() {
+    currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+    showSlide(currentSlide);
+  }
 
-  let current = 0;
-  let showingA = true;
+  nextBtn.addEventListener('click', nextSlide);
+  prevBtn.addEventListener('click', prevSlide);
 
-  heroA.style.backgroundImage = `url(${images[0]})`;
-  heroA.classList.add("active");
+  // Touch swipe support
+  let touchStartX = 0;
+  let touchEndX = 0;
 
-  setInterval(() => {
-    const next = (current + 1) % images.length;
-    const incoming = showingA ? heroB : heroA;
-    const outgoing = showingA ? heroA : heroB;
+  const gallery = document.querySelector('.hero-gallery');
 
-    incoming.style.backgroundImage = `url(${images[next]})`;
-    incoming.classList.add("active");
-    outgoing.classList.remove("active");
-
-    current = next;
-    showingA = !showingA;
-  }, 4500);
-
-  window.addEventListener("scroll", () => {
-    const scale = 0.98 + window.scrollY / 4000;
-    heroA.style.transform = `scale(${scale})`;
-    heroB.style.transform = `scale(${scale})`;
+  gallery.addEventListener('touchstart', (e) => {
+    touchStartX = e.changedTouches[0].screenX;
   });
 
-  // Scroll-triggered animations
-  const observerOptions = {
-    root: null,
-    rootMargin: '0px',
-    threshold: 0.3
-  };
+  gallery.addEventListener('touchend', (e) => {
+    touchEndX = e.changedTouches[0].screenX;
+    handleSwipe();
+  });
 
-  const observer = new IntersectionObserver((entries) => {
+  function handleSwipe() {
+    if (touchEndX < touchStartX - 50) nextSlide();
+    if (touchEndX > touchStartX + 50) prevSlide();
+  }
+
+  // Keyboard navigation
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowLeft') prevSlide();
+    if (e.key === 'ArrowRight') nextSlide();
+  });
+
+  // Icon scroll animations
+  const iconObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
         entry.target.classList.add('visible');
       }
     });
-  }, observerOptions);
+  }, {
+    threshold: 0.3
+  });
 
-  document.querySelectorAll('.scroll-section').forEach(section => {
-    observer.observe(section);
+  document.querySelectorAll('.icon-container').forEach(icon => {
+    iconObserver.observe(icon);
   });
 </script>
 
