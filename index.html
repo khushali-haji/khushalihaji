@@ -120,17 +120,23 @@ body {
   pointer-events: auto;
 }
 
-/* Previous slide - cropped peek on left */
+/* Previous slide - smaller, cropped peek on left with spacing */
 .hero-slide.prev-peek {
-  opacity: 0.6;
-  left: -700px; /* Mostly off-screen, shows ~100px on left */
+  opacity: 0.5;
+  left: -750px; /* Further left for spacing */
+  width: 700px; /* Smaller */
+  height: 390px; /* Smaller */
+  top: 30px; /* Vertically centered */
   z-index: 1;
 }
 
-/* Next slide - cropped peek on right */
+/* Next slide - smaller, cropped peek on right with spacing */
 .hero-slide.next-peek {
-  opacity: 0.6;
-  left: 700px; /* Mostly off-screen, shows ~100px on right */
+  opacity: 0.5;
+  left: 850px; /* Further right for spacing */
+  width: 700px; /* Smaller */
+  height: 390px; /* Smaller */
+  top: 30px; /* Vertically centered */
   z-index: 1;
 }
 
