@@ -186,6 +186,20 @@
   color: #fff;
 }
 
+.story-overlay p,
+.story-overlay span {
+  opacity: 0;
+  max-height: 0;
+  overflow: hidden;
+  transition: opacity 0.3s ease, max-height 0.3s ease;
+}
+
+.story-card:hover .story-overlay p,
+.story-card:hover .story-overlay span {
+  opacity: 1;
+  max-height: 100px;
+}
+   
 .story-overlay p {
   margin: 0 0 0.6rem;
   font-size: 0.85rem;
