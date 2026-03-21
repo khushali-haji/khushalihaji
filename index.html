@@ -76,6 +76,11 @@
     gap: 0.75rem;
   }
 }
+
+/* SMOOTH SCROLL */
+html {
+  scroll-behavior: smooth;
+}
     
 body {
   margin: 0;
@@ -91,7 +96,7 @@ body {
   max-width: 1000px;
   height: 450px;
   margin: 3rem auto;
-  overflow: hidden; /* Crop the sides */
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -99,7 +104,7 @@ body {
 
 .hero-slides {
   position: relative;
-  width: 800px; /* Main image width */
+  width: 800px;
   height: 450px;
   margin: 0 auto;
 }
@@ -123,20 +128,20 @@ body {
 /* Previous slide - smaller, cropped peek on left with spacing */
 .hero-slide.prev-peek {
   opacity: 0.5;
-  left: -750px; /* Further left for spacing */
-  width: 700px; /* Smaller */
-  height: 390px; /* Smaller */
-  top: 30px; /* Vertically centered */
+  left: -750px;
+  width: 700px;
+  height: 390px;
+  top: 30px;
   z-index: 1;
 }
 
 /* Next slide - smaller, cropped peek on right with spacing */
 .hero-slide.next-peek {
   opacity: 0.5;
-  left: 850px; /* Further right for spacing */
-  width: 700px; /* Smaller */
-  height: 390px; /* Smaller */
-  top: 30px; /* Vertically centered */
+  left: 850px;
+  width: 700px;
+  height: 390px;
+  top: 30px;
   z-index: 1;
 }
 
@@ -145,6 +150,17 @@ body {
   height: 100%;
   object-fit: cover;
   display: block;
+  /* Ken Burns effect - medium zoom */
+  animation: kenBurns 8s ease-in-out infinite alternate;
+}
+
+@keyframes kenBurns {
+  0% {
+    transform: scale(1) translate(0, 0);
+  }
+  100% {
+    transform: scale(1.08) translate(-2%, -2%);
+  }
 }
 
 /* Black and white filter for hero-04 */
@@ -201,12 +217,12 @@ body {
 }
 
 .text-block {
-  font-size: 1.2rem; /* Reduced from 1.3rem - more compact */
+  font-size: 1.2rem;
   line-height: 1.7;
   margin-bottom: 3rem;
   color: #111;
   padding-left: 5rem;
-  padding-right: 30%; /* Increased from 20% */
+  padding-right: 30%;
   opacity: 0;
   transform: translateY(20px);
   transition: opacity 0.8s ease-out, transform 0.8s ease-out;
@@ -217,21 +233,47 @@ body {
   transform: translateY(0);
 }
 
+/* Bold text hover effect */
+.text-block strong {
+  position: relative;
+  transition: color 0.3s ease;
+}
+
+.text-block strong:hover {
+  color: #444;
+  cursor: default;
+}
+
+.text-block strong::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: #111;
+  transition: width 0.3s ease;
+}
+
+.text-block strong:hover::after {
+  width: 100%;
+}
+
 /* First paragraph */
 .intro-text {
   text-align: left;
 }
 
-/* Center-aligned questions - same size as body, italic only, centered */
+/* Center-aligned questions - typewriter effect */
 .center-questions {
   text-align: center;
   font-style: italic;
-  font-weight: normal; /* Removed bold */
-  margin: 5rem 0; /* Increased from 4rem - more space above and below */
-  font-size: 1.2rem; /* Same as body text */
+  font-weight: normal;
+  margin: 5rem 0;
+  font-size: 1.2rem;
   line-height: 2.2;
-  padding-left: 20%; /* Increased from 15% */
-  padding-right: 20%; /* Increased from 15% */
+  padding-left: 20%;
+  padding-right: 20%;
   opacity: 0;
   transform: translateY(20px);
   transition: opacity 0.8s ease-out, transform 0.8s ease-out;
@@ -242,15 +284,29 @@ body {
   transform: translateY(0);
 }
 
-/* Icon containers - right aligned with more right padding */
+/* Typewriter cursor */
+.center-questions.typing::after {
+  content: '|';
+  animation: blink 0.7s infinite;
+  margin-left: 2px;
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+/* Icon containers - right aligned with parallax */
 .icon-container {
   display: flex;
   justify-content: flex-end;
   margin: 3rem 0;
-  padding-right: 8rem; /* Increased right padding */
+  padding-right: 8rem;
   opacity: 0;
   transform: translateY(20px);
   transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+  /* Parallax will be applied via JS */
+  will-change: transform;
 }
 
 .icon-container.visible {
@@ -268,11 +324,11 @@ body {
   margin-bottom: 4rem;
 }
 
-/* Animated icons - larger now */
+/* Animated icons */
 .animation-layers {
   position: relative;
   width: 100%;
-  max-width: 400px; /* Larger icons */
+  max-width: 400px;
   height: auto;
   aspect-ratio: 794 / 574;
 }
@@ -297,7 +353,7 @@ body {
   -webkit-user-drag: none;
 }
 
-/* VENN ICON - Slower transitions, more time between */
+/* VENN ICON - Slower transitions */
 .venn-icon.visible .animation-layer:nth-child(1) {
   opacity: 1;
   transition-delay: 0.5s;
@@ -305,7 +361,7 @@ body {
 
 .venn-icon.visible .animation-layer:nth-child(2) {
   opacity: 1;
-  transition-delay: 1.5s; /* Increased delay */
+  transition-delay: 1.5s;
 }
 
 .venn-icon.visible .animation-layer:nth-child(1) {
@@ -314,7 +370,7 @@ body {
 
 .venn-icon.visible .animation-layer:nth-child(3) {
   opacity: 1;
-  transition-delay: 3s; /* More time between 2 and 3 */
+  transition-delay: 3s;
 }
 
 .venn-icon.visible .animation-layer:nth-child(2) {
@@ -359,18 +415,17 @@ body {
   }
 
   .text-block {
-    font-size: 1.1rem; /* Reduced - more compact */
+    font-size: 1.1rem;
     padding-left: 3rem;
-    padding-right: 22%; /* Increased from 15% */
+    padding-right: 22%;
   }
 
   .center-questions {
-    font-size: 1.1rem; /* Same as body text */
-    padding-left: 15%; /* Increased from 10% */
-    padding-right: 15%; /* Increased from 10% */
+    font-size: 1.1rem;
+    padding-left: 15%;
+    padding-right: 15%;
   }
 
-  /* Icons stack centered below paragraphs */
   .icon-container {
     justify-content: center;
     padding-right: 0;
@@ -385,7 +440,7 @@ body {
 @media (max-width: 768px) {
   .hero-gallery {
     max-width: 90vw;
-    height: 60vw; /* Landscape ratio */
+    height: 60vw;
     margin: 2rem auto;
   }
 
@@ -422,7 +477,6 @@ body {
     line-height: 2;
   }
 
-  /* Icons stack centered below paragraphs */
   .icon-container {
     justify-content: center;
     padding-right: 0;
@@ -453,7 +507,7 @@ body {
       <a href="https://khushalimhaji.wordpress.com/urban-design/">Urban / Design</a>
       <a href="https://khushalimhaji.wordpress.com/videos/">Video</a>
       <a href="https://khushalimhaji.wordpress.com/misc-projects/">Misc Projects</a>
-      <a href="/cdn-cgi/l/email-protection#711a19040219101d185f19101b1831161c10181d5f121e1c" class="contact-btn">Contact</a>
+      <a href="mailto:khushali.haji@gmail.com" class="contact-btn">Contact</a>
     </nav>
   </div>
 </header>
@@ -490,7 +544,7 @@ body {
   </div>
 
   <!-- Venn diagram - right aligned -->
-  <div class="icon-container venn-icon">
+  <div class="icon-container venn-icon" data-parallax="0.3">
     <div class="animation-layers">
       <div class="animation-layer">
         <img src="icons/venn_1.png" alt="Venn diagram layer 1">
@@ -509,28 +563,27 @@ body {
     I trained as an urban designer at CEPT University in India, learning how cities are planned on paper through land-use, zoning, and infrastructure. But what stayed with me were the things that didn't quite fit on those pages: the messiness of everyday life, the politics operating at different scales, and the emotions, negotiations, and aspirations of the people who actually live within those lines. I kept asking:
   </div>
 
-  <!-- Three questions - center aligned, italic, bold -->
-  <div class="center-questions">
-    Who is the city really for? Who gets left out? And how do people navigate systems that weren't built with them in mind?
+  <!-- Three questions - center aligned, italic, typewriter effect -->
+  <div class="center-questions" id="typewriterText" data-text="Who is the city really for? Who gets left out? And how do people navigate systems that weren't built with them in mind?">
   </div>
 
   <!-- Third paragraph - left aligned -->
   <div class="text-block">
-    Looking for ways to explore those questions, I turned to local theater, research essays, and character-driven fiction. Storytelling became a way to research – to listen closely, sit with contradiction, and bring lived experience into abstract or technical conversations. I later studied <strong>International Reporting</strong> and <strong>Documentary Filmmaking</strong> at the Newmark Graduate School of Journalism (CUNY), where I learned to follow stories in the space between policy, data, and lived reality, and use different media to tell them.
+    Looking for ways to explore those questions, I turned to local theater, research essays, and character-driven fiction. Storytelling became a way to research – to listen closely, sit with contradiction, and bring lived experience into abstract or technical conversations. I later studied International Reporting and Documentary Filmmaking at the Newmark Graduate School of Journalism (CUNY), where I learned to follow stories in the space between policy, data, and lived reality, and use different media to tell them.
   </div>
 
   <!-- Fourth paragraph - left aligned -->
   <div class="text-block">
-    Since then, my work has moved across formats and geographies, from investigative reporting on carbon credit markets in Liberia, to coverage of asylum policy and public health in the U.S., to community engagement and research for a crowd-management project in Varanasi. I've reported on issues ranging from domestic violence to interfaith community-building, and made short films about connection, ambition, and belonging. My reporting has been recognized by the <strong>Silurians Press Club</strong>, and my short documentary received a <strong>Special Jury Mention</strong> at the <strong>2025 Woodstock Film Festival</strong>.
+    Since then, my work has moved across formats and geographies, from investigative reporting on carbon credit markets in Liberia, to coverage of asylum policy and public health in the U.S., to community engagement and research for a crowd-management project in Varanasi. I've reported on issues ranging from domestic violence to interfaith community-building, and made short films about connection, ambition, and belonging. My reporting has been recognized by the Silurians Press Club, and my short documentary received a Special Jury Mention at the 2025 Woodstock Film Festival.
   </div>
 
   <!-- Fifth paragraph - left aligned -->
   <div class="text-block">
-    Now based in <strong>New York</strong>, I work across journalism, video, and research-driven storytelling, always drawn to projects where <strong>systems meet lived experience</strong>. I'm especially interested in roles that sit between <strong>urban planning</strong>, <strong>public policy</strong>, and <strong>content or narrative strategy</strong>, work that involves research, creative engagement, and communicating complex ideas clearly and responsibly.
+    Now based in <strong>New York</strong>, I work across journalism, video, and research-driven storytelling, always drawn to projects where <strong>systems meet lived experience</strong>. I'm especially interested in roles that sit between urban planning, public policy, and content or narrative strategy, work that involves research, creative engagement, and communicating complex ideas clearly and responsibly.
   </div>
 
   <!-- City icon - right aligned -->
-  <div class="icon-container city-icon">
+  <div class="icon-container city-icon" data-parallax="0.3">
     <div class="animation-layers">
       <div class="animation-layer">
         <img src="icons/city_1.png" alt="City layer 1">
@@ -548,7 +601,7 @@ body {
 
 </div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
   // Hero gallery navigation with peek effect
   const slides = document.querySelectorAll('.hero-slide');
   const prevBtn = document.querySelector('.hero-prev');
@@ -581,7 +634,6 @@ body {
     showSlide(currentSlide);
   }
 
-  // Initialize with peek effect
   showSlide(0);
 
   nextBtn.addEventListener('click', nextSlide);
@@ -590,7 +642,6 @@ body {
   // Touch swipe support
   let touchStartX = 0;
   let touchEndX = 0;
-
   const gallery = document.querySelector('.hero-gallery');
 
   gallery.addEventListener('touchstart', (e) => {
@@ -613,15 +664,58 @@ body {
     if (e.key === 'ArrowRight') nextSlide();
   });
 
-  // Scroll-triggered animations for ALL elements (text and icons)
+  // TYPEWRITER EFFECT - Medium speed
+  let typewriterStarted = false;
+  const typewriterElement = document.getElementById('typewriterText');
+  const fullText = typewriterElement.dataset.text;
+  let charIndex = 0;
+
+  function typeWriter() {
+    if (charIndex < fullText.length) {
+      typewriterElement.textContent = fullText.substring(0, charIndex + 1);
+      typewriterElement.classList.add('typing');
+      charIndex++;
+      setTimeout(typeWriter, 35); // Medium speed (35ms per character)
+    } else {
+      typewriterElement.classList.remove('typing');
+    }
+  }
+
+  // PARALLAX EFFECT on icons
+  const parallaxElements = document.querySelectorAll('[data-parallax]');
+  
+  function updateParallax() {
+    parallaxElements.forEach(element => {
+      const speed = parseFloat(element.dataset.parallax);
+      const rect = element.getBoundingClientRect();
+      const scrolled = window.pageYOffset;
+      const elementTop = rect.top + scrolled;
+      const windowHeight = window.innerHeight;
+      
+      if (rect.top < windowHeight && rect.bottom > 0) {
+        const yPos = (scrolled - elementTop) * speed;
+        element.style.transform = `translateY(${yPos}px)`;
+      }
+    });
+  }
+
+  window.addEventListener('scroll', updateParallax);
+
+  // SCROLL-TRIGGERED ANIMATIONS
   const scrollObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
         entry.target.classList.add('visible');
+        
+        // Start typewriter when questions become visible
+        if (entry.target.id === 'typewriterText' && !typewriterStarted) {
+          typewriterStarted = true;
+          setTimeout(typeWriter, 300); // Small delay before typing starts
+        }
       }
     });
   }, {
-    threshold: 0.2 // Trigger when 20% visible
+    threshold: 0.2
   });
 
   // Observe all text blocks, questions, and icons
