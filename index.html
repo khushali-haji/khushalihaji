@@ -150,17 +150,8 @@ body {
   height: 100%;
   object-fit: cover;
   display: block;
-  /* Ken Burns effect - medium zoom */
-  animation: kenBurns 8s ease-in-out infinite alternate;
-}
-
-@keyframes kenBurns {
-  0% {
-    transform: scale(1) translate(0, 0);
-  }
-  100% {
-    transform: scale(1.08) translate(-2%, -2%);
-  }
+  /* Scroll-triggered zoom will be applied via JS */
+  transition: transform 0.1s linear;
 }
 
 /* Black and white filter for hero-04 */
@@ -211,9 +202,9 @@ body {
 
 /* CONTENT SECTIONS */
 .content-wrapper {
-  max-width: 1000px;
+  max-width: 900px; /* Narrower for better readability */
   margin: 0 auto;
-  padding: 2rem 1rem;
+  padding: 2rem 3rem; /* Equal left and right padding */
 }
 
 .text-block {
@@ -221,8 +212,12 @@ body {
   line-height: 1.7;
   margin-bottom: 3rem;
   color: #111;
-  padding-left: 5rem;
-  padding-right: 30%;
+  padding-left: 0; /* Removed asymmetric padding */
+  padding-right: 0;
+  text-align: left;
+  max-width: 680px; /* Optimal reading width */
+  margin-left: auto;
+  margin-right: auto;
   opacity: 0;
   transform: translateY(20px);
   transition: opacity 0.8s ease-out, transform 0.8s ease-out;
@@ -269,11 +264,12 @@ body {
   text-align: center;
   font-style: italic;
   font-weight: normal;
-  margin: 5rem 0;
+  margin: 5rem auto; /* Center with auto margins */
   font-size: 1.2rem;
   line-height: 2.2;
-  padding-left: 20%;
-  padding-right: 20%;
+  max-width: 680px; /* Match text block width */
+  padding-left: 2rem;
+  padding-right: 2rem;
   opacity: 0;
   transform: translateY(20px);
   transition: opacity 0.8s ease-out, transform 0.8s ease-out;
@@ -296,22 +292,19 @@ body {
   51%, 100% { opacity: 0; }
 }
 
-/* Icon containers - right aligned with parallax */
+/* Icon containers - center aligned, controlled parallax */
 .icon-container {
   display: flex;
-  justify-content: flex-end;
+  justify-content: center; /* Center aligned */
   margin: 3rem 0;
-  padding-right: 8rem;
+  padding-right: 0; /* Removed right padding */
   opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
-  /* Parallax will be applied via JS */
-  will-change: transform;
+  transition: opacity 0.8s ease-out;
+  position: relative; /* For controlled positioning */
 }
 
 .icon-container.visible {
   opacity: 1;
-  transform: translateY(0);
 }
 
 .icon-container.venn-icon {
@@ -411,24 +404,17 @@ body {
   }
 
   .content-wrapper {
-    padding: 2rem 2rem;
+    padding: 2rem 2.5rem;
   }
 
   .text-block {
     font-size: 1.1rem;
-    padding-left: 3rem;
-    padding-right: 22%;
+    max-width: 600px;
   }
 
   .center-questions {
     font-size: 1.1rem;
-    padding-left: 15%;
-    padding-right: 15%;
-  }
-
-  .icon-container {
-    justify-content: center;
-    padding-right: 0;
+    max-width: 600px;
   }
 
   .animation-layers {
@@ -459,27 +445,22 @@ body {
   }
 
   .content-wrapper {
-    padding: 2rem 1rem;
+    padding: 2rem 1.5rem;
   }
 
   .text-block {
     font-size: 1.1rem;
     margin-bottom: 2rem;
-    padding-left: 2rem;
-    padding-right: 10%;
+    max-width: 100%;
   }
 
   .center-questions {
     font-size: 1.2rem;
-    margin: 3rem 0;
-    padding-left: 8%;
-    padding-right: 8%;
+    margin: 3rem auto;
+    max-width: 100%;
+    padding-left: 1rem;
+    padding-right: 1rem;
     line-height: 2;
-  }
-
-  .icon-container {
-    justify-content: center;
-    padding-right: 0;
   }
 
   .animation-layers {
@@ -507,7 +488,7 @@ body {
       <a href="https://khushalimhaji.wordpress.com/urban-design/">Urban / Design</a>
       <a href="https://khushalimhaji.wordpress.com/videos/">Video</a>
       <a href="https://khushalimhaji.wordpress.com/misc-projects/">Misc Projects</a>
-      <a href="mailto:khushali.haji@gmail.com" class="contact-btn">Contact</a>
+      <a href="/cdn-cgi/l/email-protection#bad1d2cfc9d2dbd6d394d2dbd0d3faddd7dbd3d694d9d5d7" class="contact-btn">Contact</a>
     </nav>
   </div>
 </header>
@@ -601,7 +582,7 @@ body {
 
 </div>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
   // Hero gallery navigation with peek effect
   const slides = document.querySelectorAll('.hero-slide');
   const prevBtn = document.querySelector('.hero-prev');
@@ -681,25 +662,50 @@ body {
     }
   }
 
-  // PARALLAX EFFECT on icons
+  // SCROLL-TRIGGERED HERO ZOOM
+  const heroGallery = document.querySelector('.hero-gallery');
+  const heroImages = document.querySelectorAll('.hero-slide img');
+  
+  function updateHeroZoom() {
+    const rect = heroGallery.getBoundingClientRect();
+    const scrollProgress = Math.max(0, Math.min(1, 1 - (rect.top / window.innerHeight)));
+    const scale = 1 + (scrollProgress * 0.08); // Zoom from 1 to 1.08
+    
+    heroImages.forEach(img => {
+      img.style.transform = `scale(${scale})`;
+    });
+  }
+
+  // IMPROVED PARALLAX - Limited range to prevent overlap
   const parallaxElements = document.querySelectorAll('[data-parallax]');
   
   function updateParallax() {
     parallaxElements.forEach(element => {
-      const speed = parseFloat(element.dataset.parallax);
       const rect = element.getBoundingClientRect();
-      const scrolled = window.pageYOffset;
-      const elementTop = rect.top + scrolled;
-      const windowHeight = window.innerHeight;
+      const elementCenter = rect.top + (rect.height / 2);
+      const windowCenter = window.innerHeight / 2;
+      const distance = windowCenter - elementCenter;
       
-      if (rect.top < windowHeight && rect.bottom > 0) {
-        const yPos = (scrolled - elementTop) * speed;
-        element.style.transform = `translateY(${yPos}px)`;
+      // Only apply parallax when element is near viewport center
+      if (Math.abs(distance) < window.innerHeight) {
+        const speed = parseFloat(element.dataset.parallax);
+        const yPos = distance * speed * 0.15; // Reduced movement range
+        
+        // Clamp movement to prevent overlap (max ±30px)
+        const clampedY = Math.max(-30, Math.min(30, yPos));
+        element.style.transform = `translateY(${clampedY}px)`;
       }
     });
   }
 
-  window.addEventListener('scroll', updateParallax);
+  window.addEventListener('scroll', () => {
+    updateHeroZoom();
+    updateParallax();
+  });
+
+  // Initialize on load
+  updateHeroZoom();
+  updateParallax();
 
   // SCROLL-TRIGGERED ANIMATIONS
   const scrollObserver = new IntersectionObserver((entries) => {
