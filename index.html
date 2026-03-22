@@ -125,26 +125,6 @@ body {
   pointer-events: auto;
 }
 
-/* Previous slide - smaller, cropped peek on left with spacing */
-.hero-slide.prev-peek {
-  opacity: 0.5;
-  left: -750px;
-  width: 700px;
-  height: 390px;
-  top: 30px;
-  z-index: 1;
-}
-
-/* Next slide - smaller, cropped peek on right with spacing */
-.hero-slide.next-peek {
-  opacity: 0.5;
-  left: 850px;
-  width: 700px;
-  height: 390px;
-  top: 30px;
-  z-index: 1;
-}
-
 .hero-slide img {
   width: 100%;
   height: 100%;
@@ -596,10 +576,6 @@ body {
       
       if (i === index) {
         slide.classList.add('active');
-      } else if (i === (index - 1 + slides.length) % slides.length) {
-        slide.classList.add('prev-peek');
-      } else if (i === (index + 1) % slides.length) {
-        slide.classList.add('next-peek');
       }
     });
     caption.textContent = slides[index].dataset.caption;
