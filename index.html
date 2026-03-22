@@ -645,7 +645,7 @@ body {
   function updateHeroZoom() {
     const rect = heroGallery.getBoundingClientRect();
     const scrollProgress = Math.max(0, Math.min(1, 1 - (rect.top / window.innerHeight)));
-    const scale = 1 + (scrollProgress * 0.08); // Zoom from 1 to 1.08
+    const scale = 1 + (scrollProgress * 0.15); // Zoom from 1 to 1.15
     
     heroImages.forEach(img => {
       img.style.transform = `scale(${scale})`;
