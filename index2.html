@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Khushali Haji — Hero Map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --cream: #f4f1eb;
+    --ink: #1a1a18;
+    --ink-muted: #6b6b66;
+    --ink-faint: #aaa89e;
+    --terracotta: #c4845a;
+    --border: rgba(26,26,24,0.12);
+    --card-bg: rgba(244,241,235,0.97);
+  }
+
+  html, body { height: 100%; font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--ink); overflow: hidden; }
+
+  nav {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 36px;
+    background: linear-gradient(to bottom, rgba(244,241,235,0.95) 0%, rgba(244,241,235,0) 100%);
+    pointer-events: none;
+  }
+  nav a, nav span { pointer-events: all; }
+  .nav-logo { font-family: 'Playfair Display', serif; font-size: 15px; font-weight: 400; color: var(--ink); text-decoration: none; letter-spacing: 0.01em; }
+  .nav-links { display: flex; gap: 28px; }
+  .nav-links a { font-size: 11px; color: var(--ink-muted); text-decoration: none; letter-spacing: 0.04em; font-weight: 400; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--ink); }
+
+  #map {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+
+  .leaflet-control-attribution { font-size: 9px !important; background: rgba(244,241,235,0.7) !important; color: var(--ink-faint) !important; }
+  .leaflet-control-zoom { display: none !important; }
+
+  .kh-pin {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--terracotta);
+    border: 2px solid var(--cream);
+    cursor: pointer;
+    transition: transform 0.2s;
+    position: relative;
+  }
+  .kh-pin::after {
+    content: '';
+    position: absolute;
+    inset: -5px;
+    border-radius: 50%;
+    border: 1px solid rgba(196,132,90,0.3);
+  }
+  .kh-pin:hover { transform: scale(1.3); }
+  .kh-pin.active { background: var(--ink); border-color: var(--cream); box-shadow: 0 0 0 3px rgba(26,26,24,0.15); }
+
+  .kh-pin-label {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    font-size: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    color: var(--ink);
+    background: var(--card-bg);
+    padding: 2px 8px;
+    border-radius: 20px;
+    border: 0.5px solid var(--border);
+    letter-spacing: 0.04em;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  .kh-pin:hover .kh-pin-label { opacity: 1; }
+  .kh-pin.active .kh-pin-label { opacity: 1; }
+
+  /* INFO CARD */
+  #info-card {
+    position: absolute;
+    bottom: 36px;
+    right: 36px;
+    z-index: 900;
+    width: 320px;
+    background: var(--card-bg);
+    border: 0.5px solid var(--border);
+    border-radius: 12px;
+    padding: 22px 24px;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    pointer-events: none;
+    backdrop-filter: blur(4px);
+  }
+  #info-card.visible { opacity: 1; transform: translateY(0); pointer-events: all; }
+
+  .card-tag {
+    display: inline-block;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    font-weight: 500;
+    color: #712B13;
+    background: rgba(196,132,90,0.12);
+    border: 0.5px solid rgba(196,132,90,0.3);
+    border-radius: 20px;
+    padding: 2px 10px;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+  }
+  .card-title { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 400; line-height: 1.25; color: var(--ink); margin-bottom: 10px; }
+  .card-meta { font-size: 11px; color: var(--ink-muted); margin-bottom: 12px; line-height: 1.5; font-weight: 300; }
+  .card-meta strong { font-weight: 500; color: var(--ink); }
+  .card-divider { width: 24px; height: 1px; background: var(--terracotta); margin-bottom: 12px; }
+  .card-desc { font-size: 12px; color: #3a3a35; line-height: 1.75; font-weight: 300; }
+  .card-close {
+    position: absolute; top: 14px; right: 16px;
+    width: 22px; height: 22px; border-radius: 50%;
+    border: 0.5px solid var(--border); background: transparent;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    font-size: 14px; color: var(--ink-muted); line-height: 1;
+    transition: background 0.15s; font-family: 'DM Sans', sans-serif;
+  }
+  .card-close:hover { background: rgba(26,26,24,0.06); }
+
+  .map-tagline {
+    position: absolute;
+    bottom: 32px; left: 36px;
+    z-index: 900;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+  .map-tagline p { font-family: 'Playfair Display', serif; font-size: 13px; font-style: italic; color: var(--ink-muted); line-height: 1.6; }
+  .map-tagline span { font-family: 'DM Sans', sans-serif; font-size: 10px; font-style: normal; letter-spacing: 0.08em; color: var(--ink-faint); display: block; margin-top: 4px; }
+
+  .pin-counter { position: absolute; top: 80px; left: 36px; z-index: 900; pointer-events: none; }
+  .pin-counter p { font-size: 10px; letter-spacing: 0.08em; color: var(--ink-faint); }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="#">Khushali Haji</a>
+  <div class="nav-links">
+    <a href="#">Reporting</a>
+    <a href="#">Urban / Design</a>
+    <a href="#">Video</a>
+    <a href="#">Misc Projects</a>
+    <a href="#">Contact</a>
+  </div>
+</nav>
+
+<div id="map"></div>
+
+<div id="info-card">
+  <button class="card-close" onclick="closeCard()">×</button>
+  <div class="card-tag" id="c-tag"></div>
+  <div class="card-title" id="c-title"></div>
+  <div class="card-meta" id="c-meta"></div>
+  <div class="card-divider"></div>
+  <div class="card-desc" id="c-desc"></div>
+</div>
+
+<div class="map-tagline" id="tagline">
+  <p>Every story has a place.</p>
+  <span>CLICK A PIN TO EXPLORE</span>
+</div>
+
+<div class="pin-counter">
+  <p>7 LOCATIONS · 3 CONTINENTS</p>
+</div>
+
+<script>
+const points = [
+  {
+    lat: 6.3, lng: -10.8, label: "Liberia",
+    tag: "Investigative Reporting",
+    title: "Indian and Lebanese Economic Ties in Liberia",
+    meta: "<strong>New Narratives</strong> | Monrovia, Liberia · 2024",
+    desc: "Deep reporting on how Indian and Lebanese business networks have come to dominate Liberia's economy through privileged access to capital and political ties, often sidelining local entrepreneurs and limiting economic development."
+  },
+  {
+    lat: 11.0, lng: 76.96, label: "Coimbatore",
+    tag: "Urban Design",
+    title: "Tactical Urbanism in Coimbatore",
+    meta: "<strong>Urban Design Collective</strong> | Coimbatore, India · 2021",
+    desc: "Placeholder — redesigning street-level public space through participatory design interventions, documenting how informal use shapes formal urban planning."
+  },
+  {
+    lat: 25.32, lng: 83.0, label: "Varanasi",
+    tag: "Spatial Research",
+    title: "Crowd Management at a Pilgrimage City",
+    meta: "<strong>Research Project</strong> | Varanasi, India · 2022",
+    desc: "Placeholder — community engagement and spatial research for a crowd-management initiative at one of the world's most densely used pilgrimage sites."
+  },
+  {
+    lat: 45.46, lng: 9.19, label: "Milan",
+    tag: "Placeholder",
+    title: "Project Title Here",
+    meta: "<strong>Organisation</strong> | Milan, Italy · Year",
+    desc: "Placeholder — brief description of work done in Milan goes here."
+  },
+  {
+    lat: 35.86, lng: 104.19, label: "China",
+    tag: "Placeholder",
+    title: "Project Title Here",
+    meta: "<strong>Organisation</strong> | China · Year",
+    desc: "Placeholder — brief description of work done in China goes here."
+  },
+  {
+    lat: 40.71, lng: -74.0, label: "New York",
+    tag: "Journalism",
+    title: "Reporting from New York",
+    meta: "<strong>CUNY Newmark / Freelance</strong> | New York, USA · 2023–present",
+    desc: "Placeholder — investigative and multimedia journalism covering asylum policy, public health, interfaith community life, and urban systems in New York."
+  },
+  {
+    lat: 23.02, lng: 72.57, label: "Ahmedabad",
+    tag: "Urban Research",
+    title: "Infrastructure Mapping in Vadaj",
+    meta: "<strong>CEPT University</strong> | Ahmedabad, India · 2020",
+    desc: "Placeholder — ground-level documentation of informal infrastructure in a working-class neighbourhood, mapping what official surveys missed."
+  }
+];
+
+const map = L.map('map', {
+  center: [22, 20],
+  zoom: 2,
+  zoomControl: false,
+  attributionControl: true,
+  scrollWheelZoom: false,
+  doubleClickZoom: false,
+  touchZoom: false,
+  dragging: false,
+  keyboard: false,
+  boxZoom: false
+});
+
+// Alidade Smooth base — clean muted tones
+L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png', {
+  attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a> &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>',
+  maxZoom: 16
+}).addTo(map);
+
+// Overlay: Stamen Watercolor on top at low opacity to wash out labels/borders
+L.tileLayer('https://tiles.stadiamaps.com/tiles/stamen_watercolor/{z}/{x}/{y}.jpg', {
+  maxZoom: 16,
+  opacity: 0.55
+}).addTo(map);
+
+let activeMarker = null;
+
+function createPinIcon(label) {
+  return L.divIcon({
+    className: '',
+    html: '<div class="kh-pin"><div class="kh-pin-label">' + label + '</div></div>',
+    iconSize: [14, 14],
+    iconAnchor: [7, 7]
+  });
+}
+
+const markers = points.map((p) => {
+  const marker = L.marker([p.lat, p.lng], { icon: createPinIcon(p.label) }).addTo(map);
+
+  marker.on('click', () => {
+    if (activeMarker && activeMarker !== marker) {
+      const prevPin = activeMarker.getElement().querySelector('.kh-pin');
+      if (prevPin) prevPin.classList.remove('active');
+    }
+    activeMarker = marker;
+    const pin = marker.getElement().querySelector('.kh-pin');
+    if (pin) pin.classList.add('active');
+    openCard(p);
+  });
+
+  return marker;
+});
+
+function openCard(p) {
+  const card = document.getElementById('info-card');
+  card.classList.remove('visible');
+
+  setTimeout(() => {
+    document.getElementById('c-tag').textContent = p.tag;
+    document.getElementById('c-title').textContent = p.title;
+    document.getElementById('c-meta').innerHTML = p.meta;
+    document.getElementById('c-desc').textContent = p.desc;
+    card.classList.add('visible');
+    document.getElementById('tagline').style.opacity = '0';
+  }, 80);
+}
+
+function closeCard() {
+  document.getElementById('info-card').classList.remove('visible');
+  document.getElementById('tagline').style.opacity = '1';
+  if (activeMarker) {
+    const pin = activeMarker.getElement().querySelector('.kh-pin');
+    if (pin) pin.classList.remove('active');
+    activeMarker = null;
+  }
+}
+</script>
+</body>
+</html>
