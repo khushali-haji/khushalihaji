@@ -16,7 +16,7 @@
     --ink: #1a1a18;
     --ink-muted: #6b6b66;
     --ink-faint: #aaa89e;
-    --terracotta: #c4845a;
+    --terracotta: #dac316;
     --border: rgba(26,26,24,0.12);
     --card-bg: rgba(244,241,235,0.97);
   }
@@ -44,6 +44,7 @@
     position: absolute;
     inset: 0;
     z-index: 0;
+    filter: saturate(0.35);
   }
 
   .leaflet-control-attribution { font-size: 9px !important; background: rgba(244,241,235,0.7) !important; color: var(--ink-faint) !important; }
@@ -57,6 +58,7 @@
     cursor: pointer;
     transition: transform 0.2s;
     position: relative;
+    filter: saturate(2.5);
   }
   .kh-pin::after {
     content: '';
@@ -114,9 +116,9 @@
     font-size: 9px;
     letter-spacing: 0.1em;
     font-weight: 500;
-    color: #712B13;
-    background: rgba(196,132,90,0.12);
-    border: 0.5px solid rgba(196,132,90,0.3);
+    color: #e1a611;
+    background: rgba(212,160,23,0.12);
+    border: 0.5px solid rgba(253, 182, 0, 0.3);
     border-radius: 20px;
     padding: 2px 10px;
     margin-bottom: 12px;
@@ -176,8 +178,7 @@
 </div>
 
 <div class="map-tagline" id="tagline">
-  <p>Every story has a place.</p>
-  <span>CLICK A PIN TO EXPLORE</span>
+  <p>Click a pin to explore.</p>
 </div>
 
 <div class="pin-counter">

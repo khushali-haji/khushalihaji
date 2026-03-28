@@ -1,22 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Khushali Haji</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  <style>
+:root {
+  --cream: #f5f3f0;
+  --ink: #1a1a18;
+  --ink-muted: #6b6b66;
+  --ink-faint: #aaa89e;
+  --gold: #dac316;
+  --border: rgba(26,26,24,0.12);
+  --card-bg: rgba(245,243,240,0.97);
+}
 
-/* HEADER */
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  background: var(--cream);
+  color: var(--ink);
+  margin: 0;
+  line-height: 1.6;
+}
+
 .site-header {
   position: sticky;
   top: 0;
-  z-index: 100;
-  background: rgba(255, 255, 255, 0.92);
+  z-index: 200;
+  background: rgba(245,243,240,0.92);
   backdrop-filter: blur(6px);
-  border-bottom: 1px solid rgba(0,0,0,0.06);
+  border-bottom: 1px solid var(--border);
 }
-
 .header-inner {
   max-width: 1200px;
   margin: 0 auto;
@@ -25,279 +46,219 @@
   align-items: center;
   justify-content: space-between;
 }
-
 .site-title a {
-  font-size: 1rem;
+  font-size: 1.3rem;
   font-weight: 500;
   letter-spacing: 0.02em;
   text-decoration: none;
-  color: #111;
+  color: var(--ink);
 }
+.site-nav { display: flex; align-items: center; gap: 1.25rem; }
+.site-nav a { font-size: 0.85rem; text-decoration: none; color: var(--ink); opacity: 0.85; }
+.site-nav a:hover { opacity: 1; }
+.contact-btn { padding: 0.4rem 0.75rem; border: 1px solid var(--ink); border-radius: 999px; font-size: 0.8rem; }
 
-.site-nav {
-  display: flex;
-  align-items: center;
-  gap: 1.25rem;
-}
-
-.site-nav a {
-  font-size: 0.85rem;
-  text-decoration: none;
-  color: #111;
-  opacity: 0.85;
-}
-
-.site-nav a:hover {
-  opacity: 1;
-}
-
-.contact-btn {
-  padding: 0.4rem 0.75rem;
-  border: 1px solid #111;
-  border-radius: 999px;
-  font-size: 0.8rem;
-}
-
-@media (max-width: 900px) {
-  .site-nav {
-    gap: 1rem;
-  }
-}
-
-@media (max-width: 640px) {
-  .header-inner {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.75rem;
-  }
-
-  .site-nav {
-    flex-wrap: wrap;
-    gap: 0.75rem;
-  }
-}
-
-/* SMOOTH SCROLL */
-html {
-  scroll-behavior: smooth;
-}
-    
-body {
-  margin: 0;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-  line-height: 1.6;
-  color: #111;
-  background: #efe9e0;
-}
-
-/* HERO GALLERY - Carousel with cropped peek of adjacent slides */
-.hero-gallery {
+.map-hero {
   position: relative;
-  max-width: 1000px;
-  height: 450px;
-  margin: 3rem auto;
+  width: 100%;
+  height: 70vh;
   overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  border-bottom: 1px solid var(--border);
 }
 
-.hero-slides {
-  position: relative;
-  width: 800px;
-  height: 450px;
-  margin: 0 auto;
-}
-
-.hero-slide {
+#map {
   position: absolute;
-  width: 800px;
-  height: 450px;
-  opacity: 0;
-  transition: all 0.5s ease-in-out;
+  inset: 0;
+  z-index: 0;
+  filter: saturate(0.1)
+  ;
+}
+
+.leaflet-control-attribution { font-size: 9px !important; background: rgba(239,233,224,0.7) !important; color: var(--ink-faint) !important; }
+.leaflet-control-zoom { display: none !important; }
+
+.map-tagline {
+  position: absolute;
+  bottom: 24px;
+  left: 36px;
+  z-index: 20;
+  pointer-events: none;
+  transition: opacity 0.3s;
+  text-align: left;
+}
+.map-tagline p {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 400;
+  color: var(--ink);
+  line-height: 1.6;
+  letter-spacing: 0.01em;
+  background: rgba(255, 255, 255, 0.3);
+  padding: 6px 10px;
+  border-radius: 4px;
+  width: fit-content;
+}
+
+.pin-counter {
+  position: absolute;
+  top: 20px;
+  left: 36px;
+  z-index: 20;
   pointer-events: none;
 }
+.pin-counter p { font-size: 10px; letter-spacing: 0.08em; color: var(--ink-muted); }
 
-.hero-slide.active {
-  opacity: 1;
-  left: 0;
-  z-index: 2;
-  pointer-events: auto;
-}
-
-.hero-slide img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-  /* Scroll-triggered zoom will be applied via JS */
-  transition: transform 0.1s linear;
-}
-
-/* Black and white filter for hero-04 */
-.hero-slide.bw img {
-  filter: grayscale(100%);
-}
-
-/* Navigation arrows */
-.hero-nav {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  background: rgba(255, 255, 255, 0.8);
-  border: none;
-  width: 40px;
-  height: 40px;
+.kh-pin {
+  width: 20px; height: 20px;
   border-radius: 50%;
+  background: var(--gold);
+  border: 2.5px solid var(--cream);
   cursor: pointer;
-  font-size: 1.2rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  transition: transform 0.2s;
+  position: relative;
+  filter: saturate(2.5);
+}
+.kh-pin::after {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 1px solid rgba(218,195,22,0.35);
+}
+.kh-pin:hover { transform: scale(1.3); }
+.kh-pin.active { background: var(--ink); border-color: var(--cream); box-shadow: 0 0 0 4px rgba(26,26,24,0.15); }
+
+.kh-pin-label {
+  position: absolute;
+  bottom: 26px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+  color: var(--ink);
+  background: var(--card-bg);
+  padding: 2px 8px;
+  border-radius: 20px;
+  border: 0.5px solid var(--border);
+  letter-spacing: 0.04em;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.kh-pin:hover .kh-pin-label { opacity: 1; }
+.kh-pin.active .kh-pin-label { opacity: 1; }
+
+#info-card {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.95);
+  z-index: 1000;
+  width: 85vw;
+  max-width: 1000px;
+  max-height: 90vh;
+  background: rgba(255, 253, 250, 0.98);
+  border: 0.5px solid var(--border);
+  border-radius: 12px;
+  padding: 40px 40px;
+  opacity: 0;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: none;
+  backdrop-filter: blur(4px);
+  overflow: hidden;
+}
+#info-card::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+#info-card.visible::before {
+  opacity: 1;
+}
+#info-card.visible { opacity: 1; transform: translate(-50%, -50%) scale(1); pointer-events: all; }
+
+.card-tag {
+  display: inline-block;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  font-weight: 500;
+  color: #a08a00;
+  background: rgba(218,195,22,0.12);
+  border: 0.5px solid rgba(218,195,22,0.3);
+  border-radius: 20px;
+  padding: 2px 10px;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+.card-title { font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 400; line-height: 1.3; color: var(--ink); margin-bottom: 8px; }
+.card-meta { font-size: 11px; color: var(--ink-muted); margin-bottom: 10px; line-height: 1.5; font-weight: 300; }
+.card-meta strong { font-weight: 500; color: var(--ink); }
+.card-divider { width: 24px; height: 1px; background: var(--gold); margin-bottom: 10px; }
+.card-short-desc { font-size: 13px; color: #3a3a35; line-height: 1.6; font-weight: 300; margin-bottom: 15px; font-style: italic; }
+.card-desc { font-size: 11.5px; color: #3a3a35; line-height: 1.75; font-weight: 300; }
+.card-close {
+  position: absolute; top: 20px; right: 20px;
+  width: 32px; height: 32px; border-radius: 50%;
+  border: none; background: rgba(26,26,24,0.1);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-size: 20px; color: var(--ink); line-height: 1;
+  transition: background 0.2s; font-family: 'DM Sans', sans-serif; font-weight: 600;
   z-index: 10;
-  transition: background 0.2s;
 }
+.card-close:hover { background: rgba(26,26,24,0.2); }
 
-.hero-nav:hover {
-  background: rgba(255, 255, 255, 1);
-}
-
-.hero-prev {
-  left: 1rem;
-}
-
-.hero-next {
-  right: 1rem;
-}
-
-/* Caption */
-.hero-caption {
-  text-align: center;
-  margin-top: 1rem;
-  font-style: italic;
-  font-size: 0.9rem;
-  color: #666;
-  min-height: 2.5rem;
-}
-
-/* CONTENT SECTIONS */
+/* CONTENT */
 .content-wrapper {
-  max-width: 900px; /* Narrower for better readability */
+  max-width: 900px;
   margin: 0 auto;
-  padding: 2rem 3rem; /* Equal left and right padding */
+  padding: 3rem 3rem;
 }
 
 .text-block {
   font-size: 1.2rem;
   line-height: 1.7;
-  margin-bottom: 3rem;
-  color: #111;
-  padding-left: 0; /* Removed asymmetric padding */
-  padding-right: 0;
-  text-align: left;
-  max-width: 680px; /* Optimal reading width */
+  margin-bottom: 2rem;
+  color: var(--ink);
+  max-width: 680px;
   margin-left: auto;
   margin-right: auto;
   opacity: 0;
   transform: translateY(20px);
   transition: opacity 0.8s ease-out, transform 0.8s ease-out;
 }
+.text-block.visible { opacity: 1; transform: translateY(0); }
 
-.text-block.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* Bold text hover effect */
-.text-block strong {
-  position: relative;
-  transition: color 0.3s ease;
-}
-
-.text-block strong:hover {
-  color: #444;
-  cursor: default;
-}
-
+.text-block strong { position: relative; transition: color 0.3s ease; }
+.text-block strong:hover { color: #444; cursor: default; }
 .text-block strong::after {
   content: '';
   position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 0;
-  height: 2px;
-  background: #111;
+  bottom: 0; left: 0;
+  width: 0; height: 2px;
+  background: var(--ink);
   transition: width 0.3s ease;
 }
+.text-block strong:hover::after { width: 100%; }
 
-.text-block strong:hover::after {
-  width: 100%;
-}
-
-/* First paragraph */
-.intro-text {
-  text-align: left;
-}
-
-/* Center-aligned questions - typewriter effect */
-.center-questions {
-  text-align: center;
-  font-style: italic;
-  font-weight: normal;
-  margin: 5rem auto; /* Center with auto margins */
-  font-size: 1.2rem;
-  line-height: 2.2;
-  max-width: 680px; /* Match text block width */
-  padding-left: 2rem;
-  padding-right: 2rem;
-  opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
-}
-
-.center-questions.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* Typewriter cursor */
-.center-questions.typing::after {
-  content: '|';
-  animation: blink 0.7s infinite;
-  margin-left: 2px;
-}
-
-@keyframes blink {
-  0%, 50% { opacity: 1; }
-  51%, 100% { opacity: 0; }
-}
-
-/* Icon containers - center aligned, controlled parallax */
 .icon-container {
   display: flex;
-  justify-content: center; /* Center aligned */
+  justify-content: center;
   margin: 3rem 0;
-  padding-right: 0; /* Removed right padding */
   opacity: 0;
   transition: opacity 0.8s ease-out;
-  position: relative; /* For controlled positioning */
+  position: relative;
 }
+.icon-container.visible { opacity: 1; }
+.icon-container.venn-icon { margin-top: 2rem; margin-bottom: 4rem; }
 
-.icon-container.visible {
-  opacity: 1;
-}
-
-.icon-container.venn-icon {
-  margin-top: 2rem;
-  margin-bottom: 4rem;
-}
-
-.icon-container.city-icon {
-  margin-top: 2rem;
-  margin-bottom: 4rem;
-}
-
-/* Animated icons */
 .animation-layers {
   position: relative;
   width: 100%;
@@ -305,20 +266,15 @@ body {
   height: auto;
   aspect-ratio: 794 / 574;
 }
-
 .animation-layer {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
   opacity: 0;
   transition: opacity 1.2s ease-out;
 }
-
 .animation-layer img {
-  width: 100%;
-  height: 100%;
+  width: 100%; height: 100%;
   display: block;
   object-fit: contain;
   pointer-events: none;
@@ -326,48 +282,210 @@ body {
   -webkit-user-drag: none;
 }
 
-/* VENN ICON - Slower transitions */
-.venn-icon.visible .animation-layer:nth-child(1) {
-  opacity: 1;
-  transition-delay: 0.5s;
+.venn-icon.visible .animation-layer:nth-child(1) { opacity: 1; transition-delay: 0.5s; }
+.venn-icon.visible .animation-layer:nth-child(2) { opacity: 1; transition-delay: 1.5s; }
+.venn-icon.visible .animation-layer:nth-child(1) { transition: opacity 0s 1.5s; }
+.venn-icon.visible .animation-layer:nth-child(3) { opacity: 1; transition-delay: 3s; }
+.venn-icon.visible .animation-layer:nth-child(2) { transition: opacity 0s 3s; }
+
+/* WORK BOXES */
+.work-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  max-width: 680px;
+  margin: 3rem auto 0;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+.work-grid.visible { opacity: 1; transform: translateY(0); }
+
+.work-box {
+  border: none;
+  border-radius: 0;
+  padding: 1.25rem;
+  background: rgba(255,255,255,0.6);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  box-shadow: 0 4px 12px rgba(26,26,24,0.08);
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.work-box:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 24px rgba(26,26,24,0.15);
 }
 
-.venn-icon.visible .animation-layer:nth-child(2) {
-  opacity: 1;
-  transition-delay: 1.5s;
+.work-box-num {
+  font-size: 2.2rem;
+  letter-spacing: 0.1em;
+  color: var(--ink);
+  font-weight: 700;
+  background: var(--gold);
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  display: inline-block;
+  width: fit-content;
 }
 
-.venn-icon.visible .animation-layer:nth-child(1) {
-  transition: opacity 0s 1.5s;
+.work-box-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.4rem;
+  font-weight: 500;
+  color: var(--ink);
+  line-height: 1.3;
 }
 
-.venn-icon.visible .animation-layer:nth-child(3) {
-  opacity: 1;
-  transition-delay: 3s;
+.work-box-desc {
+  font-size: 0.8rem;
+  color: var(--ink-muted);
+  line-height: 1.6;
+  font-weight: 300;
+  flex: 1;
 }
 
-.venn-icon.visible .animation-layer:nth-child(2) {
-  transition: opacity 0s 3s;
+.work-box-link {
+  font-size: 0.8rem;
+  color: var(--ink);
+  text-decoration: none;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  margin-top: 0.25rem;
+  display: inline-block;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 1px;
+  transition: border-color 0.2s;
+}
+.work-box-link:hover { border-color: var(--ink); }
+
+/* MODAL */
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(4px);
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease-out;
+}
+.modal.visible {
+  display: flex;
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
-/* CITY ICON - Layer 2 stacks on layer 1 */
-.city-icon .animation-layer:nth-child(2) {
-  transform: scale(0.92);
-  transition: opacity 1.2s ease-out, transform 1.2s ease-out;
+.modal-content {
+  background: var(--cream);
+  border-radius: 0;
+  width: 90%;
+  max-width: 900px;
+  max-height: 85vh;
+  overflow-y: auto;
+  padding: 0;
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  align-items: start;
+  animation: slideUp 0.4s ease-out;
+}
+@keyframes slideUp {
+  from { transform: translateY(40px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
 
-.city-icon.visible .animation-layer:nth-child(1) {
-  opacity: 1;
-  transition-delay: 0.5s;
+.modal-text {
+  padding: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
-.city-icon.visible .animation-layer:nth-child(2) {
-  opacity: 1;
-  transform: scale(1);
-  transition-delay: 2s;
+.modal-image {
+  width: 100%;
+  height: 100%;
+  min-height: 500px;
+  object-fit: cover;
+  background: #ffffff;
+  display: block;
+  border: 1px solid var(--border);
 }
 
-/* Footer */
+.modal-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 40px;
+  height: 40px;
+  background: var(--gold);
+  border: none;
+  border-radius: 0;
+  cursor: pointer;
+  font-size: 24px;
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  z-index: 10;
+  transition: background 0.2s;
+}
+.modal-close:hover { background: #c9b20d; }
+
+.modal-tag {
+  display: inline-block;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  font-weight: 500;
+  color: #a08a00;
+  background: rgba(218,195,22,0.12);
+  border: 0.5px solid rgba(218,195,22,0.3);
+  border-radius: 20px;
+  padding: 2px 10px;
+  text-transform: uppercase;
+  width: fit-content;
+}
+
+.modal-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.2rem;
+  font-weight: 400;
+  color: var(--ink);
+  line-height: 1.2;
+}
+
+.modal-meta {
+  font-size: 12px;
+  color: var(--ink-muted);
+  line-height: 1.6;
+  font-weight: 300;
+}
+
+.modal-desc {
+  font-size: 1rem;
+  color: #3a3a35;
+  line-height: 1.8;
+  font-weight: 300;
+}
+
+@media (max-width: 768px) {
+  .modal-content {
+    grid-template-columns: 1fr;
+    width: 95%;
+    max-height: 90vh;
+  }
+  .modal-text {
+    padding: 1.5rem;
+  }
+  .modal-title { font-size: 1.6rem; }
+}
+
 .site-footer {
   font-size: 0.75rem;
   color: #888;
@@ -376,339 +494,318 @@ body {
   margin-top: 4rem;
 }
 
-/* TABLET VIEW */
-@media (max-width: 1024px) and (min-width: 769px) {
-  .hero-gallery {
-    max-width: 700px;
-    height: 400px;
-  }
-
-  .content-wrapper {
-    padding: 2rem 2.5rem;
-  }
-
-  .text-block {
-    font-size: 1.1rem;
-    max-width: 600px;
-  }
-
-  .center-questions {
-    font-size: 1.1rem;
-    max-width: 600px;
-  }
-
-  .animation-layers {
-    max-width: 350px;
-  }
-}
-
-/* MOBILE VIEW */
 @media (max-width: 768px) {
-  .hero-gallery {
-    max-width: 90vw;
-    height: 60vw;
-    margin: 2rem auto;
-  }
-
-  .hero-nav {
-    width: 35px;
-    height: 35px;
-    font-size: 1rem;
-  }
-
-  .hero-prev {
-    left: 0.5rem;
-  }
-
-  .hero-next {
-    right: 0.5rem;
-  }
-
-  .content-wrapper {
-    padding: 2rem 1.5rem;
-  }
-
-  .text-block {
-    font-size: 1.1rem;
-    margin-bottom: 2rem;
-    max-width: 100%;
-  }
-
-  .center-questions {
-    font-size: 1.2rem;
-    margin: 3rem auto;
-    max-width: 100%;
-    padding-left: 1rem;
-    padding-right: 1rem;
-    line-height: 2;
-  }
-
-  .animation-layers {
-    max-width: 280px;
-  }
-
-  .site-footer {
-    padding: 2rem;
-  }
+  .map-hero { height: 55vh; }
+  .pin-counter { left: 16px; }
+  .map-tagline { left: 16px; bottom: 16px; }
+  #info-card { right: 12px; left: 12px; width: auto; bottom: 40px; }
+  .content-wrapper { padding: 2rem 1.5rem; }
+  .text-block { font-size: 1.1rem; max-width: 100%; }
+  .work-grid { grid-template-columns: 1fr; max-width: 100%; }
+  .header-inner { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+  .site-nav { flex-wrap: wrap; gap: 0.75rem; }
 }
-
-  </style>
+</style>
 </head>
-
 <body>
 
 <header class="site-header">
   <div class="header-inner">
-    <div class="site-title">
-      <a href="https://khushali-haji.github.io/khushalihaji/">Khushali Haji</a>
-    </div>
-
+    <div class="site-title"><a href="https://khushali-haji.github.io/khushalihaji/">Khushali Haji</a></div>
     <nav class="site-nav">
       <a href="reporting.html">Reporting</a>
       <a href="https://khushalimhaji.wordpress.com/urban-design/">Urban / Design</a>
-      <a href="https://khushalimhaji.wordpress.com/videos/">Video</a>
+      <a href="https://khushalimhaji.wordpress.com/videos/"></a>
       <a href="https://khushalimhaji.wordpress.com/misc-projects/">Misc Projects</a>
       <a href="/cdn-cgi/l/email-protection#bad1d2cfc9d2dbd6d394d2dbd0d3faddd7dbd3d694d9d5d7" class="contact-btn">Contact</a>
     </nav>
   </div>
 </header>
 
-<!-- HERO GALLERY -->
-<div class="hero-gallery">
-  <div class="hero-slides">
-    <div class="hero-slide active" data-caption="Tactical urbanism design in Coimbatore, India (Urban Design Collective)">
-      <img src="images/hero-01.jpg" alt="Tactical urbanism Coimbatore">
-    </div>
-    <div class="hero-slide" data-caption="Mapping infrastructure issues in Vadaj, India">
-      <img src="images/hero-04.jpg" alt="Infrastructure mapping Vadaj">
-    </div>
-    <div class="hero-slide" data-caption="Investigative reporting Bong County, Liberia (New Narratives)">
-      <img src="images/hero-05.jpg" alt="Reporting in Liberia">
-    </div>
-    <div class="hero-slide" data-caption="Street photography, New York, USA">
-      <img src="images/hero-08.png" alt="Street photography NYC">
-    </div>
+<div class="map-hero">
+  <div id="map"></div>
+  <div class="pin-counter"><p>7 LOCATIONS · 3 CONTINENTS</p></div>
+  <div id="info-card">
+    <button class="card-close" onclick="closeCard()">×</button>
+    <img id="card-image" src="" alt="" style="display: none; width: 100%; height: auto; margin-bottom: 1rem; border-radius: 0;">
+    <div class="card-tag" id="c-tag"></div>
+    <div class="card-title" id="c-title"></div>
+    <div class="card-meta" id="c-meta"></div>
+    <div class="card-divider"></div>
+    <div class="card-short-desc" id="c-short-desc"></div>
+    <div class="card-desc" id="c-desc"></div>
   </div>
-  
-  <button class="hero-nav hero-prev" aria-label="Previous">‹</button>
-  <button class="hero-nav hero-next" aria-label="Next">›</button>
+  <div class="map-tagline" id="tagline">
+    <p><em>Click a pin to explore.</em></p>
+  </div>
 </div>
 
-<div class="hero-caption" id="heroCaption">Tactical urbanism design in Coimbatore, India (Urban Design Collective)</div>
-
-<!-- CONTENT -->
 <div class="content-wrapper">
-  
-  <!-- First paragraph - left aligned -->
+
   <div class="text-block intro-text">
+    <br>
+    <br>
     <strong>Hello.</strong> I'm Khushali, a researcher, multimedia journalist and filmmaker, interested in how people experience <strong>systems, cities,</strong> and <strong>power</strong>, and how storytelling can bring data and policy to life.
   </div>
 
-  <!-- Venn diagram - right aligned -->
-  <div class="icon-container venn-icon" data-parallax="0.3">
+  <div class="icon-container venn-icon">
     <div class="animation-layers">
-      <div class="animation-layer">
-        <img src="icons/venn_1.png" alt="Venn diagram layer 1">
-      </div>
-      <div class="animation-layer">
-        <img src="icons/venn_2.png" alt="Venn diagram layer 2">
-      </div>
-      <div class="animation-layer">
-        <img src="icons/venn_3.png" alt="Venn diagram layer 3">
-      </div>
+      <div class="animation-layer"><img src="icons/venn_1.png" alt="Venn diagram layer 1"></div>
+      <div class="animation-layer"><img src="icons/venn_2.png" alt="Venn diagram layer 2"></div>
+      <div class="animation-layer"><img src="icons/venn_3.png" alt="Venn diagram layer 3"></div>
     </div>
   </div>
 
-  <!-- Second paragraph - left aligned -->
   <div class="text-block">
-    I trained as an urban designer at CEPT University in India, learning how cities are planned on paper through land-use, zoning, and infrastructure. But what stayed with me were the things that didn't quite fit on those pages: the messiness of everyday life, the politics operating at different scales, and the emotions, negotiations, and aspirations of the people who actually live within those lines. I kept asking:
+    I trained as an urban designer in Ahmedabad, India, learning to draw cities through land use, zoning, infrastructure. But what stayed with me was everything that didn't fit: the informal, the political, the socio-economic, the human. I turned to theater, research essays, and eventually journalism to get closer to that.
   </div>
 
-  <!-- Three questions - center aligned, italic, typewriter effect -->
-  <div class="center-questions" id="typewriterText" data-text="Who is the city really for? Who gets left out? And how do people navigate systems that weren't built with them in mind?">
-  </div>
-
-  <!-- Third paragraph - left aligned -->
   <div class="text-block">
-    Looking for ways to explore those questions, I turned to local theater, research essays, and character-driven fiction. Storytelling became a way to research – to listen closely, sit with contradiction, and bring lived experience into abstract or technical conversations. I later studied International Reporting and Documentary Filmmaking at the Newmark Graduate School of Journalism (CUNY), where I learned to follow stories in the space between policy, data, and lived reality, and use different media to tell them.
+    Since my MA in International Reporting and Documentary Filmmaking at CUNY Newmark, I've reported on carbon credit fraud in Liberia, asylum policy in the US, and studied community politics in India. I've edited indie documentaries, set up DCPs at a post house, led content strategy and community engagement, and am now researching international conflict stories for a mapping startup, plotting geopolitical narrative onto a live map API.
   </div>
 
-  <!-- Fourth paragraph - left aligned -->
   <div class="text-block">
-    Since then, my work has moved across formats and geographies, from investigative reporting on carbon credit markets in Liberia, to coverage of asylum policy and public health in the U.S., to community engagement and research for a crowd-management project in Varanasi. I've reported on issues ranging from domestic violence to interfaith community-building, and made short films about connection, ambition, and belonging. My reporting has been recognized by the Silurians Press Club, and my short documentary received a Special Jury Mention at the 2025 Woodstock Film Festival.
+    Based in New York, I'm seeking roles at the intersection of spatial data, narrative strategy, and public-interest storytelling, where research meets design, and complexity is the point.
   </div>
-
-  <!-- Fifth paragraph - left aligned -->
-  <div class="text-block">
-    Now based in <strong>New York</strong>, I work across journalism, video, and research-driven storytelling, always drawn to projects where <strong>systems meet lived experience</strong>. I'm especially interested in roles that sit between urban planning, public policy, and content or narrative strategy, work that involves research, creative engagement, and communicating complex ideas clearly and responsibly.
-  </div>
-
-  <!-- City icon - right aligned -->
-  <div class="icon-container city-icon" data-parallax="0.3">
-    <div class="animation-layers">
-      <div class="animation-layer">
-        <img src="icons/city_1.png" alt="City layer 1">
-      </div>
-      <div class="animation-layer">
-        <img src="icons/city_2.png" alt="City layer 2">
-      </div>
+<br>
+  <div class="work-grid">
+    <div class="work-box">
+      <div class="work-box-num">01</div>
+      <div class="work-box-title">Research & reporting</div>
+      <div class="work-box-desc">Investigative journalism across climate, migration, and public policy. Print and multimedia, domestic and international.</div>
+      <a href="https://khushali-haji.github.io/khushalihaji/reporting.html" class="work-box-link">See reporting →</a>
     </div>
-  </div>
-
-  <!-- Final paragraph - left aligned -->
-  <div class="text-block">
-    You can explore my journalism under <strong>Reporting</strong>, urban and graphic design work under <strong>Urban / Design</strong>, video projects under <strong>Videos</strong>, and essays and long-form writing under <strong>Writing</strong>.
+    <div class="work-box">
+      <div class="work-box-num">02</div>
+      <div class="work-box-title">Visual & spatial storytelling</div>
+      <div class="work-box-desc">Documentary film, geo-narrative mapping, and data-driven visual projects. Festival-recognized work.</div>
+      <a href="#" class="work-box-link">See videos →</a>
+    </div>
+    <div class="work-box">
+      <div class="work-box-num">03</div>
+      <div class="work-box-title">Urban & design research</div>
+      <div class="work-box-desc">Spatial analysis, tactical urbanism, and community-engaged design from Coimbatore to Varanasi.</div>
+      <a href="#" class="work-box-link">See urban work →</a>
+    </div>
   </div>
 
 </div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-  // Hero gallery navigation with peek effect
-  const slides = document.querySelectorAll('.hero-slide');
-  const prevBtn = document.querySelector('.hero-prev');
-  const nextBtn = document.querySelector('.hero-next');
-  const caption = document.getElementById('heroCaption');
-  let currentSlide = 0;
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+<script>
+const points = [
+  { lat: 6.3, lng: -10.8, label: "Liberia", tag: "Investigative Reporting", title: "Indian and Lebanese Economic Ties in Liberia", meta: "<strong>New Narratives</strong> | Monrovia, Liberia · 2024", summary: "Deep reporting on how Indian and Lebanese business networks have come to dominate Liberia's economy through privileged access to capital and political ties, often sidelining local entrepreneurs and limiting economic development.", desc: "Deep reporting on how Indian and Lebanese business networks have come to dominate Liberia's economy through privileged access to capital and political ties, often sidelining local entrepreneurs and limiting economic development." },
+  { lat: 11.0, lng: 76.96, label: "Coimbatore", tag: "Urban Design", title: "Tactical Urbanism in Coimbatore", meta: "<strong>Urban Design Collective</strong> | Coimbatore, India · 2021", summary: "Deep reporting on how Indian and Lebanese business networks have come to dominate Liberia's economy through privileged access to capital and political ties, often sidelining local entrepreneurs and limiting economic development.", desc: "Redesigning street-level public space through participatory design interventions, documenting how informal use shapes formal urban planning.", image: "images/hero-01.jpg" },
+  { lat: 25.32, lng: 83.0, label: "Varanasi", tag: "Spatial Research", title: "Crowd Management at a Pilgrimage City", meta: "<strong>Research Project</strong> | Varanasi, India · 2022", summary: "Deep reporting on how Indian and Lebanese business networks have come to dominate Liberia's economy through privileged access to capital and political ties, often sidelining local entrepreneurs and limiting economic development.", desc: "Community engagement and spatial research for a crowd-management initiative at one of the world's most densely used pilgrimage sites." },
+  { lat: 45.46, lng: 9.19, label: "Milan", tag: "Placeholder", title: "Project Title Here", meta: "<strong>Organisation</strong> | Milan, Italy · Year", summary: "Deep reporting on how Indian and Lebanese business networks have come to dominate Liberia's economy through privileged access to capital and political ties, often sidelining local entrepreneurs and limiting economic development.", desc: "Brief description of work done in Milan goes here." },
+  { lat: 35.86, lng: 104.19, label: "China", tag: "Placeholder", title: "Project Title Here", meta: "<strong>Organisation</strong> | China · Year", summary: "Deep reporting on how Indian and Lebanese business networks have come to dominate Liberia's economy through privileged access to capital and political ties, often sidelining local entrepreneurs and limiting economic development.", desc: "Brief description of work done in China goes here." },
+  { lat: 40.71, lng: -74.0, label: "New York", tag: "Journalism", title: "Reporting from New York", meta: "<strong>CUNY Newmark / Freelance</strong> | New York, USA · 2023–present", summary: "Deep reporting on how Indian and Lebanese business networks have come to dominate Liberia's economy through privileged access to capital and political ties, often sidelining local entrepreneurs and limiting economic development.", desc: "Investigative and multimedia journalism covering asylum policy, public health, interfaith community life, and urban systems in New York." },
+  { lat: 23.02, lng: 72.57, label: "Ahmedabad", tag: "Urban Research", title: "Infrastructure Mapping in Vadaj", meta: "<strong>CEPT University</strong> | Ahmedabad, India · 2020", summary: "Deep reporting on how Indian and Lebanese business networks have come to dominate Liberia's economy through privileged access to capital and political ties, often sidelining local entrepreneurs and limiting economic development.", desc: "Ground-level documentation of informal infrastructure in a working-class neighbourhood, mapping what official surveys missed." }
+];
 
-  function showSlide(index) {
-    slides.forEach((slide, i) => {
-      slide.classList.remove('active', 'prev-peek', 'next-peek');
-      
-      if (i === index) {
-        slide.classList.add('active');
-      }
-    });
-    caption.textContent = slides[index].dataset.caption;
-  }
+window.map = L.map('map', {
+  center: [22, 20],
+  zoom: 2,
+  zoomControl: false,
+  attributionControl: true,
+  scrollWheelZoom: false,
+  doubleClickZoom: false,
+  touchZoom: false,
+  dragging: false,
+  keyboard: false,
+  boxZoom: false
+});
 
-  function nextSlide() {
-    currentSlide = (currentSlide + 1) % slides.length;
-    showSlide(currentSlide);
-  }
+const map = window.map;
 
-  function prevSlide() {
-    currentSlide = (currentSlide - 1 + slides.length) % slides.length;
-    showSlide(currentSlide);
-  }
+L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png', {
+  attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a> &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>',
+  maxZoom: 16
+}).addTo(map);
 
-  showSlide(0);
+L.tileLayer('https://tiles.stadiamaps.com/tiles/stamen_watercolor/{z}/{x}/{y}.jpg', {
+  maxZoom: 16, opacity: 0.55
+}).addTo(map);
 
-  nextBtn.addEventListener('click', nextSlide);
-  prevBtn.addEventListener('click', prevSlide);
+let activeMarker = null;
 
-  // Touch swipe support
-  let touchStartX = 0;
-  let touchEndX = 0;
-  const gallery = document.querySelector('.hero-gallery');
-
-  gallery.addEventListener('touchstart', (e) => {
-    touchStartX = e.changedTouches[0].screenX;
+function createPinIcon(label) {
+  return L.divIcon({
+    className: '',
+    html: '<div class="kh-pin"><div class="kh-pin-label">' + label + '</div></div>',
+    iconSize: [20, 20],
+    iconAnchor: [10, 10]
   });
+}
 
-  gallery.addEventListener('touchend', (e) => {
-    touchEndX = e.changedTouches[0].screenX;
-    handleSwipe();
-  });
-
-  function handleSwipe() {
-    if (touchEndX < touchStartX - 50) nextSlide();
-    if (touchEndX > touchStartX + 50) prevSlide();
-  }
-
-  // Keyboard navigation
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'ArrowLeft') prevSlide();
-    if (e.key === 'ArrowRight') nextSlide();
-  });
-
-  // TYPEWRITER EFFECT - Medium speed
-  let typewriterStarted = false;
-  const typewriterElement = document.getElementById('typewriterText');
-  const fullText = typewriterElement.dataset.text;
-  let charIndex = 0;
-
-  function typeWriter() {
-    if (charIndex < fullText.length) {
-      typewriterElement.textContent = fullText.substring(0, charIndex + 1);
-      typewriterElement.classList.add('typing');
-      charIndex++;
-      setTimeout(typeWriter, 35); // Medium speed (35ms per character)
-    } else {
-      typewriterElement.classList.remove('typing');
+points.forEach((p) => {
+  const marker = L.marker([p.lat, p.lng], { icon: createPinIcon(p.label) }).addTo(map);
+  marker.on('click', () => {
+    if (activeMarker && activeMarker !== marker) {
+      const prev = activeMarker.getElement().querySelector('.kh-pin');
+      if (prev) prev.classList.remove('active');
     }
-  }
+    activeMarker = marker;
+    const pin = marker.getElement().querySelector('.kh-pin');
+    if (pin) pin.classList.add('active');
+    openCard(p);
+  });
+});
 
-  // SCROLL-TRIGGERED HERO ZOOM
-  const heroGallery = document.querySelector('.hero-gallery');
-  const heroImages = document.querySelectorAll('.hero-slide img');
-  
-  function updateHeroZoom() {
-    const rect = heroGallery.getBoundingClientRect();
-    const scrollProgress = Math.max(0, Math.min(1, 1 - (rect.top / window.innerHeight)));
-    const scale = 1 + (scrollProgress * 0.15); // Zoom from 1 to 1.15
+function openCard(p) {
+  const card = document.getElementById('info-card');
+  const map = document.getElementById('map');
+  card.classList.remove('visible');
+  setTimeout(() => {
+    document.getElementById('c-tag').textContent = p.tag;
+    document.getElementById('c-title').textContent = p.title;
+    document.getElementById('c-meta').innerHTML = p.meta;
+    document.getElementById('c-short-desc').textContent = p.summary || '';
+    document.getElementById('c-desc').textContent = p.desc;
     
-    heroImages.forEach(img => {
-      img.style.transform = `scale(${scale})`;
-    });
+    const cardImage = document.getElementById('card-image');
+    if (p.image) {
+      cardImage.src = p.image;
+      cardImage.style.display = 'block';
+    } else {
+      cardImage.style.display = 'none';
+    }
+    
+    card.classList.add('visible');
+    map.style.filter = 'brightness(0.4)';
+    document.getElementById('tagline').style.opacity = '0';
+  }, 80);
+}
+
+function closeCard() {
+  const map = document.getElementById('map');
+  document.getElementById('info-card').classList.remove('visible');
+  map.style.filter = 'brightness(1)';
+  document.getElementById('tagline').style.opacity = '1';
+  if (activeMarker) {
+    const pin = activeMarker.getElement().querySelector('.kh-pin');
+    if (pin) pin.classList.remove('active');
+    activeMarker = null;
   }
+}
 
-  // IMPROVED PARALLAX - Limited range to prevent overlap
-  const parallaxElements = document.querySelectorAll('[data-parallax]');
-  
-  function updateParallax() {
-    parallaxElements.forEach(element => {
-      const rect = element.getBoundingClientRect();
-      const elementCenter = rect.top + (rect.height / 2);
-      const windowCenter = window.innerHeight / 2;
-      const distance = windowCenter - elementCenter;
-      
-      // Only apply parallax when element is near viewport center
-      if (Math.abs(distance) < window.innerHeight) {
-        const speed = parseFloat(element.dataset.parallax);
-        const yPos = distance * speed * 0.15; // Reduced movement range
-        
-        // Clamp movement to prevent overlap (max ±30px)
-        const clampedY = Math.max(-30, Math.min(30, yPos));
-        element.style.transform = `translateY(${clampedY}px)`;
-      }
-    });
-  }
-
-  window.addEventListener('scroll', () => {
-    updateHeroZoom();
-    updateParallax();
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
   });
+}, { threshold: 0.2 });
 
-  // Initialize on load
-  updateHeroZoom();
-  updateParallax();
-
-  // SCROLL-TRIGGERED ANIMATIONS
-  const scrollObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('visible');
-        
-        // Start typewriter when questions become visible
-        if (entry.target.id === 'typewriterText' && !typewriterStarted) {
-          typewriterStarted = true;
-          setTimeout(typeWriter, 300); // Small delay before typing starts
-        }
-      }
-    });
-  }, {
-    threshold: 0.2
-  });
-
-  // Observe all text blocks, questions, and icons
-  document.querySelectorAll('.text-block, .center-questions, .icon-container').forEach(element => {
-    scrollObserver.observe(element);
-  });
+document.querySelectorAll('.text-block, .icon-container, .work-grid').forEach(el => observer.observe(el));
 </script>
 
-<footer class="site-footer">
-  © 2026 Khushali Haji. All rights reserved.
-</footer>
+<div id="modal" class="modal">
+  <div class="modal-content">
+    <div class="modal-text">
+      <button class="modal-close" onclick="closeModal()">×</button>
+      <div class="modal-tag" id="modal-tag"></div>
+      <div class="modal-title" id="modal-title"></div>
+      <div class="modal-meta" id="modal-meta"></div>
+      <div class="modal-desc" id="modal-desc"></div>
+    </div>
+    <img id="modal-image" class="modal-image" src="" alt="">
+  </div>
+</div>
+
+<footer class="site-footer">© 2026 Khushali Haji. All rights reserved.</footer>
+
+<script>
+// Modal functionality
+const workBoxes = {
+  '01': {
+    tag: 'Research & Reporting',
+    title: 'Investigative Journalism Across Continents',
+    meta: '<strong>Print & Multimedia</strong> | Climate · Migration · Policy',
+    desc: 'Deep reporting on complex systems: from carbon credit fraud in Liberia to asylum policy in the US. Published in major outlets. Combining data, interviews, and visual storytelling to make policy legible.',
+    image: '' // User will add image later
+  },
+  '02': {
+    tag: 'Visual & Spatial Storytelling',
+    title: 'Documentary Film & Geo-Narrative Mapping',
+    meta: '<strong>Festival-Recognized</strong> | Film · Data Visualization · Maps',
+    desc: 'Documentaries, interactive maps, and data-driven visual projects exploring how space, place, and narrative intersect. Work submitted to festivals and exhibited in exhibitions.',
+    image: ''
+  },
+  '03': {
+    tag: 'Urban & Design Research',
+    title: 'Spatial Analysis & Community-Engaged Design',
+    meta: '<strong>Published Research</strong> | India · Tactical Urbanism · Infrastructure',
+    desc: 'Mapping informal infrastructure, documenting how people actually use public space. Participatory design from Coimbatore to Varanasi, centred on what official surveys miss.',
+    image: 'images/hero-01.jpg'
+  }
+};
+
+function openModal(num) {
+  const data = workBoxes[num];
+  if (!data) return;
+  
+  document.getElementById('modal-tag').textContent = data.tag;
+  document.getElementById('modal-title').textContent = data.title;
+  document.getElementById('modal-meta').innerHTML = data.meta;
+  document.getElementById('modal-desc').textContent = data.desc;
+  
+  const img = document.getElementById('modal-image');
+  img.src = data.image || '';
+  img.style.display = 'block';
+  
+  document.getElementById('modal').classList.add('visible');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('visible');
+  document.body.style.overflow = 'auto';
+}
+
+// Close modal on background click
+document.getElementById('modal')?.addEventListener('click', function(e) {
+  if (e.target === this) {
+    closeModal();
+  }
+});
+
+// Close modal on escape key
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    closeModal();
+  }
+});
+
+// Add click handlers to work boxes
+document.querySelectorAll('.work-box').forEach((box, index) => {
+  const num = String(index + 1).padStart(2, '0');
+  box.style.cursor = 'pointer';
+  box.addEventListener('click', () => openModal(num));
+});
+
+// Map scroll zoom - subtle and elegant
+let initialZoom = null;
+let zoomTimeout;
+window.addEventListener('scroll', () => {
+  const mapHero = document.querySelector('.map-hero');
+  if (!mapHero || !window.map) return;
+  
+  if (initialZoom === null) {
+    initialZoom = window.map.getZoom();
+  }
+  
+  const mapRect = mapHero.getBoundingClientRect();
+  const scrollPercent = Math.max(0, 1 - (mapRect.bottom / window.innerHeight));
+  const newZoom = initialZoom + (scrollPercent * 0.15);
+  
+  clearTimeout(zoomTimeout);
+  zoomTimeout = setTimeout(() => {
+    window.map.setZoom(newZoom);
+  }, 50);
+});
+</script>
+
 
 </body>
 </html>
