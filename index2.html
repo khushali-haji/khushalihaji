@@ -2,318 +2,1213 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Khushali Haji — Hero Map</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&family=Raleway:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  :root {
-    --cream: #f4f1eb;
-    --ink: #1a1a18;
-    --ink-muted: #6b6b66;
-    --ink-faint: #aaa89e;
-    --terracotta: #dac316;
-    --border: rgba(26,26,24,0.12);
-    --card-bg: rgba(244,241,235,0.97);
-  }
+:root {
+  --cream: #f5f3f0;
+  --ink: #1a1a18;
+  --ink-muted: #6b6b66;
+  --ink-faint: #aaa89e;
+  --gold: #c9a800;
+  --gold-bright: #f0cc00;
+  --gold-deep: #a07800;
+  --border: rgba(26,26,24,0.14);
+  --card-bg: rgba(255,253,250,0.98);
+  --shadow-sm: 0 2px 8px rgba(26,26,24,0.10);
+  --shadow-md: 0 6px 24px rgba(26,26,24,0.14);
+  --shadow-lg: 0 16px 48px rgba(26,26,24,0.22);
+}
 
-  html, body { height: 100%; font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--ink); overflow: hidden; }
+html { scroll-behavior: smooth; }
 
-  nav {
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    z-index: 1000;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 20px 36px;
-    background: linear-gradient(to bottom, rgba(244,241,235,0.95) 0%, rgba(244,241,235,0) 100%);
-    pointer-events: none;
-  }
-  nav a, nav span { pointer-events: all; }
-  .nav-logo { font-family: 'Playfair Display', serif; font-size: 15px; font-weight: 400; color: var(--ink); text-decoration: none; letter-spacing: 0.01em; }
-  .nav-links { display: flex; gap: 28px; }
-  .nav-links a { font-size: 11px; color: var(--ink-muted); text-decoration: none; letter-spacing: 0.04em; font-weight: 400; transition: color 0.2s; }
-  .nav-links a:hover { color: var(--ink); }
+body {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  background: var(--cream);
+  color: var(--ink);
+  margin: 0;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
 
-  #map {
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    filter: saturate(0.35);
-  }
+/* GRAIN TEXTURE OVERLAY */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0.032;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+}
 
-  .leaflet-control-attribution { font-size: 9px !important; background: rgba(244,241,235,0.7) !important; color: var(--ink-faint) !important; }
-  .leaflet-control-zoom { display: none !important; }
+/* HEADER */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 500;
+  background: rgba(245,243,240,0.94);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border);
+  transition: box-shadow 0.3s ease;
+}
+.site-header.scrolled { box-shadow: var(--shadow-sm); }
 
-  .kh-pin {
-    width: 14px; height: 14px;
-    border-radius: 50%;
-    background: var(--terracotta);
-    border: 2px solid var(--cream);
-    cursor: pointer;
-    transition: transform 0.2s;
-    position: relative;
-    filter: saturate(2.5);
-  }
-  .kh-pin::after {
-    content: '';
-    position: absolute;
-    inset: -5px;
-    border-radius: 50%;
-    border: 1px solid rgba(196,132,90,0.3);
-  }
-  .kh-pin:hover { transform: scale(1.3); }
-  .kh-pin.active { background: var(--ink); border-color: var(--cream); box-shadow: 0 0 0 3px rgba(26,26,24,0.15); }
+.header-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.site-title a {
+  font-family: 'Raleway', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  color: var(--ink);
+  transition: color 0.2s;
+}
+.site-title a:hover { color: var(--gold-deep); }
 
-  .kh-pin-label {
-    position: absolute;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    white-space: nowrap;
-    font-size: 10px;
-    font-family: 'DM Sans', sans-serif;
-    font-weight: 500;
-    color: var(--ink);
-    background: var(--card-bg);
-    padding: 2px 8px;
-    border-radius: 20px;
-    border: 0.5px solid var(--border);
-    letter-spacing: 0.04em;
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.15s;
-  }
-  .kh-pin:hover .kh-pin-label { opacity: 1; }
-  .kh-pin.active .kh-pin-label { opacity: 1; }
+.site-nav { display: flex; align-items: center; gap: 0; }
+.site-nav a {
+  font-family: 'Raleway', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  text-decoration: none;
+  color: var(--ink);
+  opacity: 0.7;
+  padding: 0.4rem 1rem;
+  transition: opacity 0.2s;
+  position: relative;
+}
+.site-nav a::after {
+  content: '';
+  position: absolute;
+  bottom: 2px; left: 1rem; right: 1rem;
+  height: 1.5px;
+  background: var(--gold-bright);
+  transform: scaleX(0);
+  transition: transform 0.25s ease;
+  transform-origin: left;
+}
+.site-nav a:hover { opacity: 1; }
+.site-nav a:hover::after { transform: scaleX(1); }
 
-  /* INFO CARD */
-  #info-card {
-    position: absolute;
-    bottom: 36px;
-    right: 36px;
-    z-index: 900;
-    width: 320px;
-    background: var(--card-bg);
-    border: 0.5px solid var(--border);
-    border-radius: 12px;
-    padding: 22px 24px;
-    opacity: 0;
-    transform: translateY(8px);
-    transition: opacity 0.3s ease, transform 0.3s ease;
-    pointer-events: none;
-    backdrop-filter: blur(4px);
-  }
-  #info-card.visible { opacity: 1; transform: translateY(0); pointer-events: all; }
+/* Nav scramble effect */
+.site-nav a .nav-text { display: inline-block; }
 
-  .card-tag {
-    display: inline-block;
-    font-size: 9px;
-    letter-spacing: 0.1em;
-    font-weight: 500;
-    color: #e1a611;
-    background: rgba(212,160,23,0.12);
-    border: 0.5px solid rgba(253, 182, 0, 0.3);
-    border-radius: 20px;
-    padding: 2px 10px;
-    margin-bottom: 12px;
-    text-transform: uppercase;
-  }
-  .card-title { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 400; line-height: 1.25; color: var(--ink); margin-bottom: 10px; }
-  .card-meta { font-size: 11px; color: var(--ink-muted); margin-bottom: 12px; line-height: 1.5; font-weight: 300; }
-  .card-meta strong { font-weight: 500; color: var(--ink); }
-  .card-divider { width: 24px; height: 1px; background: var(--terracotta); margin-bottom: 12px; }
-  .card-desc { font-size: 12px; color: #3a3a35; line-height: 1.75; font-weight: 300; }
-  .card-close {
-    position: absolute; top: 14px; right: 16px;
-    width: 22px; height: 22px; border-radius: 50%;
-    border: 0.5px solid var(--border); background: transparent;
-    cursor: pointer; display: flex; align-items: center; justify-content: center;
-    font-size: 14px; color: var(--ink-muted); line-height: 1;
-    transition: background 0.15s; font-family: 'DM Sans', sans-serif;
-  }
-  .card-close:hover { background: rgba(26,26,24,0.06); }
+.contact-btn {
+  font-family: 'Raleway', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  padding: 0.4rem 1.1rem;
+  border: 1.5px solid rgba(26,26,24,0.5);
+  border-radius: 999px;
+  margin-left: 0.5rem;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+.contact-btn:hover {
+  background: var(--ink) !important;
+  color: var(--cream) !important;
+  border-color: var(--ink) !important;
+  opacity: 1 !important;
+}
+.contact-btn:hover::after { display: none; }
 
-  .map-tagline {
-    position: absolute;
-    bottom: 32px; left: 36px;
-    z-index: 900;
-    pointer-events: none;
-    transition: opacity 0.3s;
-  }
-  .map-tagline p { font-family: 'Playfair Display', serif; font-size: 13px; font-style: italic; color: var(--ink-muted); line-height: 1.6; }
-  .map-tagline span { font-family: 'DM Sans', sans-serif; font-size: 10px; font-style: normal; letter-spacing: 0.08em; color: var(--ink-faint); display: block; margin-top: 4px; }
+/* MODE TOGGLE */
+.mode-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: rgba(26,26,24,0.06);
+  border-radius: 999px;
+  padding: 3px;
+  margin-left: 1.5rem;
+}
+.mode-btn {
+  font-family: 'Raleway', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  padding: 0.3rem 0.8rem;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink-muted);
+  cursor: pointer;
+  transition: background 0.25s, color 0.25s;
+  white-space: nowrap;
+}
+.mode-btn.active {
+  background: var(--ink);
+  color: var(--cream);
+}
 
-  .pin-counter { position: absolute; top: 80px; left: 36px; z-index: 900; pointer-events: none; }
-  .pin-counter p { font-size: 10px; letter-spacing: 0.08em; color: var(--ink-faint); }
+/* MAP HERO */
+.map-hero {
+  position: relative;
+  width: 100%;
+  height: 70vh;
+  overflow: hidden;
+  border-bottom: 2px solid rgba(26,26,24,0.18);
+}
+
+.map-tiles-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  filter: saturate(0.08) brightness(0.68) contrast(1.18);
+  transition: filter 0.5s ease;
+  pointer-events: none;
+}
+.map-tiles-layer.dimmed {
+  filter: saturate(0.08) brightness(0.22) contrast(1.18);
+}
+
+#map {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: transparent;
+}
+
+.leaflet-control-attribution { font-size: 9px !important; background: rgba(245,243,240,0.6) !important; color: var(--ink-faint) !important; }
+.leaflet-control-zoom { display: none !important; }
+
+/* Animated counter */
+.map-stats {
+  position: absolute;
+  top: 20px;
+  left: 36px;
+  z-index: 20;
+  pointer-events: none;
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+}
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.stat-num {
+  font-family: 'Raleway', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1;
+  background: rgba(255,255,255,0.5);
+  padding: 2px 8px;
+}
+.stat-label {
+  font-family: 'Raleway', sans-serif;
+  font-size: 8px;
+  letter-spacing: 0.12em;
+  color: var(--ink-muted);
+  font-weight: 500;
+  text-transform: uppercase;
+  padding: 0 8px;
+}
+
+/* NY time */
+.ny-time {
+  position: absolute;
+  top: 20px;
+  right: 36px;
+  z-index: 20;
+  pointer-events: none;
+  text-align: right;
+  background: rgba(255,255,255,0.42);
+  padding: 6px 12px;
+  border-radius: 4px;
+}
+.ny-time-clock {
+  font-family: 'Raleway', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+}
+.ny-time-label {
+  font-family: 'Raleway', sans-serif;
+  font-size: 8.5px;
+  letter-spacing: 0.1em;
+  color: var(--ink-muted);
+  text-transform: uppercase;
+}
+
+.map-tagline {
+  position: absolute;
+  bottom: 24px;
+  left: 36px;
+  z-index: 20;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+.map-tagline p {
+  font-family: 'Playfair Display', serif;
+  font-size: 15px;
+  font-style: italic;
+  font-weight: 400;
+  color: var(--ink);
+  background: rgba(255,255,255,0.52);
+  padding: 6px 14px;
+  border-radius: 4px;
+  display: inline-block;
+  box-shadow: var(--shadow-sm);
+}
+
+/* PINS */
+.kh-pin {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: #e8c000;
+  border: 2.5px solid #fff;
+  cursor: pointer;
+  position: relative;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.35);
+  opacity: 0;
+  transform: scale(0.3);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.kh-pin.loaded {
+  opacity: 1;
+  transform: scale(1);
+}
+.kh-pin:hover {
+  transform: scale(1.4);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+}
+.kh-pin.active {
+  background: var(--ink);
+  border-color: #fff;
+  box-shadow: 0 0 0 4px rgba(26,26,24,0.22);
+}
+.kh-pin.active::after { animation: none !important; }
+
+/* Pin filter highlight */
+.kh-pin.dimmed-pin {
+  opacity: 0.2 !important;
+  transform: scale(0.85) !important;
+}
+.kh-pin.highlighted-pin {
+  transform: scale(1.2);
+  box-shadow: 0 0 0 3px var(--gold-bright), 0 4px 16px rgba(0,0,0,0.4);
+}
+
+.kh-pin::after {
+  content: '';
+  position: absolute;
+  inset: -7px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(232,192,0,0.5);
+  opacity: 0;
+}
+.kh-pin.loaded::after {
+  animation: pinPulse 2.8s ease-out infinite;
+  animation-delay: var(--pulse-delay, 0s);
+}
+
+@keyframes pinPulse {
+  0%   { transform: scale(0.85); opacity: 0.8; }
+  60%  { transform: scale(1.7);  opacity: 0; }
+  100% { transform: scale(1.7);  opacity: 0; }
+}
+@keyframes pinDrop {
+  0%   { opacity: 0; transform: scale(0.2) translateY(-16px); }
+  65%  { transform: scale(1.2) translateY(3px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.kh-pin-label {
+  position: absolute;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 10px;
+  font-family: 'Raleway', sans-serif;
+  font-weight: 600;
+  color: var(--ink);
+  background: rgba(255,253,250,0.96);
+  padding: 3px 10px;
+  border-radius: 20px;
+  border: 0.5px solid var(--border);
+  letter-spacing: 0.05em;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+  box-shadow: var(--shadow-sm);
+}
+.kh-pin:hover .kh-pin-label { opacity: 1; }
+.kh-pin.active .kh-pin-label { opacity: 1; }
+
+/* ROUTE LINES SVG */
+#route-svg {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  width: 100%;
+  height: 100%;
+}
+.route-line {
+  fill: none;
+  stroke: rgba(232,192,0,0.35);
+  stroke-width: 1.2;
+  stroke-dasharray: 4 6;
+  stroke-linecap: round;
+  stroke-dashoffset: 1000;
+  animation: drawLine 1.8s ease-out forwards;
+}
+@keyframes drawLine {
+  to { stroke-dashoffset: 0; }
+}
+
+/* INFO CARD */
+#info-card {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.94);
+  z-index: 100;
+  width: min(880px, 92vw);
+  background: var(--card-bg);
+  border: 0.5px solid rgba(26,26,24,0.15);
+  border-radius: 12px;
+  padding: 0;
+  opacity: 0;
+  transition: opacity 0.35s ease, transform 0.35s ease;
+  pointer-events: none;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 3fr 2fr;
+  box-shadow: var(--shadow-lg);
+}
+#info-card.visible {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+  pointer-events: all;
+}
+
+.card-image-col {
+  overflow: hidden;
+  min-height: 340px;
+  position: relative;
+}
+.card-image-col img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.8s ease;
+}
+#info-card.visible .card-image-col img { transform: scale(1.04); }
+#info-card.visible .card-image-col img:hover { transform: scale(1.09); }
+
+.card-body {
+  padding: 30px 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  border-left: 3px solid var(--gold-bright);
+}
+.card-tag {
+  display: inline-block;
+  font-family: 'Raleway', sans-serif;
+  font-size: 8.5px;
+  letter-spacing: 0.13em;
+  font-weight: 700;
+  color: #7a6200;
+  background: rgba(218,195,22,0.16);
+  border: 0.5px solid rgba(218,195,22,0.45);
+  border-radius: 20px;
+  padding: 3px 11px;
+  text-transform: uppercase;
+  width: fit-content;
+  margin-bottom: 4px;
+}
+.card-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--ink);
+}
+.card-divider { width: 28px; height: 2px; background: var(--gold-bright); margin: 6px 0; }
+.card-meta {
+  font-family: 'Raleway', sans-serif;
+  font-size: 11px;
+  color: var(--ink-muted);
+  line-height: 1.7;
+  font-weight: 400;
+  margin-bottom: 8px;
+}
+.card-meta strong { font-weight: 700; color: var(--ink); }
+.card-desc { font-size: 12.5px; color: #3a3a35; line-height: 1.8; font-weight: 300; flex: 1; }
+.card-close {
+  position: absolute; top: 12px; right: 14px;
+  width: 28px; height: 28px; border-radius: 50%;
+  border: 1px solid var(--border);
+  background: rgba(245,243,240,0.95);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; color: var(--ink-muted);
+  transition: background 0.15s, transform 0.2s;
+  z-index: 10;
+  box-shadow: var(--shadow-sm);
+}
+.card-close:hover { background: var(--ink); color: var(--cream); transform: rotate(90deg); }
+
+/* CONTENT */
+.content-wrapper {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 3rem 3rem;
+  position: relative;
+}
+.content-wrapper::before {
+  content: '';
+  display: block;
+  width: 48px;
+  height: 3px;
+  background: var(--gold-bright);
+  margin: 0 auto 2.5rem;
+  transition: width 0.6s ease;
+}
+.content-wrapper:hover::before { width: 80px; }
+
+/* Hello animation */
+.hello-word {
+  display: inline-block;
+  overflow: hidden;
+}
+.hello-letter {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(100%);
+  animation: letterRise 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+@keyframes letterRise {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.text-block {
+  font-size: 1.2rem;
+  line-height: 1.75;
+  margin-bottom: 2rem;
+  color: var(--ink);
+  max-width: 680px;
+  margin-left: auto;
+  margin-right: auto;
+  opacity: 0;
+  transition: opacity 0.9s ease-out, transform 0.9s ease-out;
+}
+.text-block.from-left  { transform: translateX(-32px); }
+.text-block.from-right { transform: translateX(32px); }
+.text-block.visible    { opacity: 1; transform: translateX(0); }
+
+.text-block strong { position: relative; transition: color 0.3s; }
+.text-block strong:hover { color: var(--gold-deep); cursor: default; }
+.text-block strong::after {
+  content: '';
+  position: absolute;
+  bottom: -1px; left: 0;
+  width: 0; height: 2px;
+  background: var(--gold-bright);
+  transition: width 0.3s ease;
+}
+.text-block strong:hover::after { width: 100%; }
+
+.icon-container {
+  display: flex;
+  justify-content: center;
+  margin: 3rem 0;
+  opacity: 0;
+  transition: opacity 0.9s ease-out, transform 0.9s ease-out;
+  transform: scale(0.94);
+}
+.icon-container.visible { opacity: 1; transform: scale(1); }
+.icon-container.venn-icon { margin-top: 2rem; margin-bottom: 4rem; }
+
+.animation-layers {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  height: auto;
+  aspect-ratio: 794 / 574;
+}
+.animation-layer {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  opacity: 0;
+  transition: opacity 0.6s ease-out;
+}
+.animation-layer img {
+  width: 100%; height: 100%;
+  display: block;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+.venn-icon.visible .animation-layer:nth-child(1) { opacity: 1; transition-delay: 0.15s; }
+.venn-icon.visible .animation-layer:nth-child(2) { opacity: 1; transition-delay: 0.6s; }
+.venn-icon.visible .animation-layer:nth-child(3) { opacity: 1; transition-delay: 1.05s; }
+
+/* TIMELINE */
+.timeline-section {
+  max-width: 680px;
+  margin: 1rem auto 3rem;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.9s ease-out, transform 0.9s ease-out;
+  overflow-x: auto;
+  padding-bottom: 1rem;
+  scrollbar-width: none;
+}
+.timeline-section::-webkit-scrollbar { display: none; }
+.timeline-section.visible { opacity: 1; transform: translateY(0); }
+
+.timeline-track {
+  display: flex;
+  gap: 0;
+  align-items: flex-start;
+  position: relative;
+  min-width: max-content;
+  padding: 0.5rem 0;
+}
+.timeline-track::before {
+  content: '';
+  position: absolute;
+  top: 28px;
+  left: 0; right: 0;
+  height: 1.5px;
+  background: linear-gradient(to right, transparent, var(--gold-bright) 10%, var(--gold-bright) 90%, transparent);
+}
+.timeline-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0 1.2rem;
+  cursor: pointer;
+  transition: transform 0.2s;
+  position: relative;
+}
+.timeline-item:hover { transform: translateY(-3px); }
+.timeline-dot {
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: var(--gold-bright);
+  border: 2px solid var(--cream);
+  box-shadow: 0 0 0 2px var(--gold);
+  z-index: 1;
+  transition: transform 0.2s, background 0.2s;
+}
+.timeline-item:hover .timeline-dot {
+  transform: scale(1.3);
+  background: var(--ink);
+}
+.timeline-year {
+  font-family: 'Raleway', sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--ink-muted);
+  margin-top: 4px;
+}
+.timeline-label {
+  font-family: 'Raleway', sans-serif;
+  font-size: 9.5px;
+  font-weight: 500;
+  color: var(--ink);
+  text-align: center;
+  max-width: 80px;
+  line-height: 1.3;
+}
+.timeline-tag {
+  font-size: 8px;
+  font-family: 'Raleway', sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 1px 7px;
+  border-radius: 20px;
+  background: rgba(218,195,22,0.15);
+  color: #7a6200;
+  border: 0.5px solid rgba(218,195,22,0.4);
+}
+
+/* WORK BOXES */
+.work-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  max-width: 680px;
+  margin: 2.5rem auto 0;
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.9s ease-out, transform 0.9s ease-out;
+}
+.work-grid.visible { opacity: 1; transform: translateY(0); }
+
+.work-box {
+  border: 2px solid rgba(26,26,24,0.18);
+  padding: 1.4rem 1.3rem;
+  background: rgba(255,255,255,0.62);
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease, border-color 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+.work-box-bg {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  background-size: cover;
+  background-position: center;
+}
+.work-box:hover .work-box-bg { opacity: 0.08; }
+
+.work-box::before {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--gold-bright);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.35s ease;
+  z-index: 1;
+}
+.work-box:hover::before { transform: scaleX(1); }
+.work-box:hover {
+  transform: scale(1.06) translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  background: rgba(255,255,255,0.95);
+  border-color: var(--gold);
+}
+.work-box.disabled { opacity: 0.42; pointer-events: none; }
+
+.work-box-num {
+  font-family: 'Raleway', sans-serif;
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #5a4400;
+  background: var(--gold-bright);
+  display: inline-block;
+  width: fit-content;
+  padding: 0.1rem 0.6rem;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  margin-bottom: 4px;
+  transition: background 0.3s, color 0.3s;
+  position: relative; z-index: 1;
+}
+.work-box:hover .work-box-num { background: var(--gold-deep); color: var(--cream); }
+
+.work-box-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: var(--ink);
+  line-height: 1.3;
+  position: relative; z-index: 1;
+}
+.work-box-desc {
+  font-size: 0.8rem;
+  color: var(--ink-muted);
+  line-height: 1.65;
+  font-weight: 300;
+  flex: 1;
+  position: relative; z-index: 1;
+}
+.work-box-link {
+  font-family: 'Raleway', sans-serif;
+  font-size: 0.75rem;
+  color: var(--ink);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  margin-top: 0.35rem;
+  display: inline-block;
+  border-bottom: 1.5px solid var(--gold);
+  padding-bottom: 1px;
+  transition: border-color 0.2s, color 0.2s;
+  position: relative; z-index: 1;
+}
+.work-box:hover .work-box-link { border-color: var(--ink); color: var(--gold-deep); }
+.coming-soon {
+  font-family: 'Raleway', sans-serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  color: var(--ink-faint);
+  text-transform: uppercase;
+  position: relative; z-index: 1;
+}
+
+/* GOLD RULE */
+.gold-rule {
+  width: 48px; height: 3px;
+  background: var(--gold-bright);
+  margin: 0 auto 2.5rem;
+  transition: width 0.6s ease;
+  display: block;
+}
+
+.site-footer {
+  font-size: 0.75rem;
+  color: #888;
+  font-family: 'Raleway', sans-serif;
+  padding: 3rem 4rem;
+  text-align: center;
+  margin-top: 4rem;
+  border-top: 1px solid var(--border);
+  background: rgba(26,26,24,0.03);
+}
+
+@media (max-width: 900px) {
+  .mode-toggle { display: none; }
+}
+@media (max-width: 768px) {
+  .map-hero { height: 55vh; }
+  .map-stats { left: 16px; gap: 1rem; }
+  .ny-time { right: 16px; }
+  .map-tagline { left: 16px; bottom: 16px; }
+  #info-card { grid-template-columns: 1fr; width: 94vw; }
+  .card-image-col { height: 200px; min-height: unset; }
+  .card-body { border-left: none; border-top: 3px solid var(--gold-bright); }
+  .content-wrapper { padding: 2rem 1.5rem; }
+  .text-block { font-size: 1.1rem; max-width: 100%; }
+  .work-grid { grid-template-columns: 1fr; max-width: 100%; }
+  .header-inner { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+  .site-nav { flex-wrap: wrap; }
+  .site-nav a { padding: 0.3rem 0.6rem; }
+}
 </style>
 </head>
 <body>
 
-<nav>
-  <a class="nav-logo" href="#">Khushali Haji</a>
-  <div class="nav-links">
-    <a href="#">Reporting</a>
-    <a href="#">Urban / Design</a>
-    <a href="#">Video</a>
-    <a href="#">Misc Projects</a>
-    <a href="#">Contact</a>
+<header class="site-header" id="siteHeader">
+  <div class="header-inner">
+    <div class="site-title"><a href="https://khushali-haji.github.io/khushalihaji/">Khushali Haji</a></div>
+    <nav class="site-nav">
+      <a href="reporting.html"><span class="nav-text">Reporting</span></a>
+      <a href="https://khushalimhaji.wordpress.com/urban-design/"><span class="nav-text">Urban / Design</span></a>
+      <a href="https://khushalimhaji.wordpress.com/videos/"><span class="nav-text">Video</span></a>
+      <a href="https://khushalimhaji.wordpress.com/misc-projects/"><span class="nav-text">Misc Projects</span></a>
+      <a href="/cdn-cgi/l/email-protection#bad1d2cfc9d2dbd6d394d2dbd0d3faddd7dbd3d694d9d5d7" class="contact-btn"><span class="nav-text">Contact</span></a>
+    </nav>
+    <div class="mode-toggle">
+      <button class="mode-btn active" data-mode="all">All</button>
+      <button class="mode-btn" data-mode="journalist">Journalist</button>
+      <button class="mode-btn" data-mode="designer">Designer</button>
+      <button class="mode-btn" data-mode="filmmaker">Filmmaker</button>
+    </div>
   </div>
-</nav>
+</header>
 
-<div id="map"></div>
+<div class="map-hero">
+  <div class="map-tiles-layer" id="tilesLayer"></div>
+  <div id="map"></div>
+  <svg id="route-svg"></svg>
 
-<div id="info-card">
-  <button class="card-close" onclick="closeCard()">×</button>
-  <div class="card-tag" id="c-tag"></div>
-  <div class="card-title" id="c-title"></div>
-  <div class="card-meta" id="c-meta"></div>
-  <div class="card-divider"></div>
-  <div class="card-desc" id="c-desc"></div>
+  <div class="map-stats">
+    <div class="stat-item">
+      <span class="stat-num" id="counter-locations">0</span>
+      <span class="stat-label">Locations</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num" id="counter-continents">0</span>
+      <span class="stat-label">Continents</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num" id="counter-years">0</span>
+      <span class="stat-label">Years active</span>
+    </div>
+  </div>
+
+  <div class="ny-time">
+    <div class="ny-time-clock" id="nyClock">--:-- --</div>
+    <div class="ny-time-label">New York</div>
+  </div>
+
+  <div id="info-card">
+    <button class="card-close" onclick="closeCard()">×</button>
+    <div class="card-image-col">
+      <img id="card-image" src="" alt="">
+    </div>
+    <div class="card-body">
+      <div class="card-tag" id="c-tag"></div>
+      <div class="card-title" id="c-title"></div>
+      <div class="card-divider"></div>
+      <div class="card-meta" id="c-meta"></div>
+      <div class="card-desc" id="c-desc"></div>
+    </div>
+  </div>
+
+  <div class="map-tagline" id="tagline">
+    <p>Click a pin to explore.</p>
+  </div>
 </div>
 
-<div class="map-tagline" id="tagline">
-  <p>Click a pin to explore.</p>
+<div class="content-wrapper" id="contentWrapper">
+
+  <div class="text-block intro-text" style="margin-top:1.5rem;">
+    <span class="hello-word"><strong id="helloWord">Hello.</strong></span> I'm Khushali, a researcher, multimedia journalist and filmmaker, interested in how people experience <strong>systems, cities,</strong> and <strong>power</strong>, and how storytelling can bring data and policy to life.
+  </div>
+
+  <div class="icon-container venn-icon">
+    <div class="animation-layers">
+      <div class="animation-layer"><img src="icons/venn_1.png" alt="Venn diagram layer 1"></div>
+      <div class="animation-layer"><img src="icons/venn_2.png" alt="Venn diagram layer 2"></div>
+      <div class="animation-layer"><img src="icons/venn_3.png" alt="Venn diagram layer 3"></div>
+    </div>
+  </div>
+
+  <div class="text-block from-left">
+    I trained as an urban designer in Ahmedabad, India, learning to draw cities through land use, zoning, infrastructure. But what stayed with me was everything that didn't fit: the informal, the political, the socio-economic, the human. I turned to theater, research essays, and eventually journalism to get closer to that.
+  </div>
+
+  <div class="text-block from-right">
+    Since my MA in International Reporting and Documentary Filmmaking at CUNY Newmark, I've reported on carbon credit fraud in Liberia, asylum policy in the US, and studied community politics in India. I've edited indie documentaries, set up DCPs at a post house, led content strategy and community engagement, and am now researching international conflict stories for a mapping startup, plotting geopolitical narrative onto a live map API.
+  </div>
+
+  <div class="text-block from-left">
+    Based in New York, I'm seeking roles at the intersection of spatial data, narrative strategy, and public-interest storytelling, where research meets design, and complexity is the point.
+  </div>
+
+  <!-- TIMELINE -->
+  <div class="timeline-section" id="timelineSection">
+    <div class="timeline-track" id="timelineTrack"></div>
+  </div>
+
+  <div class="work-grid">
+    <a href="https://khushali-haji.github.io/khushalihaji/reporting.html" class="work-box">
+      <div class="work-box-bg" style="background-image:url('images/hero-05.jpg')"></div>
+      <div class="work-box-num">01</div>
+      <div class="work-box-title">Research & reporting</div>
+      <div class="work-box-desc">Investigative journalism across climate, migration, and public policy. Print and multimedia, domestic and international.</div>
+      <div class="work-box-link">See reporting →</div>
+    </a>
+    <div class="work-box disabled">
+      <div class="work-box-bg" style="background-image:url('images/hero-08.png')"></div>
+      <div class="work-box-num">02</div>
+      <div class="work-box-title">Visual & spatial storytelling</div>
+      <div class="work-box-desc">Documentary film, geo-narrative mapping, and data-driven visual projects. Festival-recognized work.</div>
+      <div class="coming-soon">Coming soon</div>
+    </div>
+    <div class="work-box disabled">
+      <div class="work-box-bg" style="background-image:url('images/hero-01.jpg')"></div>
+      <div class="work-box-num">03</div>
+      <div class="work-box-title">Urban & design research</div>
+      <div class="work-box-desc">Spatial analysis, tactical urbanism, and community-engaged design from Coimbatore to Varanasi.</div>
+      <div class="coming-soon">Coming soon</div>
+    </div>
+  </div>
+
 </div>
 
-<div class="pin-counter">
-  <p>7 LOCATIONS · 3 CONTINENTS</p>
-</div>
+<footer class="site-footer">© 2026 Khushali Haji. All rights reserved.</footer>
 
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
 <script>
+const PLACEHOLDER_DESC = "Deep reporting on how Indian and Lebanese business networks have come to dominate Liberia's economy through privileged access to capital and political ties, often sidelining local entrepreneurs and limiting economic development.";
+const PLACEHOLDER_IMAGE = "images/hero-01.jpg";
+
 const points = [
-  {
-    lat: 6.3, lng: -10.8, label: "Liberia",
-    tag: "Investigative Reporting",
-    title: "Indian and Lebanese Economic Ties in Liberia",
-    meta: "<strong>New Narratives</strong> | Monrovia, Liberia · 2024",
-    desc: "Deep reporting on how Indian and Lebanese business networks have come to dominate Liberia's economy through privileged access to capital and political ties, often sidelining local entrepreneurs and limiting economic development."
-  },
-  {
-    lat: 11.0, lng: 76.96, label: "Coimbatore",
-    tag: "Urban Design",
-    title: "Tactical Urbanism in Coimbatore",
-    meta: "<strong>Urban Design Collective</strong> | Coimbatore, India · 2021",
-    desc: "Placeholder — redesigning street-level public space through participatory design interventions, documenting how informal use shapes formal urban planning."
-  },
-  {
-    lat: 25.32, lng: 83.0, label: "Varanasi",
-    tag: "Spatial Research",
-    title: "Crowd Management at a Pilgrimage City",
-    meta: "<strong>Research Project</strong> | Varanasi, India · 2022",
-    desc: "Placeholder — community engagement and spatial research for a crowd-management initiative at one of the world's most densely used pilgrimage sites."
-  },
-  {
-    lat: 45.46, lng: 9.19, label: "Milan",
-    tag: "Placeholder",
-    title: "Project Title Here",
-    meta: "<strong>Organisation</strong> | Milan, Italy · Year",
-    desc: "Placeholder — brief description of work done in Milan goes here."
-  },
-  {
-    lat: 35.86, lng: 104.19, label: "China",
-    tag: "Placeholder",
-    title: "Project Title Here",
-    meta: "<strong>Organisation</strong> | China · Year",
-    desc: "Placeholder — brief description of work done in China goes here."
-  },
-  {
-    lat: 40.71, lng: -74.0, label: "New York",
-    tag: "Journalism",
-    title: "Reporting from New York",
-    meta: "<strong>CUNY Newmark / Freelance</strong> | New York, USA · 2023–present",
-    desc: "Placeholder — investigative and multimedia journalism covering asylum policy, public health, interfaith community life, and urban systems in New York."
-  },
-  {
-    lat: 23.02, lng: 72.57, label: "Ahmedabad",
-    tag: "Urban Research",
-    title: "Infrastructure Mapping in Vadaj",
-    meta: "<strong>CEPT University</strong> | Ahmedabad, India · 2020",
-    desc: "Placeholder — ground-level documentation of informal infrastructure in a working-class neighbourhood, mapping what official surveys missed."
-  }
+  { lat: 6.3,   lng: -10.8,  label: "Liberia",    tag: "Investigative Reporting", title: "Indian and Lebanese Economic Ties in Liberia", meta: "<strong>New Narratives</strong> · Monrovia, Liberia · 2024", year: 2024, modes: ["journalist"] },
+  { lat: 11.0,  lng: 76.96,  label: "Coimbatore", tag: "Urban Design",            title: "Tactical Urbanism in Coimbatore",               meta: "<strong>Urban Design Collective</strong> · Coimbatore, India · 2021", year: 2021, modes: ["designer"] },
+  { lat: 25.32, lng: 83.0,   label: "Varanasi",   tag: "Spatial Research",        title: "Crowd Management at a Pilgrimage City",         meta: "<strong>Research Project</strong> · Varanasi, India · 2022", year: 2022, modes: ["designer","journalist"] },
+  { lat: 45.46, lng: 9.19,   label: "Milan",      tag: "Placeholder",             title: "Project Title Here",                            meta: "<strong>Organisation</strong> · Milan, Italy · Year", year: 2023, modes: ["filmmaker"] },
+  { lat: 35.86, lng: 104.19, label: "China",      tag: "Placeholder",             title: "Project Title Here",                            meta: "<strong>Organisation</strong> · China · Year", year: 2022, modes: ["journalist"] },
+  { lat: 40.71, lng: -74.0,  label: "New York",   tag: "Journalism",              title: "Reporting from New York",                       meta: "<strong>CUNY Newmark / Freelance</strong> · New York, USA · 2023–present", year: 2023, modes: ["journalist","filmmaker"] },
+  { lat: 23.02, lng: 72.57,  label: "Ahmedabad",  tag: "Urban Research",          title: "Infrastructure Mapping in Vadaj",               meta: "<strong>CEPT University</strong> · Ahmedabad, India · 2020", year: 2020, modes: ["designer","journalist"] }
 ];
 
-const map = L.map('map', {
-  center: [22, 20],
-  zoom: 2,
-  zoomControl: false,
-  attributionControl: true,
-  scrollWheelZoom: false,
-  doubleClickZoom: false,
-  touchZoom: false,
-  dragging: false,
-  keyboard: false,
-  boxZoom: false
+// Timeline data
+const timelineItems = [
+  { year: 2018, label: "CEPT University", tag: "Design" },
+  { year: 2020, label: "Vadaj Mapping", tag: "Research" },
+  { year: 2021, label: "Coimbatore", tag: "Urban" },
+  { year: 2022, label: "Varanasi & China", tag: "Field" },
+  { year: 2023, label: "CUNY Newmark", tag: "Journalism" },
+  { year: 2024, label: "Liberia", tag: "Reporting" },
+  { year: 2025, label: "Woodstock Festival", tag: "Film" },
+  { year: 2026, label: "New York", tag: "Present" },
+];
+
+// Build timeline
+const track = document.getElementById('timelineTrack');
+timelineItems.forEach(item => {
+  const el = document.createElement('div');
+  el.className = 'timeline-item';
+  el.innerHTML = `
+    <div class="timeline-label">${item.label}</div>
+    <div class="timeline-dot"></div>
+    <div class="timeline-year">${item.year}</div>
+    <div class="timeline-tag">${item.tag}</div>
+  `;
+  track.appendChild(el);
 });
 
-// Alidade Smooth base — clean muted tones
-L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png', {
-  attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a> &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>',
-  maxZoom: 16
-}).addTo(map);
+// Tile map (filtered)
+const tileMap = L.map('tilesLayer', {
+  center: [22, 20], zoom: 2,
+  zoomControl: false, attributionControl: false,
+  scrollWheelZoom: false, doubleClickZoom: false,
+  touchZoom: false, dragging: false, keyboard: false, boxZoom: false
+});
+L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png', { maxZoom: 16 }).addTo(tileMap);
+L.tileLayer('https://tiles.stadiamaps.com/tiles/stamen_watercolor/{z}/{x}/{y}.jpg', { maxZoom: 16, opacity: 0.55 }).addTo(tileMap);
 
-// Overlay: Stamen Watercolor on top at low opacity to wash out labels/borders
-L.tileLayer('https://tiles.stadiamaps.com/tiles/stamen_watercolor/{z}/{x}/{y}.jpg', {
-  maxZoom: 16,
-  opacity: 0.55
+// Pin map
+const map = L.map('map', {
+  center: [22, 20], zoom: 2,
+  zoomControl: false, attributionControl: true,
+  scrollWheelZoom: false, doubleClickZoom: false,
+  touchZoom: false, dragging: false, keyboard: false, boxZoom: false
+});
+L.tileLayer('', {
+  attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a> &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>'
 }).addTo(map);
 
 let activeMarker = null;
+const markerRefs = [];
 
 function createPinIcon(label) {
   return L.divIcon({
     className: '',
-    html: '<div class="kh-pin"><div class="kh-pin-label">' + label + '</div></div>',
-    iconSize: [14, 14],
-    iconAnchor: [7, 7]
+    html: `<div class="kh-pin"><div class="kh-pin-label">${label}</div></div>`,
+    iconSize: [22, 22],
+    iconAnchor: [11, 11]
   });
 }
 
-const markers = points.map((p) => {
+points.forEach((p, i) => {
   const marker = L.marker([p.lat, p.lng], { icon: createPinIcon(p.label) }).addTo(map);
+  markerRefs.push({ marker, point: p });
+
+  // Staggered drop-in
+  setTimeout(() => {
+    const el = marker.getElement();
+    if (!el) return;
+    const pin = el.querySelector('.kh-pin');
+    if (!pin) return;
+    pin.style.setProperty('--pulse-delay', (i * 0.18 + 0.9) + 's');
+    pin.style.animation = `pinDrop 0.65s cubic-bezier(0.34, 1.56, 0.64, 1) forwards`;
+    setTimeout(() => {
+      pin.classList.add('loaded');
+      pin.style.animation = '';
+    }, 650);
+  }, 500 + i * 160);
 
   marker.on('click', () => {
     if (activeMarker && activeMarker !== marker) {
-      const prevPin = activeMarker.getElement().querySelector('.kh-pin');
-      if (prevPin) prevPin.classList.remove('active');
+      activeMarker.getElement()?.querySelector('.kh-pin')?.classList.remove('active');
     }
     activeMarker = marker;
-    const pin = marker.getElement().querySelector('.kh-pin');
-    if (pin) pin.classList.add('active');
-    openCard(p);
-  });
+    marker.getElement()?.querySelector('.kh-pin')?.classList.add('active');
 
-  return marker;
+    // Fly to location on tile map
+    tileMap.flyTo([p.lat, p.lng], 5, { animate: true, duration: 1.2 });
+    map.flyTo([p.lat, p.lng], 5, { animate: true, duration: 1.2 });
+
+    setTimeout(() => openCard(p), 400);
+  });
 });
+
+// Draw route lines after pins land
+setTimeout(() => drawRouteLines(), 1800);
+
+function drawRouteLines() {
+  const svg = document.getElementById('route-svg');
+  const mapEl = document.getElementById('map');
+  const rect = mapEl.getBoundingClientRect();
+
+  points.forEach((p, i) => {
+    if (i === points.length - 1) return;
+    const next = points[i + 1];
+    const from = map.latLngToContainerPoint([p.lat, p.lng]);
+    const to   = map.latLngToContainerPoint([next.lat, next.lng]);
+
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', from.x);
+    line.setAttribute('y1', from.y);
+    line.setAttribute('x2', to.x);
+    line.setAttribute('y2', to.y);
+    line.classList.add('route-line');
+    line.style.animationDelay = (i * 0.25) + 's';
+
+    const len = Math.hypot(to.x - from.x, to.y - from.y);
+    line.style.strokeDasharray = `4 6`;
+    line.style.strokeDashoffset = len;
+    line.style.animation = `drawLine 1.2s ease-out ${i * 0.25}s forwards`;
+
+    svg.appendChild(line);
+  });
+}
 
 function openCard(p) {
   const card = document.getElementById('info-card');
   card.classList.remove('visible');
-
   setTimeout(() => {
     document.getElementById('c-tag').textContent = p.tag;
     document.getElementById('c-title').textContent = p.title;
     document.getElementById('c-meta').innerHTML = p.meta;
-    document.getElementById('c-desc').textContent = p.desc;
+    document.getElementById('c-desc').textContent = PLACEHOLDER_DESC;
+    document.getElementById('card-image').src = PLACEHOLDER_IMAGE;
     card.classList.add('visible');
+    document.getElementById('tilesLayer').classList.add('dimmed');
     document.getElementById('tagline').style.opacity = '0';
   }, 80);
 }
 
 function closeCard() {
   document.getElementById('info-card').classList.remove('visible');
+  document.getElementById('tilesLayer').classList.remove('dimmed');
   document.getElementById('tagline').style.opacity = '1';
+
+  // Fly back to world view
+  tileMap.flyTo([22, 20], 2, { animate: true, duration: 1.2 });
+  map.flyTo([22, 20], 2, { animate: true, duration: 1.2 });
+
   if (activeMarker) {
-    const pin = activeMarker.getElement().querySelector('.kh-pin');
-    if (pin) pin.classList.remove('active');
+    activeMarker.getElement()?.querySelector('.kh-pin')?.classList.remove('active');
     activeMarker = null;
   }
 }
+
+// MODE TOGGLE — filter pins
+document.querySelectorAll('.mode-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const mode = btn.dataset.mode;
+
+    markerRefs.forEach(({ marker, point }) => {
+      const pin = marker.getElement()?.querySelector('.kh-pin');
+      if (!pin) return;
+      if (mode === 'all' || point.modes.includes(mode)) {
+        pin.classList.remove('dimmed-pin');
+        pin.classList.add('highlighted-pin');
+        setTimeout(() => pin.classList.remove('highlighted-pin'), 600);
+      } else {
+        pin.classList.add('dimmed-pin');
+        pin.classList.remove('highlighted-pin');
+      }
+    });
+  });
+});
+
+// ANIMATED COUNTERS
+function animateCounter(el, target, duration) {
+  let start = 0;
+  const step = target / (duration / 16);
+  const timer = setInterval(() => {
+    start = Math.min(start + step, target);
+    el.textContent = Math.round(start);
+    if (start >= target) clearInterval(timer);
+  }, 16);
+}
+setTimeout(() => {
+  animateCounter(document.getElementById('counter-locations'), 7, 1200);
+  animateCounter(document.getElementById('counter-continents'), 3, 900);
+  animateCounter(document.getElementById('counter-years'), 6, 800);
+}, 600);
+
+// NY CLOCK
+function updateClock() {
+  const now = new Date();
+  const ny = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/New_York',
+    hour: 'numeric', minute: '2-digit', second: '2-digit',
+    hour12: true
+  }).format(now);
+  document.getElementById('nyClock').textContent = ny;
+}
+updateClock();
+setInterval(updateClock, 1000);
+
+// HELLO letter animation
+window.addEventListener('load', () => {
+  const word = document.getElementById('helloWord');
+  if (!word) return;
+  const text = word.textContent;
+  word.innerHTML = text.split('').map((ch, i) =>
+    `<span class="hello-letter" style="animation-delay:${i * 0.07 + 0.3}s">${ch}</span>`
+  ).join('');
+});
+
+// NAV SCRAMBLE on hover
+const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+document.querySelectorAll('.site-nav a .nav-text').forEach(el => {
+  const original = el.textContent;
+  let interval;
+  el.parentElement.addEventListener('mouseenter', () => {
+    let iteration = 0;
+    clearInterval(interval);
+    interval = setInterval(() => {
+      el.textContent = original.split('').map((ch, i) => {
+        if (i < iteration) return original[i];
+        if (ch === ' ' || ch === '/') return ch;
+        return chars[Math.floor(Math.random() * 26)];
+      }).join('');
+      if (iteration >= original.length) clearInterval(interval);
+      iteration += 0.5;
+    }, 40);
+  });
+  el.parentElement.addEventListener('mouseleave', () => {
+    clearInterval(interval);
+    el.textContent = original;
+  });
+});
+
+// SCROLL OBSERVER
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) entry.target.classList.add('visible');
+  });
+}, { threshold: 0.12 });
+
+document.querySelectorAll('.text-block, .icon-container, .work-grid, .timeline-section').forEach(el => observer.observe(el));
+
+// HEADER SHADOW
+window.addEventListener('scroll', () => {
+  document.getElementById('siteHeader').classList.toggle('scrolled', window.scrollY > 10);
+  // Gold rule grows on scroll
+  const rule = document.querySelector('.content-wrapper::before');
+});
+
+// PARALLAX on map
+window.addEventListener('scroll', () => {
+  const hero = document.querySelector('.map-hero');
+  const scrolled = window.scrollY;
+  if (scrolled < window.innerHeight) {
+    document.getElementById('tilesLayer').style.transform = `translateY(${scrolled * 0.25}px)`;
+  }
+});
 </script>
+
 </body>
 </html>
