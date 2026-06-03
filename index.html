@@ -2,792 +2,864 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&family=Raleway:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Khushali Haji</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300;1,600&family=DM+Mono:wght@400;500&family=Playfair+Display:ital,wght@1,700;1,900&family=Space+Grotesk:wght@700&family=Bebas+Neue&display=swap" rel="stylesheet">
 <style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-:root {
-  --cream: #f5f3f0;
-  --ink: #1a1a18;
-  --ink-muted: #6b6b66;
-  --ink-faint: #aaa89e;
-  --gold: #c9a800;
-  --gold-bright: #f0cc00;
-  --gold-deep: #a07800;
-  --border: rgba(26,26,24,0.14);
-  --card-bg: rgba(255,253,250,0.98);
-  --shadow-sm: 0 2px 8px rgba(26,26,24,0.10);
-  --shadow-md: 0 6px 24px rgba(26,26,24,0.14);
-  --shadow-lg: 0 16px 48px rgba(26,26,24,0.18);
-}
+  html { cursor: none; }
 
-html { scroll-behavior: smooth; }
+  :root {
+    --ink:    #181512;
+    --paper:  #eff3f1;
+    --teal:   #1a6b6b;
+    --yellow: #c9a227;
+    --serif:  'Cormorant Garamond', Georgia, serif;
+    --mono:   'DM Mono', monospace;
+  }
 
-body {
-  font-family: 'DM Sans', system-ui, sans-serif;
-  background: var(--cream);
-  color: var(--ink);
-  margin: 0;
-  line-height: 1.6;
-  overflow-x: hidden;
-}
+  html, body {
+    width: 100%;
+    min-height: 100vh;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--serif);
+    overflow-x: hidden;
+  }
 
-/* HEADER */
-.site-header {
-  position: sticky;
-  top: 0;
-  z-index: 200;
-  background: rgba(245,243,240,0.94);
-  backdrop-filter: blur(8px);
-  border-bottom: 1px solid var(--border);
-  transition: box-shadow 0.3s ease;
-}
-.site-header.scrolled {
-  box-shadow: var(--shadow-sm);
-}
-.header-inner {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 1rem 1.25rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-.site-title a {
-  font-family: 'Raleway', sans-serif;
-  font-size: 1.2rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-decoration: none;
-  color: var(--ink);
-  transition: color 0.2s;
-}
-.site-title a:hover { color: var(--gold-deep); }
-.site-nav { display: flex; align-items: center; gap: 0; }
-.site-nav a {
-  font-family: 'Raleway', sans-serif;
-  font-size: 0.8rem;
-  font-weight: 400;
-  letter-spacing: 0.05em;
-  text-decoration: none;
-  color: var(--ink);
-  opacity: 0.7;
-  padding: 0.4rem 1rem;
-  transition: opacity 0.2s, color 0.2s;
-  position: relative;
-}
-.site-nav a::after {
-  content: '';
-  position: absolute;
-  bottom: 2px; left: 1rem; right: 1rem;
-  height: 1.5px;
-  background: var(--gold-bright);
-  transform: scaleX(0);
-  transition: transform 0.25s ease;
-  transform-origin: left;
-}
-.site-nav a:hover { opacity: 1; }
-.site-nav a:hover::after { transform: scaleX(1); }
-.contact-btn {
-  font-family: 'Raleway', sans-serif;
-  font-size: 0.8rem;
-  font-weight: 500;
-  letter-spacing: 0.05em;
-  padding: 0.4rem 1.1rem;
-  border: 1.5px solid rgba(26,26,24,0.5);
-  border-radius: 999px;
-  margin-left: 0.5rem;
-  transition: background 0.2s, color 0.2s, border-color 0.2s;
-}
-.contact-btn:hover {
-  background: var(--ink) !important;
-  color: var(--cream) !important;
-  border-color: var(--ink) !important;
-  opacity: 1 !important;
-}
-.contact-btn:hover::after { display: none; }
+  /* Paper grain */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.88' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.032'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.42;
+  }
 
-/* MAP HERO */
-.map-hero {
-  position: relative;
-  width: 100%;
-  height: 70vh;
-  overflow: hidden;
-  border-bottom: 2px solid rgba(26,26,24,0.18);
-}
+  /* Teal depth gradient */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse 85% 75% at 12% 50%, rgba(26,107,107,0.07) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
 
-.map-tiles-layer {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  filter: saturate(0.08) brightness(0.72) contrast(1.15);
-  transition: filter 0.5s ease;
-  pointer-events: none;
-}
-.map-tiles-layer.dimmed {
-  filter: saturate(0.08) brightness(0.28) contrast(1.15);
-}
+  /* Map grid canvas */
+  #mapGrid {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+  }
 
-#map {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  background: transparent;
-}
+  /* Drifting gradient orb */
+  .bg-orb {
+    position: fixed;
+    width: 72vmax;
+    height: 72vmax;
+    border-radius: 50%;
+    background: radial-gradient(circle at center,
+      rgba(26,107,107,0.09) 0%,
+      rgba(201,162,39,0.05) 42%,
+      transparent 66%
+    );
+    pointer-events: none;
+    z-index: 0;
+    animation: orbDrift 20s ease-in-out infinite;
+    will-change: transform;
+  }
 
-.leaflet-control-attribution { font-size: 9px !important; background: rgba(245,243,240,0.6) !important; color: var(--ink-faint) !important; }
-.leaflet-control-zoom { display: none !important; }
+  /* Custom cursor — soft blue ring */
+  .cursor-ring {
+    position: fixed;
+    width: 28px;
+    height: 28px;
+    border: 1.5px solid rgba(88,152,188,0.75);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    transition:
+      width 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+      height 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 0.4s ease,
+      border-color 0.3s ease;
+  }
+  /* Crosshair arms — gap in centre so yellow dot stays visible */
+  .cursor-ring::before {
+    content: '';
+    position: absolute;
+    width: calc(100% + 22px);
+    height: 1px;
+    top: 50%;
+    left: -11px;
+    transform: translateY(-50%);
+    background: linear-gradient(to right,
+      rgba(88,152,188,0.6) 0%,
+      rgba(88,152,188,0.6) calc(50% - 7px),
+      transparent                calc(50% - 7px),
+      transparent                calc(50% + 7px),
+      rgba(88,152,188,0.6) calc(50% + 7px),
+      rgba(88,152,188,0.6) 100%
+    );
+  }
+  .cursor-ring::after {
+    content: '';
+    position: absolute;
+    height: calc(100% + 22px);
+    width: 1px;
+    left: 50%;
+    top: -11px;
+    transform: translateX(-50%);
+    background: linear-gradient(to bottom,
+      rgba(88,152,188,0.6) 0%,
+      rgba(88,152,188,0.6) calc(50% - 7px),
+      transparent                calc(50% - 7px),
+      transparent                calc(50% + 7px),
+      rgba(88,152,188,0.6) calc(50% + 7px),
+      rgba(88,152,188,0.6) 100%
+    );
+  }
+  .cursor-dot {
+    position: fixed;
+    width: 5px;
+    height: 5px;
+    background: var(--yellow);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .cursor-ring.visible { opacity: 1; }
+  .cursor-dot.visible  { opacity: 1; }
+  .cursor-ring.expanded {
+    width: 50px;
+    height: 50px;
+    opacity: 0.5;
+  }
 
-.map-tagline {
-  position: absolute;
-  bottom: 24px;
-  left: 36px;
-  z-index: 20;
-  pointer-events: none;
-  transition: opacity 0.3s;
-}
-.map-tagline p {
-  font-family: 'Playfair Display', serif;
-  font-size: 15px;
-  font-style: italic;
-  font-weight: 400;
-  color: var(--ink);
-  line-height: 1.6;
-  letter-spacing: 0.01em;
-  background: rgba(255,255,255,0.52);
-  padding: 6px 14px;
-  border-radius: 4px;
-  display: inline-block;
-  box-shadow: var(--shadow-sm);
-}
+  /* Hero fade overlay */
+  .hero-fade {
+    position: fixed;
+    inset: 0;
+    background: var(--paper);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    z-index: 1;
+  }
+  .hero-fade.active { opacity: 0.93; }
 
-.pin-counter {
-  position: absolute;
-  top: 20px;
-  left: 36px;
-  z-index: 20;
-  pointer-events: none;
-}
-.pin-counter p {
-  font-family: 'Raleway', sans-serif;
-  font-size: 10px;
-  letter-spacing: 0.12em;
-  color: rgba(26,26,24,0.55);
-  font-weight: 500;
-  background: rgba(255,255,255,0.4);
-  padding: 3px 10px;
-  border-radius: 20px;
-}
+  #ray-canvas {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 3;
+  }
 
-/* PINS */
-.kh-pin {
-  width: 22px; height: 22px;
-  border-radius: 50%;
-  background: #e8c000;
-  border: 2.5px solid #fff;
-  cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
-  position: relative;
-  z-index: 10;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.35);
-}
-.kh-pin::after {
-  content: '';
-  position: absolute;
-  inset: -7px;
-  border-radius: 50%;
-  border: 1.5px solid rgba(232,192,0,0.5);
-  animation: pinPulse 2.5s ease-out infinite;
-}
-@keyframes pinPulse {
-  0%   { transform: scale(0.85); opacity: 0.7; }
-  60%  { transform: scale(1.3);  opacity: 0; }
-  100% { transform: scale(1.3);  opacity: 0; }
-}
-.kh-pin:hover {
-  transform: scale(1.4);
-  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
-}
-.kh-pin.active {
-  background: var(--ink);
-  border-color: #fff;
-  box-shadow: 0 0 0 4px rgba(26,26,24,0.22);
-}
-.kh-pin.active::after { animation: none; }
+  /* Soft cursor glow */
+  .cursor-glow {
+    position: fixed;
+    width: 440px;
+    height: 440px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(26,107,107,0.07) 0%, rgba(26,107,107,0.02) 40%, transparent 68%);
+    pointer-events: none;
+    z-index: 2;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    transition: opacity 0.8s ease;
+    will-change: left, top;
+  }
 
-.kh-pin-label {
-  position: absolute;
-  bottom: 28px;
-  left: 50%;
-  transform: translateX(-50%);
-  white-space: nowrap;
-  font-size: 10px;
-  font-family: 'Raleway', sans-serif;
-  font-weight: 600;
-  color: var(--ink);
-  background: rgba(255,253,250,0.96);
-  padding: 3px 10px;
-  border-radius: 20px;
-  border: 0.5px solid var(--border);
-  letter-spacing: 0.05em;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.15s;
-  box-shadow: var(--shadow-sm);
-}
-.kh-pin:hover .kh-pin-label { opacity: 1; }
-.kh-pin.active .kh-pin-label { opacity: 1; }
+  /* Bottom progress line */
+  .progress-line {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 0%;
+    height: 1.5px;
+    background: linear-gradient(to right, var(--teal), var(--yellow));
+    z-index: 10;
+    pointer-events: none;
+    animation: drawLine 2s 2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
 
-/* INFO CARD — image-dominant: 60% image / 40% text */
-#info-card {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) scale(0.94);
-  z-index: 100;
-  width: min(880px, 92vw);
-  background: var(--card-bg);
-  border: 0.5px solid rgba(26,26,24,0.15);
-  border-radius: 12px;
-  padding: 0;
-  opacity: 0;
-  transition: opacity 0.35s ease, transform 0.35s ease;
-  pointer-events: none;
-  overflow: hidden;
-  display: grid;
-  grid-template-columns: 3fr 2fr;
-  box-shadow: var(--shadow-lg);
-}
-#info-card.visible {
-  opacity: 1;
-  transform: translate(-50%, -50%) scale(1);
-  pointer-events: all;
-}
+  /* Hero */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 12vh max(2rem, 4vw) 10vh max(6rem, 13vw);
+  }
 
-.card-image-col {
-  overflow: hidden;
-  min-height: 340px;
-  position: relative;
-}
-.card-image-col img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-  transition: transform 0.6s ease;
-}
-#info-card.visible .card-image-col img {
-  transform: scale(1.04);
-}
-#info-card.visible .card-image-col img:hover {
-  transform: scale(1.08);
-}
+  /* Name — typewriter fills this in */
+  .hero-name {
+    font-family: var(--serif);
+    font-size: clamp(36px, 4.8vw, 68px);
+    font-weight: 300;
+    font-style: normal;
+    line-height: 1.0;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    margin-bottom: 1.6rem;
+    opacity: 0;
+    position: relative;
+    z-index: 2;
+    transition: opacity 0.4s ease;
+    min-height: 1.1em;
+  }
+  .hero-name strong {
+    font-weight: 700;
+  }
 
-.card-body {
-  padding: 30px 26px;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  border-left: 3px solid var(--gold-bright);
-}
+  /*
+   * Grid layout:
+   *   col 1 = gif   col 2 = text
+   *   row 1 = gif + (name + words)
+   *   row 2 = empty + body text   ← body left-aligns with headline
+   */
+  .hero-content {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto auto;
+    column-gap: 3.5rem;
+    row-gap: 2.6rem;
+    align-items: center;
+  }
+  .hero-gif {
+    grid-column: 1;
+    grid-row: 1;
+    display: block;
+    align-self: center;
+    width: auto;
+    height: auto;
+    max-width: 220px;
+    min-width: 60px;
+    object-fit: cover;
+    object-position: center top;
+    border-radius: 4px;
+    opacity: 0;
+    animation: fadeUp 1s 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    transition: opacity 0.5s ease;
+  }
+  .hero-words-col {
+    grid-column: 2;
+    grid-row: 1;
+    display: flex;
+    flex-direction: column;
+  }
 
-.card-tag {
-  display: inline-block;
-  font-family: 'Raleway', sans-serif;
-  font-size: 8.5px;
-  letter-spacing: 0.13em;
-  font-weight: 700;
-  color: #7a6200;
-  background: rgba(218,195,22,0.16);
-  border: 0.5px solid rgba(218,195,22,0.45);
-  border-radius: 20px;
-  padding: 3px 11px;
-  text-transform: uppercase;
-  width: fit-content;
-  margin-bottom: 4px;
-}
+  /* Identity words — one line, wraps on mobile */
+  .words-row {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    column-gap: 0.55em;
+    align-items: baseline;
+    position: relative;
+    z-index: 4;
+  }
 
-.card-title {
-  font-family: 'Playfair Display', serif;
-  font-size: 18px;
-  font-weight: 500;
-  line-height: 1.3;
-  color: var(--ink);
-}
+  .word-trigger {
+    display: inline-block;
+    font-family: var(--serif);
+    font-size: clamp(26px, 3.4vw, 48px);
+    font-weight: 600;
+    font-style: italic;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    cursor: none;
+    position: relative;
+    color: rgba(24,21,18,0.6);
+    user-select: none;
+    transform-origin: center center;
+    transition:
+      color   0.5s cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  }
 
-.card-divider {
-  width: 28px;
-  height: 2px;
-  background: var(--gold-bright);
-  margin: 6px 0;
-}
+  /* Faint yellow highlight on hover — no underline */
+  .word-trigger::after {
+    content: '';
+    position: absolute;
+    inset: -0.05em -0.12em;
+    background: transparent;
+    border-radius: 3px;
+    z-index: -1;
+    transition: background 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .word-trigger.active        { color: var(--teal); }
+  .word-trigger.active::after { background: rgba(201,162,39,0.14); }
+  .word-trigger.dimmed        { opacity: 0.1; }
 
-.card-meta {
-  font-family: 'Raleway', sans-serif;
-  font-size: 11px;
-  color: var(--ink-muted);
-  line-height: 1.7;
-  font-weight: 400;
-  margin-bottom: 8px;
-}
-.card-meta strong { font-weight: 700; color: var(--ink); }
+  /* Per-character reveal */
+  .char {
+    display: inline-block;
+    opacity: 0;
+    animation: charIn 0.55s ease forwards;
+  }
 
-.card-desc {
-  font-size: 12.5px;
-  color: #3a3a35;
-  line-height: 1.8;
-  font-weight: 300;
-  flex: 1;
-}
+  /* Bio */
+  .hero-body {
+    grid-column: 2;
+    grid-row: 2;
+    max-width: 460px;
+    opacity: 0;
+    animation: fadeUp 1s 1.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    position: relative;
+    z-index: 2;
+    transition: opacity 0.5s ease;
+    text-align: left;
+  }
+  .hero-body p {
+    font-family: var(--serif);
+    font-size: clamp(15.5px, 1.3vw, 18px);
+    font-weight: 300;
+    font-style: normal;
+    line-height: 1.82;
+    color: rgba(24,21,18,0.76);
+    margin-bottom: 1.25em;
+    letter-spacing: 0.005em;
+  }
+  .hero-body p:last-child { margin-bottom: 0; }
 
-.card-close {
-  position: absolute;
-  top: 12px; right: 14px;
-  width: 28px; height: 28px;
-  border-radius: 50%;
-  border: 1px solid var(--border);
-  background: rgba(245,243,240,0.95);
-  cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 15px;
-  color: var(--ink-muted);
-  transition: background 0.15s, transform 0.15s;
-  z-index: 10;
-  box-shadow: var(--shadow-sm);
-}
-.card-close:hover {
-  background: var(--ink);
-  color: var(--cream);
-  transform: rotate(90deg);
-}
+  /* Fade non-interactive content when rays are active */
+  body.ray-active .hero-name,
+  body.ray-active .hero-body,
+  body.ray-active .hero-gif   { opacity: 0 !important; }
 
-/* CONTENT */
-.content-wrapper {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 3rem 3rem;
-}
-
-/* Gold accent rule before first paragraph */
-.content-wrapper::before {
-  content: '';
-  display: block;
-  width: 48px;
-  height: 3px;
-  background: var(--gold-bright);
-  margin: 0 auto 2.5rem;
-}
-
-.text-block {
-  font-size: 1.2rem;
-  line-height: 1.75;
-  margin-bottom: 2rem;
-  color: var(--ink);
-  max-width: 680px;
-  margin-left: auto;
-  margin-right: auto;
-  opacity: 0;
-  transform: translateY(28px);
-  transition: opacity 0.9s ease-out, transform 0.9s ease-out;
-}
-.text-block.visible { opacity: 1; transform: translateY(0); }
-
-.text-block strong {
-  position: relative;
-  transition: color 0.3s ease;
-  color: var(--ink);
-}
-.text-block strong:hover { color: var(--gold-deep); cursor: default; }
-.text-block strong::after {
-  content: '';
-  position: absolute;
-  bottom: -1px; left: 0;
-  width: 0; height: 2px;
-  background: var(--gold-bright);
-  transition: width 0.3s ease;
-}
-.text-block strong:hover::after { width: 100%; }
-
-.icon-container {
-  display: flex;
-  justify-content: center;
-  margin: 3rem 0;
-  opacity: 0;
-  transition: opacity 0.9s ease-out;
-}
-.icon-container.visible { opacity: 1; }
-.icon-container.venn-icon { margin-top: 2rem; margin-bottom: 4rem; }
-
-.animation-layers {
-  position: relative;
-  width: 100%;
-  max-width: 400px;
-  height: auto;
-  aspect-ratio: 794 / 574;
-}
-.animation-layer {
-  position: absolute;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  opacity: 0;
-  transition: opacity 1.2s ease-out;
-}
-.animation-layer img {
-  width: 100%; height: 100%;
-  display: block;
-  object-fit: contain;
-  pointer-events: none;
-  user-select: none;
-  -webkit-user-drag: none;
-}
-.venn-icon.visible .animation-layer:nth-child(1) { opacity: 1; transition-delay: 0.5s; }
-.venn-icon.visible .animation-layer:nth-child(2) { opacity: 1; transition-delay: 1.5s; }
-.venn-icon.visible .animation-layer:nth-child(1) { transition: opacity 0s 1.5s; }
-.venn-icon.visible .animation-layer:nth-child(3) { opacity: 1; transition-delay: 3s; }
-.venn-icon.visible .animation-layer:nth-child(2) { transition: opacity 0s 3s; }
-
-/* WORK BOXES */
-.work-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
-  max-width: 680px;
-  margin: 2.5rem auto 0;
-  opacity: 0;
-  transform: translateY(28px);
-  transition: opacity 0.9s ease-out, transform 0.9s ease-out;
-}
-.work-grid.visible { opacity: 1; transform: translateY(0); }
-
-.work-box {
-  border: 2px solid rgba(26,26,24,0.18);
-  border-radius: 0;
-  padding: 1.4rem 1.3rem;
-  background: rgba(255,255,255,0.62);
-  display: flex;
-  flex-direction: column;
-  gap: 0.55rem;
-  text-decoration: none;
-  color: inherit;
-  transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease, border-color 0.3s ease;
-  position: relative;
-  overflow: hidden;
-}
-.work-box::before {
-  content: '';
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  height: 3px;
-  background: var(--gold-bright);
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 0.35s ease;
-}
-.work-box:hover::before { transform: scaleX(1); }
-.work-box:hover {
-  transform: scale(1.06) translateY(-4px);
-  box-shadow: var(--shadow-lg);
-  background: rgba(255,255,255,0.95);
-  border-color: var(--gold);
-}
-
-.work-box.disabled {
-  opacity: 0.42;
-  pointer-events: none;
-}
-
-.work-box-num {
-  font-family: 'Raleway', sans-serif;
-  font-size: 2.2rem;
-  font-weight: 800;
-  color: #5a4400;
-  background: var(--gold-bright);
-  display: inline-block;
-  width: fit-content;
-  padding: 0.1rem 0.6rem;
-  line-height: 1.2;
-  letter-spacing: -0.02em;
-  margin-bottom: 4px;
-  transition: background 0.3s ease;
-}
-.work-box:hover .work-box-num {
-  background: var(--gold-deep);
-  color: var(--cream);
-}
-
-.work-box-title {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.05rem;
-  font-weight: 500;
-  color: var(--ink);
-  line-height: 1.3;
-}
-
-.work-box-desc {
-  font-size: 0.8rem;
-  color: var(--ink-muted);
-  line-height: 1.65;
-  font-weight: 300;
-  flex: 1;
-}
-
-.work-box-link {
-  font-family: 'Raleway', sans-serif;
-  font-size: 0.75rem;
-  color: var(--ink);
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  margin-top: 0.35rem;
-  display: inline-block;
-  border-bottom: 1.5px solid var(--gold);
-  padding-bottom: 1px;
-  transition: border-color 0.2s, color 0.2s;
-}
-.work-box:hover .work-box-link {
-  border-color: var(--ink);
-  color: var(--gold-deep);
-}
-
-.coming-soon {
-  font-family: 'Raleway', sans-serif;
-  font-size: 0.7rem;
-  letter-spacing: 0.1em;
-  color: var(--ink-faint);
-  font-weight: 400;
-  margin-top: 0.25rem;
-  text-transform: uppercase;
-}
-
-/* FOOTER */
-.site-footer {
-  font-size: 0.75rem;
-  color: #888;
-  font-family: 'Raleway', sans-serif;
-  padding: 3rem 4rem;
-  text-align: center;
-  margin-top: 4rem;
-  border-top: 1px solid var(--border);
-  background: rgba(26,26,24,0.03);
-}
-
-/* SCROLL ANIMATIONS — stagger children */
-.work-box:nth-child(1) { transition-delay: 0s; }
-.work-box:nth-child(2) { transition-delay: 0.1s; }
-.work-box:nth-child(3) { transition-delay: 0.2s; }
-
-.text-block:nth-of-type(2) { transition-delay: 0.05s; }
-.text-block:nth-of-type(3) { transition-delay: 0.1s; }
-.text-block:nth-of-type(4) { transition-delay: 0.15s; }
-
-@media (max-width: 768px) {
-  .map-hero { height: 55vh; }
-  .pin-counter { left: 16px; }
-  .map-tagline { left: 16px; bottom: 16px; }
-  #info-card { grid-template-columns: 1fr; width: 92vw; }
-  .card-image-col { height: 200px; min-height: unset; }
-  .card-body { border-left: none; border-top: 3px solid var(--gold-bright); }
-  .content-wrapper { padding: 2rem 1.5rem; }
-  .text-block { font-size: 1.1rem; max-width: 100%; }
-  .work-grid { grid-template-columns: 1fr; max-width: 100%; }
-  .header-inner { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
-  .site-nav { flex-wrap: wrap; }
-  .site-nav a { padding: 0.3rem 0.6rem; }
-}
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes charIn {
+    to { opacity: 1; }
+  }
+  @keyframes orbDrift {
+    0%   { transform: translate(2vw,  4vh); }
+    25%  { transform: translate(44vw, -6vh); }
+    50%  { transform: translate(6vw,  36vh); }
+    75%  { transform: translate(36vw, 22vh); }
+    100% { transform: translate(2vw,  4vh); }
+  }
+  @keyframes drawLine {
+    to { width: 100%; }
+  }
 </style>
 </head>
 <body>
 
-<header class="site-header" id="siteHeader">
-  <div class="header-inner">
-    <div class="site-title"><a href="https://khushali-haji.github.io/khushalihaji/">Khushali Haji</a></div>
-    <nav class="site-nav">
-      <a href="reporting.html">Reporting</a>
-      <a href="https://khushalimhaji.wordpress.com/urban-design/">Urban / Design</a>
-      <a href="https://khushalimhaji.wordpress.com/videos/">Video</a>
-      <a href="https://khushalimhaji.wordpress.com/misc-projects/">Misc Projects</a>
-      <a href="/cdn-cgi/l/email-protection#bad1d2cfc9d2dbd6d394d2dbd0d3faddd7dbd3d694d9d5d7" class="contact-btn">Contact</a>
-    </nav>
-  </div>
-</header>
+<canvas id="mapGrid"></canvas>
+<div class="bg-orb"></div>
+<div class="hero-fade"   id="heroFade"></div>
+<div class="cursor-glow" id="cursorGlow"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+<div class="cursor-dot"  id="cursorDot"></div>
+<div class="progress-line"></div>
+<canvas id="ray-canvas"></canvas>
 
-<div class="map-hero">
-  <div class="map-tiles-layer" id="tilesLayer"></div>
-  <div id="map"></div>
-  <div class="pin-counter"><p>7 LOCATIONS · 3 CONTINENTS</p></div>
-
-  <div id="info-card">
-    <button class="card-close" onclick="closeCard()">×</button>
-    <div class="card-image-col">
-      <img id="card-image" src="" alt="">
+<section class="hero">
+  <div class="hero-content">
+    <img src="pics.gif" class="hero-gif" alt="">
+    <div class="hero-words-col">
+      <p class="hero-name" id="heroName"></p>
+      <div class="words-row">
+        <span class="word-trigger" data-key="research">Researcher.</span>
+        <span class="word-trigger" data-key="design">Designer.</span>
+        <span class="word-trigger" data-key="storytelling">Storyteller.</span>
+      </div>
     </div>
-    <div class="card-body">
-      <div class="card-tag" id="c-tag"></div>
-      <div class="card-title" id="c-title"></div>
-      <div class="card-divider"></div>
-      <div class="card-meta" id="c-meta"></div>
-      <div class="card-desc" id="c-desc"></div>
+    <div class="hero-body">
+      <p>I am a researcher by heart, and a designer by consequence of finding ways to fill those gaps. I make complexity legible through field investigation, spatial systems, and narrative that doesn't flatten what it's trying to explain.</p>
+      <p>My work has taken me from informal settlements in Ahmedabad to forests marked for carbon credits in Liberia, from policy reporting in New York to mapping international conflict data on a live map. I trained as an urban designer, retrained as a journalist, and am now building AI-native tools for communities that don't often see themselves in civic tech.</p>
+      <p>I'm based in New York, looking for roles at the intersection of content design, UX research, and public-interest storytelling.</p>
     </div>
   </div>
+</section>
 
-  <div class="map-tagline" id="tagline">
-    <p>Click a pin to explore.</p>
-  </div>
-</div>
-
-<div class="content-wrapper">
-
-  <div class="text-block intro-text" style="margin-top: 1.5rem;">
-    <strong>Hello.</strong> I'm Khushali, a researcher, multimedia journalist and filmmaker, interested in how people experience <strong>systems, cities,</strong> and <strong>power</strong>, and how storytelling can bring data and policy to life.
-  </div>
-
-  <div class="icon-container venn-icon">
-    <div class="animation-layers">
-      <div class="animation-layer"><img src="icons/venn_1.png" alt="Venn diagram layer 1"></div>
-      <div class="animation-layer"><img src="icons/venn_2.png" alt="Venn diagram layer 2"></div>
-      <div class="animation-layer"><img src="icons/venn_3.png" alt="Venn diagram layer 3"></div>
-    </div>
-  </div>
-
-  <div class="text-block">
-    I trained as an urban designer in Ahmedabad, India, learning to draw cities through land use, zoning, infrastructure. But what stayed with me was everything that didn't fit: the informal, the political, the socio-economic, the human. I turned to theater, research essays, and eventually journalism to get closer to that.
-  </div>
-
-  <div class="text-block">
-    Since my MA in International Reporting and Documentary Filmmaking at CUNY Newmark, I've reported on carbon credit fraud in Liberia, asylum policy in the US, and studied community politics in India. I've edited indie documentaries, set up DCPs at a post house, led content strategy and community engagement, and am now researching international conflict stories for a mapping startup, plotting geopolitical narrative onto a live map API.
-  </div>
-
-  <div class="text-block">
-    Based in New York, I'm seeking roles at the intersection of spatial data, narrative strategy, and public-interest storytelling, where research meets design, and complexity is the point.
-  </div>
-
-  <div class="work-grid">
-    <a href="https://khushali-haji.github.io/khushalihaji/reporting.html" class="work-box">
-      <div class="work-box-num">01</div>
-      <div class="work-box-title">Research & reporting</div>
-      <div class="work-box-desc">Investigative journalism across climate, migration, and public policy. Print and multimedia, domestic and international.</div>
-      <div class="work-box-link">See reporting →</div>
-    </a>
-    <div class="work-box disabled">
-      <div class="work-box-num">02</div>
-      <div class="work-box-title">Visual & spatial storytelling</div>
-      <div class="work-box-desc">Documentary film, geo-narrative mapping, and data-driven visual projects. Festival-recognized work.</div>
-      <div class="coming-soon">Coming soon</div>
-    </div>
-    <div class="work-box disabled">
-      <div class="work-box-num">03</div>
-      <div class="work-box-title">Urban & design research</div>
-      <div class="work-box-desc">Spatial analysis, tactical urbanism, and community-engaged design from Coimbatore to Varanasi.</div>
-      <div class="coming-soon">Coming soon</div>
-    </div>
-  </div>
-
-</div>
-
-<footer class="site-footer">© 2026 Khushali Haji. All rights reserved.</footer>
-
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
 <script>
-const PLACEHOLDER_DESC = "Deep reporting on how Indian and Lebanese business networks have come to dominate Liberia's economy through privileged access to capital and political ties, often sidelining local entrepreneurs and limiting economic development.";
-const PLACEHOLDER_IMAGE = "images/hero-01.jpg";
+// ─── Map grid ─────────────────────────────────────────────────────────────────
 
-const points = [
-  { lat: 6.3,   lng: -10.8,  label: "Liberia",    tag: "Investigative Reporting", title: "Indian and Lebanese Economic Ties in Liberia", meta: "<strong>New Narratives</strong> · Monrovia, Liberia · 2024" },
-  { lat: 11.0,  lng: 76.96,  label: "Coimbatore", tag: "Urban Design",            title: "Tactical Urbanism in Coimbatore",               meta: "<strong>Urban Design Collective</strong> · Coimbatore, India · 2021" },
-  { lat: 25.32, lng: 83.0,   label: "Varanasi",   tag: "Spatial Research",        title: "Crowd Management at a Pilgrimage City",         meta: "<strong>Research Project</strong> · Varanasi, India · 2022" },
-  { lat: 45.46, lng: 9.19,   label: "Milan",      tag: "Placeholder",             title: "Project Title Here",                            meta: "<strong>Organisation</strong> · Milan, Italy · Year" },
-  { lat: 35.86, lng: 104.19, label: "China",      tag: "Placeholder",             title: "Project Title Here",                            meta: "<strong>Organisation</strong> · China · Year" },
-  { lat: 40.71, lng: -74.0,  label: "New York",   tag: "Journalism",              title: "Reporting from New York",                       meta: "<strong>CUNY Newmark / Freelance</strong> · New York, USA · 2023–present" },
-  { lat: 23.02, lng: 72.57,  label: "Ahmedabad",  tag: "Urban Research",          title: "Infrastructure Mapping in Vadaj",               meta: "<strong>CEPT University</strong> · Ahmedabad, India · 2020" }
-];
+(function initMapGrid() {
+  const mc  = document.getElementById('mapGrid');
+  const mx  = mc.getContext('2d');
 
-const tileMap = L.map('tilesLayer', {
-  center: [22, 20], zoom: 2,
-  zoomControl: false, attributionControl: false,
-  scrollWheelZoom: false, doubleClickZoom: false,
-  touchZoom: false, dragging: false, keyboard: false, boxZoom: false
-});
-L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png', { maxZoom: 16 }).addTo(tileMap);
-L.tileLayer('https://tiles.stadiamaps.com/tiles/stamen_watercolor/{z}/{x}/{y}.jpg', { maxZoom: 16, opacity: 0.55 }).addTo(tileMap);
+  function draw() {
+    mc.width  = window.innerWidth;
+    mc.height = window.innerHeight;
+    const w = mc.width, h = mc.height;
 
-const map = L.map('map', {
-  center: [22, 20], zoom: 2,
-  zoomControl: false, attributionControl: true,
-  scrollWheelZoom: false, doubleClickZoom: false,
-  touchZoom: false, dragging: false, keyboard: false, boxZoom: false
-});
-L.tileLayer('', {
-  attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a> &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>'
-}).addTo(map);
+    const hStep = 66;   // latitude-line spacing (px)
+    const vStep = 86;   // longitude-line spacing (px)
+    const bow   = 7;    // max curvature at screen midpoint
 
-let activeMarker = null;
+    const minorLine  = 'rgba(26,107,107,0.28)';
+    const majorLine  = 'rgba(26,107,107,0.16)';
+    const dotColor   = 'rgba(26,107,107,0.38)';
 
-function createPinIcon(label) {
-  return L.divIcon({
-    className: '',
-    html: '<div class="kh-pin"><div class="kh-pin-label">' + label + '</div></div>',
-    iconSize: [22, 22],
-    iconAnchor: [11, 11]
-  });
-}
+    mx.clearRect(0, 0, w, h);
 
-points.forEach((p) => {
-  const marker = L.marker([p.lat, p.lng], { icon: createPinIcon(p.label) }).addTo(map);
-  marker.on('click', () => {
-    if (activeMarker && activeMarker !== marker) {
-      const prev = activeMarker.getElement().querySelector('.kh-pin');
-      if (prev) prev.classList.remove('active');
+    // Latitude lines — slight outward bow via quadratic bezier
+    let rowIdx = 0;
+    for (let y = 0; y <= h + hStep; y += hStep, rowIdx++) {
+      const major = rowIdx % 5 === 0;
+      mx.setLineDash(major ? [] : [3, 6]);
+      mx.beginPath();
+      mx.moveTo(0, y);
+      mx.quadraticCurveTo(w * 0.5, y + bow, w, y);
+      mx.strokeStyle = major ? majorLine : minorLine;
+      mx.lineWidth   = major ? 0.75 : 0.45;
+      mx.stroke();
     }
-    activeMarker = marker;
-    const pin = marker.getElement().querySelector('.kh-pin');
-    if (pin) pin.classList.add('active');
-    openCard(p);
+
+    // Longitude lines — straight verticals
+    let colIdx = 0;
+    for (let x = 0; x <= w + vStep; x += vStep, colIdx++) {
+      const major = colIdx % 5 === 0;
+      mx.setLineDash(major ? [] : [3, 6]);
+      mx.beginPath();
+      mx.moveTo(x, 0);
+      mx.lineTo(x, h);
+      mx.strokeStyle = major ? majorLine : minorLine;
+      mx.lineWidth   = major ? 0.75 : 0.45;
+      mx.stroke();
+    }
+
+    mx.setLineDash([]);
+
+    // Small dots at major-line intersections
+    for (let y = 0; y <= h + hStep * 5; y += hStep * 5) {
+      for (let x = 0; x <= w + vStep * 5; x += vStep * 5) {
+        mx.beginPath();
+        mx.arc(x, y, 1.8, 0, Math.PI * 2);
+        mx.fillStyle = dotColor;
+        mx.fill();
+      }
+    }
+  }
+
+  draw();
+  window.addEventListener('resize', draw);
+})();
+
+// ─── Ray data ────────────────────────────────────────────────────────────────
+
+const RAYS = {
+  research: [
+    "Who benefits when a forest gets certified carbon-neutral?",
+    "Do carbon credits just license more pollution?",
+    "Is public space actually public if you can't afford to be in it?",
+    "What does decoration mean across caste, gender, and class?",
+    "Which words make someone feel like they belong?",
+    "Who gets to tell a community's story?",
+    "What does a city look like when you map power instead of streets?",
+    "When does asylum policy protect people and when does it sort them?",
+    "Where does a conflict start on a map?",
+    "What gets left off the official record?",
+    "Do we resent museums because they mirror our inequalities back at us?"
+  ],
+  design: [
+    "Figma", "Illustrator", "Photoshop", "InDesign", "Premiere Pro",
+    "Claude", "Antigravity", "Cursor", "GitHub", "Mapbox",
+    "Chose a map over a list because the geography was the story",
+    "Picked the most familiar UI so it doesn't look intimidating",
+    "Checked font size and padding against dyslexia guidelines",
+    "Let the community choose its own colors",
+    "Added a back arrow because users kept getting lost",
+    "Split Press into its own page so viewers can find it",
+    "Added a sticky nav bar to reduce scroll fatigue",
+    "Reduced clicks to the most important action"
+  ],
+  storytelling: [
+    "A former convent became a girls' hostel, and under the wooden crosses a new community formed.",
+    "Varanasi's oldest residents watch the city forget them.",
+    "The once-colonized Indians and Lebanese built their own colonies in Liberia.",
+    "A new heart taught a security guard how to connect.",
+    '"They call it adventure," he said. "We call it surviving."',
+    "We were quiet about the violence for so long. It feels so good to talk about it.",
+    "On day three in the Darién Gap, my family disappeared. A man started running toward me.",
+    '"I went back to Kashmir just before the blackout," she said. "I found silence."',
+    "Her mom was feeding her breakfast when the bombs started. Don't cry. Focus on the food."
+  ]
+};
+
+const FONTS = {
+  research: [
+    { f:"'Playfair Display',serif",   w:"700", style:"italic", size:20 },
+    { f:"'DM Mono',monospace",        w:"500", style:"normal", size:13 },
+    { f:"'Cormorant Garamond',serif", w:"600", style:"italic", size:22 },
+    { f:"'Bebas Neue',sans-serif",    w:"400", style:"normal", size:26 },
+    { f:"'Space Grotesk',sans-serif", w:"700", style:"normal", size:16 },
+  ],
+  design: [
+    { f:"'Bebas Neue',sans-serif",    w:"400", style:"normal", size:32 },
+    { f:"'DM Mono',monospace",        w:"500", style:"normal", size:13 },
+    { f:"'Space Grotesk',sans-serif", w:"700", style:"normal", size:18 },
+    { f:"'Cormorant Garamond',serif", w:"600", style:"italic", size:24 },
+    { f:"'Playfair Display',serif",   w:"700", style:"italic", size:20 },
+  ],
+  storytelling: [
+    { f:"'Playfair Display',serif",   w:"900", style:"italic", size:20 },
+    { f:"'Cormorant Garamond',serif", w:"300", style:"italic", size:24 },
+    { f:"'DM Mono',monospace",        w:"500", style:"normal", size:12 },
+    { f:"'Space Grotesk',sans-serif", w:"700", style:"normal", size:16 },
+    { f:"'Bebas Neue',sans-serif",    w:"400", style:"normal", size:30 },
+  ]
+};
+
+const ANGLE_SEEDS = {
+  research:     [25, 55, 88, 115, 145, 170, 200, 228, 258, 292, 325],
+  design:       [20, 48, 72, 100, 128, 155, 180, 205, 232, 260, 288, 315, 338, 35, 62, 95, 140, 175],
+  storytelling: [30, 68, 105, 140, 172, 208, 245, 280, 315]
+};
+
+const LEN_SEEDS = {
+  research:     [1.05,0.82,0.98,1.12,0.76,1.08,0.88,1.18,0.92,0.74,1.1],
+  design:       [0.9,1.02,0.74,1.12,0.84,1.06,0.79,0.96,1.16,0.7,1.0,0.87,1.1,0.77,0.94,1.04,0.81,0.91],
+  storytelling: [1.02,0.84,1.12,0.76,1.06,0.88,1.18,0.8,0.96]
+};
+
+// Each category gets its own colour signature
+const RAY_COLORS = {
+  research:     { fill: '#1a6b6b', rgb: '26,107,107'  },
+  design:       { fill: '#c9a227', rgb: '201,162,39'  },
+  storytelling: { fill: '#2a2218', rgb: '42,34,24'    }
+};
+
+// ─── Elements & state ────────────────────────────────────────────────────────
+
+const canvas     = document.getElementById('ray-canvas');
+const ctx        = canvas.getContext('2d');
+const fade       = document.getElementById('heroFade');
+const cursorGlow = document.getElementById('cursorGlow');
+const cursorRing = document.getElementById('cursorRing');
+const cursorDot  = document.getElementById('cursorDot');
+const heroNameEl = document.getElementById('heroName');
+const triggers   = [...document.querySelectorAll('.word-trigger')];
+
+let animFrame, activeKey = null, rayProgress = 0, animDir = 0, rays = [], lastTime = null;
+let activeColors = RAY_COLORS.research;
+
+const DURATION          = 820;
+const MAX_WORDS_PER_LINE = 6;
+const LINE_GAP          = 1.4;
+
+// ─── Canvas resize ────────────────────────────────────────────────────────────
+
+function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+resize();
+window.addEventListener('resize', () => { resize(); if (activeKey) buildRays(activeKey); });
+
+// ─── Custom cursor (ring lags, dot is instant) ────────────────────────────────
+
+let mouseX = window.innerWidth / 2, mouseY = window.innerHeight / 2;
+let ringX  = mouseX, ringY = mouseY;
+let cursorStarted = false;
+
+document.addEventListener('mousemove', e => {
+  mouseX = e.clientX;
+  mouseY = e.clientY;
+
+  // Dot snaps to cursor
+  cursorDot.style.left = e.clientX + 'px';
+  cursorDot.style.top  = e.clientY + 'px';
+
+  // Glow follows
+  cursorGlow.style.left    = e.clientX + 'px';
+  cursorGlow.style.top     = e.clientY + 'px';
+  cursorGlow.style.opacity = '1';
+
+  if (!cursorStarted) {
+    cursorRing.classList.add('visible');
+    cursorDot.classList.add('visible');
+    cursorStarted = true;
+  }
+});
+
+(function lerpRing() {
+  ringX += (mouseX - ringX) * 0.11;
+  ringY += (mouseY - ringY) * 0.11;
+  cursorRing.style.left = ringX + 'px';
+  cursorRing.style.top  = ringY + 'px';
+  requestAnimationFrame(lerpRing);
+})();
+
+// ─── Typewriter for greeting ──────────────────────────────────────────────────
+
+(function typewriter() {
+  const boldText  = 'Hi,';
+  const lightText = " I'm Khushali.";
+
+  const strong   = document.createElement('strong');
+  const textNode = document.createTextNode('');
+  heroNameEl.appendChild(strong);
+  heroNameEl.appendChild(textNode);
+
+  let i = 0;
+  const total = boldText.length + lightText.length;
+
+  function tick() {
+    if (i === 0) heroNameEl.style.opacity = '1'; // reveal on first char
+    if (i < boldText.length) {
+      strong.textContent += boldText[i];
+    } else {
+      textNode.textContent += lightText[i - boldText.length];
+    }
+    i++;
+    if (i < total) setTimeout(tick, i <= boldText.length ? 95 : 52);
+  }
+
+  setTimeout(tick, 320);
+})();
+
+// ─── Per-character stagger reveal for word triggers ───────────────────────────
+
+let globalCharIdx = 0;
+triggers.forEach((el) => {
+  const text = el.textContent;
+  el.textContent = '';
+  [...text].forEach((ch) => {
+    const span = document.createElement('span');
+    span.className   = 'char';
+    span.textContent = ch === ' ' ? ' ' : ch;
+    span.style.animationDelay = `${0.42 + globalCharIdx * 0.055}s`;
+    globalCharIdx++;
+    el.appendChild(span);
   });
 });
 
-function openCard(p) {
-  const card = document.getElementById('info-card');
-  card.classList.remove('visible');
-  setTimeout(() => {
-    document.getElementById('c-tag').textContent = p.tag;
-    document.getElementById('c-title').textContent = p.title;
-    document.getElementById('c-meta').innerHTML = p.meta;
-    document.getElementById('c-desc').textContent = PLACEHOLDER_DESC;
-    document.getElementById('card-image').src = PLACEHOLDER_IMAGE;
-    card.classList.add('visible');
-    document.getElementById('tilesLayer').classList.add('dimmed');
-    document.getElementById('tagline').style.opacity = '0';
-  }, 80);
+// ─── Ray utilities ────────────────────────────────────────────────────────────
+
+function easeOutExpo(t) {
+  return t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
 }
 
-function closeCard() {
-  document.getElementById('info-card').classList.remove('visible');
-  document.getElementById('tilesLayer').classList.remove('dimmed');
-  document.getElementById('tagline').style.opacity = '1';
-  if (activeMarker) {
-    const pin = activeMarker.getElement().querySelector('.kh-pin');
-    if (pin) pin.classList.remove('active');
-    activeMarker = null;
+function rectEdgePoint(cx, cy, hw, hh, angle) {
+  const cos = Math.cos(angle), sin = Math.sin(angle);
+  let t = Infinity;
+  if (cos >  0.001) t = Math.min(t,  hw / cos);
+  if (cos < -0.001) t = Math.min(t, -hw / cos);
+  if (sin >  0.001) t = Math.min(t,  hh / sin);
+  if (sin < -0.001) t = Math.min(t, -hh / sin);
+  return { x: cx + cos * (t + 18), y: cy + sin * (t + 18) };
+}
+
+function wrapText(text) {
+  const words = text.split(' ');
+  const lines = [];
+  for (let i = 0; i < words.length; i += MAX_WORDS_PER_LINE)
+    lines.push(words.slice(i, i + MAX_WORDS_PER_LINE).join(' '));
+  return lines;
+}
+
+function setFont(fDef) {
+  ctx.font = `${fDef.style} ${fDef.w} ${fDef.size}px ${fDef.f}`;
+}
+
+// ─── Build rays ───────────────────────────────────────────────────────────────
+
+function buildRays(key) {
+  const el = document.querySelector(`[data-key="${key}"]`);
+  if (!el) return;
+  const r   = el.getBoundingClientRect();
+  const cx  = r.left + r.width  * 0.5;
+  const cy  = r.top  + r.height * 0.5;
+  const hw  = r.width  * 0.5;
+  const hh  = r.height * 0.5;
+
+  const texts   = RAYS[key];
+  const angles  = ANGLE_SEEDS[key];
+  const lens    = LEN_SEEDS[key];
+  const fonts   = FONTS[key];
+  const baseLen = Math.min(canvas.width, canvas.height) * 0.46;
+  rays = [];
+
+  texts.forEach((text, i) => {
+    const angle  = angles[i % angles.length] * (Math.PI / 180);
+    const fDef   = fonts[i % fonts.length];
+    const origin = rectEdgePoint(cx, cy, hw, hh, angle);
+    const lines  = wrapText(text);
+
+    // Measure text so clip never cuts a sentence short
+    setFont(fDef);
+    const maxLineW = Math.max(...lines.map(l => ctx.measureText(l).width));
+    const len      = Math.max(baseLen * lens[i % lens.length], maxLineW + 44);
+
+    rays.push({ angle, len, lines, origin, font: fDef });
+  });
+}
+
+// ─── Draw rays ────────────────────────────────────────────────────────────────
+
+function drawRays(progress) {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  if (!rays.length || progress <= 0) return;
+  const p = Math.min(progress, 1);
+
+  rays.forEach((r, i) => {
+    const stagger = (i / rays.length) * 0.28;
+    const rawP    = Math.max(0, Math.min(1, (p - stagger) / (1 - stagger * 0.5)));
+    if (rawP <= 0) return;
+    const localP = easeOutExpo(rawP);
+
+    const travelLen     = r.len * localP;
+    const pointing_left = Math.cos(r.angle) < -0.15;
+    const fDef          = r.font;
+    const lineH         = fDef.size * LINE_GAP;
+    const { fill, rgb } = activeColors;
+
+    // Guiding line
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(r.origin.x, r.origin.y);
+    ctx.lineTo(r.origin.x + Math.cos(r.angle) * travelLen,
+               r.origin.y + Math.sin(r.angle) * travelLen);
+    ctx.strokeStyle = `rgba(${rgb},${(localP * 0.18).toFixed(3)})`;
+    ctx.lineWidth   = 0.5;
+    ctx.stroke();
+    ctx.restore();
+
+    // Origin dot
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(r.origin.x, r.origin.y, 2, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(${rgb},${(localP * 0.4).toFixed(3)})`;
+    ctx.fill();
+    ctx.restore();
+
+    // Text — backing rect per line keeps each item readable over anything behind it
+    ctx.save();
+    ctx.translate(r.origin.x, r.origin.y);
+    ctx.rotate(pointing_left ? r.angle + Math.PI : r.angle);
+
+    ctx.globalAlpha  = 1.0;
+    setFont(fDef);
+    ctx.textBaseline = 'middle';
+    ctx.shadowBlur   = 0;
+
+    const halfH = (r.lines.length * lineH) / 2 + 3;
+    ctx.save();
+    ctx.beginPath();
+    if (!pointing_left) ctx.rect(0, -halfH, travelLen + 8, halfH * 2);
+    else                ctx.rect(-(travelLen + 8), -halfH, travelLen + 8, halfH * 2);
+    ctx.clip();
+
+    r.lines.forEach((line, li) => {
+      const yOff = (li - (r.lines.length - 1) * 0.5) * lineH;
+      const tw   = ctx.measureText(line).width;
+      const bh   = fDef.size * 1.15;
+      const bp   = 5;
+
+      // Solid paper-coloured backing so text never merges with grid or other rays
+      ctx.fillStyle = 'rgba(239,243,241,0.93)';
+      if (!pointing_left) {
+        ctx.fillRect(-bp, yOff - bh / 2, tw + bp * 2, bh);
+      } else {
+        ctx.fillRect(-(tw + bp), yOff - bh / 2, tw + bp * 2, bh);
+      }
+
+      ctx.fillStyle = fill;
+      ctx.textAlign = pointing_left ? 'right' : 'left';
+      ctx.fillText(line, 0, yOff);
+    });
+
+    ctx.restore();
+    ctx.restore();
+  });
+}
+
+// ─── Animation loop ───────────────────────────────────────────────────────────
+
+function animate(ts) {
+  if (!lastTime) lastTime = ts;
+  const dt = ts - lastTime;
+  lastTime = ts;
+
+  if      (animDir ===  1) rayProgress = Math.min(1, rayProgress + dt / DURATION);
+  else if (animDir === -1) rayProgress = Math.max(0, rayProgress - dt / DURATION);
+
+  drawRays(rayProgress);
+
+  if ((animDir === 1 && rayProgress < 1) || (animDir === -1 && rayProgress > 0)) {
+    animFrame = requestAnimationFrame(animate);
+  } else if (animDir === -1 && rayProgress <= 0) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    rays = []; activeKey = null;
+    // Everything reappears together once rays are fully gone
+    document.body.classList.remove('ray-active');
+    triggers.forEach(w => {
+      w.classList.remove('dimmed', 'active');
+      w.style.transform = '';
+    });
   }
 }
 
-// Scroll observer
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) entry.target.classList.add('visible');
+function startExpand(key) {
+  cancelAnimationFrame(animFrame);
+  activeKey    = key;
+  activeColors = RAY_COLORS[key];
+  buildRays(key);
+  animDir   = 1;
+  lastTime  = null;
+  animFrame = requestAnimationFrame(animate);
+}
+
+function startRetract() {
+  cancelAnimationFrame(animFrame);
+  animDir  = -1;
+  lastTime = null;
+  animFrame = requestAnimationFrame(animate);
+}
+
+// ─── Word trigger interactions ────────────────────────────────────────────────
+
+triggers.forEach((el, idx) => {
+  el.addEventListener('mouseenter', () => {
+    startExpand(el.dataset.key);
+    fade.classList.add('active');
+    document.body.classList.add('ray-active');
+    cursorRing.classList.add('expanded');
+
+    triggers.forEach((w, wi) => {
+      w.classList.remove('dimmed', 'active');
+      if (w === el) {
+        w.classList.add('active');
+        w.style.transform = 'translateY(-5px)';
+      } else {
+        w.classList.add('dimmed');
+        w.style.transform = 'translateY(5px)';
+      }
+    });
   });
-}, { threshold: 0.15 });
 
-document.querySelectorAll('.text-block, .icon-container, .work-grid').forEach(el => observer.observe(el));
+  el.addEventListener('mouseleave', () => {
+    startRetract();
+    fade.classList.remove('active');
+    cursorRing.classList.remove('expanded');
 
-// Header shadow on scroll
-window.addEventListener('scroll', () => {
-  document.getElementById('siteHeader').classList.toggle('scrolled', window.scrollY > 10);
+    // Only reset the word you just left — dimmed words stay hidden
+    // until rays finish collapsing (handled in animate())
+    el.classList.remove('active');
+    el.style.transform = '';
+  });
 });
 </script>
-
 </body>
 </html>
