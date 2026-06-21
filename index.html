@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Khushali Haji</title>
   <link
-    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300;1,600&family=DM+Mono:wght@400;500&family=Playfair+Display:ital,wght@1,700;1,900&family=Space+Grotesk:wght@700&family=Bebas+Neue&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300;1,600&family=DM+Mono:wght@400;500&family=Playfair+Display:ital,wght@1,700;1,900&family=Space+Grotesk:wght@700&family=Bebas+Neue&family=Inter:wght@200;300;400;600&display=swap"
     rel="stylesheet">
   <style>
     *,
@@ -18,6 +18,17 @@
     }
 
     html {
+      cursor: none;
+    }
+
+    /* Links, buttons and triggers get a native pointer cursor from the UA
+       stylesheet — force it off so only the custom doodle arrow shows. */
+    a,
+    button,
+    .word-trigger,
+    [data-clickable],
+    a *,
+    button * {
       cursor: none;
     }
 
@@ -87,84 +98,54 @@
       will-change: transform;
     }
 
-    /* Custom cursor — soft blue ring */
-    .cursor-ring {
+    /* Custom cursor — hand-drawn outline pointer.
+       An SVG arrow outline roughened by a turbulence/displacement filter for a
+       sketchy, wobbly pen feel. Tip (4,4) is the pointer hotspot. */
+    .cursor-arrow {
       position: fixed;
-      width: 28px;
-      height: 28px;
-      border: 1.5px solid rgba(88, 152, 188, 0.75);
-      border-radius: 50%;
+      left: 0;
+      top: 0;
+      width: 22px;
+      height: 22px;
       pointer-events: none;
       z-index: 9999;
-      transform: translate(-50%, -50%);
       opacity: 0;
-      transition:
-        width 0.4s cubic-bezier(0.22, 1, 0.36, 1),
-        height 0.4s cubic-bezier(0.22, 1, 0.36, 1),
-        opacity 0.4s ease,
-        border-color 0.3s ease;
+      transform-origin: 2px 2px;
+      /* White fill + difference blend = the inverse of whatever colour is underneath */
+      mix-blend-mode: difference;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cfilter id='w'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.04' numOctaves='2' seed='4' result='n'/%3E%3CfeDisplacementMap in='SourceGraphic' in2='n' scale='0.9'/%3E%3C/filter%3E%3Cpath filter='url(%23w)' d='M4 3 L26 17 L16 19 L21 31 L17 33 L12 21 L4 24 Z' fill='%23ffffff' stroke='%23ffffff' stroke-width='1.4' stroke-linejoin='round' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat;
+      transition: opacity 0.3s ease, transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
     }
 
-    /* Crosshair arms — gap in centre so yellow dot stays visible */
-    .cursor-ring::before {
-      content: '';
-      position: absolute;
-      width: calc(100% + 22px);
-      height: 1px;
-      top: 50%;
-      left: -11px;
-      transform: translateY(-50%);
-      background: linear-gradient(to right,
-          rgba(88, 152, 188, 0.6) 0%,
-          rgba(88, 152, 188, 0.6) calc(50% - 7px),
-          transparent calc(50% - 7px),
-          transparent calc(50% + 7px),
-          rgba(88, 152, 188, 0.6) calc(50% + 7px),
-          rgba(88, 152, 188, 0.6) 100%);
-    }
-
-    .cursor-ring::after {
-      content: '';
-      position: absolute;
-      height: calc(100% + 22px);
-      width: 1px;
-      left: 50%;
-      top: -11px;
-      transform: translateX(-50%);
-      background: linear-gradient(to bottom,
-          rgba(88, 152, 188, 0.6) 0%,
-          rgba(88, 152, 188, 0.6) calc(50% - 7px),
-          transparent calc(50% - 7px),
-          transparent calc(50% + 7px),
-          rgba(88, 152, 188, 0.6) calc(50% + 7px),
-          rgba(88, 152, 188, 0.6) 100%);
-    }
-
-    .cursor-dot {
-      position: fixed;
-      width: 5px;
-      height: 5px;
-      background: var(--yellow);
-      border-radius: 50%;
-      pointer-events: none;
-      z-index: 9999;
-      transform: translate(-50%, -50%);
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-
-    .cursor-ring.visible {
+    .cursor-arrow.visible {
       opacity: 1;
     }
 
-    .cursor-dot.visible {
-      opacity: 1;
+    /* Radiating doodle lines — burst outward from the arrow's pointy tip.
+       The pseudo-element is larger than the arrow and shifted up/left so its
+       centre sits on the tip; rays sit in the upper-left arc (away from the
+       blade, which points down-right) and scale out from that centre. */
+    .cursor-arrow::before {
+      content: '';
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      left: -13px;
+      top: -13px;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cfilter id='s'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.06' numOctaves='2' seed='2' result='n'/%3E%3CfeDisplacementMap in='SourceGraphic' in2='n' scale='1.2'/%3E%3C/filter%3E%3Cg filter='url(%23s)' stroke='%23ffffff' stroke-width='2.1' stroke-linecap='round'%3E%3Cline x1='20' y1='11' x2='20' y2='4'/%3E%3Cline x1='17' y1='11' x2='15' y2='4'/%3E%3Cline x1='14' y1='13' x2='9' y2='8'/%3E%3Cline x1='11' y1='19' x2='4' y2='18'/%3E%3Cline x1='26' y1='13' x2='31' y2='8'/%3E%3C/g%3E%3C/svg%3E") center / contain no-repeat;
+      opacity: 0;
+      transform: scale(0.4);
+      transform-origin: 50% 50%;
+      transition: opacity 0.18s ease, transform 0.18s cubic-bezier(0.22, 1, 0.36, 1);
     }
 
-    .cursor-ring.expanded {
-      width: 50px;
-      height: 50px;
-      opacity: 0.5;
+    .cursor-arrow.hot::before {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .cursor-arrow.hot {
+      transform: scale(1.12);
     }
 
     /* Hero fade overlay */
@@ -240,6 +221,10 @@
       letter-spacing: -0.02em;
       color: var(--ink);
       margin-bottom: 1.6rem;
+      /* Align the heading's left edge with where the subheading text begins:
+         the first word's left padding (0.3em of its clamped size) minus the
+         words-row's -0.3em (≈ 4.8px at the 16px root). */
+      margin-left: calc(clamp(6.6px, 0.87vw, 12.3px) - 4.8px);
       opacity: 0;
       position: relative;
       z-index: 2;
@@ -295,22 +280,33 @@
       display: flex;
       flex-direction: row;
       flex-wrap: wrap;
-      column-gap: 0.55em;
+      column-gap: 0.1em;
+      row-gap: 0.35em;
       align-items: baseline;
       position: relative;
       z-index: 4;
+      /* cancel the first word's left padding so the tagline text starts on the
+         same vertical axis as the headline and body */
+      margin-left: -0.3em;
     }
 
     .word-trigger {
       display: inline-block;
-      font-family: var(--serif);
-      font-size: clamp(26px, 3.4vw, 48px);
-      font-weight: 600;
-      font-style: italic;
+      font-family: 'Inter', sans-serif;
+      /* ~15% smaller than the old serif size — Inter's larger x-height reads bigger,
+         so this brings the visual size back to roughly what it was */
+      font-size: clamp(22px, 2.9vw, 41px);
+      font-weight: 200;
+      font-style: normal;
       line-height: 1.2;
-      letter-spacing: -0.01em;
+      /* Inter runs wider than the old serif; tighten tracking so each word keeps
+         roughly its previous footprint and the hover connectors stay put */
+      letter-spacing: -0.04em;
       cursor: none;
       position: relative;
+      /* padding enlarges the hover target; the column gap keeps the three
+         hit-boxes from touching/overlapping each other */
+      padding: 0.4em 0.3em;
       color: rgba(24, 21, 18, 0.6);
       user-select: none;
       transform-origin: center center;
@@ -320,85 +316,73 @@
         transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
     }
 
-    /* Faint yellow highlight on hover — no underline */
+    /* Brush-stroke highlighter swipe behind each tagline word.
+       A rounded rect is roughened by an SVG turbulence/displacement filter to give
+       ragged, painterly edges, then used as a mask so CSS controls the fill colour.
+       inset offsets the new padding so the swipe still hugs the text. */
     .word-trigger::after {
       content: '';
       position: absolute;
-      inset: -7px -10px;
+      inset: calc(0.4em - 3px) calc(0.3em - 8px);
       background: transparent;
-      border-radius: 5px;
+      -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 70' preserveAspectRatio='none'%3E%3Cfilter id='b'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.014 0.16' numOctaves='3' seed='6' result='n'/%3E%3CfeDisplacementMap in='SourceGraphic' in2='n' scale='12'/%3E%3C/filter%3E%3Crect x='22' y='24' width='256' height='22' rx='11' fill='white' filter='url(%23b)'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+      mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 70' preserveAspectRatio='none'%3E%3Cfilter id='b'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.014 0.16' numOctaves='3' seed='6' result='n'/%3E%3CfeDisplacementMap in='SourceGraphic' in2='n' scale='12'/%3E%3C/filter%3E%3Crect x='22' y='24' width='256' height='22' rx='11' fill='white' filter='url(%23b)'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+      transform: rotate(-0.9deg);
       z-index: -1;
-      transition: background 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+      transition:
+        background 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+        inset 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    /* Resting yellow swipe (added once the words have typed in). A touch more saturated
+       than a pale lemon so the difference-blend cursor inverts to a clear blue over it. */
+    .word-trigger.lit::after {
+      background: rgba(245, 220, 80, 0.55);
     }
 
     .word-trigger.active {
       color: var(--teal);
     }
 
-    /* Opaque (paper + yellow tint) so connector ends tuck out of sight behind it */
+    /* Opaque (paper + pale-yellow tint), masked to the brush so connector ends tuck behind it.
+       On hover the swipe also grows beyond the word so every connector start point is
+       layered underneath it — the small gaps near the word stop reading as floating. */
     .word-trigger.active::after {
-      background: linear-gradient(rgba(201, 162, 39, 0.16), rgba(201, 162, 39, 0.16)), var(--paper);
+      inset: -0.22em -0.55em;
+      background: linear-gradient(rgba(246, 212, 66, 0.92), rgba(246, 212, 66, 0.92)), var(--paper);
     }
 
     .word-trigger.dimmed {
       opacity: 0.1;
     }
 
-    /* Yellow underline that draws in and retracts — invite-to-hover signal */
-    .word-trigger::before {
-      content: '';
-      position: absolute;
-      bottom: 0.06em;
-      left: 0;
-      width: 100%;
-      height: 1.5px;
-      background: var(--yellow);
-      clip-path: inset(0 100% 0 0);
-    }
-
-    /* Staggered breathing + underline per word — start after chars have appeared */
+    /* Gentle breathing invite — starts after the intro finishes */
     .word-trigger:nth-child(1) {
-      animation: breathe 3s 2.6s ease-in-out infinite;
+      animation: breathe 3s 5.0s ease-in-out infinite;
     }
 
     .word-trigger:nth-child(2) {
-      animation: breathe 3s 3.3s ease-in-out infinite;
+      animation: breathe 3s 5.7s ease-in-out infinite;
     }
 
     .word-trigger:nth-child(3) {
-      animation: breathe 3s 4.0s ease-in-out infinite;
+      animation: breathe 3s 6.4s ease-in-out infinite;
     }
 
-    .word-trigger:nth-child(1)::before {
-      animation: underlinePulse 5s 2.6s ease-in-out infinite;
-    }
-
-    .word-trigger:nth-child(2)::before {
-      animation: underlinePulse 5s 4.2s ease-in-out infinite;
-    }
-
-    .word-trigger:nth-child(3)::before {
-      animation: underlinePulse 5s 5.8s ease-in-out infinite;
-    }
-
-    /* Pause invite animations while hover state is active */
+    /* Pause breathing while hover state is active */
     .word-trigger.active,
     .word-trigger.dimmed {
       animation: none;
     }
 
-    .word-trigger.active::before,
-    .word-trigger.dimmed::before {
-      animation: none;
-      clip-path: inset(0 100% 0 0);
-    }
-
-    /* Per-character reveal */
+    /* Per-character reveal — typewriter style, driven by JS after the greeting */
     .char {
       display: inline-block;
       opacity: 0;
-      will-change: opacity;
-      animation: charIn 0.6s ease forwards;
+    }
+
+    .char.shown {
+      opacity: 1;
     }
 
     /* Bio */
@@ -407,11 +391,16 @@
       grid-row: 2;
       max-width: 460px;
       opacity: 0;
-      animation: fadeUp 1s 1.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
       position: relative;
       z-index: 2;
       transition: opacity 0.5s ease;
       text-align: left;
+      /* match the heading/subheading left axis (see .hero-name) */
+      margin-left: calc(clamp(6.6px, 0.87vw, 12.3px) - 4.8px);
+    }
+
+    .hero-body.shown {
+      animation: fadeUp 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
     }
 
     .hero-body p {
@@ -600,11 +589,11 @@
     }
 
     .project-title {
-      font-family: var(--serif);
-      font-style: italic;
-      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      font-style: normal;
+      font-weight: 200;
       font-size: clamp(22px, 2.4vw, 30px);
-      letter-spacing: -0.01em;
+      letter-spacing: -0.02em;
       margin-bottom: 0.6rem;
     }
 
@@ -687,6 +676,11 @@
       margin-bottom: 2.6rem;
     }
 
+    /* second line reads lighter than the greeting above it */
+    .contact-heading .ch-light {
+      font-weight: 300;
+    }
+
     .social-links {
       display: flex;
       justify-content: center;
@@ -734,8 +728,7 @@
   <div class="bg-orb"></div>
   <div class="hero-fade" id="heroFade"></div>
   <div class="cursor-glow" id="cursorGlow"></div>
-  <div class="cursor-ring" id="cursorRing"></div>
-  <div class="cursor-dot" id="cursorDot"></div>
+  <div class="cursor-arrow" id="cursorArrow"></div>
   <div class="progress-line"></div>
   <canvas id="ray-canvas"></canvas>
 
@@ -751,18 +744,16 @@
         </div>
       </div>
       <div class="hero-body">
-        <p>I am a <mark>researcher by heart,</mark> and a <mark>designer by consequence</mark> of finding ways to fill
-          those gaps. I
-          make complexity legible through field investigation, spatial systems, and narrative that doesn't flatten what
-          it's trying to explain.</p>
+        <p>I am a <strong>researcher</strong> by heart, and a <strong>designer</strong> by consequence of finding ways to
+          fill those gaps. I'm now applying that instinct to <strong>AI-native</strong> tools, building products that
+          make complex systems legible, most recently for communities underserved by existing civic and
+          public-interest tech.</p>
         <p>My work has taken me from informal settlements in India to forests marked for carbon credits in Liberia, from
-          policy reporting in New York to mapping international conflict data on a live map. I trained as an <mark>urban
-            designer</mark>, retrained as a <mark>journalist</mark>, and am now building <mark>AI-native tools</mark>
-          for
-          communities that don't often see themselves in <mark>civic tech</mark>.</p>
-        <p>I'm based in <mark>New York</mark>, looking for roles at the intersection of <mark>content design, UX
-            research,</mark>
-          and <mark>public-interest storytelling</mark>.</p>
+          policy reporting in New York to building AI products for international conflict researchers. I
+          trained as an <strong>urban designer</strong>, retrained as a <strong>journalist</strong>, and now design and
+          <strong>prototype AI-native tools</strong> as the next iteration of that same instinct.</p>
+        <p>I'm based in <strong>New York</strong>, looking for roles at the intersection of <strong>AI product
+            design</strong>, <strong>UX research</strong>, and <strong>public-interest storytelling</strong>.</p>
       </div>
     </div>
   </section>
@@ -771,15 +762,16 @@
   <section class="featured">
     <p class="section-label">Featured Projects</p>
     <div class="projects-grid">
-      <a class="project-card" href="#">
+      <a class="project-card" href="case-studies/conflict-lens.html">
         <span class="project-num">01</span>
-        <h3 class="project-title">Project 1</h3>
-        <p class="project-desc">A short one to two line descriptor of what this project explored and why it mattered.
+        <h3 class="project-title">Conflict Lens</h3>
+        <p class="project-desc">Turns a single news article into a geo-referenced, bias-aware conflict briefing, in
+          under a minute. A map-first dashboard that synthesizes location, actors, history, and source slant in one view.
         </p>
         <div class="project-tags">
-          <span class="tag">Research</span>
+          <span class="tag">Product Design</span>
+          <span class="tag">AI</span>
           <span class="tag">Mapping</span>
-          <span class="tag">Policy</span>
         </div>
       </a>
       <a class="project-card" href="#">
@@ -812,7 +804,7 @@
 
   <!-- CONTACT -->
   <section class="contact-section">
-    <h2 class="contact-heading">Would love to talk! What cool new (or old) projects are you working on?</h2>
+    <h2 class="contact-heading">Would love to talk!<br><span class="ch-light">What cool projects are you working on?</span></h2>
     <div class="social-links">
       <a class="social-link" href="https://www.instagram.com/khushalihaji/" target="_blank" rel="noopener"
         aria-label="Instagram">
@@ -929,16 +921,26 @@
         "Do we resent museums because they mirror our inequalities back at us?"
       ],
       design: [
-        "Figma", "Illustrator", "Photoshop", "InDesign", "Premiere Pro",
-        "Claude", "Antigravity", "Cursor", "GitHub", "Mapbox",
-        "Chose a map over a list because the geography was the story",
+        // Fixed order (no shuffle): Figma/Antigravity sit top-right, Claude/GitHub
+        // top-left, so the key tools stay prominent and the layout is stable on reload.
+        "Figma",
+        "Antigravity",
+        "Cursor",
+        "Chose a map over a list to match the user's mental model",
+        "Illustrator",
         "Picked the most familiar UI so it doesn't look intimidating",
-        "Checked font size and padding against dyslexia guidelines",
-        "Let the community choose its own colors",
-        "Added a back arrow because users kept getting lost",
-        "Split Press into its own page so viewers can find it",
+        "Added a back arrow for user control and freedom",
+        "Photoshop",
+        "Split section into its own page so memory recall can help viewers can find it",
+        "Mapbox",
         "Added a sticky nav bar to reduce scroll fatigue",
-        "Reduced clicks to the most important action"
+        "InDesign",
+        "Tuned font size and padding to WCAG accessibility",
+        "Premiere Pro",
+        "Let the community choose its own colors",
+        "Reduced clicks to the goal (Hick's Law)",
+        "GitHub",
+        "Claude"
       ],
       storytelling: [
         "A former convent became a girls' hostel, and under the wooden crosses a new community formed.",
@@ -947,7 +949,7 @@
         "A new heart taught a security guard how to connect.",
         '"They call it adventure," he said. "We call it surviving."',
         "We were quiet about the violence for so long. It feels so good to talk about it.",
-        "On day three in the Darién Gap, my family disappeared. A man started running toward me.",
+        "On day three in the Darién Gap, a man started running toward me.",
         '"I went back to Kashmir just before the blackout," she said. "I found silence."',
         "Her mom was feeding her breakfast when the bombs started. Don't cry. Focus on the food."
       ]
@@ -996,13 +998,8 @@
       storytelling: { fill: '#2a2218', rgb: '42,34,24' }
     };
 
-    // Intermix design tools & decisions so they aren't grouped on one side
-    (function shuffle(a) {
-      for (let i = a.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [a[i], a[j]] = [a[j], a[i]];
-      }
-    })(RAYS.design);
+    // Design order is hand-set above (tools/decisions intermixed); no shuffle, so the
+    // arrangement is identical on every load.
 
     // ─── Elements & state ────────────────────────────────────────────────────────
 
@@ -1010,15 +1007,16 @@
     const ctx = canvas.getContext('2d');
     const fade = document.getElementById('heroFade');
     const cursorGlow = document.getElementById('cursorGlow');
-    const cursorRing = document.getElementById('cursorRing');
-    const cursorDot = document.getElementById('cursorDot');
+    const cursorArrow = document.getElementById('cursorArrow');
     const heroNameEl = document.getElementById('heroName');
     const triggers = [...document.querySelectorAll('.word-trigger')];
 
     let animFrame, activeKey = null, rayProgress = 0, animDir = 0, rays = [], lastTime = null;
+    let hoverBounds = null; // viewport-space box around the active composition
     let activeColors = RAY_COLORS.research;
     let layout = { cx: 0, cy: 0 };
     let viewW = window.innerWidth, viewH = window.innerHeight;
+    let anchorScrollY = 0; // page scroll captured when a word is hovered
 
     const DURATION = 820;
     const MAX_WORDS_PER_LINE = 5;
@@ -1043,16 +1041,15 @@
     // ─── Custom cursor (ring lags, dot is instant) ────────────────────────────────
 
     let mouseX = window.innerWidth / 2, mouseY = window.innerHeight / 2;
-    let ringX = mouseX, ringY = mouseY;
     let cursorStarted = false;
 
     document.addEventListener('mousemove', e => {
       mouseX = e.clientX;
       mouseY = e.clientY;
 
-      // Dot snaps to cursor
-      cursorDot.style.left = e.clientX + 'px';
-      cursorDot.style.top = e.clientY + 'px';
+      // Doodle arrow snaps to the cursor (offset so the svg tip sits on the pointer)
+      cursorArrow.style.left = (e.clientX - 2) + 'px';
+      cursorArrow.style.top = (e.clientY - 2) + 'px';
 
       // Glow follows
       cursorGlow.style.left = e.clientX + 'px';
@@ -1060,19 +1057,16 @@
       cursorGlow.style.opacity = '1';
 
       if (!cursorStarted) {
-        cursorRing.classList.add('visible');
-        cursorDot.classList.add('visible');
+        cursorArrow.classList.add('visible');
         cursorStarted = true;
       }
     });
 
-    (function lerpRing() {
-      ringX += (mouseX - ringX) * 0.11;
-      ringY += (mouseY - ringY) * 0.11;
-      cursorRing.style.left = ringX + 'px';
-      cursorRing.style.top = ringY + 'px';
-      requestAnimationFrame(lerpRing);
-    })();
+    // Radiating lines burst out whenever the pointer is over something interactive
+    document.addEventListener('mouseover', e => {
+      const hot = e.target.closest('a, button, .word-trigger, [data-clickable]');
+      cursorArrow.classList.toggle('hot', !!hot);
+    });
 
     // ─── Typewriter for greeting ──────────────────────────────────────────────────
 
@@ -1096,27 +1090,51 @@
           textNode.textContent += lightText[i - boldText.length];
         }
         i++;
-        if (i < total) setTimeout(tick, i <= boldText.length ? 95 : 52);
+        if (i < total) {
+          setTimeout(tick, i <= boldText.length ? 95 : 52);
+        } else {
+          // Greeting done -> reveal the three words, then the body
+          setTimeout(() => revealWords(revealBody), 240);
+        }
       }
 
       setTimeout(tick, 320);
     })();
 
-    // ─── Per-character stagger reveal for word triggers ───────────────────────────
+    // ─── Word reveal (typewriter style, after the greeting) ──────────────────────
 
-    let globalCharIdx = 0;
     triggers.forEach((el) => {
       const text = el.textContent;
       el.textContent = '';
       [...text].forEach((ch) => {
         const span = document.createElement('span');
         span.className = 'char';
-        span.textContent = ch === ' ' ? ' ' : ch;
-        span.style.animationDelay = `${0.42 + globalCharIdx * 0.055}s`;
-        globalCharIdx++;
+        span.textContent = ch;
         el.appendChild(span);
       });
     });
+
+    function revealWords(done) {
+      const chars = document.querySelectorAll('.word-trigger .char');
+      let i = 0;
+      (function step() {
+        if (i < chars.length) {
+          chars[i].classList.add('shown');
+          i++;
+          setTimeout(step, 45);
+        } else {
+          if (done) done(); // reveal the body text first
+          // light up the tagline highlight a beat after the body has settled in
+          triggers.forEach((w, k) =>
+            setTimeout(() => w.classList.add('lit'), 900 + k * 220));
+        }
+      })();
+    }
+
+    function revealBody() {
+      const body = document.querySelector('.hero-body');
+      if (body) body.classList.add('shown');
+    }
 
     // ─── Ray utilities ────────────────────────────────────────────────────────────
 
@@ -1136,14 +1154,23 @@
 
     function wrapText(text, maxLines = Infinity) {
       const words = text.split(' ');
-      // Use the natural wrap width, but widen lines if needed to stay ≤ maxLines
-      let perLine = MAX_WORDS_PER_LINE;
-      if (Math.ceil(words.length / perLine) > maxLines)
-        perLine = Math.ceil(words.length / maxLines);
-      const lines = [];
-      for (let i = 0; i < words.length; i += perLine)
-        lines.push(words.slice(i, i + perLine).join(' '));
-      return lines;
+      // Decide a line count, then distribute words evenly so lines are similar
+      // lengths and the last line is never a lonely 2–3 words.
+      let lines = Math.ceil(words.length / MAX_WORDS_PER_LINE);
+      if (maxLines !== Infinity) lines = Math.min(lines, maxLines);
+      lines = Math.max(1, lines);
+
+      const base = Math.floor(words.length / lines);
+      let rem = words.length % lines;
+      const out = [];
+      let idx = 0;
+      for (let i = 0; i < lines; i++) {
+        const take = base + (rem > 0 ? 1 : 0);
+        if (rem > 0) rem--;
+        out.push(words.slice(idx, idx + take).join(' '));
+        idx += take;
+      }
+      return out;
     }
 
     function setFont(fDef) {
@@ -1163,7 +1190,7 @@
       'Figma', 'Illustrator', 'Photoshop', 'InDesign', 'Premiere Pro',
       'Claude', 'Antigravity', 'Cursor', 'GitHub', 'Mapbox'
     ]);
-    const TOOL_FONT = { f: "'Space Grotesk',sans-serif", w: '700', style: 'normal', size: 16 };
+    const TOOL_FONT = { f: "'Space Grotesk',sans-serif", w: '700', style: 'normal', size: 20 };
     const DECISION_FONT = { f: "'Cormorant Garamond',serif", w: '600', style: 'italic', size: 19 };
 
     // A point evenly spaced around the box perimeter, with its outward normal
@@ -1179,15 +1206,100 @@
       return { x: cx - hw, y: cy + hh - d, nx: -1, ny: 0 };
     }
 
+    // Point where a ray from the word centre at `ang` meets the box edge, + normal
+    function edgePointByAngle(cx, cy, hw, hh, ang) {
+      const cos = Math.cos(ang), sin = Math.sin(ang);
+      let tx = Infinity, ty = Infinity;
+      if (Math.abs(cos) > 1e-6) tx = hw / Math.abs(cos);
+      if (Math.abs(sin) > 1e-6) ty = hh / Math.abs(sin);
+      let nx = 0, ny = 0, t;
+      if (tx <= ty) { t = tx; nx = cos > 0 ? 1 : -1; }
+      else { t = ty; ny = sin > 0 ? 1 : -1; }
+      return { x: cx + cos * t, y: cy + sin * t, nx, ny };
+    }
+
+    // Even word distribution into a fixed line count
+    function distribute(words, lines) {
+      const base = Math.floor(words.length / lines);
+      let rem = words.length % lines;
+      const out = []; let idx = 0;
+      for (let i = 0; i < lines; i++) {
+        const take = base + (rem > 0 ? 1 : 0);
+        if (rem > 0) rem--;
+        out.push(words.slice(idx, idx + take).join(' '));
+        idx += take;
+      }
+      return out;
+    }
+
+    // Wrap to the fewest balanced lines whose widest line fits maxPx
+    function fitLines(text, fDef, maxPx) {
+      setFont(fDef);
+      const words = text.split(' ');
+      for (let lines = 1; lines <= words.length; lines++) {
+        const out = distribute(words, lines);
+        const widest = Math.max(...out.map(l => ctx.measureText(l).width));
+        if (widest <= maxPx || lines === words.length) return out;
+      }
+      return [text];
+    }
+
+    // Hand-set line breaks for a few phrases (override auto-wrap)
+    const FORCED_LINES = {
+      "Is public space actually public if you can't afford to be in it?": [
+        "Is public space actually public", "if you can't afford to be in it?"
+      ],
+      "Varanasi's oldest residents watch the city forget them.": [
+        "Varanasi's oldest residents", "watch the city forget them."
+      ],
+      '"They call it adventure," he said. "We call it surviving."': [
+        '"They call it adventure," he said.', '"We call it surviving."'
+      ],
+      "On day three in the Darién Gap, my family disappeared. A man started running toward me.": [
+        "On day three in the Darién Gap,", "my family disappeared.", "A man started running toward me."
+      ],
+      "A former convent became a girls' hostel, and under the wooden crosses a new community formed.": [
+        "A former convent became", "a girls' hostel, and under", "the wooden crosses a", "new community formed."
+      ],
+      "Her mom was feeding her breakfast when the bombs started. Don't cry. Focus on the food.": [
+        "Her mom was feeding her breakfast when the", "bombs started. Don't cry. Focus on the food."
+      ]
+    };
+
+    // Substrings rendered in italic within their label (the rest stays upright).
+    const ITALIC_SUB = {
+      "Her mom was feeding her breakfast when the bombs started. Don't cry. Focus on the food.":
+        "Don't cry. Focus on the food."
+    };
+
     function buildRays(key) {
       const el = document.querySelector(`[data-key="${key}"]`);
       if (!el) return;
+      // Measure the word at rest. The "breathe" keyframe scales it, so without this the
+      // box (and therefore every leader length) depends on the animation phase at hover —
+      // making the arrows look a different length each time. Neutralise it while measuring.
+      const prevAnim = el.style.animation, prevTransform = el.style.transform;
+      el.style.animation = 'none';
+      el.style.transform = 'none';
       const r = el.getBoundingClientRect();
+      el.style.animation = prevAnim;
+      el.style.transform = prevTransform;
+      // Strip the hover padding so leaders start from the text itself, not the
+      // (now larger) hit-box around it. Padding is symmetric, so the centre is unchanged.
+      const cs = getComputedStyle(el);
+      const padX = parseFloat(cs.paddingLeft) || 0;
+      const padY = parseFloat(cs.paddingTop) || 0;
+      const fontSize = parseFloat(cs.fontSize) || 40;
       const cx = r.left + r.width * 0.5;
       const cy = r.top + r.height * 0.5;
-      const hw = r.width * 0.5;
-      const hh = r.height * 0.5;
-      layout = { cx, cy };
+      const hw = Math.max(1, r.width * 0.5 - padX);
+      // Also drop the line-height leading so the box hugs the glyphs, not the line box —
+      // otherwise top/bottom connectors start in the empty space above/below the text.
+      // Storyteller is set large in serif italic; cap-height is well short of the line
+      // box, so use a tighter factor or top/bottom leaders float above/below the letters.
+      const hhFactor = key === 'storytelling' ? 0.34 : 0.46;
+      const hh = Math.max(1, Math.min(r.height * 0.5 - padY, fontSize * hhFactor));
+      layout = { cx, cy, hw, hh };
 
       const texts = RAYS[key];
       const fonts = FONTS[key];
@@ -1195,57 +1307,131 @@
       const baseR = Math.min(viewW, viewH) * 0.34;
       const maxLines = key === 'design' ? 2 : Infinity;
 
+      // Pixel room for a label on each side of the word (word edge → page margin).
+      const rPad = key === 'storytelling' ? 64 : 16;
+      const roomR = viewW - (cx + hw) - TEXT_GAP - rPad;
+      const roomL = (cx - hw) - TEXT_GAP - 16;
+      // Wrap width: cap the left so lines never get over-long; right uses its room.
+      const budgetR = Math.max(150, roomR);
+      const budgetL = Math.max(150, Math.min(480, roomL));
+
       const items = texts.map((text, i) => {
         // Per-category styling
-        let fDef, displayText = text;
+        let fDef, displayText = text, color = null;
         if (key === 'design') {
-          if (DESIGN_TOOLS.has(text)) { displayText = text.toUpperCase(); fDef = TOOL_FONT; }
+          if (DESIGN_TOOLS.has(text)) { displayText = text.toUpperCase(); fDef = TOOL_FONT; color = '#1a6b6b'; }
           else fDef = DECISION_FONT;
         } else {
           fDef = fonts[i % fonts.length];
         }
 
-        const lines = wrapText(displayText, maxLines);
+        const ang = -Math.PI / 2 + ((i + 0.5) / N) * Math.PI * 2;
+        const cos = Math.cos(ang), sin = Math.sin(ang);
+
+        // Storyteller uses the same clean two-sided layout as designer, but biased
+        // toward the left (which has more room): only clearly-right items go right.
+        let bucket, lines;
+        if (key === 'storytelling') {
+          // The word sits to the right of the screen, so the left has the room. Keep an
+          // item on the right ONLY if it points right and the right side can fit it;
+          // otherwise send it left. This stops long sentences running off-screen.
+          const fitsRight = roomR >= 240;
+          bucket = (cos > 0.15 && fitsRight) ? 'right' : 'left';
+          const maxPx = bucket === 'right' ? budgetR : budgetL;
+          let forced = FORCED_LINES[text];
+          if (forced) {
+            setFont(fDef);
+            const w = Math.max(...forced.map(l => ctx.measureText(l).width));
+            if (w > maxPx) forced = null; // hand-set breaks too wide here — auto-wrap instead
+          }
+          lines = forced || fitLines(displayText, fDef, maxPx);
+        } else {
+          bucket = cos >= 0 ? 'right' : 'left';
+          lines = FORCED_LINES[text] || wrapText(displayText, maxLines);
+        }
         setFont(fDef);
         const maxLineW = Math.max(...lines.map(l => ctx.measureText(l).width));
         const lineH = fDef.size * 1.32;
 
-        // Label direction (radial) and word attach point (evenly around perimeter)
-        const ang = -Math.PI / 2 + ((i + 0.5) / N) * Math.PI * 2;
-        const cos = Math.cos(ang), sin = Math.sin(ang);
         const pp = perimeterPoint(cx, cy, hw, hh, (i + 0.5) / N);
-        if (pp.ny > 0) pp.y -= 4;  // nudge bottom-edge attach points up
+        if (pp.ny > 0) pp.y -= (key === 'storytelling' ? 6 : 4);
+
+        // Top/bottom leaders for storyteller should stop the instant they touch the
+        // letters (no extra reach down into the glyph), so give vertical exits a tiny
+        // tuck; side exits keep the larger tuck so the end hides under the text.
+        const tuck = (key === 'storytelling' && pp.ny !== 0) ? 1 : TUCK;
 
         return {
-          lines, font: fDef, maxLineW, lineH,
+          text, lines, font: fDef, maxLineW, lineH, color, bucket,
           h: lineH * lines.length,
-          cos, sin,
-          side: cos >= 0 ? 1 : -1,
+          cos, sin, tuck,
           axTarget: cx + cos * baseR,
           ex: pp.x, ey: pp.y, nx: pp.nx, ny: pp.ny
         };
       });
 
-      const right = items.filter(it => it.side === 1).sort((a, b) => a.sin - b.sin);
-      const left = items.filter(it => it.side === -1).sort((a, b) => a.sin - b.sin);
+      const right = items.filter(it => it.bucket === 'right').sort((a, b) => a.sin - b.sin);
+      const left = items.filter(it => it.bucket === 'left').sort((a, b) => a.sin - b.sin);
 
-      packColumn(right, 1, cx, cy);
-      packColumn(left, -1, cx, cy);
+      // Storyteller: wider right margin + roomier rows since it carries fewer, taller labels.
+      const rMargin = key === 'storytelling' ? 64 : 16;
+      const rowGap = key === 'storytelling' ? 28 : ROW_GAP;
+      packColumn(right, 1, cx, cy, rMargin, rowGap);
+      packColumn(left, -1, cx, cy, 16, rowGap);
 
       rays = [...right, ...left];
+
+      // Straighten leaders that would hook or sprout a floating stub. A top/bottom exit
+      // grows a perpendicular arm before turning to its label; when the label sits on the
+      // opposite vertical side (the stub overshoots and curves back) OR roughly level with
+      // the word (the arm pokes up/down into empty air), re-anchor to the word's near side
+      // edge so the leader runs as a single straight line into the text.
+      rays.forEach(it => {
+        const opposite = it.ny * (it.targetY - cy) < 0;
+        const nearLevel = Math.abs(it.targetY - cy) < hh + STUB;
+        // Force this label to start on the word's side, not in the gap below it,
+        // regardless of how far its label sits.
+        const forceSide = key === 'storytelling' &&
+          it.text === "The once-colonized Indians and Lebanese built their own colonies in Liberia.";
+        if (it.ny !== 0 && (opposite || nearLevel || forceSide)) {
+          it.ex = cx + it.dir * hw;
+          it.ey = cy + Math.max(-hh, Math.min(hh, it.targetY - cy)) * 0.5;
+          it.nx = it.dir;
+          it.ny = 0;
+          it.tuck = TUCK; // side exit tucks under the glyph again
+        }
+      });
+
+      // Bounding box around the whole composition (word + every label), padded so the
+      // cursor can travel out to read a label and the arrangement only collapses once it
+      // leaves this region entirely.
+      let bL = cx - hw, bR = cx + hw, bT = cy - hh, bB = cy + hh;
+      rays.forEach(it => {
+        const half = (it.lineH * it.lines.length) / 2;
+        bT = Math.min(bT, it.targetY - half);
+        bB = Math.max(bB, it.targetY + half);
+        const lx = it.dir > 0 ? it.dotX : it.dotX - TEXT_GAP - it.maxLineW;
+        const rx = it.dir > 0 ? it.dotX + TEXT_GAP + it.maxLineW : it.dotX;
+        bL = Math.min(bL, lx);
+        bR = Math.max(bR, rx);
+      });
+      const padB = 60;
+      hoverBounds = { left: bL - padB, right: bR + padB, top: bT - padB, bottom: bB + padB };
     }
 
     // Radial x, pack y so nothing overlaps or leaves the screen
-    function packColumn(list, dir, cx, cy) {
+    function packColumn(list, dir, cx, cy, pageMargin = 16, rowGap = ROW_GAP) {
       const n = list.length;
       if (!n) return;
 
-      const availTop = 60;
-      const availBot = viewH - 60;
+      // Window centred on the word — gives the full-view arrangement regardless
+      // of where the word currently sits in the viewport (no scroll re-packing).
+      const availTop = cy - (viewH / 2 - 60);
+      const availBot = cy + (viewH / 2 - 60);
       const availH = availBot - availTop;
 
       const sumH = list.reduce((s, it) => s + it.h, 0);
-      let vgap = ROW_GAP;
+      let vgap = rowGap;
       let totalH = sumH + vgap * (n - 1);
       if (totalH > availH) {
         vgap = Math.max(3, (availH - sumH) / (n - 1 || 1));
@@ -1260,8 +1446,14 @@
         off += it.h + vgap;
         it.dir = dir;
         let ax = it.axTarget;
-        if (dir > 0) ax = Math.min(ax, viewW - 16 - TEXT_GAP - it.maxLineW);
-        else ax = Math.max(ax, 16 + TEXT_GAP + it.maxLineW);
+        const wL = cx - layout.hw, wR = cx + layout.hw;
+        if (dir > 0) {
+          ax = Math.min(ax, viewW - pageMargin - TEXT_GAP - it.maxLineW);
+          ax = Math.max(ax, wR + TEXT_GAP + 10);   // keep the label clear of the word
+        } else {
+          ax = Math.max(ax, pageMargin + TEXT_GAP + it.maxLineW);
+          ax = Math.min(ax, wL - TEXT_GAP - 10);
+        }
         it.dotX = ax;
       });
     }
@@ -1271,8 +1463,8 @@
       const seg1 = Math.hypot(c1.x - p0.x, c1.y - p0.y);
       const seg2 = Math.hypot(c2.x - c1.x, c2.y - c1.y);
       const seg3 = Math.hypot(p3.x - c2.x, p3.y - c2.y);
-      const r1 = Math.min(12, seg1 * 0.5, seg2 * 0.5);
-      const r2 = Math.min(12, seg2 * 0.5, seg3 * 0.5);
+      const r1 = Math.min(6, seg1 * 0.5, seg2 * 0.5);
+      const r2 = Math.min(6, seg2 * 0.5, seg3 * 0.5);
       ctx.save();
       ctx.globalAlpha = alpha;
       ctx.strokeStyle = LINE_COL;
@@ -1305,24 +1497,29 @@
       if (!rays.length || progress <= 0) return;
       const p = Math.min(progress, 1);
 
+      ctx.save();
+      ctx.translate(0, anchorScrollY - window.scrollY); // pin the arrangement to the word as the page scrolls
+
       rays.forEach((nd, i) => {
         const stagger = (i / rays.length) * 0.30;
         const rawP = Math.max(0, Math.min(1, (p - stagger) / (1 - stagger * 0.5)));
         if (rawP <= 0) return;
         const localP = easeOutExpo(rawP);
 
-        const { lines, font: fDef, dir, dotX, targetY, ex, ey, nx, ny } = nd;
-        const { fill } = activeColors;
+        const { lines, font: fDef, dir, dotX, targetY, ex, ey, nx, ny, color } = nd;
+        const fill = color || activeColors.fill;
+        const tuck = nd.tuck ?? TUCK;
 
         // Hidden end (tucked inside box) and stub end (just outside the box)
-        const p0 = { x: ex - nx * TUCK, y: ey - ny * TUCK };
+        const p0 = { x: ex - nx * tuck, y: ey - ny * tuck };
         const sx = ex + nx * STUB, sy = ey + ny * STUB;
 
         // Label anchor grows outward from the stub to its packed position
         const ax = sx + (dotX - sx) * localP;
         const ay = sy + (targetY - sy) * localP;
 
-        // 2-turn leader: tuck → stub → vertical → into label
+        // 2-turn leader: tuck → stub → vertical → into label. Any tiny near-word wobble
+        // is hidden under the active word's enlarged highlight, so leaders stay elbows.
         draw2Turn(p0, { x: sx, y: sy }, { x: sx, y: ay }, { x: ax, y: ay }, rawP * 0.85, 1.25);
         dot(ax, ay, 2.6, fill, rawP);
 
@@ -1333,27 +1530,49 @@
 
         const lineH = fDef.size * 1.32;
         const totalH = lineH * (lines.length - 1);
-        const align = dir > 0 ? 'left' : 'right';
-        const tx = dir > 0 ? ax + TEXT_GAP : ax - TEXT_GAP;
+        const align = dir > 0 ? 'left' : dir < 0 ? 'right' : 'center';
+        const tx = dir > 0 ? ax + TEXT_GAP : dir < 0 ? ax - TEXT_GAP : ax;
         const baseY = ay - totalH / 2;
 
-        ctx.textAlign = align;
+        const italicSub = ITALIC_SUB[nd.text];
+        const fItalic = { ...fDef, style: 'italic' };
+
+        // Split a line into upright/italic runs around the italic substring (if present)
+        const runsFor = (line) => {
+          if (!italicSub) return [{ t: line, f: fDef }];
+          const at = line.indexOf(italicSub);
+          if (at < 0) return [{ t: line, f: fDef }];
+          const runs = [];
+          if (at > 0) runs.push({ t: line.slice(0, at), f: fDef });
+          runs.push({ t: italicSub, f: fItalic });
+          const after = line.slice(at + italicSub.length);
+          if (after) runs.push({ t: after, f: fDef });
+          return runs;
+        };
+
         lines.forEach((line, li) => {
           const ly = baseY + li * lineH;
-          const tw = ctx.measureText(line).width;
+          const runs = runsFor(line);
+          // Measure each run with its own font so widths add up across styles
+          runs.forEach(r => { setFont(r.f); r.w = ctx.measureText(r.t).width; });
+          const tw = runs.reduce((s, r) => s + r.w, 0);
           const bh = fDef.size * 1.12;
           const bp = 5;
-          const bx = dir > 0 ? tx - bp : tx - tw - bp;
+          const startX = dir > 0 ? tx : dir < 0 ? tx - tw : tx - tw / 2;
 
           ctx.save();
           ctx.globalAlpha = tAlpha;
           ctx.fillStyle = 'rgba(239,243,241,0.92)';
-          ctx.fillRect(bx, ly - bh / 2, tw + bp * 2, bh);
+          ctx.fillRect(startX - bp, ly - bh / 2, tw + bp * 2, bh);
           ctx.fillStyle = fill;
-          ctx.fillText(line, tx, ly);
+          ctx.textAlign = 'left';
+          let cx2 = startX;
+          runs.forEach(r => { setFont(r.f); ctx.fillText(r.t, cx2, ly); cx2 += r.w; });
           ctx.restore();
         });
       });
+
+      ctx.restore();
     }
 
     // ─── Animation loop ───────────────────────────────────────────────────────────
@@ -1386,6 +1605,7 @@
       cancelAnimationFrame(animFrame);
       activeKey = key;
       activeColors = RAY_COLORS[key];
+      anchorScrollY = window.scrollY; // anchor the composition to the word's document position
       buildRays(key);
       animDir = 1;
       lastTime = null;
@@ -1399,6 +1619,15 @@
       animFrame = requestAnimationFrame(animate);
     }
 
+    // Keep the arrangement pinned to the word while scrolling (redraw with new offset)
+    window.addEventListener('scroll', () => { if (activeKey) drawRays(rayProgress); }, { passive: true });
+
+    // Collapse the composition (word visuals reset once it has fully retracted, in animate)
+    function collapse() {
+      startRetract();
+      fade.classList.remove('active');
+    }
+
     // ─── Word trigger interactions ────────────────────────────────────────────────
 
     triggers.forEach((el, idx) => {
@@ -1406,7 +1635,6 @@
         startExpand(el.dataset.key);
         fade.classList.add('active');
         document.body.classList.add('ray-active');
-        cursorRing.classList.add('expanded');
 
         triggers.forEach((w, wi) => {
           w.classList.remove('dimmed', 'active');
@@ -1419,17 +1647,19 @@
           }
         });
       });
+      // Note: leaving the word no longer retracts — the composition stays up while the
+      // cursor is anywhere inside its bounds so you can move out to read a label. The
+      // bounds watcher below collapses it once the cursor leaves the whole region.
+    });
 
-      el.addEventListener('mouseleave', () => {
-        startRetract();
-        fade.classList.remove('active');
-        cursorRing.classList.remove('expanded');
-
-        // Only reset the word you just left — dimmed words stay hidden
-        // until rays finish collapsing (handled in animate())
-        el.classList.remove('active');
-        el.style.transform = '';
-      });
+    // While a composition is open, keep it alive until the cursor leaves its padded box.
+    document.addEventListener('mousemove', e => {
+      if (!activeKey || animDir === -1 || !hoverBounds) return;
+      const offY = anchorScrollY - window.scrollY; // composition is pinned to the document
+      const outside =
+        e.clientX < hoverBounds.left || e.clientX > hoverBounds.right ||
+        e.clientY < hoverBounds.top + offY || e.clientY > hoverBounds.bottom + offY;
+      if (outside) collapse();
     });
   </script>
 </body>

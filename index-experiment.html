@@ -1,0 +1,1549 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Khushali Haji</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300;1,600&family=DM+Mono:wght@400;500&family=Playfair+Display:ital,wght@0,400;0,700;1,700;1,900&family=Space+Grotesk:wght@400;500;700&family=Bebas+Neue&family=Syne:wght@600;700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Archivo:wght@500;600;700&family=Inter:wght@200;300;400;500;600;700&display=swap"
+    rel="stylesheet">
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      cursor: none;
+    }
+
+    :root {
+      --ink: #181512;
+      --paper: #eff3f1;
+      --teal: #1a6b6b;
+      --yellow: #c9a227;
+      --serif: 'Cormorant Garamond', Georgia, serif;
+      --mono: 'DM Mono', monospace;
+    }
+
+    html,
+    body {
+      width: 100%;
+      min-height: 100vh;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--serif);
+      overflow-x: hidden;
+    }
+
+    /* Paper grain */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.88' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.032'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.42;
+    }
+
+    /* Teal depth gradient */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(ellipse 85% 75% at 12% 50%, rgba(26, 107, 107, 0.07) 0%, transparent 60%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Map grid canvas */
+    #mapGrid {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Drifting gradient orb */
+    .bg-orb {
+      position: fixed;
+      width: 72vmax;
+      height: 72vmax;
+      border-radius: 50%;
+      background: radial-gradient(circle at center,
+          rgba(26, 107, 107, 0.09) 0%,
+          rgba(201, 162, 39, 0.05) 42%,
+          transparent 66%);
+      pointer-events: none;
+      z-index: 0;
+      animation: orbDrift 20s ease-in-out infinite;
+      will-change: transform;
+    }
+
+    /* Custom cursor — soft blue ring */
+    .cursor-ring {
+      position: fixed;
+      width: 28px;
+      height: 28px;
+      border: 1.5px solid rgba(88, 152, 188, 0.75);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      opacity: 0;
+      transition:
+        width 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+        height 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+        opacity 0.4s ease,
+        border-color 0.3s ease;
+    }
+
+    /* Crosshair arms — gap in centre so yellow dot stays visible */
+    .cursor-ring::before {
+      content: '';
+      position: absolute;
+      width: calc(100% + 22px);
+      height: 1px;
+      top: 50%;
+      left: -11px;
+      transform: translateY(-50%);
+      background: linear-gradient(to right,
+          rgba(88, 152, 188, 0.6) 0%,
+          rgba(88, 152, 188, 0.6) calc(50% - 7px),
+          transparent calc(50% - 7px),
+          transparent calc(50% + 7px),
+          rgba(88, 152, 188, 0.6) calc(50% + 7px),
+          rgba(88, 152, 188, 0.6) 100%);
+    }
+
+    .cursor-ring::after {
+      content: '';
+      position: absolute;
+      height: calc(100% + 22px);
+      width: 1px;
+      left: 50%;
+      top: -11px;
+      transform: translateX(-50%);
+      background: linear-gradient(to bottom,
+          rgba(88, 152, 188, 0.6) 0%,
+          rgba(88, 152, 188, 0.6) calc(50% - 7px),
+          transparent calc(50% - 7px),
+          transparent calc(50% + 7px),
+          rgba(88, 152, 188, 0.6) calc(50% + 7px),
+          rgba(88, 152, 188, 0.6) 100%);
+    }
+
+    .cursor-dot {
+      position: fixed;
+      width: 5px;
+      height: 5px;
+      background: var(--yellow);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .cursor-ring.visible {
+      opacity: 1;
+    }
+
+    .cursor-dot.visible {
+      opacity: 1;
+    }
+
+    .cursor-ring.expanded {
+      width: 50px;
+      height: 50px;
+      opacity: 0.5;
+    }
+
+    /* ───────── Cursor: the project-1 doodle arrow (final) ─────────
+       The arrow is the only pointer now (ring/dot hidden). Body class hov-*
+       picks what it does over clickable / hoverable things. */
+    .cursor-ring,
+    .cursor-dot { display: none; }
+
+    .cursor-arrow {
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 22px;
+      height: 22px;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0;
+      transform-origin: 2px 2px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cfilter id='wq'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.04' numOctaves='2' seed='4' result='n'/%3E%3CfeDisplacementMap in='SourceGraphic' in2='n' scale='0.9'/%3E%3C/filter%3E%3Cpath filter='url(%23wq)' d='M4 3 L26 17 L16 19 L21 31 L17 33 L12 21 L4 24 Z' fill='%231a6b6b' stroke='%231a6b6b' stroke-width='1.4' stroke-linejoin='round' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-position: center;
+      background-size: contain;
+      background-repeat: no-repeat;
+      transition: opacity 0.3s ease, transform 0.18s cubic-bezier(0.22, 1, 0.36, 1),
+        background-image 0.15s ease;
+    }
+    .cursor-arrow.visible { opacity: 1; }
+
+    /* Radiating sparkle lines, burst from the tip (Sparkle effect) */
+    .cursor-arrow::before {
+      content: '';
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      left: -13px;
+      top: -13px;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cfilter id='sq'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.06' numOctaves='2' seed='2' result='n'/%3E%3CfeDisplacementMap in='SourceGraphic' in2='n' scale='1.2'/%3E%3C/filter%3E%3Cg filter='url(%23sq)' stroke='%231a6b6b' stroke-width='2.1' stroke-linecap='round'%3E%3Cline x1='20' y1='11' x2='20' y2='4'/%3E%3Cline x1='17' y1='11' x2='15' y2='4'/%3E%3Cline x1='14' y1='13' x2='9' y2='8'/%3E%3Cline x1='11' y1='19' x2='4' y2='18'/%3E%3Cline x1='26' y1='13' x2='31' y2='8'/%3E%3C/g%3E%3C/svg%3E") center / contain no-repeat;
+      opacity: 0;
+      transform: scale(0.4);
+      transition: opacity 0.18s ease, transform 0.18s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    /* Halo ring around the arrow (Halo effect) */
+    .cursor-arrow::after {
+      content: '';
+      position: absolute;
+      left: 2px;
+      top: 2px;
+      width: 30px;
+      height: 30px;
+      margin: -15px 0 0 -15px;
+      border: 1.5px solid rgba(26, 107, 107, 0.55);
+      border-radius: 50%;
+      opacity: 0;
+      transform: scale(0.5);
+      transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    /* Effect = Sparkle: lines pop out over hoverable things */
+    body.hov-lines .cursor-arrow.hot::before { opacity: 1; transform: scale(1); }
+    body.hov-lines .cursor-arrow.hot { transform: scale(1.1); }
+
+    /* Effect = Grow: arrow swells */
+    body.hov-grow .cursor-arrow.hot { transform: scale(1.6); }
+
+    /* Effect = Ink: arrow recolours to the yellow accent */
+    body.hov-color .cursor-arrow.hot {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cfilter id='wc'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.04' numOctaves='2' seed='4' result='n'/%3E%3CfeDisplacementMap in='SourceGraphic' in2='n' scale='0.9'/%3E%3C/filter%3E%3Cpath filter='url(%23wc)' d='M4 3 L26 17 L16 19 L21 31 L17 33 L12 21 L4 24 Z' fill='%23c9a227' stroke='%23c9a227' stroke-width='1.4' stroke-linejoin='round' stroke-linecap='round'/%3E%3C/svg%3E");
+      transform: scale(1.15);
+    }
+
+    /* Effect = Halo: ring blooms around the arrow */
+    body.hov-halo .cursor-arrow.hot::after { opacity: 1; transform: scale(1); }
+
+    /* ───────── Font preview panel ───────── */
+    .fontpanel {
+      position: fixed;
+      left: 14px;
+      bottom: 14px;
+      z-index: 10000;
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid rgba(26, 107, 107, 0.25);
+      border-radius: 8px;
+      padding: 11px 13px;
+      font-family: var(--mono);
+      box-shadow: 0 10px 34px rgba(0, 0, 0, 0.10);
+      max-width: 260px;
+      backdrop-filter: blur(4px);
+    }
+    .fontpanel h4 {
+      font-size: 9.5px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--teal);
+      margin: 9px 0 5px;
+      font-weight: 500;
+    }
+    .fontpanel h4:first-child { margin-top: 0; }
+    .fontpanel .row { display: flex; flex-wrap: wrap; gap: 4px; }
+    .fontpanel button {
+      font-family: var(--mono);
+      font-size: 10px;
+      padding: 3px 7px;
+      border: 1px solid rgba(26, 107, 107, 0.3);
+      border-radius: 4px;
+      background: transparent;
+      color: var(--ink);
+      cursor: none;
+      transition: background 0.2s, color 0.2s, border-color 0.2s;
+    }
+    .fontpanel button:hover { border-color: var(--teal); }
+    .fontpanel button.on {
+      background: var(--teal);
+      color: #fff;
+      border-color: var(--teal);
+    }
+    .fontpanel .hint {
+      font-size: 9px;
+      color: rgba(24, 21, 18, 0.5);
+      margin-top: 9px;
+      line-height: 1.45;
+    }
+    .fontpanel h4 .val {
+      text-transform: none;
+      letter-spacing: 0;
+      color: rgba(24, 21, 18, 0.55);
+      font-weight: 400;
+    }
+    .fontpanel input[type="range"] {
+      width: 100%;
+      height: 3px;
+      margin: 2px 0 2px;
+      accent-color: var(--teal);
+      cursor: none;
+    }
+
+    /* Hero fade overlay */
+    .hero-fade {
+      position: fixed;
+      inset: 0;
+      background: var(--paper);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      z-index: 1;
+    }
+
+    .hero-fade.active {
+      opacity: 0.93;
+    }
+
+    /* Collage overlay (replaces the ray canvas) */
+    .collage {
+      position: fixed;
+      inset: 0;
+      z-index: 3;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    .scrap {
+      position: absolute;
+      line-height: 1.08;
+      letter-spacing: -0.01em;
+      opacity: 0;
+      transition: opacity 0.5s ease, transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+      will-change: transform, opacity;
+    }
+    .scrap.tool {
+      font-family: var(--mono);
+      font-weight: 500;
+      font-size: 13px;
+      letter-spacing: 0.12em;
+      padding: 4px 9px;
+      border: 1px solid rgba(26, 107, 107, 0.4);
+      border-radius: 2px;
+      color: var(--teal);
+      background: rgba(255, 255, 255, 0.45);
+    }
+    /* highlighter swipe across the lower half */
+    .scrap.hl {
+      background: linear-gradient(transparent 56%, rgba(201, 162, 39, 0.42) 56%, rgba(201, 162, 39, 0.42) 92%, transparent 92%);
+    }
+    /* hand-drawn ellipse around the word */
+    .scrap.circled::after {
+      content: '';
+      position: absolute;
+      inset: -7px -13px;
+      border: 1.5px solid currentColor;
+      border-radius: 48% 52% 50% 50% / 52% 48% 52% 48%;
+      opacity: 0.45;
+      transform: rotate(-3deg);
+      pointer-events: none;
+    }
+
+    /* Soft cursor glow */
+    .cursor-glow {
+      position: fixed;
+      width: 440px;
+      height: 440px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(26, 107, 107, 0.07) 0%, rgba(26, 107, 107, 0.02) 40%, transparent 68%);
+      pointer-events: none;
+      z-index: 2;
+      transform: translate(-50%, -50%);
+      opacity: 0;
+      transition: opacity 0.8s ease;
+      will-change: left, top;
+    }
+
+    /* Bottom progress line */
+    .progress-line {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 0%;
+      height: 1.5px;
+      background: linear-gradient(to right, var(--teal), var(--yellow));
+      z-index: 10;
+      pointer-events: none;
+      animation: drawLine 2s 2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    /* Hero */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 12vh max(2rem, 4vw) 10vh max(6rem, 13vw);
+    }
+
+    /* Name — typewriter fills this in */
+    .hero-name {
+      font-family: var(--serif);
+      font-size: clamp(36px, 4.8vw, 68px);
+      font-weight: 300;
+      font-style: normal;
+      line-height: 1.0;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+      margin-bottom: 1.6rem;
+      opacity: 0;
+      position: relative;
+      z-index: 2;
+      transition: opacity 0.4s ease;
+      min-height: 1.1em;
+    }
+
+    .hero-name strong {
+      font-weight: 700;
+    }
+
+    /*
+   * Grid layout:
+   *   col 1 = gif   col 2 = text
+   *   row 1 = gif + (name + words)
+   *   row 2 = empty + body text   ← body left-aligns with headline
+   */
+    .hero-content {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      grid-template-rows: auto auto;
+      column-gap: 3.5rem;
+      row-gap: 2.6rem;
+      align-items: center;
+    }
+
+    .hero-gif {
+      grid-column: 1;
+      grid-row: 1;
+      display: block;
+      align-self: center;
+      width: auto;
+      height: auto;
+      max-width: 220px;
+      min-width: 60px;
+      object-fit: cover;
+      object-position: center top;
+      border-radius: 4px;
+      opacity: 0;
+      animation: fadeUp 1s 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+      transition: opacity 0.5s ease;
+    }
+
+    .hero-words-col {
+      grid-column: 2;
+      grid-row: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Identity words — one line, wraps on mobile */
+    .words-row {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      column-gap: 1em;
+      row-gap: 0.35em;
+      align-items: baseline;
+      position: relative;
+      z-index: 4;
+    }
+
+    .word-trigger {
+      display: inline-block;
+      font-family: var(--serif);
+      font-size: clamp(26px, 3.4vw, 48px);
+      font-weight: 600;
+      font-style: italic;
+      line-height: 1.2;
+      letter-spacing: -0.01em;
+      cursor: none;
+      position: relative;
+      color: rgba(24, 21, 18, 0.6);
+      user-select: none;
+      transform-origin: center center;
+      transition:
+        color 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+        opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+        transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    /* Hand-drawn highlighter swipe behind each tagline word */
+    .word-trigger::after {
+      content: '';
+      position: absolute;
+      inset: -2px -7px;
+      background: transparent;
+      border-radius: 0;
+      clip-path: polygon(0% 16%, 17% 6%, 41% 12%, 67% 4%, 89% 10%, 100% 7%,
+          99% 89%, 79% 97%, 54% 90%, 31% 98%, 11% 91%, 1% 95%);
+      transform: rotate(-0.9deg);
+      z-index: -1;
+      transition: background 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    /* Resting faint-yellow highlight (added once the words have typed in) */
+    .word-trigger.lit::after {
+      background: rgba(201, 162, 39, 0.18);
+    }
+
+    .word-trigger.active {
+      color: var(--teal);
+    }
+
+    /* Opaque (paper + yellow tint) so connector ends tuck out of sight behind it */
+    .word-trigger.active::after {
+      background: linear-gradient(rgba(201, 162, 39, 0.18), rgba(201, 162, 39, 0.18)), var(--paper);
+    }
+
+    .word-trigger.dimmed {
+      opacity: 0.1;
+    }
+
+    /* Gentle breathing invite — starts after the intro finishes */
+    .word-trigger:nth-child(1) {
+      animation: breathe 3s 5.0s ease-in-out infinite;
+    }
+
+    .word-trigger:nth-child(2) {
+      animation: breathe 3s 5.7s ease-in-out infinite;
+    }
+
+    .word-trigger:nth-child(3) {
+      animation: breathe 3s 6.4s ease-in-out infinite;
+    }
+
+    /* Pause breathing while hover state is active */
+    .word-trigger.active,
+    .word-trigger.dimmed {
+      animation: none;
+    }
+
+    /* Per-character reveal — typewriter style, driven by JS after the greeting */
+    .char {
+      display: inline-block;
+      opacity: 0;
+    }
+    .char.shown {
+      opacity: 1;
+    }
+
+    /* Bio */
+    .hero-body {
+      grid-column: 2;
+      grid-row: 2;
+      max-width: 460px;
+      opacity: 0;
+      position: relative;
+      z-index: 2;
+      transition: opacity 0.5s ease;
+      text-align: left;
+    }
+    .hero-body.shown {
+      animation: fadeUp 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    .hero-body p {
+      font-family: var(--serif);
+      font-size: clamp(15.5px, 1.3vw, 18px);
+      font-weight: 500;
+      font-style: normal;
+      line-height: 1.82;
+      color: rgba(24, 21, 18, 0.82);
+      margin-bottom: 1.25em;
+      letter-spacing: 0.005em;
+    }
+
+    .hero-body p:last-child {
+      margin-bottom: 0;
+    }
+
+    /* Faint yellow highlight on key phrases */
+    .hero-body mark {
+      background: rgba(201, 162, 39, 0.22);
+      color: inherit;
+      padding: 0.04em 0.14em;
+      border-radius: 2px;
+      -webkit-box-decoration-break: clone;
+      box-decoration-break: clone;
+    }
+
+    /* Fade non-interactive content when rays are active */
+    body.ray-active .hero-name,
+    body.ray-active .hero-body,
+    body.ray-active .hero-gif {
+      opacity: 0 !important;
+    }
+
+    @keyframes breathe {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.48;
+      }
+    }
+
+    @keyframes underlinePulse {
+      0% {
+        clip-path: inset(0 100% 0 0);
+      }
+
+      /* hidden */
+      12% {
+        clip-path: inset(0 0% 0 0);
+      }
+
+      /* fully drawn */
+      42% {
+        clip-path: inset(0 0% 0 0);
+      }
+
+      /* hold */
+      54% {
+        clip-path: inset(0 100% 0 0);
+      }
+
+      /* retracted */
+      100% {
+        clip-path: inset(0 100% 0 0);
+      }
+
+      /* pause before next cycle */
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes charIn {
+      0% {
+        opacity: 0;
+      }
+
+      100% {
+        opacity: 1;
+      }
+    }
+
+    @keyframes orbDrift {
+      0% {
+        transform: translate(2vw, 4vh);
+      }
+
+      25% {
+        transform: translate(44vw, -6vh);
+      }
+
+      50% {
+        transform: translate(6vw, 36vh);
+      }
+
+      75% {
+        transform: translate(36vw, 22vh);
+      }
+
+      100% {
+        transform: translate(2vw, 4vh);
+      }
+    }
+
+    @keyframes drawLine {
+      to {
+        width: 100%;
+      }
+    }
+
+    /* ─── Sections below the hero ─────────────────────────────── */
+    .section-label {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--teal);
+      margin-bottom: 2.4rem;
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+    }
+
+    .section-label::before {
+      content: '';
+      width: 28px;
+      height: 1px;
+      background: var(--teal);
+      opacity: 0.5;
+    }
+
+    .featured {
+      position: relative;
+      z-index: 2;
+      padding: 8vh max(3rem, 7vw);
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.6rem;
+    }
+
+    .project-card {
+      display: flex;
+      flex-direction: column;
+      padding: 1.8rem 1.6rem;
+      background: rgba(255, 255, 255, 0.35);
+      border: 1px solid rgba(26, 107, 107, 0.18);
+      border-radius: 6px;
+      text-decoration: none;
+      color: inherit;
+      transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+        box-shadow 0.4s ease, border-color 0.4s ease, background 0.4s ease;
+    }
+
+    .project-card:hover {
+      transform: translateY(-5px);
+      background: rgba(255, 255, 255, 0.6);
+      border-color: var(--teal);
+      box-shadow: 0 16px 40px rgba(26, 107, 107, 0.12);
+    }
+
+    .project-num {
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      color: var(--yellow);
+      margin-bottom: 1rem;
+    }
+
+    .project-title {
+      font-family: var(--serif);
+      font-style: italic;
+      font-weight: 600;
+      font-size: clamp(22px, 2.4vw, 30px);
+      letter-spacing: -0.01em;
+      margin-bottom: 0.6rem;
+    }
+
+    .project-desc {
+      font-family: var(--serif);
+      font-weight: 500;
+      font-size: 15px;
+      line-height: 1.6;
+      color: rgba(24, 21, 18, 0.7);
+      margin-bottom: 1.4rem;
+      flex: 1;
+    }
+
+    .project-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .tag {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--teal);
+      padding: 0.3em 0.7em;
+      border: 1px solid rgba(26, 107, 107, 0.3);
+      border-radius: 999px;
+    }
+
+    .about-cta {
+      margin-top: 3.5rem;
+      text-align: center;
+    }
+
+    .about-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-family: var(--mono);
+      font-size: 13px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ink);
+      text-decoration: none;
+      padding: 0.9rem 1.8rem;
+      border: 1.5px solid var(--ink);
+      border-radius: 0;
+      transition: background 0.35s ease, color 0.35s ease, border-color 0.35s ease, gap 0.35s ease;
+    }
+
+    .about-btn span {
+      transition: transform 0.35s ease;
+    }
+
+    .about-btn:hover {
+      background: rgba(201, 162, 39, 0.2);
+      color: var(--teal);
+      border-color: var(--yellow);
+      gap: 0.9rem;
+    }
+
+    .contact-section {
+      position: relative;
+      z-index: 2;
+      padding: 6vh max(3rem, 7vw) 12vh;
+      max-width: 880px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .contact-heading {
+      font-family: var(--serif);
+      font-style: italic;
+      font-weight: 600;
+      font-size: clamp(26px, 3.6vw, 48px);
+      line-height: 1.25;
+      letter-spacing: -0.015em;
+      color: var(--ink);
+      margin-bottom: 2.6rem;
+    }
+
+    .social-links {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 2.2rem;
+    }
+
+    .social-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      color: var(--ink);
+      border: 1px solid rgba(26, 107, 107, 0.22);
+      transition: color 0.35s ease, border-color 0.35s ease,
+        background 0.35s ease, transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .social-link svg {
+      width: 21px;
+      height: 21px;
+      display: block;
+    }
+
+    .social-link:hover {
+      color: var(--teal);
+      border-color: var(--yellow);
+      background: rgba(201, 162, 39, 0.2);
+      transform: translateY(-3px);
+    }
+
+    @media (max-width: 760px) {
+      .projects-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <canvas id="mapGrid"></canvas>
+  <div class="bg-orb"></div>
+  <div class="hero-fade" id="heroFade"></div>
+  <div class="cursor-glow" id="cursorGlow"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+  <div class="cursor-dot" id="cursorDot"></div>
+  <div class="cursor-arrow" id="cursorArrow"></div>
+  <div class="progress-line"></div>
+
+  <!-- Experiment controls: heading stays Cormorant; tune the sans subheading + cursor -->
+  <div class="fontpanel">
+    <h4>Subheading font (sans)</h4>
+    <div class="row" data-group="tagline">
+      <button data-font="'Space Grotesk', sans-serif" data-weight="600">Grotesk</button>
+      <button data-font="'Syne', sans-serif" data-weight="600">Syne</button>
+      <button data-font="'DM Sans', sans-serif" data-weight="500">DM Sans</button>
+      <button data-font="'Archivo', sans-serif" data-weight="500">Archivo</button>
+      <button data-font="'Inter', sans-serif" data-weight="300" class="on">Inter</button>
+    </div>
+
+    <h4>Subheading weight <span class="val" id="weightVal">300</span></h4>
+    <input id="weightRange" type="range" min="200" max="700" step="100" value="300">
+
+    <h4>Subheading style</h4>
+    <div class="row">
+      <button id="capsToggle">ALL CAPS: off</button>
+    </div>
+
+    <h4>Narrowness <span class="val" id="trackVal">0.00em</span></h4>
+    <input id="trackRange" type="range" min="-8" max="30" value="0">
+
+    <h4>Cursor hover effect</h4>
+    <div class="row" data-group="hover">
+      <button data-hov="lines" class="on">Sparkle</button>
+      <button data-hov="grow">Grow</button>
+      <button data-hov="color">Ink</button>
+      <button data-hov="halo">Halo</button>
+    </div>
+    <p class="hint">Cursor = project-1 doodle arrow. Hover cards / buttons / words to test the effect.</p>
+  </div>
+  <div id="collage" class="collage"></div>
+
+  <section class="hero">
+    <div class="hero-content">
+      <img src="pics.gif" class="hero-gif" alt="">
+      <div class="hero-words-col">
+        <p class="hero-name" id="heroName"></p>
+        <div class="words-row">
+          <span class="word-trigger" data-key="research">Researcher.</span>
+          <span class="word-trigger" data-key="design">Designer.</span>
+          <span class="word-trigger" data-key="storytelling">Storyteller.</span>
+        </div>
+      </div>
+      <div class="hero-body">
+        <p>I am a <strong>researcher by heart,</strong> and a <strong>designer by consequence</strong> of finding ways to
+          fill those gaps. I make complexity legible through field investigation, spatial systems, and narrative that
+          doesn't flatten what it's trying to explain.</p>
+        <p>My work has taken me from informal settlements in India to forests marked for carbon credits in Liberia, from
+          policy reporting in New York to mapping international conflict data on a live map. I trained as an <strong>urban
+            designer</strong>, retrained as a <strong>journalist</strong>, and am now building <strong>AI-native
+            tools</strong> for communities that don't often see themselves in <strong>civic tech</strong>.</p>
+        <p>I'm based in <strong>New York</strong>, looking for roles at the intersection of <strong>content design, UX
+            research,</strong> and <strong>public-interest storytelling</strong>.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURED PROJECTS -->
+  <section class="featured">
+    <p class="section-label">Featured Projects</p>
+    <div class="projects-grid">
+      <a class="project-card" href="#" data-cursor="1">
+        <span class="project-num">01</span>
+        <h3 class="project-title">Project 1</h3>
+        <p class="project-desc">A short one to two line descriptor of what this project explored and why it mattered.
+        </p>
+        <div class="project-tags">
+          <span class="tag">Research</span>
+          <span class="tag">Mapping</span>
+          <span class="tag">Policy</span>
+        </div>
+      </a>
+      <a class="project-card" href="#" data-cursor="2">
+        <span class="project-num">02</span>
+        <h3 class="project-title">Project 2</h3>
+        <p class="project-desc">A short one to two line descriptor of what this project explored and why it mattered.
+        </p>
+        <div class="project-tags">
+          <span class="tag">Design</span>
+          <span class="tag">Storytelling</span>
+        </div>
+      </a>
+      <a class="project-card" href="#" data-cursor="3">
+        <span class="project-num">03</span>
+        <h3 class="project-title">Project 3</h3>
+        <p class="project-desc">A short one to two line descriptor of what this project explored and why it mattered.
+        </p>
+        <div class="project-tags">
+          <span class="tag">Fieldwork</span>
+          <span class="tag">Documentary</span>
+          <span class="tag">UX</span>
+        </div>
+      </a>
+    </div>
+
+    <div class="about-cta">
+      <a class="about-btn" href="about.html">Learn more about me <span>&rarr;</span></a>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section class="contact-section">
+    <h2 class="contact-heading">Would love to talk!<br>What cool projects are you working on?</h2>
+    <div class="social-links">
+      <a class="social-link" href="https://www.instagram.com/khushalihaji/" target="_blank" rel="noopener"
+        aria-label="Instagram">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
+          stroke-linejoin="round">
+          <rect x="2.5" y="2.5" width="19" height="19" rx="5.5"></rect>
+          <circle cx="12" cy="12" r="4.2"></circle>
+          <circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"></circle>
+        </svg>
+      </a>
+      <a class="social-link" href="https://www.linkedin.com/in/khushali-haji/" target="_blank" rel="noopener"
+        aria-label="LinkedIn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
+          stroke-linejoin="round">
+          <rect x="2.5" y="2.5" width="19" height="19" rx="3"></rect>
+          <line x1="7" y1="10" x2="7" y2="17"></line>
+          <circle cx="7" cy="6.8" r="1.1" fill="currentColor" stroke="none"></circle>
+          <path d="M11 17v-3.6a2.4 2.4 0 0 1 4.8 0V17M11 10.4V17"></path>
+        </svg>
+      </a>
+      <a class="social-link" href="mailto:khushali.haji@gmail.com" aria-label="Email">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
+          stroke-linejoin="round">
+          <rect x="2.5" y="4.5" width="19" height="15" rx="2.5"></rect>
+          <path d="M3.5 6.5 12 13l8.5-6.5"></path>
+        </svg>
+      </a>
+    </div>
+  </section>
+
+  <script>
+    // ─── Map grid ─────────────────────────────────────────────────────────────────
+
+    (function initMapGrid() {
+      const mc = document.getElementById('mapGrid');
+      const mx = mc.getContext('2d');
+
+      function draw() {
+        const dpr = window.devicePixelRatio || 1;
+        const w = window.innerWidth, h = window.innerHeight;
+        mc.width = Math.round(w * dpr);
+        mc.height = Math.round(h * dpr);
+        mc.style.width = w + 'px';
+        mc.style.height = h + 'px';
+        mx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+        const hStep = 66;   // latitude-line spacing (px)
+        const vStep = 86;   // longitude-line spacing (px)
+        const bow = 7;    // max curvature at screen midpoint
+
+        const minorLine = 'rgba(26,107,107,0.28)';
+        const majorLine = 'rgba(26,107,107,0.16)';
+        const dotColor = 'rgba(26,107,107,0.38)';
+
+        mx.clearRect(0, 0, w, h);
+
+        // Latitude lines — slight outward bow via quadratic bezier
+        let rowIdx = 0;
+        for (let y = 0; y <= h + hStep; y += hStep, rowIdx++) {
+          const major = rowIdx % 5 === 0;
+          mx.setLineDash(major ? [] : [3, 6]);
+          mx.beginPath();
+          mx.moveTo(0, y);
+          mx.quadraticCurveTo(w * 0.5, y + bow, w, y);
+          mx.strokeStyle = major ? majorLine : minorLine;
+          mx.lineWidth = major ? 0.75 : 0.45;
+          mx.stroke();
+        }
+
+        // Longitude lines — straight verticals
+        let colIdx = 0;
+        for (let x = 0; x <= w + vStep; x += vStep, colIdx++) {
+          const major = colIdx % 5 === 0;
+          mx.setLineDash(major ? [] : [3, 6]);
+          mx.beginPath();
+          mx.moveTo(x, 0);
+          mx.lineTo(x, h);
+          mx.strokeStyle = major ? majorLine : minorLine;
+          mx.lineWidth = major ? 0.75 : 0.45;
+          mx.stroke();
+        }
+
+        mx.setLineDash([]);
+
+        // Small dots at major-line intersections
+        for (let y = 0; y <= h + hStep * 5; y += hStep * 5) {
+          for (let x = 0; x <= w + vStep * 5; x += vStep * 5) {
+            mx.beginPath();
+            mx.arc(x, y, 1.8, 0, Math.PI * 2);
+            mx.fillStyle = dotColor;
+            mx.fill();
+          }
+        }
+      }
+
+      draw();
+      window.addEventListener('resize', draw);
+    })();
+
+    // ─── Ray data ────────────────────────────────────────────────────────────────
+
+    const RAYS = {
+      research: [
+        "Who benefits when a forest gets certified carbon-neutral?",
+        "Do carbon credits just license more pollution?",
+        "Is public space actually public if you can't afford to be in it?",
+        "What does decoration mean across caste, gender, and class?",
+        "Which words make someone feel like they belong?",
+        "Who gets to tell a community's story?",
+        "What does a city look like when you map power instead of streets?",
+        "When does asylum policy protect people and when does it sort them?",
+        "Where does a conflict start on a map?",
+        "What gets left off the official record?",
+        "Do we resent museums because they mirror our inequalities back at us?"
+      ],
+      design: [
+        "Figma", "Illustrator", "Photoshop", "InDesign", "Premiere Pro",
+        "Claude", "Antigravity", "Cursor", "GitHub", "Mapbox",
+        "Chose a map over a list because the geography was the story",
+        "Picked the most familiar UI so it doesn't look intimidating",
+        "Checked font size and padding against dyslexia guidelines",
+        "Let the community choose its own colors",
+        "Added a back arrow because users kept getting lost",
+        "Split Press into its own page so viewers can find it",
+        "Added a sticky nav bar to reduce scroll fatigue",
+        "Reduced clicks to the most important action"
+      ],
+      storytelling: [
+        "A former convent became a girls' hostel, and under the wooden crosses a new community formed.",
+        "Varanasi's oldest residents watch the city forget them.",
+        "The once-colonized Indians and Lebanese built their own colonies in Liberia.",
+        "A new heart taught a security guard how to connect.",
+        '"They call it adventure," he said. "We call it surviving."',
+        "We were quiet about the violence for so long. It feels so good to talk about it.",
+        "On day three in the Darién Gap, my family disappeared. A man started running toward me.",
+        '"I went back to Kashmir just before the blackout," she said. "I found silence."',
+        "Her mom was feeding her breakfast when the bombs started. Don't cry. Focus on the food."
+      ]
+    };
+
+    // Intermix design tools & decisions so they aren't grouped together
+    (function shuffle(a) {
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+    })(RAYS.design);
+
+    // ─── Elements & state ────────────────────────────────────────────────────────
+
+    const fade = document.getElementById('heroFade');
+    const cursorGlow = document.getElementById('cursorGlow');
+    const cursorRing = document.getElementById('cursorRing');
+    const cursorDot = document.getElementById('cursorDot');
+    const cursorArrow = document.getElementById('cursorArrow');
+    const heroNameEl = document.getElementById('heroName');
+    const triggers = [...document.querySelectorAll('.word-trigger')];
+
+    let viewW = window.innerWidth, viewH = window.innerHeight;
+
+    // ─── Custom cursor (ring lags, dot is instant) ────────────────────────────────
+
+    let mouseX = window.innerWidth / 2, mouseY = window.innerHeight / 2;
+    let ringX = mouseX, ringY = mouseY;
+    let cursorStarted = false;
+
+    document.addEventListener('mousemove', e => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+
+      // Dot snaps to cursor
+      cursorDot.style.left = e.clientX + 'px';
+      cursorDot.style.top = e.clientY + 'px';
+
+      // Doodle-arrow variant tracks the pointer (tip at the hotspot)
+      cursorArrow.style.left = (e.clientX - 2) + 'px';
+      cursorArrow.style.top = (e.clientY - 2) + 'px';
+
+      // Glow follows
+      cursorGlow.style.left = e.clientX + 'px';
+      cursorGlow.style.top = e.clientY + 'px';
+      cursorGlow.style.opacity = '1';
+
+      if (!cursorStarted) {
+        cursorRing.classList.add('visible');
+        cursorDot.classList.add('visible');
+        cursorArrow.classList.add('visible');
+        cursorStarted = true;
+      }
+    });
+
+    // ─── Experiment controls ──────────────────────────────────────────────────────
+
+    // Doodle arrow lights up over anything clickable / hoverable
+    document.addEventListener('mouseover', e => {
+      const hot = e.target.closest('a, button, .word-trigger, input, [data-clickable]');
+      cursorArrow.classList.toggle('hot', !!hot);
+    });
+
+    // Subheading sans-serif font (heading stays Cormorant)
+    const weightRange = document.getElementById('weightRange');
+    const weightVal = document.getElementById('weightVal');
+    const setWeight = (w) => {
+      weightRange.value = w;
+      weightVal.textContent = w;
+      triggers.forEach(t => t.style.fontWeight = w);
+    };
+    document.querySelector('.fontpanel .row[data-group="tagline"]')
+      .querySelectorAll('button').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.fontpanel .row[data-group="tagline"] button')
+            .forEach(b => b.classList.remove('on'));
+          btn.classList.add('on');
+          triggers.forEach(t => {
+            t.style.fontFamily = btn.dataset.font;
+            t.style.fontStyle = 'normal'; // sans faces read better upright
+          });
+          setWeight(btn.dataset.weight || '600'); // each face gets a sensible default weight
+        });
+      });
+    weightRange.addEventListener('input', () => setWeight(weightRange.value));
+    // apply the default sans on load (Inter, skinny)
+    triggers.forEach(t => {
+      t.style.fontFamily = "'Inter', sans-serif";
+      t.style.fontStyle = 'normal';
+    });
+    setWeight('300');
+
+    // ALL CAPS toggle for the subheading
+    let caps = false;
+    const capsBtn = document.getElementById('capsToggle');
+    capsBtn.addEventListener('click', () => {
+      caps = !caps;
+      capsBtn.textContent = 'ALL CAPS: ' + (caps ? 'on' : 'off');
+      capsBtn.classList.toggle('on', caps);
+      triggers.forEach(t => t.style.textTransform = caps ? 'uppercase' : 'none');
+    });
+
+    // Narrowness = letter-spacing (tracking)
+    const trackRange = document.getElementById('trackRange');
+    const trackVal = document.getElementById('trackVal');
+    trackRange.addEventListener('input', () => {
+      const em = (trackRange.value / 100).toFixed(2);
+      trackVal.textContent = em + 'em';
+      triggers.forEach(t => t.style.letterSpacing = em + 'em');
+    });
+
+    // Cursor hover-effect selector
+    document.body.classList.add('hov-lines');
+    document.querySelectorAll('.fontpanel .row[data-group="hover"] button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.fontpanel .row[data-group="hover"] button')
+          .forEach(b => b.classList.remove('on'));
+        btn.classList.add('on');
+        ['lines', 'grow', 'color', 'halo'].forEach(h => document.body.classList.remove('hov-' + h));
+        document.body.classList.add('hov-' + btn.dataset.hov);
+      });
+    });
+
+    (function lerpRing() {
+      ringX += (mouseX - ringX) * 0.11;
+      ringY += (mouseY - ringY) * 0.11;
+      cursorRing.style.left = ringX + 'px';
+      cursorRing.style.top = ringY + 'px';
+      requestAnimationFrame(lerpRing);
+    })();
+
+    // ─── Typewriter for greeting ──────────────────────────────────────────────────
+
+    (function typewriter() {
+      const boldText = 'Hi,';
+      const lightText = " I'm Khushali.";
+
+      const strong = document.createElement('strong');
+      const textNode = document.createTextNode('');
+      heroNameEl.appendChild(strong);
+      heroNameEl.appendChild(textNode);
+
+      let i = 0;
+      const total = boldText.length + lightText.length;
+
+      function tick() {
+        if (i === 0) heroNameEl.style.opacity = '1'; // reveal on first char
+        if (i < boldText.length) {
+          strong.textContent += boldText[i];
+        } else {
+          textNode.textContent += lightText[i - boldText.length];
+        }
+        i++;
+        if (i < total) {
+          setTimeout(tick, i <= boldText.length ? 95 : 52);
+        } else {
+          // Greeting done -> reveal the three words, then the body
+          setTimeout(() => revealWords(revealBody), 240);
+        }
+      }
+
+      setTimeout(tick, 320);
+    })();
+
+    // ─── Word reveal (typewriter style, after the greeting) ──────────────────────
+
+    triggers.forEach((el) => {
+      const text = el.textContent;
+      el.textContent = '';
+      [...text].forEach((ch) => {
+        const span = document.createElement('span');
+        span.className = 'char';
+        span.textContent = ch;
+        el.appendChild(span);
+      });
+    });
+
+    function revealWords(done) {
+      const chars = document.querySelectorAll('.word-trigger .char');
+      let i = 0;
+      (function step() {
+        if (i < chars.length) {
+          chars[i].classList.add('shown');
+          i++;
+          setTimeout(step, 45);
+        } else {
+          triggers.forEach(w => w.classList.add('lit')); // reveal the highlight
+          if (done) done();
+        }
+      })();
+    }
+
+    function revealBody() {
+      const body = document.querySelector('.hero-body');
+      if (body) body.classList.add('shown');
+    }
+
+    // ─── Collage hover reveal ─────────────────────────────────────────────────────
+
+    const collage = document.getElementById('collage');
+    const HOVERABLE = window.matchMedia('(hover: hover)').matches;
+
+    const DESIGN_TOOLS = new Set([
+      'Figma', 'Illustrator', 'Photoshop', 'InDesign', 'Premiere Pro',
+      'Claude', 'Antigravity', 'Cursor', 'GitHub', 'Mapbox'
+    ]);
+
+    const SCRAP_FONTS = [
+      { fam: "'Cormorant Garamond',serif", style: 'italic', weight: 600, min: 21, max: 31 },
+      { fam: "'Playfair Display',serif", style: 'italic', weight: 700, min: 18, max: 26 },
+      { fam: "'DM Mono',monospace", style: 'normal', weight: 500, min: 13, max: 15 },
+      { fam: "'Space Grotesk',sans-serif", style: 'normal', weight: 700, min: 15, max: 19 },
+      { fam: "'Bebas Neue',sans-serif", style: 'normal', weight: 400, min: 22, max: 32 }
+    ];
+    const HERO_FONT = { fam: "'Playfair Display',serif", style: 'italic', weight: 900, min: 38, max: 54 };
+
+    let collageOpen = false, currentKey = null;
+
+    function makeRng(seed) {
+      let a = seed >>> 0;
+      return () => {
+        a = a + 0x6D2B79F5 | 0;
+        let t = Math.imul(a ^ a >>> 15, 1 | a);
+        t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+        return ((t ^ t >>> 14) >>> 0) / 4294967296;
+      };
+    }
+    function seedFromKey(k) {
+      let h = 2166136261;
+      for (const c of k) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); }
+      return h >>> 0;
+    }
+
+    function pickColor(key, rng, isHero) {
+      const r = rng();
+      if (key === 'research') return (isHero || r < 0.5) ? 'var(--teal)' : (r < 0.82 ? 'rgba(24,21,18,0.85)' : 'var(--yellow)');
+      if (key === 'design') return (isHero || r < 0.42) ? 'var(--yellow)' : (r < 0.82 ? 'rgba(24,21,18,0.85)' : 'var(--teal)');
+      return isHero ? 'rgba(24,21,18,0.9)' : (r < 0.5 ? 'rgba(24,21,18,0.82)' : (r < 0.8 ? 'var(--teal)' : 'var(--yellow)'));
+    }
+
+    function openCollage(key, wordEl) {
+      currentKey = key; collageOpen = true;
+      if (!HOVERABLE) collage.style.pointerEvents = 'auto';
+      collage.innerHTML = '';
+
+      const rect = wordEl.getBoundingClientRect();
+      const wx = rect.left + rect.width / 2;
+      const wy = rect.top + rect.height / 2;
+
+      const items = RAYS[key];
+      const rng = makeRng(seedFromKey(key));
+
+      // 1–2 hero phrases (bigger focal points; never a tool)
+      const heroCount = items.length > 6 ? 2 : 1;
+      const heroSet = new Set();
+      let guard = 0;
+      while (heroSet.size < heroCount && guard++ < 60) {
+        const idx = Math.floor(rng() * items.length);
+        if (!(key === 'design' && DESIGN_TOOLS.has(items[idx]))) heroSet.add(idx);
+      }
+
+      const scraps = items.map((text, i) => {
+        const isTool = key === 'design' && DESIGN_TOOLS.has(text);
+        const isHero = heroSet.has(i);
+        const el = document.createElement('div');
+        el.className = 'scrap';
+        const rot = (rng() * 5 - 2.5);
+        el.dataset.rot = rot;
+
+        if (isTool) {
+          el.classList.add('tool');
+          el.textContent = text.toUpperCase();
+        } else {
+          el.textContent = text;
+          const fd = isHero ? HERO_FONT : SCRAP_FONTS[Math.floor(rng() * SCRAP_FONTS.length)];
+          const size = fd.min + rng() * (fd.max - fd.min);
+          el.style.fontFamily = fd.fam;
+          el.style.fontStyle = fd.style;
+          el.style.fontWeight = fd.weight;
+          el.style.fontSize = size.toFixed(1) + 'px';
+          el.style.color = pickColor(key, rng, isHero);
+          const t = rng();
+          if (!isHero) { if (t < 0.2) el.classList.add('hl'); else if (t < 0.3) el.classList.add('circled'); }
+        }
+        collage.appendChild(el);
+        return { el, rot };
+      });
+
+      layoutScraps(scraps, wx, wy, rng, rect.width / 2, rect.height / 2);
+    }
+
+    // Even grid across the whole screen with a keep-out hole at the word —
+    // centres around the word and fills the viewport without uneven gaps.
+    function layoutScraps(scraps, wx, wy, rng, wHalfW, wHalfH) {
+      const W = viewW, H = viewH;
+      const mL = W * 0.035, mR = W * 0.965;
+      const mT = H * 0.07, mB = H * 0.93;
+      const areaW = mR - mL, areaH = mB - mT;
+      const N = scraps.length;
+
+      // keep-out box around the word so nothing sits behind it
+      const koX = wHalfW + 46, koY = wHalfH + 34;
+
+      // grid whose free cells (after the hole) can hold every scrap
+      let cols = Math.max(2, Math.round(Math.sqrt(N * (areaW / areaH))));
+      let rows = Math.ceil(N / cols);
+      let cells = [], cellW = areaW / cols, cellH = areaH / rows;
+      for (let tries = 0; tries < 8; tries++) {
+        cellW = areaW / cols; cellH = areaH / rows;
+        cells = [];
+        for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
+          const cx = mL + (c + 0.5) * cellW;
+          const cy = mT + (r + 0.5) * cellH;
+          const blocked = Math.abs(cx - wx) < koX && Math.abs(cy - wy) < koY;
+          if (!blocked) cells.push({ cx, cy, d: Math.hypot(cx - wx, cy - wy) });
+        }
+        if (cells.length >= N) break;
+        if (cols <= rows) cols++; else rows++;
+      }
+
+      // if there are spare cells, sample an even spread of exactly N
+      let chosen = cells;
+      if (cells.length > N) {
+        cells.sort((a, b) => (a.cy - b.cy) || (a.cx - b.cx)); // row-major
+        chosen = [];
+        const step = cells.length / N;
+        for (let i = 0; i < N; i++) chosen.push(cells[Math.floor(i * step)]);
+      }
+      // nearest-first so the bloom radiates outward from the word
+      chosen.sort((a, b) => a.d - b.d);
+
+      scraps.forEach((s, i) => {
+        const cell = chosen[i % chosen.length];
+        const el = s.el;
+        el.style.maxWidth = Math.min(cellW - 18, 300) + 'px';
+        const w = el.offsetWidth, h = el.offsetHeight;
+
+        // jitter inside the cell only — keeps everything non-overlapping
+        const jx = (rng() - 0.5) * Math.max(0, cellW - w - 16);
+        const jy = (rng() - 0.5) * Math.max(0, cellH - h - 16);
+        const x = cell.cx + jx - w / 2;
+        const y = cell.cy + jy - h / 2;
+        el.style.left = x + 'px';
+        el.style.top = y + 'px';
+
+        const dx = wx - (x + w / 2), dy = wy - (y + h / 2);
+        s.fx = `rotate(${s.rot}deg)`;
+        el.style.transform = `translate(${dx.toFixed(0)}px, ${dy.toFixed(0)}px) scale(0.7) rotate(${s.rot}deg)`;
+        el.style.opacity = '0';
+      });
+
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        scraps.forEach((s, i) => {
+          s.el.style.transitionDelay = (i * 0.026).toFixed(3) + 's';
+          s.el.style.opacity = '1';
+          s.el.style.transform = s.fx;
+        });
+      }));
+    }
+
+    function closeCollage() {
+      collageOpen = false; currentKey = null;
+      collage.style.pointerEvents = 'none';
+      [...collage.children].forEach(el => {
+        el.style.transitionDelay = '0s';
+        el.style.opacity = '0';
+        el.style.transform = `scale(0.94) rotate(${el.dataset.rot}deg)`;
+      });
+      setTimeout(() => { if (!collageOpen) collage.innerHTML = ''; }, 460);
+    }
+
+    // ── word activation visuals (dim siblings, fade page, expand cursor) ──
+    function activateWord(el) {
+      fade.classList.add('active');
+      document.body.classList.add('ray-active');
+      cursorRing.classList.add('expanded');
+      triggers.forEach(w => {
+        w.classList.toggle('active', w === el);
+        w.classList.toggle('dimmed', w !== el);
+        w.style.transform = w === el ? 'translateY(-5px)' : 'translateY(5px)';
+      });
+    }
+    function deactivateWords() {
+      fade.classList.remove('active');
+      document.body.classList.remove('ray-active');
+      cursorRing.classList.remove('expanded');
+      triggers.forEach(w => { w.classList.remove('active', 'dimmed'); w.style.transform = ''; });
+    }
+
+    // ── interactions: hover on desktop, tap on touch ──
+    triggers.forEach(el => {
+      if (HOVERABLE) {
+        el.addEventListener('mouseenter', () => { activateWord(el); openCollage(el.dataset.key, el); });
+      }
+      el.addEventListener('click', () => {
+        if (currentKey === el.dataset.key) { deactivateWords(); closeCollage(); }
+        else { activateWord(el); openCollage(el.dataset.key, el); }
+      });
+    });
+
+    if (HOVERABLE) {
+      const wr = document.querySelector('.words-row');
+      wr.addEventListener('mouseleave', () => { deactivateWords(); closeCollage(); });
+    } else {
+      collage.addEventListener('click', () => { deactivateWords(); closeCollage(); });
+    }
+
+    window.addEventListener('resize', () => {
+      viewW = window.innerWidth; viewH = window.innerHeight;
+      if (collageOpen && currentKey) {
+        const el = document.querySelector(`.word-trigger[data-key="${currentKey}"]`);
+        if (el) openCollage(currentKey, el);
+      }
+    });
+
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Conflict Lens — Khushali Haji</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300;1,600&family=DM+Mono:wght@400;500&family=Playfair+Display:ital,wght@1,700;1,900&display=swap"
+    rel="stylesheet">
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      cursor: none;
+      scroll-behavior: smooth;
+    }
+
+    a,
+    button,
+    [data-clickable],
+    a * {
+      cursor: none;
+    }
+
+    :root {
+      --ink: #181512;
+      --paper: #eff3f1;
+      --teal: #1a6b6b;
+      --yellow: #c9a227;
+      --sage: #7d9b8a;
+      --serif: 'Cormorant Garamond', Georgia, serif;
+      --mono: 'DM Mono', monospace;
+      --rule: rgba(26, 107, 107, 0.18);
+    }
+
+    html,
+    body {
+      width: 100%;
+      min-height: 100vh;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--serif);
+      overflow-x: hidden;
+    }
+
+    /* Paper grain */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.88' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.032'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.42;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(ellipse 85% 75% at 12% 0%, rgba(26, 107, 107, 0.06) 0%, transparent 55%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ---------- Custom doodle cursor ---------- */
+    .cursor-arrow {
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 22px;
+      height: 22px;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0;
+      transform-origin: 2px 2px;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cfilter id='w'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.04' numOctaves='2' seed='4' result='n'/%3E%3CfeDisplacementMap in='SourceGraphic' in2='n' scale='0.9'/%3E%3C/filter%3E%3Cpath filter='url(%23w)' d='M4 3 L26 17 L16 19 L21 31 L17 33 L12 21 L4 24 Z' fill='%231b1714' stroke='%231b1714' stroke-width='1.4' stroke-linejoin='round' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat;
+      transition: opacity 0.3s ease, transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .cursor-arrow.visible {
+      opacity: 1;
+    }
+
+    .cursor-arrow::before {
+      content: '';
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      left: -13px;
+      top: -13px;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cfilter id='s'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.06' numOctaves='2' seed='2' result='n'/%3E%3CfeDisplacementMap in='SourceGraphic' in2='n' scale='1.2'/%3E%3C/filter%3E%3Cg filter='url(%23s)' stroke='%231b1714' stroke-width='2.1' stroke-linecap='round'%3E%3Cline x1='20' y1='11' x2='20' y2='4'/%3E%3Cline x1='17' y1='11' x2='15' y2='4'/%3E%3Cline x1='14' y1='13' x2='9' y2='8'/%3E%3Cline x1='11' y1='19' x2='4' y2='18'/%3E%3Cline x1='26' y1='13' x2='31' y2='8'/%3E%3C/g%3E%3C/svg%3E") center / contain no-repeat;
+      opacity: 0;
+      transform: scale(0.4);
+      transform-origin: 50% 50%;
+      transition: opacity 0.18s ease, transform 0.18s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .cursor-arrow.hot::before {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .cursor-arrow.hot {
+      transform: scale(1.12);
+    }
+
+    /* ---------- Reading progress ---------- */
+    .progress-line {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 2px;
+      width: 0%;
+      background: linear-gradient(to right, var(--teal), var(--yellow));
+      z-index: 50;
+      pointer-events: none;
+    }
+
+    /* ---------- Top nav ---------- */
+    .topnav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 40;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.2rem max(1.5rem, 5vw);
+      background: rgba(239, 243, 241, 0.72);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--rule);
+    }
+
+    .topnav a {
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink);
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+
+    .topnav a:hover {
+      color: var(--teal);
+    }
+
+    .nav-back span {
+      display: inline-block;
+      transition: transform 0.3s ease;
+    }
+
+    .nav-back:hover span {
+      transform: translateX(-4px);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 1.6rem;
+    }
+
+    /* ---------- Layout shell ---------- */
+    .wrap {
+      position: relative;
+      z-index: 2;
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 0 max(1.5rem, 6vw);
+    }
+
+    section {
+      padding: 7vh 0;
+      border-bottom: 1px solid var(--rule);
+    }
+
+    section:last-of-type {
+      border-bottom: none;
+    }
+
+    .eyebrow {
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--teal);
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      margin-bottom: 1.6rem;
+    }
+
+    .eyebrow::before {
+      content: '';
+      width: 26px;
+      height: 1px;
+      background: var(--teal);
+      opacity: 0.5;
+    }
+
+    h2.section-head {
+      font-family: var(--serif);
+      font-weight: 600;
+      font-size: clamp(28px, 4vw, 46px);
+      line-height: 1.08;
+      letter-spacing: -0.01em;
+      margin-bottom: 1.8rem;
+      max-width: 18ch;
+    }
+
+    h3.sub {
+      font-family: var(--serif);
+      font-style: italic;
+      font-weight: 600;
+      font-size: clamp(20px, 2.4vw, 27px);
+      color: var(--teal);
+      margin: 2.4rem 0 0.9rem;
+    }
+
+    p.body {
+      font-family: var(--serif);
+      font-weight: 500;
+      font-size: clamp(17px, 1.5vw, 20px);
+      line-height: 1.66;
+      color: rgba(24, 21, 18, 0.82);
+      max-width: 62ch;
+      margin-bottom: 1.2rem;
+    }
+
+    p.body strong {
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .lede {
+      font-size: clamp(19px, 1.8vw, 23px);
+      color: rgba(24, 21, 18, 0.9);
+    }
+
+    /* ---------- Hero ---------- */
+    .hero {
+      padding-top: 18vh;
+      border-bottom: 1px solid var(--rule);
+    }
+
+    .hero-title {
+      font-family: var(--serif);
+      font-weight: 600;
+      font-size: clamp(46px, 9vw, 104px);
+      line-height: 0.98;
+      letter-spacing: -0.02em;
+      margin-bottom: 1.4rem;
+    }
+
+    .hero-title em {
+      font-style: italic;
+      color: var(--teal);
+    }
+
+    .hero-oneliner {
+      font-family: var(--serif);
+      font-style: italic;
+      font-weight: 500;
+      font-size: clamp(20px, 2.6vw, 30px);
+      line-height: 1.35;
+      color: rgba(24, 21, 18, 0.78);
+      max-width: 26ch;
+      margin-bottom: 2.6rem;
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.4rem 2.6rem;
+      padding: 1.6rem 0;
+      border-top: 1px solid var(--rule);
+      border-bottom: 1px solid var(--rule);
+      margin-bottom: 2.4rem;
+    }
+
+    .meta-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+
+    .meta-label {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--teal);
+    }
+
+    .meta-val {
+      font-family: var(--serif);
+      font-weight: 600;
+      font-size: 17px;
+      color: var(--ink);
+    }
+
+    .hero-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .btn {
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      text-decoration: none;
+      padding: 0.85rem 1.5rem;
+      border: 1.5px solid var(--ink);
+      color: var(--ink);
+      transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+    }
+
+    .btn.primary {
+      background: var(--ink);
+      color: var(--paper);
+    }
+
+    .btn:hover {
+      background: rgba(201, 162, 39, 0.18);
+      color: var(--teal);
+      border-color: var(--yellow);
+    }
+
+    .btn.primary:hover {
+      background: var(--teal);
+      color: var(--paper);
+      border-color: var(--teal);
+    }
+
+    /* ---------- Media placeholders ---------- */
+    .media {
+      position: relative;
+      width: 100%;
+      border: 1.5px dashed rgba(26, 107, 107, 0.45);
+      border-radius: 8px;
+      background:
+        repeating-linear-gradient(135deg, rgba(26, 107, 107, 0.03) 0 14px, transparent 14px 28px),
+        rgba(255, 255, 255, 0.35);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 2.4rem 1.6rem;
+      min-height: 230px;
+      margin: 1.8rem 0;
+      gap: 0.5rem;
+    }
+
+    .media.tall {
+      min-height: 420px;
+    }
+
+    .media.short {
+      min-height: 160px;
+    }
+
+    .media .ph-tag {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--teal);
+      background: rgba(26, 107, 107, 0.1);
+      padding: 0.3em 0.8em;
+      border-radius: 999px;
+    }
+
+    .media .ph-desc {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 16px;
+      color: rgba(24, 21, 18, 0.6);
+      max-width: 48ch;
+    }
+
+    .media .ph-file {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: rgba(24, 21, 18, 0.4);
+    }
+
+    figcaption {
+      font-family: var(--mono);
+      font-size: 12px;
+      line-height: 1.5;
+      letter-spacing: 0.02em;
+      color: rgba(24, 21, 18, 0.55);
+      margin-top: -0.6rem;
+      margin-bottom: 1.4rem;
+      max-width: 60ch;
+    }
+
+    figcaption b {
+      color: var(--teal);
+      font-weight: 500;
+    }
+
+    /* ---------- Pull quote ---------- */
+    .pullquote {
+      font-family: var(--serif);
+      font-style: italic;
+      font-weight: 600;
+      font-size: clamp(24px, 3.4vw, 38px);
+      line-height: 1.25;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+      max-width: 22ch;
+      margin: 2.6rem 0;
+      padding-left: 1.4rem;
+      border-left: 3px solid var(--yellow);
+    }
+
+    /* ---------- Principle cards ---------- */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.2rem;
+      margin-top: 2rem;
+    }
+
+    .card {
+      padding: 1.6rem 1.5rem;
+      background: rgba(255, 255, 255, 0.4);
+      border: 1px solid var(--rule);
+      border-radius: 6px;
+    }
+
+    .card .num {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--yellow);
+      letter-spacing: 0.1em;
+    }
+
+    .card h4 {
+      font-family: var(--serif);
+      font-style: italic;
+      font-weight: 600;
+      font-size: 21px;
+      margin: 0.5rem 0 0.5rem;
+      color: var(--teal);
+    }
+
+    .card p {
+      font-family: var(--serif);
+      font-weight: 500;
+      font-size: 16px;
+      line-height: 1.55;
+      color: rgba(24, 21, 18, 0.78);
+    }
+
+    /* ---------- Comparison matrix ---------- */
+    .matrix-scroll {
+      overflow-x: auto;
+      margin: 2rem 0 0.8rem;
+    }
+
+    table.matrix {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 540px;
+      font-family: var(--serif);
+    }
+
+    table.matrix th,
+    table.matrix td {
+      padding: 0.85rem 1rem;
+      text-align: center;
+      border: 1px solid var(--rule);
+      font-size: 16px;
+    }
+
+    table.matrix thead th {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(24, 21, 18, 0.7);
+      font-weight: 500;
+    }
+
+    table.matrix tbody th {
+      text-align: left;
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    table.matrix .ours {
+      background: rgba(26, 107, 107, 0.08);
+      color: var(--teal);
+      font-weight: 600;
+    }
+
+    table.matrix thead .ours {
+      color: var(--teal);
+    }
+
+    .yes {
+      color: var(--teal);
+      font-weight: 700;
+    }
+
+    .no {
+      color: rgba(24, 21, 18, 0.3);
+    }
+
+    /* ---------- Decision / tension cards ---------- */
+    .decision {
+      padding: 1.7rem 1.6rem;
+      background: rgba(255, 255, 255, 0.4);
+      border: 1px solid var(--rule);
+      border-left: 3px solid var(--teal);
+      border-radius: 6px;
+      margin-bottom: 1.2rem;
+    }
+
+    .decision h4 {
+      font-family: var(--serif);
+      font-weight: 600;
+      font-size: 22px;
+      margin-bottom: 0.7rem;
+    }
+
+    .decision .line {
+      font-family: var(--serif);
+      font-weight: 500;
+      font-size: 16.5px;
+      line-height: 1.55;
+      color: rgba(24, 21, 18, 0.82);
+      margin-bottom: 0.4rem;
+    }
+
+    .decision .line b {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--teal);
+      margin-right: 0.5rem;
+    }
+
+    .decision .why {
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: 0.04em;
+      color: var(--yellow);
+      margin-top: 0.7rem;
+    }
+
+    /* ---------- AI failure list ---------- */
+    .fail {
+      margin-bottom: 1.6rem;
+      padding-left: 1.3rem;
+      border-left: 2px solid var(--rule);
+    }
+
+    .fail h4 {
+      font-family: var(--serif);
+      font-style: italic;
+      font-weight: 600;
+      font-size: 21px;
+      color: var(--teal);
+      margin-bottom: 0.4rem;
+    }
+
+    .fail p {
+      font-family: var(--serif);
+      font-weight: 500;
+      font-size: 16.5px;
+      line-height: 1.6;
+      color: rgba(24, 21, 18, 0.82);
+      max-width: 62ch;
+    }
+
+    /* ---------- Stack list ---------- */
+    .stack-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.2rem;
+      margin: 1.8rem 0;
+    }
+
+    .stack-item {
+      padding: 1.3rem 1.4rem;
+      background: rgba(255, 255, 255, 0.4);
+      border: 1px solid var(--rule);
+      border-radius: 6px;
+    }
+
+    .stack-item .k {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--teal);
+      margin-bottom: 0.5rem;
+    }
+
+    .stack-item .v {
+      font-family: var(--serif);
+      font-weight: 500;
+      font-size: 16.5px;
+      line-height: 1.55;
+      color: rgba(24, 21, 18, 0.82);
+    }
+
+    /* ---------- Footer ---------- */
+    footer {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      padding: 8vh max(1.5rem, 6vw) 6vh;
+      border-top: 1px solid var(--rule);
+    }
+
+    footer .ttl {
+      font-family: var(--serif);
+      font-style: italic;
+      font-weight: 600;
+      font-size: clamp(26px, 4vw, 40px);
+      margin-bottom: 1.6rem;
+    }
+
+    footer .links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+      margin-bottom: 1.4rem;
+    }
+
+    footer .note {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: rgba(24, 21, 18, 0.45);
+      max-width: 40ch;
+      margin: 0 auto;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 720px) {
+      .cards,
+      .stack-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .nav-links {
+        gap: 1rem;
+      }
+
+      html {
+        cursor: auto;
+      }
+
+      .cursor-arrow {
+        display: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="cursor-arrow" id="cursorArrow"></div>
+  <div class="progress-line" id="progress"></div>
+
+  <nav class="topnav">
+    <a class="nav-back" href="../index.html"><span>&larr;</span>&nbsp; Back to portfolio</a>
+    <div class="nav-links">
+      <a href="#problem">Problem</a>
+      <a href="#research">Research</a>
+      <a href="#ai">Designing for AI</a>
+      <a href="#" data-clickable>Live demo</a>
+    </div>
+  </nav>
+
+  <!-- ============ 0. HERO ============ -->
+  <header class="hero wrap" id="top">
+    <p class="eyebrow">Case Study 01 · Product Design &amp; Build</p>
+    <h1 class="hero-title">Conflict <em>Lens</em></h1>
+    <p class="hero-oneliner">Turn a single news article into a geo-referenced, bias-aware conflict briefing — in
+      under a minute.</p>
+
+    <div class="meta-row">
+      <div class="meta-item">
+        <span class="meta-label">Role</span>
+        <span class="meta-val">Solo — Design &amp; Build</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Timeline</span>
+        <span class="meta-val">[ Fill — e.g. 3 weeks ]</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Type</span>
+        <span class="meta-val">Responsive web app</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Stack</span>
+        <span class="meta-val">React · Leaflet · Gemini</span>
+      </div>
+    </div>
+
+    <div class="hero-links">
+      <a class="btn primary" href="#" data-clickable>Live demo &rarr;</a>
+      <a class="btn" href="#" data-clickable>GitHub</a>
+    </div>
+
+    <figure>
+      <div class="media tall">
+        <span class="ph-tag">★ Hero — image or GIF</span>
+        <span class="ph-desc">The desktop dashboard: black-and-white satellite map, colored pins, floating glass
+          panels. Ideally a short looping GIF of the map fitting to the pins on load.</span>
+        <span class="ph-file">conflict-lens-hero.gif / .png</span>
+      </div>
+      <figcaption><b>Why this shot:</b> leading with the live dashboard says "real, working product" in three
+        seconds — before a single word is read.</figcaption>
+    </figure>
+  </header>
+
+  <main>
+    <!-- ============ 1. PROBLEM ============ -->
+    <section id="problem" class="wrap">
+      <p class="eyebrow">The Problem</p>
+      <h2 class="section-head">Understanding a conflict shouldn't take 12 browser tabs</h2>
+
+      <p class="body lede">When a conflict breaks, a single article gives you fragments, not understanding. The
+        location is buried in one paragraph, the actors in another. The historical context is assumed. And the
+        article's own slant is invisible unless you already know the outlet.</p>
+
+      <p class="body">So an engaged reader does the work by hand: open a map to find where Khan Yunis actually is,
+        skim Wikipedia for who's involved, cross-check a second outlet to sense the bias. Three tools, ten minutes,
+        and most people give up before they start. Worse, the most rigorous reporting sits behind paywalls — so the
+        readers who want depth hit a login wall first.</p>
+
+      <p class="pullquote">How might we take someone from a single article to a contextual, geographically-grounded,
+        bias-aware understanding of a conflict — in under a minute?</p>
+
+      <figure>
+        <div class="media">
+          <span class="ph-tag">Diagram — "before" state</span>
+          <span class="ph-desc">A messy cluster of browser tabs (Maps, Wikipedia, two outlets, a fact-checker) with
+            a frustrated flow between them.</span>
+          <span class="ph-file">problem-12-tabs.png</span>
+        </div>
+        <figcaption><b>Why:</b> grounds the problem in a real, specific workflow before any solution is claimed.</figcaption>
+      </figure>
+    </section>
+
+    <!-- ============ 2. RESEARCH ============ -->
+    <section id="research" class="wrap">
+      <p class="eyebrow">Research &amp; Insight</p>
+      <h2 class="section-head">I started with the workflow, not the interface</h2>
+
+      <h3 class="sub">Who it's for</h3>
+      <p class="body">The core user isn't a headline-skimmer — it's the <strong>engaged reader</strong>: students,
+        journalists, analysts, globally-curious people who want to understand an event, not just hear it happened.
+        Their frustration isn't a lack of news; it's a lack of synthesis. The information already exists — assembling
+        it is the labor.</p>
+
+      <div class="media short">
+        <span class="ph-tag">Optional — user / need card</span>
+        <span class="ph-desc">If you spoke to even 3 people who follow international news, or logged your own
+          frustration, drop a quote or note here. Otherwise leave it out.</span>
+        <span class="ph-file">research-user.png</span>
+      </div>
+
+      <h3 class="sub">The market gap</h3>
+      <p class="body">Every existing tool solves one slice of the problem. <strong>AI summarizers</strong> compress
+        text but strip out geography and offer no source skepticism. <strong>Live conflict maps</strong> nail
+        geography but give you no synthesis, history, or bias. <strong>Traditional news</strong> has depth but no
+        structure, no map, and one outlet's framing. The whitespace was clear: nobody combined synthesis,
+        geography, and bias-awareness in a single view.</p>
+
+      <div class="matrix-scroll">
+        <table class="matrix">
+          <thead>
+            <tr>
+              <th></th>
+              <th>Summarizers</th>
+              <th>Conflict maps</th>
+              <th>Traditional news</th>
+              <th class="ours">Conflict Lens</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>Synthesis</th>
+              <td class="yes">✓</td>
+              <td class="no">—</td>
+              <td class="yes">✓</td>
+              <td class="ours">✓</td>
+            </tr>
+            <tr>
+              <th>Geography</th>
+              <td class="no">—</td>
+              <td class="yes">✓</td>
+              <td class="no">—</td>
+              <td class="ours">✓</td>
+            </tr>
+            <tr>
+              <th>Bias awareness</th>
+              <td class="no">—</td>
+              <td class="no">—</td>
+              <td class="no">—</td>
+              <td class="ours">✓</td>
+            </tr>
+            <tr>
+              <th>Accessible</th>
+              <td class="yes">✓</td>
+              <td class="yes">✓</td>
+              <td class="no">—</td>
+              <td class="ours">✓</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <figcaption><b>Why this matters:</b> this grid <i>is</i> the product-market-fit argument — Conflict Lens is the
+        only full column.</figcaption>
+
+      <h3 class="sub">From insight to principles</h3>
+      <p class="body">The research converged on four principles that ended up driving every later decision:</p>
+
+      <div class="cards">
+        <div class="card">
+          <span class="num">01</span>
+          <h4>Geography is the spine</h4>
+          <p>The map leads; text supports. Location is the anchor everything else hangs from.</p>
+        </div>
+        <div class="card">
+          <span class="num">02</span>
+          <h4>Never make them wait</h4>
+          <p>Show the core fast, then stream the depth in behind it.</p>
+        </div>
+        <div class="card">
+          <span class="num">03</span>
+          <h4>Make bias visible</h4>
+          <p>Source framing is a feature you read, not a trap you fall into.</p>
+        </div>
+        <div class="card">
+          <span class="num">04</span>
+          <h4>Meet readers where content is</h4>
+          <p>Including when the best reporting sits behind a paywall.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 3. DEFINING ============ -->
+    <section class="wrap">
+      <p class="eyebrow">Defining the Product</p>
+      <h2 class="section-head">One flow, three moves</h2>
+
+      <p class="body">I kept the scope deliberately tight. No accounts, no saved history, no feeds — those would
+        only dilute the one thing that had to feel like magic: the moment a wall of article text becomes a living
+        briefing. The whole product is a single flow: <strong>Input → AI analysis → interactive briefing.</strong></p>
+
+      <div class="media short">
+        <span class="ph-tag">Diagram — 3-step flow</span>
+        <span class="ph-desc">[ Input: Link / PDF ] → [ Analyze ] → [ Interactive Briefing ]</span>
+        <span class="ph-file">flow-3-step.png</span>
+      </div>
+
+      <p class="body"><strong>Cut on purpose:</strong> no accounts · no saved history · no multi-article comparison.
+        Defending what I left out mattered as much as choosing what to build.</p>
+    </section>
+
+    <!-- ============ 4. INTERFACE ============ -->
+    <section class="wrap">
+      <p class="eyebrow">The Interface — Desktop</p>
+      <h2 class="section-head">Three screens, one continuous narrative</h2>
+
+      <h3 class="sub">1 · Input</h3>
+      <p class="body">A quiet, editorial entry point — warm neutrals, a sage accent, a serif headline over clean
+        sans-serif body. Restraint is the trust signal here: the product handles serious subject matter, so it should
+        feel like it. A two-tab switcher offers <strong>Paste Link</strong> or <strong>Upload PDF</strong> (that
+        second path exists for a specific reason — more in Decisions).</p>
+
+      <figure>
+        <div class="media">
+          <span class="ph-tag">Screenshot — input screen</span>
+          <span class="ph-desc">Annotate: the dual-mode Link / PDF tabs.</span>
+          <span class="ph-file">screen-input.png</span>
+        </div>
+        <figcaption><b>Caption idea:</b> "Two ways in — and the second one exists because real reporting is
+          paywalled."</figcaption>
+      </figure>
+
+      <h3 class="sub">2 · Analysis</h3>
+      <p class="body">Instead of a generic spinner, the wait uses honest copy: <em>"Extracting core incident…
+          georeferencing primary location and key actors (~5–10s)."</em> Truthful waiting copy lowers the
+        <i>perceived</i> wait and signals that real work is happening, not a frozen screen.</p>
+
+      <figure>
+        <div class="media short">
+          <span class="ph-tag">Screenshot — loading state</span>
+          <span class="ph-desc">Annotate: the honest, step-by-step loading copy.</span>
+          <span class="ph-file">screen-loading.png</span>
+        </div>
+        <figcaption><b>Why:</b> perceived performance is a design decision, not just an engineering one.</figcaption>
+      </figure>
+
+      <h3 class="sub">3 · The Briefing Dashboard</h3>
+      <p class="body">A black-and-white satellite map fills the screen with translucent panels floating over it. On
+        load, the map fits to every pin at the tightest zoom that still shows them all. Pins are color-coded —
+        incident site, actor bases, conflict areas, timeline events — each radiating a soft colored ring. Three panel
+        zones do the synthesis: <strong>Key Details</strong> (actors, location, date), <strong>The Briefing</strong>
+        (a plain-language summary plus a journalistic-analysis panel on framing and source lean), and a
+        <strong>Timeline</strong> of lead-up events — click one and the map flies to it. Everything loads
+        progressively: the core paints first, then locations, timeline, and bias stream in behind it, each with its
+        own inline loading cue.</p>
+
+      <figure>
+        <div class="media tall">
+          <span class="ph-tag">★ Screenshot — dashboard (hero of this section)</span>
+          <span class="ph-desc">Annotate: pin colour system · the three panel zones · the connected timeline. Make
+            this the largest, most polished image.</span>
+          <span class="ph-file">screen-dashboard.png</span>
+        </div>
+        <figcaption><b>Best version:</b> a GIF — map fits to pins → click a timeline card → map flies to it. Motion
+          sells this far better than a still.</figcaption>
+      </figure>
+    </section>
+
+    <!-- ============ 5. MOBILE ============ -->
+    <section class="wrap">
+      <p class="eyebrow">Mobile — A Different Metaphor</p>
+      <h2 class="section-head">The desktop pattern breaks on a phone — so I changed the metaphor</h2>
+
+      <p class="body">"Floating panels over a fullscreen map" is elegant on a desktop and unusable on a phone — the
+        panels would either cover the map or overflow it. So mobile borrows the <strong>map-app pattern</strong>
+        instead: the map is the hero and stays fully pannable, a compact top bar holds the title and a fresh-analysis
+        button, and a bottom nav splits into <strong>Key Details · Summary · Timeline</strong>. Tapping one slides a
+        sheet up over the map; an X or a tap on the map dismisses it. Tapping a pin auto-opens the Timeline, selects
+        that event, and lifts the map so the pin isn't hidden behind the sheet.</p>
+
+      <figure>
+        <div class="media tall">
+          <span class="ph-tag">★ Screenshots — 3 mobile frames</span>
+          <span class="ph-desc">Collapsed (map + nav bar) · one sheet open · a pin-tap auto-opening the Timeline.
+            Show them side by side.</span>
+          <span class="ph-file">mobile-collapsed.png · mobile-sheet.png · mobile-pin-tap.png</span>
+        </div>
+        <figcaption><b>Why this section earns its place:</b> it shows recognizing when a pattern doesn't translate and
+          redesigning the <i>interaction model</i> — not just the CSS.</figcaption>
+      </figure>
+    </section>
+
+    <!-- ============ 6. DECISIONS ============ -->
+    <section class="wrap">
+      <p class="eyebrow">Key Design Decisions</p>
+      <h2 class="section-head">Decisions, and the tradeoffs behind them</h2>
+
+      <div class="decision">
+        <h4>Progressive rendering over one big result</h4>
+        <p class="line"><b>Tension</b>One AI call is simpler to build, but means 20+ seconds of blank screen.</p>
+        <p class="line"><b>Decision</b>Split it into stages — the core paints in ~5–10s, the rest streams in.</p>
+        <p class="why">↳ Principle: Never make them wait</p>
+      </div>
+
+      <div class="decision">
+        <h4>A PDF escape hatch for paywalls</h4>
+        <p class="line"><b>Tension</b>The best reporting is paywalled, and a scraper just hits a login wall.</p>
+        <p class="line"><b>Decision</b>A second input mode — upload the article as a PDF. A product answer to a
+          real-world constraint.</p>
+        <p class="why">↳ Principle: Meet the reader where the content is</p>
+      </div>
+
+      <div class="decision">
+        <h4>Bias as a visible panel</h4>
+        <p class="line"><b>Decision</b>A dedicated journalistic-analysis panel: framing, institutional lean, missing
+          cross-border context, and links to cross-reference.</p>
+        <p class="why">↳ Principle: Make bias visible</p>
+      </div>
+
+      <div class="decision">
+        <h4>Map-first, fit-to-pins</h4>
+        <p class="line"><b>Decision</b>A full-bleed map that, on load, frames every pin at the tightest fitting zoom.</p>
+        <p class="why">↳ Principle: Geography is the spine</p>
+      </div>
+
+      <div class="decision">
+        <h4>A restrained, muted palette</h4>
+        <p class="line"><b>Decision</b>One sage accent family for all UI chrome; four muted pin colors are the only
+          place hue carries meaning — so the map reads instantly.</p>
+      </div>
+    </section>
+
+    <!-- ============ 7. DESIGNING FOR AI ============ -->
+    <section id="ai" class="wrap">
+      <p class="eyebrow">Designing for Unreliable AI ★</p>
+      <h2 class="section-head">The hardest design problem wasn't the UI — it was the AI</h2>
+
+      <p class="body">When your data source is a language model, it can return something wrong, malformed, or missing
+        at any moment. Most of the real design work went into absorbing that gracefully — turning a probabilistic,
+        sometimes-wrong source into an experience that still feels trustworthy.</p>
+
+      <div class="fail">
+        <h4>Hallucinated source links</h4>
+        <p>The model happily invented article URLs that 404'd. Instead of trusting them, I had it return an outlet
+          plus a search query, then constructed guaranteed-valid search links myself — real, relevant, and never
+          broken.</p>
+      </div>
+
+      <div class="fail">
+        <h4>Coordinates that landed in the ocean</h4>
+        <p>The model often returned <code>0.0, 0.0</code>. The prompts now insist on real coordinates with
+          capital-city fallbacks, and the UI filters out invalid pins and de-duplicates overlapping ones before
+          anything reaches the map.</p>
+      </div>
+
+      <div class="fail">
+        <h4>Failures that looked like empty states</h4>
+        <p>A failed analysis used to render as a bare "No data." Now it shows a clear error with a one-tap
+          <strong>Retry</strong> that re-runs only the step that failed — not the whole pipeline.</p>
+      </div>
+
+      <div class="fail">
+        <h4>Rate limits mid-demo</h4>
+        <p>I made the model configurable, moved to a tier with a separate quota, and stopped retrying on quota errors
+          (which only burned through more of it).</p>
+      </div>
+
+      <p class="pullquote">Good UX for AI is as much about handling failure as showcasing success.</p>
+
+      <figure>
+        <div class="media">
+          <span class="ph-tag">★ Before / after — 2 pairs</span>
+          <span class="ph-desc">(1) A hallucinated broken link vs. the constructed search link. (2) A "No data"
+            panel vs. the error-with-retry state.</span>
+          <span class="ph-file">ai-links-before-after.png · ai-error-before-after.png</span>
+        </div>
+        <figcaption><b>Why this is the strongest section:</b> lots of people can wire up an LLM; far fewer design for
+          its failure modes.</figcaption>
+      </figure>
+    </section>
+
+    <!-- ============ 8. CONCEPT → BUILD ============ -->
+    <section class="wrap">
+      <p class="eyebrow">Concept → Build</p>
+      <h2 class="section-head">What the build taught me that the concept didn't</h2>
+
+      <div class="fail">
+        <h4>"One AI call" → a four-stage pipeline</h4>
+        <p>The single mega-call was slow and kept returning malformed JSON. I rebuilt it as scrape-once plus
+          progressive core / locations / deep passes.</p>
+      </div>
+
+      <div class="fail">
+        <h4>"Paste any URL" → URLs <i>and</i> PDFs</h4>
+        <p>Real reporting is paywalled. The PDF mode exists entirely because my first assumption broke on contact with
+          the real world.</p>
+      </div>
+
+      <div class="fail">
+        <h4>"The AI returns clean map data" → defensive design</h4>
+        <p><code>0.0, 0.0</code> coordinates and invented URLs forced me to engineer the whole experience around messy
+          output rather than assuming clean input.</p>
+      </div>
+
+      <p class="pullquote">The concept was "paste a link, get a summary." The product became a resilient,
+        progressively-rendered briefing engine — because real articles are paywalled, real AI output is messy, and
+        real APIs rate-limit you.</p>
+    </section>
+
+    <!-- ============ 9. STACK ============ -->
+    <section class="wrap">
+      <p class="eyebrow">The Stack — How It Works</p>
+      <h2 class="section-head">Under the hood</h2>
+
+      <div class="stack-grid">
+        <div class="stack-item">
+          <div class="k">Frontend</div>
+          <div class="v">React + Vite, React-Leaflet (black-and-white satellite tiles), hand-built CSS theming.</div>
+        </div>
+        <div class="stack-item">
+          <div class="k">Backend</div>
+          <div class="v">Node + Express, with Google Gemini as the analysis engine.</div>
+        </div>
+        <div class="stack-item">
+          <div class="k">Pipeline</div>
+          <div class="v">Cheerio + Axios scrape the article; pdf-parse handles uploads; a short-lived session cache
+            avoids re-scraping across the multi-step analysis; every AI call has retry / back-off.</div>
+        </div>
+        <div class="stack-item">
+          <div class="k">Shipped</div>
+          <div class="v">Frontend on GitHub Pages, backend on a free server tier.</div>
+        </div>
+      </div>
+
+      <div class="media short">
+        <span class="ph-tag">Diagram — architecture</span>
+        <span class="ph-desc">[ Browser / React ] → [ Express API ] → [ Scraper / PDF parser ] + [ Gemini ] → back
+          to UI</span>
+        <span class="ph-file">architecture.png</span>
+      </div>
+      <figcaption><b>Note for recruiters:</b> kept short on purpose — the diagram does the heavy lifting. The point is
+        "I can take an idea all the way to shipped," not "read my code."</figcaption>
+    </section>
+
+    <!-- ============ 10. REFLECTION ============ -->
+    <section class="wrap">
+      <p class="eyebrow">Reflection &amp; What's Next</p>
+      <h2 class="section-head">What I learned, and where it goes</h2>
+
+      <p class="body">The biggest lesson was about designing for systems you don't fully control — progressive
+        loading, honest waiting states, sensible fallbacks, and one-tap recovery. These aren't features users notice
+        when they work; they're the difference between a demo and something you'd actually trust.</p>
+
+      <p class="body">If I took it further: <strong>source-reliability scoring</strong> on the verification links, a
+        <strong>"play through the timeline"</strong> walkthrough that flies the map from event to event in one click,
+        saved briefings for analysts, and <strong>keyboard navigation</strong> through events with the map following
+        along. The honest limitation I'd fix first: the model still occasionally returns events in mixed date formats,
+        so a strict chronological guarantee and relative dates are the next thing on the list.</p>
+
+      <div class="media short">
+        <span class="ph-tag">Optional — GIF</span>
+        <span class="ph-desc">The "play through the timeline" walkthrough, if/when you build it. Great closing
+          moment.</span>
+        <span class="ph-file">timeline-playthrough.gif</span>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============ FOOTER ============ -->
+  <footer>
+    <p class="ttl">Conflict Lens</p>
+    <div class="links">
+      <a class="btn primary" href="#" data-clickable>Live demo &rarr;</a>
+      <a class="btn" href="#" data-clickable>GitHub</a>
+      <a class="btn" href="../index.html" data-clickable>Back to portfolio</a>
+      <a class="btn" href="mailto:khushali.haji@gmail.com" data-clickable>Email</a>
+    </div>
+    <p class="note">Heads up: the live demo runs on a free server tier, so the first load may take ~30 seconds while
+      it wakes up — that's a cold start, not a crash.</p>
+  </footer>
+
+  <script>
+    // Reading progress bar
+    const progress = document.getElementById('progress');
+    document.addEventListener('scroll', () => {
+      const h = document.documentElement;
+      const scrolled = h.scrollTop / (h.scrollHeight - h.clientHeight);
+      progress.style.width = (scrolled * 100) + '%';
+    }, { passive: true });
+
+    // Custom doodle cursor
+    const cursorArrow = document.getElementById('cursorArrow');
+    let cursorStarted = false;
+    if (cursorArrow && window.matchMedia('(min-width: 721px)').matches) {
+      document.addEventListener('mousemove', e => {
+        cursorArrow.style.left = (e.clientX - 2) + 'px';
+        cursorArrow.style.top = (e.clientY - 2) + 'px';
+        if (!cursorStarted) {
+          cursorArrow.classList.add('visible');
+          cursorStarted = true;
+        }
+      });
+      // Radiating lines only over interactive things
+      document.addEventListener('mouseover', e => {
+        const hot = e.target.closest('a, button, [data-clickable]');
+        cursorArrow.classList.toggle('hot', !!hot);
+      });
+    }
+  </script>
+</body>
+
+</html>
