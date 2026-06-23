@@ -123,75 +123,28 @@
       position: fixed;
       left: 0;
       top: 0;
-      width: 24px;
-      height: 24px;
+      width: 22px;
+      height: 22px;
       pointer-events: none;
       z-index: 9999;
       opacity: 0;
       transform-origin: 2px 2px;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cfilter id='wq'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.04' numOctaves='2' seed='5' result='n'/%3E%3CfeDisplacementMap in='SourceGraphic' in2='n' scale='1.2'/%3E%3C/filter%3E%3Cpath filter='url(%23wq)' d='M4 3 L26 17 L16 19 L21 31 L17 33 L12 21 L4 24 Z' fill='%23282421' stroke='%23282421' stroke-width='1.5' stroke-linejoin='round' stroke-linecap='round'/%3E%3C/svg%3E");
-      background-position: center;
-      background-size: contain;
-      background-repeat: no-repeat;
-      transition: opacity 0.3s ease, transform 0.18s cubic-bezier(0.22, 1, 0.36, 1),
-        background-image 0.15s ease;
+      /* White fill + difference blend = the inverse of whatever colour is underneath */
+      mix-blend-mode: difference;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cfilter id='w'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.04' numOctaves='2' seed='4' result='n'/%3E%3CfeDisplacementMap in='SourceGraphic' in2='n' scale='0.9'/%3E%3C/filter%3E%3Cpath filter='url(%23w)' d='M4 3 L26 17 L16 19 L21 31 L17 33 L12 21 L4 24 Z' fill='%23ffffff' stroke='%23ffffff' stroke-width='1.4' stroke-linejoin='round' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat;
+      transition: opacity 0.3s ease, transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
     }
 
     .cursor-arrow.visible {
       opacity: 1;
     }
 
-    /* Sparkle lines around the cursor (sparkle mode) */
-    .cursor-arrow::before {
-      content: '';
-      position: absolute;
-      width: 32px;
-      height: 32px;
-      left: -14px;
-      top: -14px;
-      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cfilter id='sq'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.08' numOctaves='3' seed='2' result='n'/%3E%3CfeDisplacementMap in='SourceGraphic' in2='n' scale='1.5'/%3E%3C/filter%3E%3Cg filter='url(%23sq)' stroke='%231a6b6b' stroke-width='2.2' stroke-linecap='round'%3E%3Cline x1='20' y1='10' x2='20' y2='3'/%3E%3Cline x1='16' y1='11' x2='13' y2='3'/%3E%3Cline x1='13' y1='13' x2='7' y2='7'/%3E%3Cline x1='10' y1='19' x2='3' y2='18'/%3E%3Cline x1='27' y1='13' x2='33' y2='7'/%3E%3C/g%3E%3C/svg%3E") center / contain no-repeat;
-      opacity: 0;
-      transform: scale(0.4);
-      transition: opacity 0.18s ease, transform 0.18s cubic-bezier(0.22, 1, 0.36, 1);
-    }
-
-    /* Halo ring around cursor (halo mode) */
-    .cursor-arrow::after {
-      content: '';
-      position: absolute;
-      left: 1px;
-      top: 1px;
-      width: 32px;
-      height: 32px;
-      margin: -16px 0 0 -16px;
-      border: 1.5px dashed var(--teal);
-      border-radius: 50%;
-      opacity: 0;
-      transform: scale(0.5);
-      transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
-    }
-
-    body.hov-lines .cursor-arrow.hot::before {
-      opacity: 1;
-      transform: scale(1);
-    }
-
-    body.hov-lines .cursor-arrow.hot {
-      transform: scale(1.1);
-    }
-
-    body.hov-grow .cursor-arrow.hot {
-      transform: scale(1.65);
-    }
-
-    body.hov-color .cursor-arrow.hot {
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cfilter id='wc'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.04' numOctaves='2' seed='4' result='n'/%3E%3CfeDisplacementMap in='SourceGraphic' in2='n' scale='0.9'/%3E%3C/filter%3E%3Cpath filter='url(%23wc)' d='M4 3 L26 17 L16 19 L21 31 L17 33 L12 21 L4 24 Z' fill='%23c69926' stroke='%23c69926' stroke-width='1.4' stroke-linejoin='round' stroke-linecap='round'/%3E%3C/svg%3E");
-      transform: scale(1.15);
-    }
-
-    body.hov-halo .cursor-arrow.hot::after {
-      opacity: 1;
-      transform: scale(1.1);
+    /* Hover (.hot) cursor: the arrow grows and turns purple. It keeps
+       mix-blend-mode: difference, so filling the arrow with the complementary
+       green flips it to violet over the light paper. */
+    .cursor-arrow.hot {
+      transform: scale(1.18);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cfilter id='wp'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.04' numOctaves='2' seed='4' result='n'/%3E%3CfeDisplacementMap in='SourceGraphic' in2='n' scale='0.9'/%3E%3C/filter%3E%3Cpath filter='url(%23wp)' d='M4 3 L26 17 L16 19 L21 31 L17 33 L12 21 L4 24 Z' fill='%2373b904' stroke='%2373b904' stroke-width='1.4' stroke-linejoin='round' stroke-linecap='round'/%3E%3C/svg%3E");
     }
 
     /* Sticky Navigation Bar - Hand-drawn line at bottom */
@@ -523,12 +476,9 @@
       flex-wrap: wrap;
       gap: 1.5rem 3rem;
       padding: 1.2rem 0;
-      border-top: 2px solid var(--ink);
-      border-bottom: 2px solid var(--ink);
       margin-bottom: 2.5rem;
       opacity: 0;
       transform: translateY(20px);
-      background: rgba(40, 36, 33, 0.02);
     }
 
     .meta-item {
@@ -604,8 +554,6 @@
       margin-top: 0.6rem;
       margin-bottom: 1.6rem;
       padding: 0.4rem 0;
-      border-left: 2px solid var(--yellow);
-      padding-left: 0.8rem;
     }
 
     figcaption b {
@@ -645,6 +593,53 @@
       align-items: center;
       padding: 0 1rem;
       justify-content: space-between;
+    }
+
+    /* Live embedded app sandbox (real Conflict Lens app, scaled to fit) */
+    .sandbox-frame {
+      width: 100%;
+      background: #ebdcc3;
+      border: 2px solid var(--ink);
+      border-radius: 6px;
+      box-shadow: 6px 6px 0 var(--rule);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .sandbox-open {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      text-decoration: none;
+      color: var(--teal);
+      border: 1px solid var(--ink);
+      background: var(--paper);
+      padding: 3px 8px;
+      border-radius: 2px;
+      cursor: none;
+      font-weight: bold;
+      white-space: nowrap;
+      transition: var(--transition);
+    }
+
+    .sandbox-open:hover {
+      background: var(--teal);
+      color: var(--paper);
+      border-color: var(--teal);
+    }
+
+    .sandbox-viewport {
+      width: 100%;
+      overflow: hidden;
+      position: relative;
+      background: #faf6ef;
+    }
+
+    .sandbox-iframe {
+      border: 0;
+      transform-origin: top left;
+      display: block;
     }
 
     .window-dots {
@@ -1977,7 +1972,7 @@
   </style>
 </head>
 
-<body class="hov-lines">
+<body>
 
   <canvas id="mapGrid"></canvas>
   <div class="bg-orb"></div>
@@ -2007,15 +2002,8 @@
         <button id="capsToggle">ALL CAPS: off</button>
       </div>
 
-      <h4>Cursor Effect</h4>
-      <div class="row" data-group="hover">
-        <button data-hov="lines" class="on">Sparkle</button>
-        <button data-hov="grow">Grow</button>
-        <button data-hov="color">Ink</button>
-        <button data-hov="halo">Halo</button>
-      </div>
       <p class="hint" style="font-size: 8px; color: rgba(40,36,33,0.5); margin-top: 8px;">
-        Use the sketch cursor arrow to test nodes, map points, and tab switchers.
+        Use the cursor arrow to test the live sandbox, map points, and tab switchers.
       </p>
     </div>
   </div>
@@ -2040,10 +2028,10 @@
     <!-- Typewriter title will fill in here -->
     <h1 class="hero-title" id="heroTitle" style="min-height: 1.1em; animation: fadeUp 0.8s 0.4s forwards;"></h1>
     <p class="hero-oneliner" id="heroOneliner" style="animation: fadeUp 0.8s 0.8s forwards;">
-      Turn a single news article into a geo-referenced, bias-aware conflict briefing — in under a minute.
+      Turn a single news article into a geo-referenced, bias-aware conflict briefing.
     </p>
 
-    <div class="meta-row sketch-border" id="heroMeta" style="animation: fadeUp 0.8s 1.0s forwards;">
+    <div class="meta-row" id="heroMeta" style="animation: fadeUp 0.8s 1.0s forwards;">
       <div class="meta-item">
         <span class="meta-label">Role</span>
         <span class="meta-val">Solo &mdash; Design &amp; Build</span>
@@ -2063,57 +2051,31 @@
     </div>
 
     <div class="hero-links" id="heroBtnRow" style="animation: fadeUp 0.8s 1.2s forwards;">
-      <a class="btn primary" href="#dashboardMock" id="ctaDemoBtn">Launch Mockup Sandbox &darr;</a>
-      <a class="btn" href="https://github.com" target="_blank" rel="noopener">GitHub Repo</a>
+      <a class="btn primary" href="#dashboardMock" id="ctaDemoBtn">Launch Live Sandbox &darr;</a>
     </div>
 
     <!-- Micro Prototype 0: Parchment & Graphite Interactive Dashboard -->
     <div class="media-container" id="dashboardMock"
       style="opacity: 0; transform: translateY(20px); animation: fadeUp 0.9s 1.4s forwards;">
-      <div class="dashboard-mockup">
+      <div class="sandbox-frame">
         <div class="dashboard-header">
           <div class="window-dots">
             <div class="window-dot"></div>
             <div class="window-dot"></div>
             <div class="window-dot"></div>
           </div>
-          <div class="dashboard-title-bar">Conflict Lens Draft Blueprint Simulator</div>
-          <div style="width: 35px;"></div>
+          <div class="dashboard-title-bar">Conflict Lens &mdash; Live Sandbox</div>
+          <a class="sandbox-open" href="https://khushali-haji.github.io/conflict-analyzer/" target="_blank"
+            rel="noopener">Open full app &nearr;</a>
         </div>
-        <div class="dashboard-body">
-          <div class="mock-map" id="heroMockMap">
-            <div class="mock-map-topo"></div>
-            <!-- Clickable Interactive Pins -->
-            <div class="mock-pin pin-red active" style="left: 45%; top: 38%;" data-pin="0" title="Incident Site"></div>
-            <div class="mock-pin pin-blue" style="left: 62%; top: 58%;" data-pin="1" title="Actor Base"></div>
-            <div class="mock-pin pin-green" style="left: 28%; top: 68%;" data-pin="2" title="Conflict Zone"></div>
-            <div class="mock-pin pin-yellow" style="left: 78%; top: 25%;" data-pin="3" title="Timeline Event"></div>
-
-            <div class="mock-map-hint">Tap draft map pins to select event node</div>
-          </div>
-          <!-- Floating index-card style briefing details panel -->
-          <div class="mock-panel" id="heroMockPanel">
-            <div class="mock-panel-meta" id="mockMeta">Incident Site</div>
-            <h4 class="mock-panel-title" id="mockTitle">Monrovia Harbor Standoff</h4>
-
-            <div class="mock-panel-section">
-              <div class="mock-panel-label">Actors Involved</div>
-              <div class="mock-panel-val" id="mockActors">West Logistics Cargo, Port Guard Union</div>
-            </div>
-            <div class="mock-panel-section">
-              <div class="mock-panel-label">Primary Context &amp; Bias Lean</div>
-              <div class="mock-panel-desc" id="mockDesc">
-                A sudden cargo seizure at Dock 4 has halted logistics. Primary local reporting notes security
-                violations, while shipping union spokespeople accuse port authority management of extortion. Muted color
-                scheme ensures map reads instantaneously.
-              </div>
-            </div>
-          </div>
+        <div class="sandbox-viewport">
+          <iframe class="sandbox-iframe" src="https://khushali-haji.github.io/conflict-analyzer/" loading="lazy"
+            scrolling="no" title="Conflict Lens live application"></iframe>
         </div>
       </div>
       <figcaption>
-        <b>Parchment Mockup Simulator:</b> Simulates the coordinate centering inside the Leaflet viewport. Clicking
-        nodes highlights the printed card details.
+        <b>Live Sandbox:</b> The actual Conflict Lens app, rendered at desktop size and zoomed to fit the column. Drag
+        the map and click around &mdash; or open the full app for a real-size, fully interactive session.
       </figcaption>
     </div>
   </header>
@@ -2633,7 +2595,7 @@
 
   <!-- ============ FOOTER SECTION ============ -->
   <footer>
-    <p class="ttl">Conflict Lens Case Study</p>
+    <p class="ttl">Conflict Lens</p>
     <div class="links">
       <a class="btn primary" href="index.html">Back to Portfolio Home</a>
       <a class="btn" href="mailto:khushali.haji@gmail.com">Contact Designer</a>
@@ -2731,7 +2693,7 @@
     });
 
     document.addEventListener('mouseover', e => {
-      const hot = e.target.closest('a, button, input, .mock-pin, .switcher-tab, [data-clickable]');
+      const hot = e.target.closest('a, button, input, .switcher-tab, [data-clickable]');
       cursorArrow.classList.toggle('hot', !!hot);
     });
 
@@ -2778,7 +2740,6 @@
     const weightVal = document.getElementById('weightVal');
     const headingFontBtns = document.querySelectorAll('.fontpanel [data-group="headings"] button');
     const capsToggleBtn = document.getElementById('capsToggle');
-    const hoverEffectBtns = document.querySelectorAll('.fontpanel [data-group="hover"] button');
 
     // Header weight control
     weightRange.addEventListener('input', () => {
@@ -2809,16 +2770,6 @@
       });
     });
 
-    // Cursor effects select
-    hoverEffectBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        hoverEffectBtns.forEach(b => b.classList.remove('on'));
-        btn.classList.add('on');
-        ['lines', 'grow', 'color', 'halo'].forEach(h => document.body.classList.remove('hov-' + h));
-        document.body.classList.add('hov-' + btn.dataset.hov);
-      });
-    });
-
     // ─── Typewriter Effect for Title ─────────────────────────────────────────────
     (function typewriter() {
       const titleText = "Conflict Lens Case Study";
@@ -2835,67 +2786,57 @@
       setTimeout(tick, 400);
     })();
 
-    // ─── MOCKUP 0: Simulated Interactive Hero Dashboard logic ────────────────────
-    const mockPins = document.querySelectorAll('.mock-pin');
-    const mockMeta = document.getElementById('mockMeta');
-    const mockTitle = document.getElementById('mockTitle');
-    const mockActors = document.getElementById('mockActors');
-    const mockDesc = document.getElementById('mockDesc');
-    const heroMockMap = document.getElementById('heroMockMap');
+    // ─── SANDBOX 0: Live embedded app, forced to desktop layout, scaled to fit ────
+    (function () {
+      const frame = document.getElementById('dashboardMock');
+      if (!frame) return;
+      const viewport = frame.querySelector('.sandbox-viewport');
+      const iframe = frame.querySelector('.sandbox-iframe');
+      if (!viewport || !iframe) return;
 
-    const heroMockData = [
-      {
-        meta: "Incident Site",
-        title: "Monrovia Harbor Standoff",
-        actors: "West Logistics Cargo, Port Guard Union",
-        desc: "A sudden cargo seizure at Dock 4 has halted logistics. Primary local reporting notes security violations, while shipping union spokespeople accuse port authority management of extortion. Muted color scheme ensures map reads instantaneously.",
-        panX: -5,
-        panY: -5
-      },
-      {
-        meta: "Actor Base",
-        title: "Sinoe Forest Concessions",
-        actors: "Forest Guard Force, Timber Concession Guild",
-        desc: "Regional headquarters coordinate land patrols. Overlapping logging maps from opposing authorities created border friction, triggering a security stand-down until coordinate verification clears. The Leaflet mapping engine coordinates this data structure.",
-        panX: -20,
-        panY: -15
-      },
-      {
-        meta: "Conflict Area",
-        title: "Border Checkpoint",
-        actors: "Border Customs, Regional Refugee Aid",
-        desc: "Cross-border traffic stalled following security sweeps. Translucent panels outline the verification search links and list actor bases to cross-reference statements. Progressive rendering streams these deep insights.",
-        panX: 10,
-        panY: -20
-      },
-      {
-        meta: "Timeline Event",
-        title: "Capital Protest Rally",
-        actors: "Civic Coalition Group, Capital Police",
-        desc: "Demonstrations formed demanding transparency in forestry contracts. Regional editors noted that domestic reports minimized crowd attendance while overseas channels highlighted logistics blockades.",
-        panX: -30,
-        panY: 5
+      // Design size the app renders at — wide enough to trigger its desktop layout,
+      // 16:9 so it reads as a full screen with nothing trailing off the bottom.
+      const DESIGN_W = 1280;
+      const DESIGN_H = 720;
+      let scale = 1;
+      iframe.style.width = DESIGN_W + 'px';
+      iframe.style.height = DESIGN_H + 'px';
+
+      function fit() {
+        scale = viewport.clientWidth / DESIGN_W;
+        iframe.style.transform = `scale(${scale})`;
+        viewport.style.height = (DESIGN_H * scale) + 'px';
       }
-    ];
 
-    mockPins.forEach((pin, index) => {
-      pin.addEventListener('click', () => {
-        mockPins.forEach(p => p.classList.remove('active'));
-        pin.classList.add('active');
+      fit();
+      window.addEventListener('resize', fit);
 
-        const data = heroMockData[index];
-        mockMeta.textContent = data.meta;
-        mockTitle.textContent = data.title;
-        mockActors.textContent = data.actors;
-        mockDesc.textContent = data.desc;
-
-        // Simulate Leaflet map panning
-        heroMockMap.style.transform = `scale(1.1) translate(${data.panX}px, ${data.panY}px)`;
-        setTimeout(() => {
-          heroMockMap.style.transform = `scale(1) translate(${data.panX}px, ${data.panY}px)`;
-        }, 300);
+      // Keep the site's custom cursor alive over the embedded app. The case study
+      // and the app share an origin (khushali-haji.github.io), so we can mirror the
+      // app's mouse events back onto the parent cursor. Wrapped in try/catch so it
+      // degrades gracefully to the native pointer if ever served cross-origin.
+      const cursor = document.getElementById('cursorArrow');
+      iframe.addEventListener('load', () => {
+        try {
+          const doc = iframe.contentDocument;
+          if (!doc || !cursor) return;
+          doc.documentElement.style.cursor = 'none';
+          doc.documentElement.style.overflow = 'hidden';
+          doc.addEventListener('mousemove', e => {
+            const rect = iframe.getBoundingClientRect();
+            cursor.style.left = (rect.left + e.clientX * scale - 2) + 'px';
+            cursor.style.top = (rect.top + e.clientY * scale - 2) + 'px';
+            cursor.classList.add('visible');
+          });
+          doc.addEventListener('mouseover', e => {
+            const hot = e.target.closest('a, button, input, select, textarea, [role="button"], [data-clickable]');
+            cursor.classList.toggle('hot', !!hot);
+          });
+        } catch (err) {
+          /* cross-origin — fall back to the app's native cursor */
+        }
       });
-    });
+    })();
 
     // ─── MOCKUP 1: Problem "12 Browser Tabs" Switcher logic ─────────────────────
     const problemSwitcherContent = document.getElementById('problemSwitcherContent');
