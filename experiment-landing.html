@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Khushali Haji — Drafting Board</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300;1,600&family=DM+Mono:wght@400;500&family=Playfair+Display:ital,wght@1,700;1,900&family=Space+Grotesk:wght@700&family=Bebas+Neue&family=Inter:wght@200;300;400;600&family=Caveat:wght@400;600&display=swap"
+    rel="stylesheet">
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      cursor: none;
+    }
+
+    a,
+    button,
+    .word-trigger,
+    [data-clickable],
+    a *,
+    button * {
+      cursor: none;
+    }
+
+    :root {
+      --ink: #282421;
+      --paper: #f3f0e8;
+      --card: #faf8f4;
+      --teal: #1a6b6b;
+      --yellow: #c9a227;
+      --serif: 'Cormorant Garamond', Georgia, serif;
+      --mono: 'DM Mono', monospace;
+      --hand: 'Caveat', cursive;
+    }
+
+    html,
+    body {
+      width: 100%;
+      min-height: 100vh;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--serif);
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.55;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(ellipse 90% 80% at 50% 50%, transparent 25%, rgba(180, 140, 60, 0.04) 65%, rgba(40, 36, 33, 0.05) 100%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    #mapGrid {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .bg-orb {
+      position: fixed;
+      width: 72vmax;
+      height: 72vmax;
+      border-radius: 50%;
+      background: radial-gradient(circle at center, rgba(201, 162, 39, 0.06) 0%, rgba(180, 140, 80, 0.03) 42%, transparent 66%);
+      pointer-events: none;
+      z-index: 0;
+      animation: orbDrift 24s ease-in-out infinite;
+      will-change: transform;
+    }
+
+    .cursor-arrow {
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 22px;
+      height: 22px;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0;
+      transform-origin: 2px 2px;
+      mix-blend-mode: multiply;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cfilter id='w'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.04' numOctaves='2' seed='4' result='n'/%3E%3CfeDisplacementMap in='SourceGraphic' in2='n' scale='0.9'/%3E%3C/filter%3E%3Cpath filter='url(%23w)' d='M4 3 L26 17 L16 19 L21 31 L17 33 L12 21 L4 24 Z' fill='%23282421' stroke='%23282421' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat;
+      transition: opacity 0.3s ease, transform 0.18s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .cursor-arrow.visible {
+      opacity: 1;
+    }
+
+    .cursor-arrow.hot {
+      transform: scale(1.1);
+    }
+
+    .cursor-arrow::before {
+      content: '';
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      left: -13px;
+      top: -13px;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cg stroke='%23282421' stroke-width='2' stroke-linecap='round'%3E%3Cline x1='20' y1='11' x2='20' y2='4'/%3E%3Cline x1='17' y1='11' x2='15' y2='4'/%3E%3Cline x1='14' y1='13' x2='9' y2='8'/%3E%3Cline x1='11' y1='19' x2='4' y2='18'/%3E%3Cline x1='26' y1='13' x2='31' y2='8'/%3E%3C/g%3E%3C/svg%3E") center / contain no-repeat;
+      opacity: 0;
+      transform: scale(0.4);
+      transform-origin: 50% 50%;
+      transition: opacity 0.18s ease, transform 0.18s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .cursor-arrow.hot::before {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .progress-line {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 0%;
+      height: 1.5px;
+      background: linear-gradient(to right, var(--teal), var(--yellow));
+      z-index: 10;
+      pointer-events: none;
+      animation: drawLine 2s 2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    /* ── Hero ─────────────────────────────────────────────── */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 12vh max(2rem, 4vw) 10vh max(6rem, 13vw);
+      z-index: 2;
+    }
+
+    .hero-content {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      grid-template-rows: auto auto;
+      column-gap: 3.5rem;
+      row-gap: 2.6rem;
+      align-items: center;
+    }
+
+    .hero-gif {
+      grid-column: 1;
+      grid-row: 1;
+      display: block;
+      align-self: center;
+      width: auto;
+      height: auto;
+      max-width: 220px;
+      min-width: 60px;
+      object-fit: cover;
+      object-position: center top;
+      border-radius: 3px;
+      border: 1.5px solid rgba(40, 36, 33, 0.18);
+      box-shadow: 4px 4px 0 rgba(40, 36, 33, 0.1);
+      opacity: 0;
+      animation: fadeUp 1s 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+      transition: opacity 0.5s ease;
+    }
+
+    .hero-words-col {
+      grid-column: 2;
+      grid-row: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .hero-name {
+      font-family: var(--serif);
+      font-size: clamp(36px, 4.8vw, 68px);
+      font-weight: 300;
+      line-height: 1.0;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+      margin-bottom: 1.6rem;
+      opacity: 0;
+      position: relative;
+      z-index: 2;
+      transition: opacity 0.4s ease;
+      min-height: 1.1em;
+      margin-left: calc(clamp(6.6px, 0.87vw, 12.3px) - 4.8px);
+    }
+
+    .hero-name strong {
+      font-weight: 700;
+    }
+
+    .words-row {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      column-gap: 0.1em;
+      row-gap: 0.35em;
+      align-items: baseline;
+      position: relative;
+      z-index: 4;
+      margin-left: -0.3em;
+    }
+
+    .word-trigger {
+      display: inline-block;
+      font-family: 'Inter', sans-serif;
+      font-size: clamp(22px, 2.9vw, 41px);
+      font-weight: 200;
+      line-height: 1.2;
+      letter-spacing: -0.04em;
+      cursor: none;
+      position: relative;
+      padding: 0.4em 0.3em;
+      color: rgba(40, 33, 25, 0.62);
+      user-select: none;
+      transform-origin: center center;
+      transition: color 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+        opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+        transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .word-trigger::after {
+      content: '';
+      position: absolute;
+      inset: calc(0.4em - 3px) calc(0.3em - 8px);
+      background: transparent;
+      -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 70' preserveAspectRatio='none'%3E%3Cfilter id='b'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.014 0.16' numOctaves='3' seed='6' result='n'/%3E%3CfeDisplacementMap in='SourceGraphic' in2='n' scale='12'/%3E%3C/filter%3E%3Crect x='22' y='24' width='256' height='22' rx='11' fill='white' filter='url(%23b)'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+      mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 70' preserveAspectRatio='none'%3E%3Cfilter id='b'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.014 0.16' numOctaves='3' seed='6' result='n'/%3E%3CfeDisplacementMap in='SourceGraphic' in2='n' scale='12'/%3E%3C/filter%3E%3Crect x='22' y='24' width='256' height='22' rx='11' fill='white' filter='url(%23b)'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+      transform: rotate(-0.9deg);
+      z-index: -1;
+      transition: background 0.45s cubic-bezier(0.22, 1, 0.36, 1), inset 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .word-trigger.lit::after {
+      background: rgba(245, 220, 80, 0.5);
+    }
+
+    .word-trigger.active {
+      color: var(--teal);
+      transform: translateY(-4px);
+    }
+
+    .word-trigger.active::after {
+      inset: -0.22em -0.55em;
+      background: linear-gradient(rgba(246, 212, 66, 0.88), rgba(246, 212, 66, 0.88)), var(--paper);
+    }
+
+    .word-trigger.dimmed {
+      opacity: 0.1;
+      transform: translateY(4px);
+    }
+
+    .word-trigger:nth-child(1) {
+      animation: breathe 3s 5.0s ease-in-out infinite;
+    }
+
+    .word-trigger:nth-child(2) {
+      animation: breathe 3s 5.7s ease-in-out infinite;
+    }
+
+    .word-trigger:nth-child(3) {
+      animation: breathe 3s 6.4s ease-in-out infinite;
+    }
+
+    .word-trigger.active,
+    .word-trigger.dimmed {
+      animation: none;
+    }
+
+    .char {
+      display: inline-block;
+      opacity: 0;
+    }
+
+    .char.shown {
+      opacity: 1;
+    }
+
+    /* ── Lasso SVGs (injected by JS) ──────────────────────── */
+    .lasso-svg {
+      position: absolute;
+      pointer-events: none;
+      overflow: visible;
+      z-index: -1;
+    }
+
+    /* ── Hover invite annotation ──────────────────────────── */
+    .hover-invite {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      margin-top: 0.7rem;
+      margin-left: 0.8rem;
+      opacity: 0;
+      transition: opacity 0.9s ease;
+      pointer-events: none;
+    }
+
+    .hover-invite.visible {
+      opacity: 1;
+    }
+
+    .hover-invite-text {
+      font-family: var(--hand);
+      font-size: clamp(14px, 1.5vw, 19px);
+      color: rgba(40, 33, 25, 0.48);
+      font-weight: 400;
+      letter-spacing: 0.01em;
+    }
+
+    .invite-arrow {
+      width: 46px;
+      height: 34px;
+      color: rgba(40, 33, 25, 0.38);
+      flex-shrink: 0;
+    }
+
+    /* ── Bloom scraps ─────────────────────────────────────── */
+    .bloom-container {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    .bloom-scrap {
+      position: fixed;
+      background: var(--card);
+      border: 1.5px solid rgba(40, 36, 33, 0.5);
+      padding: 0.5rem 0.75rem;
+      max-width: 195px;
+      min-width: 75px;
+      font-family: var(--serif);
+      font-size: 13px;
+      line-height: 1.42;
+      color: var(--ink);
+      box-shadow: 3px 3px 0 rgba(40, 36, 33, 0.1);
+      pointer-events: none;
+      will-change: transform, opacity;
+      border-radius: 2px;
+    }
+
+    .bloom-scrap.index-card {
+      background: #fdfaf2;
+      border-top: 3px solid var(--yellow);
+      font-style: italic;
+      font-weight: 500;
+    }
+
+    .bloom-scrap.post-it {
+      background: #f4eed8;
+      border-color: rgba(175, 145, 55, 0.5);
+      font-size: 12.5px;
+    }
+
+    .bloom-scrap.tool-tag {
+      font-family: var(--mono);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--teal);
+      background: rgba(26, 107, 107, 0.07);
+      border-color: rgba(26, 107, 107, 0.42);
+      padding: 0.4rem 0.85rem;
+    }
+
+    .bloom-scrap.torn {
+      font-style: italic;
+      font-size: 13px;
+      clip-path: polygon(0% 1%, 97% 0%, 100% 98%, 1% 100%);
+    }
+
+    body.bloom-active .hero-name,
+    body.bloom-active .hero-body,
+    body.bloom-active .hero-gif {
+      opacity: 0 !important;
+      transition: opacity 0.4s ease !important;
+    }
+
+    /* ── Hero bio ─────────────────────────────────────────── */
+    .hero-body {
+      grid-column: 2;
+      grid-row: 2;
+      max-width: 460px;
+      opacity: 0;
+      position: relative;
+      z-index: 2;
+      transition: opacity 0.5s ease;
+      margin-left: calc(clamp(6.6px, 0.87vw, 12.3px) - 4.8px);
+    }
+
+    .hero-body.shown {
+      animation: fadeUp 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    .hero-body p {
+      font-size: clamp(15.5px, 1.3vw, 18px);
+      font-weight: 500;
+      line-height: 1.82;
+      color: rgba(40, 33, 25, 0.82);
+      margin-bottom: 1.25em;
+    }
+
+    .hero-body p:last-child {
+      margin-bottom: 0;
+    }
+
+    .hero-body mark {
+      background: rgba(201, 162, 39, 0.22);
+      color: inherit;
+      padding: 0.04em 0.14em;
+      border-radius: 2px;
+    }
+
+    /* ── Sections ─────────────────────────────────────────── */
+    .section-label {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--teal);
+      margin-bottom: 2.4rem;
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+    }
+
+    .section-label::before {
+      content: '';
+      width: 28px;
+      height: 1px;
+      background: var(--teal);
+      opacity: 0.5;
+    }
+
+    .featured {
+      position: relative;
+      z-index: 2;
+      padding: 8vh max(3rem, 7vw);
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.6rem;
+    }
+
+    .project-card {
+      display: flex;
+      flex-direction: column;
+      padding: 1.8rem 1.6rem;
+      background: var(--card);
+      border: 1.5px solid rgba(40, 36, 33, 0.42);
+      border-radius: 2px;
+      text-decoration: none;
+      color: inherit;
+      box-shadow: 4px 4px 0 rgba(40, 36, 33, 0.1);
+      transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.4s ease;
+    }
+
+    .project-card:hover {
+      transform: translate(-3px, -3px);
+      box-shadow: 7px 7px 0 rgba(40, 36, 33, 0.14);
+    }
+
+    .project-num {
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      color: var(--yellow);
+      margin-bottom: 1rem;
+    }
+
+    .project-title {
+      font-family: 'Inter', sans-serif;
+      font-weight: 200;
+      font-size: clamp(22px, 2.4vw, 30px);
+      letter-spacing: -0.02em;
+      margin-bottom: 0.6rem;
+    }
+
+    .project-desc {
+      font-family: var(--serif);
+      font-weight: 500;
+      font-size: 15px;
+      line-height: 1.6;
+      color: rgba(40, 33, 25, 0.7);
+      margin-bottom: 1.4rem;
+      flex: 1;
+    }
+
+    .project-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .tag {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--teal);
+      padding: 0.3em 0.7em;
+      border: 1px solid rgba(26, 107, 107, 0.3);
+      border-radius: 2px;
+    }
+
+    .about-cta {
+      margin-top: 3.5rem;
+      text-align: center;
+    }
+
+    .about-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-family: var(--mono);
+      font-size: 13px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ink);
+      text-decoration: none;
+      padding: 0.9rem 1.8rem;
+      border: 1.5px solid var(--ink);
+      box-shadow: 3px 3px 0 rgba(40, 36, 33, 0.1);
+      transition: background 0.35s ease, color 0.35s ease, border-color 0.35s ease, gap 0.35s ease, box-shadow 0.35s ease;
+    }
+
+    .about-btn:hover {
+      background: rgba(201, 162, 39, 0.14);
+      color: var(--teal);
+      border-color: var(--yellow);
+      gap: 0.9rem;
+      box-shadow: 5px 5px 0 rgba(201, 162, 39, 0.18);
+    }
+
+    .contact-section {
+      position: relative;
+      z-index: 2;
+      padding: 6vh max(3rem, 7vw) 12vh;
+      max-width: 880px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .contact-heading {
+      font-family: var(--serif);
+      font-style: italic;
+      font-weight: 600;
+      font-size: clamp(26px, 3.6vw, 48px);
+      line-height: 1.25;
+      letter-spacing: -0.015em;
+      color: var(--ink);
+      margin-bottom: 2.6rem;
+    }
+
+    .contact-heading .ch-light {
+      font-weight: 300;
+    }
+
+    .social-links {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 2.2rem;
+    }
+
+    .social-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 46px;
+      height: 46px;
+      border-radius: 2px;
+      color: var(--ink);
+      border: 1.5px solid rgba(40, 36, 33, 0.28);
+      box-shadow: 2px 2px 0 rgba(40, 36, 33, 0.08);
+      transition: color 0.35s ease, border-color 0.35s ease, background 0.35s ease, transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s ease;
+    }
+
+    .social-link svg {
+      width: 21px;
+      height: 21px;
+      display: block;
+    }
+
+    .social-link:hover {
+      color: var(--teal);
+      border-color: var(--yellow);
+      background: rgba(201, 162, 39, 0.14);
+      transform: translate(-2px, -2px);
+      box-shadow: 4px 4px 0 rgba(40, 36, 33, 0.12);
+    }
+
+    @keyframes breathe {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.45;
+      }
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes drawLine {
+      to {
+        width: 100%;
+      }
+    }
+
+    @keyframes orbDrift {
+      0% {
+        transform: translate(2vw, 4vh);
+      }
+
+      25% {
+        transform: translate(44vw, -6vh);
+      }
+
+      50% {
+        transform: translate(6vw, 36vh);
+      }
+
+      75% {
+        transform: translate(36vw, 22vh);
+      }
+
+      100% {
+        transform: translate(2vw, 4vh);
+      }
+    }
+
+    @media (max-width: 760px) {
+      .projects-grid {
+        grid-template-columns: 1fr;
+      }
+
+      html {
+        cursor: auto;
+      }
+
+      .cursor-arrow {
+        display: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <canvas id="mapGrid"></canvas>
+  <div class="bg-orb"></div>
+  <div class="cursor-arrow" id="cursorArrow"></div>
+  <div class="progress-line"></div>
+  <div class="bloom-container" id="bloomContainer"></div>
+
+  <section class="hero">
+    <div class="hero-content">
+      <img src="pics.gif" class="hero-gif" alt="">
+      <div class="hero-words-col">
+        <p class="hero-name" id="heroName"></p>
+        <div class="words-row" id="wordsRow">
+          <span class="word-trigger" data-key="research">Researcher.</span>
+          <span class="word-trigger" data-key="design">Designer.</span>
+          <span class="word-trigger" data-key="storytelling">Storyteller.</span>
+        </div>
+        <div class="hover-invite" id="hoverInvite">
+          <span class="hover-invite-text">hover to unfold my mind</span>
+          <svg class="invite-arrow" viewBox="0 0 50 35" fill="none" stroke="currentColor" stroke-linecap="round"
+            stroke-linejoin="round">
+            <path d="M 4 28 C 14 28, 32 20, 46 5" stroke-width="1.7" />
+            <path d="M 46 5 L 40 8 M 46 5 L 43 13" stroke-width="1.7" />
+          </svg>
+        </div>
+      </div>
+      <div class="hero-body" id="heroBody">
+        <p>I am a <strong>researcher</strong> by heart, and a <strong>designer</strong> by consequence of finding ways
+          to fill those gaps. I'm now applying that instinct to <strong>AI-native</strong> tools, building products that
+          make complex systems legible, most recently for communities underserved by existing civic and public-interest
+          tech.</p>
+        <p>My work has taken me from informal settlements in India to forests marked for carbon credits in Liberia, from
+          policy reporting in New York to building AI products for international conflict researchers. I trained as an
+          <strong>urban designer</strong>, retrained as a <strong>journalist</strong>, and now design and
+          <strong>prototype AI-native tools</strong> as the next iteration of that same instinct.</p>
+        <p>I'm based in <strong>New York</strong>, looking for roles at the intersection of <strong>AI product
+            design</strong>, <strong>UX research</strong>, and <strong>public-interest storytelling</strong>.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="featured">
+    <p class="section-label">Featured Projects</p>
+    <div class="projects-grid">
+      <a class="project-card" href="case-studies/conflict-lens.html">
+        <span class="project-num">01</span>
+        <h3 class="project-title">Conflict Lens</h3>
+        <p class="project-desc">Turns a single news article into a geo-referenced, bias-aware conflict briefing in under
+          a minute. A map-first dashboard that synthesizes location, actors, history, and source slant in one view.</p>
+        <div class="project-tags"><span class="tag">Product Design</span><span class="tag">AI</span><span
+            class="tag">Mapping</span></div>
+      </a>
+      <a class="project-card" href="#">
+        <span class="project-num">02</span>
+        <h3 class="project-title">Project 2</h3>
+        <p class="project-desc">A short one to two line descriptor of what this project explored and why it mattered.
+        </p>
+        <div class="project-tags"><span class="tag">Design</span><span class="tag">Storytelling</span></div>
+      </a>
+      <a class="project-card" href="#">
+        <span class="project-num">03</span>
+        <h3 class="project-title">Project 3</h3>
+        <p class="project-desc">A short one to two line descriptor of what this project explored and why it mattered.
+        </p>
+        <div class="project-tags"><span class="tag">Fieldwork</span><span class="tag">Documentary</span><span
+            class="tag">UX</span></div>
+      </a>
+    </div>
+    <div class="about-cta">
+      <a class="about-btn" href="about.html">Learn more about me <span>&rarr;</span></a>
+    </div>
+  </section>
+
+  <section class="contact-section">
+    <h2 class="contact-heading">Would love to talk!<br><span class="ch-light">What cool projects are you working
+        on?</span></h2>
+    <div class="social-links">
+      <a class="social-link" href="https://www.instagram.com/khushalihaji/" target="_blank" rel="noopener"
+        aria-label="Instagram">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
+          stroke-linejoin="round">
+          <rect x="2.5" y="2.5" width="19" height="19" rx="5.5"></rect>
+          <circle cx="12" cy="12" r="4.2"></circle>
+          <circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"></circle>
+        </svg>
+      </a>
+      <a class="social-link" href="https://www.linkedin.com/in/khushali-haji/" target="_blank" rel="noopener"
+        aria-label="LinkedIn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
+          stroke-linejoin="round">
+          <rect x="2.5" y="2.5" width="19" height="19" rx="3"></rect>
+          <line x1="7" y1="10" x2="7" y2="17"></line>
+          <circle cx="7" cy="6.8" r="1.1" fill="currentColor" stroke="none"></circle>
+          <path d="M11 17v-3.6a2.4 2.4 0 0 1 4.8 0V17M11 10.4V17"></path>
+        </svg>
+      </a>
+      <a class="social-link" href="mailto:khushali.haji@gmail.com" aria-label="Email">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
+          stroke-linejoin="round">
+          <rect x="2.5" y="4.5" width="19" height="15" rx="2.5"></rect>
+          <path d="M3.5 6.5 12 13l8.5-6.5"></path>
+        </svg>
+      </a>
+    </div>
+  </section>
+
+  <script>
+    // ── Parchment grid canvas ────────────────────────────────────────────────
+    (function () {
+      const mc = document.getElementById('mapGrid');
+      const mx = mc.getContext('2d');
+      function draw() {
+        const dpr = window.devicePixelRatio || 1;
+        const w = window.innerWidth, h = window.innerHeight;
+        mc.width = Math.round(w * dpr); mc.height = Math.round(h * dpr);
+        mc.style.width = w + 'px'; mc.style.height = h + 'px';
+        mx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        const step = 52, bow = 4;
+        const minor = 'rgba(160,120,60,0.17)', major = 'rgba(140,100,50,0.09)', dotC = 'rgba(140,100,50,0.25)';
+        mx.clearRect(0, 0, w, h);
+        let ri = 0;
+        for (let y = 0; y <= h + step; y += step, ri++) {
+          const M = ri % 4 === 0;
+          mx.setLineDash(M ? [] : [2, 5]);
+          mx.beginPath(); mx.moveTo(0, y); mx.quadraticCurveTo(w * 0.5, y + bow, w, y);
+          mx.strokeStyle = M ? major : minor; mx.lineWidth = M ? 0.55 : 0.38; mx.stroke();
+        }
+        let ci = 0;
+        for (let x = 0; x <= w + step; x += step, ci++) {
+          const M = ci % 4 === 0;
+          mx.setLineDash(M ? [] : [2, 5]);
+          mx.beginPath(); mx.moveTo(x, 0); mx.lineTo(x, h);
+          mx.strokeStyle = M ? major : minor; mx.lineWidth = M ? 0.55 : 0.38; mx.stroke();
+        }
+        mx.setLineDash([]);
+        for (let y = 0; y <= h + step * 4; y += step * 4)
+          for (let x = 0; x <= w + step * 4; x += step * 4) {
+            mx.beginPath(); mx.arc(x, y, 1.4, 0, Math.PI * 2); mx.fillStyle = dotC; mx.fill();
+          }
+      }
+      draw();
+      window.addEventListener('resize', draw);
+    })();
+
+    // ── Bloom content ────────────────────────────────────────────────────────
+    const BLOOM = {
+      research: [
+        { type: 'index-card', text: 'Who benefits when a forest gets certified carbon-neutral?' },
+        { type: 'post-it', text: 'Is public space actually public if you can\'t afford to be in it?' },
+        { type: 'index-card', text: 'What does a city look like when you map power instead of streets?' },
+        { type: 'torn', text: 'Which words make someone feel like they belong?' },
+        { type: 'post-it', text: 'Who gets to tell a community\'s story?' },
+        { type: 'index-card', text: 'What gets left off the official record?' },
+        { type: 'torn', text: 'When does asylum policy protect, when does it sort?' },
+      ],
+      design: [
+        { type: 'tool-tag', text: 'Figma' },
+        { type: 'index-card', text: 'Chose a map over a list to match the user\'s mental model' },
+        { type: 'tool-tag', text: 'Mapbox' },
+        { type: 'post-it', text: 'Reduced clicks to the goal — Hick\'s Law' },
+        { type: 'tool-tag', text: 'Claude' },
+        { type: 'index-card', text: 'Picked the familiar UI so it doesn\'t look intimidating' },
+        { type: 'tool-tag', text: 'Cursor' },
+        { type: 'post-it', text: 'Sticky nav to reduce scroll fatigue' },
+      ],
+      storytelling: [
+        { type: 'torn', text: 'A former convent became a girls\' hostel.' },
+        { type: 'index-card', text: '"They call it adventure," he said. "We call it surviving."' },
+        { type: 'post-it', text: 'On day three in the Darién Gap…' },
+        { type: 'torn', text: 'Varanasi\'s oldest residents watch the city forget them.' },
+        { type: 'index-card', text: '"I went back to Kashmir just before the blackout."' },
+        { type: 'post-it', text: 'We were quiet about the violence for so long.' },
+        { type: 'torn', text: 'A new heart taught a security guard how to connect.' },
+      ]
+    };
+
+    // ── Elements ─────────────────────────────────────────────────────────────
+    const cursorArrow = document.getElementById('cursorArrow');
+    const bloomCont = document.getElementById('bloomContainer');
+    const hoverInvite = document.getElementById('hoverInvite');
+    const heroNameEl = document.getElementById('heroName');
+    const heroBodyEl = document.getElementById('heroBody');
+    const triggers = [...document.querySelectorAll('.word-trigger')];
+
+    // ── Cursor + magnetism ───────────────────────────────────────────────────
+    let rawX = 0, rawY = 0, cursorStarted = false, activeBloomKey = null;
+
+    document.addEventListener('mousemove', e => {
+      rawX = e.clientX; rawY = e.clientY;
+      if (!cursorStarted) { cursorStarted = true; cursorArrow.classList.add('visible'); runCursor(); }
+    });
+    document.addEventListener('mouseover', e => {
+      cursorArrow.classList.toggle('hot', !!e.target.closest('a,button,.word-trigger,[data-clickable]'));
+    });
+
+    function runCursor() {
+      const RADIUS = 80, PULL = 0.15;
+      let tX = rawX, tY = rawY;
+      if (!activeBloomKey) {
+        for (const el of triggers) {
+          const r = el.getBoundingClientRect();
+          const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+          const d = Math.hypot(rawX - cx, rawY - cy);
+          if (d < RADIUS && d > 0) {
+            const t = 1 - d / RADIUS;
+            tX = rawX + (cx - rawX) * PULL * t;
+            tY = rawY + (cy - rawY) * PULL * t;
+            break;
+          }
+        }
+      }
+      cursorArrow.style.left = (tX - 2) + 'px';
+      cursorArrow.style.top = (tY - 2) + 'px';
+      requestAnimationFrame(runCursor);
+    }
+
+    // ── Typewriter ───────────────────────────────────────────────────────────
+    (function () {
+      const bold = 'Hi,', light = " I'm Khushali.";
+      const s = document.createElement('strong'), t = document.createTextNode('');
+      heroNameEl.appendChild(s); heroNameEl.appendChild(t);
+      let i = 0, total = bold.length + light.length;
+      function tick() {
+        if (i === 0) heroNameEl.style.opacity = '1';
+        if (i < bold.length) s.textContent += bold[i];
+        else t.textContent += light[i - bold.length];
+        i++;
+        if (i < total) setTimeout(tick, i <= bold.length ? 95 : 52);
+        else setTimeout(revealWords, 240);
+      }
+      setTimeout(tick, 320);
+    })();
+
+    // ── Word reveal ──────────────────────────────────────────────────────────
+    triggers.forEach(el => {
+      const text = el.textContent; el.textContent = '';
+      [...text].forEach(ch => {
+        const sp = document.createElement('span');
+        sp.className = 'char'; sp.textContent = ch; el.appendChild(sp);
+      });
+    });
+
+    function revealWords() {
+      const chars = [...document.querySelectorAll('.word-trigger .char')];
+      let i = 0;
+      (function step() {
+        if (i < chars.length) { chars[i++].classList.add('shown'); setTimeout(step, 45); }
+        else {
+          heroBodyEl.classList.add('shown');
+          triggers.forEach((w, k) => setTimeout(() => w.classList.add('lit'), 900 + k * 220));
+          setTimeout(initLassos, 500);
+          setTimeout(() => hoverInvite.classList.add('visible'), 2400);
+        }
+      })();
+    }
+
+    // ── SVG lasso loops ──────────────────────────────────────────────────────
+    function initLassos() {
+      const ns = 'http://www.w3.org/2000/svg';
+      triggers.forEach((el, idx) => {
+        const r = el.getBoundingClientRect();
+        const pad = 14;
+        const W = r.width + pad * 2;
+        const H = r.height + pad * 2;
+        const cx = W / 2, cy = H / 2;
+        const rx = W / 2 - 5, ry = H / 2 - 4;
+
+        const svg = document.createElementNS(ns, 'svg');
+        svg.setAttribute('width', W);
+        svg.setAttribute('height', H);
+        svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+        svg.style.cssText = `position:absolute;left:-${pad}px;top:-${pad}px;overflow:visible;pointer-events:none;z-index:-1;`;
+
+        // Roughening filter
+        const defs = document.createElementNS(ns, 'defs');
+        const filt = document.createElementNS(ns, 'filter');
+        const fid = `lrf${idx}`;
+        filt.id = fid;
+        filt.setAttribute('x', '-25%'); filt.setAttribute('y', '-25%');
+        filt.setAttribute('width', '150%'); filt.setAttribute('height', '150%');
+        const turb = document.createElementNS(ns, 'feTurbulence');
+        turb.setAttribute('type', 'fractalNoise');
+        turb.setAttribute('baseFrequency', '0.022');
+        turb.setAttribute('numOctaves', '3');
+        turb.setAttribute('seed', String(idx * 4 + 6));
+        turb.setAttribute('result', 'n');
+        const disp = document.createElementNS(ns, 'feDisplacementMap');
+        disp.setAttribute('in', 'SourceGraphic'); disp.setAttribute('in2', 'n'); disp.setAttribute('scale', '4');
+        filt.appendChild(turb); filt.appendChild(disp); defs.appendChild(filt); svg.appendChild(defs);
+
+        // Organic oval via 4-segment cubic bezier with per-word jitter
+        const k = 0.552;
+        const kx = rx * k, ky = ry * k;
+        const j = (n) => ((idx * 7 + n * 13.3) % 5) - 2.5;
+        const d = [
+          `M ${(cx + j(1)).toFixed(1)} ${(cy - ry + j(2)).toFixed(1)}`,
+          `C ${(cx + kx + j(3)).toFixed(1)} ${(cy - ry).toFixed(1)}, ${(cx + rx).toFixed(1)} ${(cy - ky + j(4)).toFixed(1)}, ${(cx + rx + j(5)).toFixed(1)} ${cy.toFixed(1)}`,
+          `C ${(cx + rx).toFixed(1)} ${(cy + ky + j(6)).toFixed(1)}, ${(cx + kx + j(7)).toFixed(1)} ${(cy + ry).toFixed(1)}, ${cx.toFixed(1)} ${(cy + ry + j(8)).toFixed(1)}`,
+          `C ${(cx - kx + j(9)).toFixed(1)} ${(cy + ry).toFixed(1)}, ${(cx - rx).toFixed(1)} ${(cy + ky + j(10)).toFixed(1)}, ${(cx - rx + j(11)).toFixed(1)} ${cy.toFixed(1)}`,
+          `C ${(cx - rx).toFixed(1)} ${(cy - ky + j(12)).toFixed(1)}, ${(cx - kx + j(13)).toFixed(1)} ${(cy - ry).toFixed(1)}, ${(cx + j(1)).toFixed(1)} ${(cy - ry + j(2)).toFixed(1)} Z`
+        ].join(' ');
+
+        const path = document.createElementNS(ns, 'path');
+        path.setAttribute('d', d);
+        path.setAttribute('fill', 'none');
+        path.setAttribute('stroke', 'rgba(40,33,25,0.44)');
+        path.setAttribute('stroke-width', '1.7');
+        path.setAttribute('stroke-linecap', 'round');
+        path.setAttribute('filter', `url(#${fid})`);
+        svg.appendChild(path);
+        el.appendChild(svg);
+
+        // Measure path length, then animate draw-on
+        requestAnimationFrame(() => {
+          const len = path.getTotalLength();
+          path.style.strokeDasharray = len;
+          path.style.strokeDashoffset = len;
+          setTimeout(() => {
+            path.style.transition = `stroke-dashoffset 1.5s cubic-bezier(0.22,1,0.36,1)`;
+            path.style.strokeDashoffset = '0';
+          }, idx * 240 + 60);
+        });
+      });
+    }
+
+    // ── Collage bloom ────────────────────────────────────────────────────────
+    let bloomScraps = [], hoverBounds = null;
+
+    function spawnBloom(el, key) {
+      if (activeBloomKey === key) return;
+      clearBloom();
+      activeBloomKey = key;
+
+      const r = el.getBoundingClientRect();
+      const cx = r.left + r.width / 2;
+      const cy = r.top + r.height / 2;
+      const items = BLOOM[key];
+
+      items.forEach((item, i) => {
+        const scrap = document.createElement('div');
+        scrap.className = `bloom-scrap ${item.type}`;
+        scrap.textContent = item.text;
+
+        const angle = (i / items.length) * Math.PI * 2 - Math.PI / 2 + 0.25;
+        const dist = 115 + (i % 3) * 50;
+        const dx = Math.cos(angle) * dist;
+        const dy = Math.sin(angle) * dist;
+        const rot = ((i * 11 + 4) % 30) - 15;
+
+        scrap.dataset.dx = dx;
+        scrap.dataset.dy = dy;
+        scrap.dataset.rot = rot;
+
+        scrap.style.cssText = `left:${cx}px;top:${cy}px;transform:translate(-50%,-50%) scale(0.12);opacity:0;z-index:5;`;
+        bloomCont.appendChild(scrap);
+        bloomScraps.push(scrap);
+
+        setTimeout(() => {
+          scrap.style.transition = `transform 0.65s cubic-bezier(0.22,1,0.36,1), opacity 0.45s ease`;
+          scrap.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) rotate(${rot}deg) scale(1)`;
+          scrap.style.opacity = '1';
+        }, i * 58 + 12);
+      });
+
+      hoverBounds = { left: r.left - 270, right: r.right + 270, top: r.top - 270, bottom: r.bottom + 270 };
+    }
+
+    function clearBloom() {
+      const scraps = [...bloomScraps];
+      bloomScraps = [];
+      activeBloomKey = null;
+      hoverBounds = null;
+      scraps.forEach((s, i) => {
+        const dx = parseFloat(s.dataset.dx || 0);
+        const dy = parseFloat(s.dataset.dy || 0);
+        const rot = parseFloat(s.dataset.rot || 0);
+        setTimeout(() => {
+          s.style.transition = 'transform 0.3s ease, opacity 0.22s ease';
+          s.style.transform = `translate(calc(-50% + ${dx * 0.08}px), calc(-50% + ${dy * 0.08}px)) rotate(${rot}deg) scale(0.08)`;
+          s.style.opacity = '0';
+          setTimeout(() => s.remove(), 360);
+        }, i * 22);
+      });
+    }
+
+    // ── Trigger interactions ─────────────────────────────────────────────────
+    triggers.forEach(el => {
+      el.addEventListener('mouseenter', () => {
+        spawnBloom(el, el.dataset.key);
+        document.body.classList.add('bloom-active');
+        triggers.forEach(w => {
+          w.classList.remove('dimmed', 'active');
+          w.classList.add(w === el ? 'active' : 'dimmed');
+        });
+      });
+    });
+
+    document.addEventListener('mousemove', e => {
+      if (!activeBloomKey || !hoverBounds) return;
+      const out = e.clientX < hoverBounds.left || e.clientX > hoverBounds.right ||
+        e.clientY < hoverBounds.top || e.clientY > hoverBounds.bottom;
+      if (out) {
+        clearBloom();
+        document.body.classList.remove('bloom-active');
+        triggers.forEach(w => { w.classList.remove('dimmed', 'active'); w.style.transform = ''; });
+      }
+    });
+  </script>
+</body>
+
+</html>

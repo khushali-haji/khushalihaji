@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Khushali Haji</title>
   <link
-    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300;1,600&family=DM+Mono:wght@400;500&family=Playfair+Display:ital,wght@1,700;1,900&family=Space+Grotesk:wght@700&family=Bebas+Neue&family=Inter:wght@200;300;400;600&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300;1,600&family=DM+Mono:wght@400;500&family=Playfair+Display:ital,wght@1,700;1,900&family=Space+Grotesk:wght@700&family=Bebas+Neue&family=Inter:wght@200;300;400;600&family=Caveat:wght@400;600&display=swap"
     rel="stylesheet">
   <style>
     *,
@@ -49,6 +49,10 @@
       color: var(--ink);
       font-family: var(--serif);
       overflow-x: hidden;
+    }
+
+    html {
+      scroll-behavior: smooth;
     }
 
     /* Paper grain */
@@ -121,31 +125,16 @@
       opacity: 1;
     }
 
-    /* Radiating doodle lines — burst outward from the arrow's pointy tip.
-       The pseudo-element is larger than the arrow and shifted up/left so its
-       centre sits on the tip; rays sit in the upper-left arc (away from the
-       blade, which points down-right) and scale out from that centre. */
-    .cursor-arrow::before {
-      content: '';
-      position: absolute;
-      width: 30px;
-      height: 30px;
-      left: -13px;
-      top: -13px;
-      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cfilter id='s'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.06' numOctaves='2' seed='2' result='n'/%3E%3CfeDisplacementMap in='SourceGraphic' in2='n' scale='1.2'/%3E%3C/filter%3E%3Cg filter='url(%23s)' stroke='%23ffffff' stroke-width='2.1' stroke-linecap='round'%3E%3Cline x1='20' y1='11' x2='20' y2='4'/%3E%3Cline x1='17' y1='11' x2='15' y2='4'/%3E%3Cline x1='14' y1='13' x2='9' y2='8'/%3E%3Cline x1='11' y1='19' x2='4' y2='18'/%3E%3Cline x1='26' y1='13' x2='31' y2='8'/%3E%3C/g%3E%3C/svg%3E") center / contain no-repeat;
-      opacity: 0;
-      transform: scale(0.4);
-      transform-origin: 50% 50%;
-      transition: opacity 0.18s ease, transform 0.18s cubic-bezier(0.22, 1, 0.36, 1);
-    }
-
-    .cursor-arrow.hot::before {
-      opacity: 1;
-      transform: scale(1);
-    }
-
+    /* Hover (.hot) cursor: no sparkle — the arrow just grows and turns purple.
+       The cursor keeps mix-blend-mode: difference (set on .cursor-arrow), so it
+       still shows the inverse of whatever is underneath. To read as purple over
+       the light paper, the arrow is filled with the complementary green, which
+       the difference blend flips into violet — the same reason it already looks
+       purple over the darker tagline. Only background-image is overridden, so the
+       center / contain sizing from the base rule carries over. */
     .cursor-arrow.hot {
-      transform: scale(1.12);
+      transform: scale(1.18);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cfilter id='wp'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.04' numOctaves='2' seed='4' result='n'/%3E%3CfeDisplacementMap in='SourceGraphic' in2='n' scale='0.9'/%3E%3C/filter%3E%3Cpath filter='url(%23wp)' d='M4 3 L26 17 L16 19 L21 31 L17 33 L12 21 L4 24 Z' fill='%2373b904' stroke='%2373b904' stroke-width='1.4' stroke-linejoin='round' stroke-linecap='round'/%3E%3C/svg%3E");
     }
 
     /* Hero fade overlay */
@@ -200,6 +189,366 @@
       animation: drawLine 2s 2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
     }
 
+    /* Location marker — a map-style coordinate readout pinned bottom-right.
+       z-index 1 keeps it above the map background (0) but UNDER the cards and
+       sections (z-index 2), so foreground content scrolls over it. */
+    .location-tag {
+      position: fixed;
+      bottom: max(1.4rem, 2.6vh);
+      right: max(1.6rem, 3.4vw);
+      z-index: 1;
+      pointer-events: none;
+      opacity: 0;
+      font-family: var(--mono);
+      animation: fadeUp 1s 1.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    .loc-text {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      line-height: 1.4;
+    }
+
+    .loc-label {
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(24, 21, 18, 0.38);
+    }
+
+    .loc-row {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin: 2px 0 1px;
+    }
+
+    .loc-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--teal);
+      flex-shrink: 0;
+      animation: locPulse 2.6s ease-out infinite;
+    }
+
+    .loc-name {
+      font-size: 13px;
+      letter-spacing: 0.06em;
+      color: var(--teal);
+    }
+
+    .loc-coords {
+      font-size: 9.5px;
+      letter-spacing: 0.1em;
+      color: rgba(24, 21, 18, 0.4);
+    }
+
+    @keyframes locPulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(26, 107, 107, 0.45);
+      }
+
+      70% {
+        box-shadow: 0 0 0 8px rgba(26, 107, 107, 0);
+      }
+
+      100% {
+        box-shadow: 0 0 0 0 rgba(26, 107, 107, 0);
+      }
+    }
+
+    @media (max-width: 560px) {
+      .loc-coords {
+        display: none;
+      }
+
+      .loc-name {
+        font-size: 10px;
+        letter-spacing: 0.16em;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .loc-dot {
+        animation: none;
+      }
+    }
+
+    /* ─── Nav bar ──────────────────────────────────────────────────────────────── */
+    .nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 60;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem max(1.6rem, 3.4vw);
+      background: rgba(239, 243, 241, 0.78);
+      -webkit-backdrop-filter: blur(10px) saturate(1.1);
+      backdrop-filter: blur(10px) saturate(1.1);
+      border-bottom: 1.5px solid rgba(40, 36, 33, 0.12);
+      opacity: 0;
+      animation: fadeDown 0.9s 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    @keyframes fadeDown {
+      from {
+        opacity: 0;
+        transform: translateY(-14px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Wordmark — handwritten signature (cursive) */
+    .nav-brand {
+      font-family: 'Caveat', cursive;
+      font-size: clamp(22px, 2.2vw, 28px);
+      font-weight: 400;
+      color: var(--ink);
+      text-decoration: none;
+      line-height: 1;
+      transition: color 0.3s ease;
+    }
+
+    .nav-brand:hover {
+      color: var(--yellow);
+    }
+
+    /* Right-side parent links — DM Mono, uppercase */
+    .nav-menu {
+      display: flex;
+      align-items: center;
+      gap: clamp(1.2rem, 2.4vw, 2.6rem);
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .nav-item {
+      position: relative;
+    }
+
+    .nav-parent {
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ink);
+      text-decoration: none;
+      background: none;
+      border: none;
+      cursor: none;
+      padding: 0.4rem 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      white-space: nowrap;
+      transition: color 0.3s ease;
+    }
+
+    .nav-parent:hover,
+    .nav-item:hover .nav-parent,
+    .nav-item:focus-within .nav-parent {
+      color: var(--yellow);
+    }
+
+    /* little caret on items that have a submenu */
+    .nav-caret {
+      width: 7px;
+      height: 7px;
+      border-right: 1.5px solid currentColor;
+      border-bottom: 1.5px solid currentColor;
+      transform: rotate(45deg) translateY(-1px);
+      transition: transform 0.3s ease;
+    }
+
+    .nav-item:hover .nav-caret,
+    .nav-item:focus-within .nav-caret {
+      transform: rotate(225deg) translateY(-1px);
+    }
+
+    /* Dropdown — children in cursive */
+    .nav-drop {
+      position: absolute;
+      top: calc(100% + 0.7rem);
+      right: 0;
+      min-width: 210px;
+      background: rgba(250, 248, 244, 0.97);
+      border: 1.5px solid rgba(40, 36, 33, 0.42);
+      border-radius: 3px;
+      box-shadow: 4px 4px 0 rgba(40, 36, 33, 0.1);
+      padding: 0.6rem 0;
+      list-style: none;
+      margin: 0;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-6px);
+      transition: opacity 0.28s ease, transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), visibility 0.28s;
+    }
+
+    .nav-item:hover .nav-drop,
+    .nav-item:focus-within .nav-drop {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    /* hover bridge so the cursor can cross the gap without the menu closing */
+    .nav-drop::before {
+      content: '';
+      position: absolute;
+      top: -0.7rem;
+      left: 0;
+      right: 0;
+      height: 0.7rem;
+    }
+
+    .nav-child {
+      display: block;
+      font-family: 'Caveat', cursive;
+      font-size: 20px;
+      line-height: 1.2;
+      color: var(--ink);
+      text-decoration: none;
+      padding: 0.4rem 1.3rem;
+      white-space: nowrap;
+      transition: color 0.25s ease, background 0.25s ease;
+    }
+
+    .nav-child:hover {
+      color: var(--yellow);
+      background: rgba(201, 162, 39, 0.1);
+    }
+
+    /* Hamburger — hidden on desktop */
+    .nav-toggle {
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      gap: 5px;
+      width: 30px;
+      height: 30px;
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: none;
+      z-index: 61;
+    }
+
+    .nav-toggle span {
+      display: block;
+      width: 24px;
+      height: 1.8px;
+      background: var(--ink);
+      border-radius: 2px;
+      transition: transform 0.3s ease, opacity 0.3s ease, background 0.3s ease;
+    }
+
+    .nav-toggle:hover span {
+      background: var(--yellow);
+    }
+
+    .nav.open .nav-toggle span:nth-child(1) {
+      transform: translateY(6.8px) rotate(45deg);
+    }
+
+    .nav.open .nav-toggle span:nth-child(2) {
+      opacity: 0;
+    }
+
+    .nav.open .nav-toggle span:nth-child(3) {
+      transform: translateY(-6.8px) rotate(-45deg);
+    }
+
+    @media (max-width: 760px) {
+      .nav-toggle {
+        display: flex;
+        position: absolute;
+        top: 50%;
+        right: max(1.6rem, 3.4vw);
+        transform: translateY(-50%);
+      }
+
+      .nav-menu {
+        position: fixed;
+        top: 0;
+        right: 0;
+        height: 100vh;
+        width: min(80vw, 320px);
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: flex-start;
+        gap: 0.4rem;
+        padding: 5.5rem 2rem 2rem;
+        background: rgba(239, 243, 241, 0.97);
+        -webkit-backdrop-filter: blur(12px);
+        backdrop-filter: blur(12px);
+        border-left: 1.5px solid rgba(40, 36, 33, 0.14);
+        box-shadow: -8px 0 30px rgba(40, 36, 33, 0.08);
+        transform: translateX(100%);
+        transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+        overflow-y: auto;
+      }
+
+      .nav.open .nav-menu {
+        transform: translateX(0);
+      }
+
+      .nav-item {
+        width: 100%;
+      }
+
+      .nav-parent {
+        width: 100%;
+        justify-content: space-between;
+        padding: 0.7rem 0;
+        font-size: 13px;
+      }
+
+      /* mobile: submenu is an inline accordion, not a floating dropdown */
+      .nav-drop {
+        position: static;
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+        min-width: 0;
+        width: 100%;
+        background: none;
+        border: none;
+        box-shadow: none;
+        padding: 0 0 0.4rem 0.8rem;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.35s ease;
+      }
+
+      .nav-item.open>.nav-drop {
+        max-height: 320px;
+      }
+
+      .nav-drop::before {
+        display: none;
+      }
+
+      .nav-child {
+        padding: 0.3rem 0;
+        font-size: 22px;
+      }
+
+      .nav-item.open .nav-caret {
+        transform: rotate(225deg) translateY(-1px);
+      }
+    }
+
     /* Hero */
     .hero {
       position: relative;
@@ -208,7 +557,7 @@
       flex-direction: column;
       justify-content: center;
       align-items: flex-start;
-      padding: 12vh max(2rem, 4vw) 10vh max(6rem, 13vw);
+      padding: 19vh max(2rem, 4vw) 10vh max(6rem, 13vw);
     }
 
     /* Name — typewriter fills this in */
@@ -252,20 +601,46 @@
     }
 
     .hero-gif {
+      /* --gif-size is the single knob: diameter of the circle. radius = half of it. */
+      --gif-size: 170px;
       grid-column: 1;
       grid-row: 1;
-      display: block;
       align-self: center;
-      width: auto;
-      height: auto;
-      max-width: 220px;
-      min-width: 60px;
-      object-fit: cover;
-      object-position: center top;
-      border-radius: 4px;
+      position: relative;
+      width: var(--gif-size);
+      height: var(--gif-size);
+      border-radius: 50%;
+      overflow: hidden;
       opacity: 0;
       animation: fadeUp 1s 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
       transition: opacity 0.5s ease;
+    }
+
+    .hero-gif img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center top;
+      /* zoom in to crop the whitespace baked around the illustration so the
+         circle hugs the drawing. raise this if the frame still looks too big. */
+      transform: scale(1.18);
+      display: block;
+    }
+
+    /* yellow wash on hover — matches the buttons' tint */
+    .hero-gif::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: rgba(201, 162, 39, 0.28);
+      opacity: 0;
+      transition: opacity 0.35s ease;
+      pointer-events: none;
+    }
+
+    .hero-gif:hover::after {
+      opacity: 1;
     }
 
     .hero-words-col {
@@ -527,23 +902,15 @@
 
     /* ─── Sections below the hero ─────────────────────────────── */
     .section-label {
-      font-family: var(--mono);
-      font-size: 11px;
-      letter-spacing: 0.28em;
-      text-transform: uppercase;
-      color: var(--teal);
+      font-family: 'Caveat', cursive;
+      font-size: clamp(16px, 1.6vw, 20px);
+      font-weight: 400;
+      letter-spacing: 0.01em;
+      color: var(--ink);
       margin-bottom: 2.4rem;
       display: flex;
       align-items: center;
       gap: 0.9rem;
-    }
-
-    .section-label::before {
-      content: '';
-      width: 28px;
-      height: 1px;
-      background: var(--teal);
-      opacity: 0.5;
     }
 
     .featured {
@@ -564,20 +931,18 @@
       display: flex;
       flex-direction: column;
       padding: 1.8rem 1.6rem;
-      background: rgba(255, 255, 255, 0.35);
-      border: 1px solid rgba(26, 107, 107, 0.18);
-      border-radius: 6px;
+      background: rgba(250, 248, 244, 0.9);
+      border: 1.5px solid rgba(40, 36, 33, 0.42);
+      border-radius: 2px;
       text-decoration: none;
       color: inherit;
-      transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
-        box-shadow 0.4s ease, border-color 0.4s ease, background 0.4s ease;
+      box-shadow: 4px 4px 0 rgba(40, 36, 33, 0.1);
+      transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.4s ease;
     }
 
     .project-card:hover {
-      transform: translateY(-5px);
-      background: rgba(255, 255, 255, 0.6);
-      border-color: var(--teal);
-      box-shadow: 0 16px 40px rgba(26, 107, 107, 0.12);
+      transform: translate(-3px, -3px);
+      box-shadow: 7px 7px 0 rgba(40, 36, 33, 0.14);
     }
 
     .project-num {
@@ -621,7 +986,7 @@
       color: var(--teal);
       padding: 0.3em 0.7em;
       border: 1px solid rgba(26, 107, 107, 0.3);
-      border-radius: 999px;
+      border-radius: 2px;
     }
 
     .about-cta {
@@ -642,7 +1007,8 @@
       padding: 0.9rem 1.8rem;
       border: 1.5px solid var(--ink);
       border-radius: 0;
-      transition: background 0.35s ease, color 0.35s ease, border-color 0.35s ease, gap 0.35s ease;
+      box-shadow: 3px 3px 0 rgba(40, 36, 33, 0.1);
+      transition: background 0.35s ease, color 0.35s ease, border-color 0.35s ease, gap 0.35s ease, box-shadow 0.35s ease;
     }
 
     .about-btn span {
@@ -650,10 +1016,11 @@
     }
 
     .about-btn:hover {
-      background: rgba(201, 162, 39, 0.2);
+      background: rgba(201, 162, 39, 0.14);
       color: var(--teal);
       border-color: var(--yellow);
       gap: 0.9rem;
+      box-shadow: 5px 5px 0 rgba(201, 162, 39, 0.18);
     }
 
     .contact-section {
@@ -663,6 +1030,7 @@
       max-width: 880px;
       margin: 0 auto;
       text-align: center;
+      scroll-margin-top: 5rem;
     }
 
     .contact-heading {
@@ -694,11 +1062,12 @@
       justify-content: center;
       width: 46px;
       height: 46px;
-      border-radius: 50%;
+      border-radius: 2px;
       color: var(--ink);
-      border: 1px solid rgba(26, 107, 107, 0.22);
+      border: 1.5px solid rgba(40, 36, 33, 0.28);
+      box-shadow: 2px 2px 0 rgba(40, 36, 33, 0.08);
       transition: color 0.35s ease, border-color 0.35s ease,
-        background 0.35s ease, transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+        background 0.35s ease, transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s ease;
     }
 
     .social-link svg {
@@ -710,8 +1079,73 @@
     .social-link:hover {
       color: var(--teal);
       border-color: var(--yellow);
-      background: rgba(201, 162, 39, 0.2);
-      transform: translateY(-3px);
+      background: rgba(201, 162, 39, 0.14);
+      transform: translate(-2px, -2px);
+      box-shadow: 4px 4px 0 rgba(40, 36, 33, 0.12);
+    }
+
+    /* Hover invite annotation — absolutely positioned above Storyteller */
+    .hover-invite {
+      position: absolute;
+      bottom: calc(100% - 0.8rem);
+      right: 0.6rem;
+      display: inline-flex;
+      align-items: flex-end;
+      gap: 0.3rem;
+      opacity: 0;
+      transition: opacity 0.9s ease;
+      pointer-events: none;
+      white-space: nowrap;
+      z-index: 10;
+    }
+
+    .hover-invite.visible {
+      opacity: 1;
+    }
+
+    .hover-invite-text {
+      font-family: 'Caveat', cursive;
+      font-size: clamp(14px, 1.5vw, 19px);
+      color: rgba(24, 21, 18, 0.48);
+      font-weight: 400;
+      letter-spacing: 0.01em;
+    }
+
+    .invite-arrow {
+      width: 26px;
+      height: 38px;
+      color: rgba(24, 21, 18, 0.38);
+      flex-shrink: 0;
+    }
+
+    /* Scroll-reveal: everything below the hero fades/rises in as it enters the viewport */
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.7s ease, transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+      will-change: opacity, transform;
+    }
+
+    .reveal.is-visible {
+      opacity: 1;
+      transform: none;
+    }
+
+    /* Stagger the project cards so they cascade in rather than appearing at once */
+    .projects-grid .project-card.reveal:nth-child(2) {
+      transition-delay: 0.12s;
+    }
+
+    .projects-grid .project-card.reveal:nth-child(3) {
+      transition-delay: 0.24s;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .reveal {
+        opacity: 1;
+        transform: none;
+        transition: none;
+      }
     }
 
     @media (max-width: 760px) {
@@ -724,6 +1158,37 @@
 
 <body>
 
+  <nav class="nav" id="nav">
+    <a class="nav-brand" href="index.html">Khushali Haji</a>
+    <button class="nav-toggle" id="navToggle" aria-label="Menu" aria-expanded="false" aria-controls="navMenu">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-menu" id="navMenu">
+      <li class="nav-item">
+        <a class="nav-parent" href="about.html">About</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-parent" href="#">Product &amp; Design <i class="nav-caret"></i></a>
+        <ul class="nav-drop">
+          <li><a class="nav-child" href="#">Civic Tech &amp; UX</a></li>
+          <li><a class="nav-child" href="#">Content &amp; Graphic Design</a></li>
+          <li><a class="nav-child" href="#">Urban Design</a></li>
+        </ul>
+      </li>
+      <li class="nav-item">
+        <a class="nav-parent" href="#">Research &amp; Stories <i class="nav-caret"></i></a>
+        <ul class="nav-drop">
+          <li><a class="nav-child" href="#">Journalism &amp; Reporting</a></li>
+          <li><a class="nav-child" href="#">Film &amp; Video</a></li>
+          <li><a class="nav-child" href="#">Essays</a></li>
+        </ul>
+      </li>
+      <li class="nav-item">
+        <a class="nav-parent" href="#contact">Contact</a>
+      </li>
+    </ul>
+  </nav>
+
   <canvas id="mapGrid"></canvas>
   <div class="bg-orb"></div>
   <div class="hero-fade" id="heroFade"></div>
@@ -732,26 +1197,47 @@
   <div class="progress-line"></div>
   <canvas id="ray-canvas"></canvas>
 
+  <div class="location-tag" aria-label="Current location: New York">
+    <span class="loc-text">
+      <span class="loc-label">Current Location</span>
+      <span class="loc-row">
+        <span class="loc-dot"></span>
+        <span class="loc-name">New York</span>
+      </span>
+      <span class="loc-coords">40.71&deg; N, 74.01&deg; W</span>
+    </span>
+  </div>
+
   <section class="hero">
     <div class="hero-content">
-      <img src="pics.gif" class="hero-gif" alt="">
+      <span class="hero-gif"><img src="pics.gif" alt=""></span>
       <div class="hero-words-col">
         <p class="hero-name" id="heroName"></p>
         <div class="words-row">
           <span class="word-trigger" data-key="research">Researcher.</span>
           <span class="word-trigger" data-key="design">Designer.</span>
           <span class="word-trigger" data-key="storytelling">Storyteller.</span>
+          <span class="hover-invite" id="hoverInvite">
+            <span class="hover-invite-text">hover</span>
+            <svg class="invite-arrow" viewBox="0 0 26 40" fill="none" stroke="currentColor" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path d="M 22 4 C 18 14, 10 26, 4 38" stroke-width="1.7" />
+              <path d="M 4 38 L 11 33 M 4 38 L 9 29" stroke-width="1.7" />
+            </svg>
+          </span>
         </div>
       </div>
       <div class="hero-body">
-        <p>I am a <strong>researcher</strong> by heart, and a <strong>designer</strong> by consequence of finding ways to
+        <p>I am a <strong>researcher</strong> by heart, and a <strong>designer</strong> by consequence of finding ways
+          to
           fill those gaps. I'm now applying that instinct to <strong>AI-native</strong> tools, building products that
           make complex systems legible, most recently for communities underserved by existing civic and
           public-interest tech.</p>
         <p>My work has taken me from informal settlements in India to forests marked for carbon credits in Liberia, from
           policy reporting in New York to building AI products for international conflict researchers. I
           trained as an <strong>urban designer</strong>, retrained as a <strong>journalist</strong>, and now design and
-          <strong>prototype AI-native tools</strong> as the next iteration of that same instinct.</p>
+          <strong>prototype AI-native tools</strong> as the next iteration of that same instinct.
+        </p>
         <p>I'm based in <strong>New York</strong>, looking for roles at the intersection of <strong>AI product
             design</strong>, <strong>UX research</strong>, and <strong>public-interest storytelling</strong>.</p>
       </div>
@@ -760,13 +1246,14 @@
 
   <!-- FEATURED PROJECTS -->
   <section class="featured">
-    <p class="section-label">Featured Projects</p>
+    <p class="section-label reveal">Featured Projects</p>
     <div class="projects-grid">
-      <a class="project-card" href="case-studies/conflict-lens.html">
+      <a class="project-card reveal" href="case-studies/conflict-lens.html">
         <span class="project-num">01</span>
         <h3 class="project-title">Conflict Lens</h3>
         <p class="project-desc">Turns a single news article into a geo-referenced, bias-aware conflict briefing, in
-          under a minute. A map-first dashboard that synthesizes location, actors, history, and source slant in one view.
+          under a minute. A map-first dashboard that synthesizes location, actors, history, and source slant in one
+          view.
         </p>
         <div class="project-tags">
           <span class="tag">Product Design</span>
@@ -774,7 +1261,7 @@
           <span class="tag">Mapping</span>
         </div>
       </a>
-      <a class="project-card" href="#">
+      <a class="project-card reveal" href="#">
         <span class="project-num">02</span>
         <h3 class="project-title">Project 2</h3>
         <p class="project-desc">A short one to two line descriptor of what this project explored and why it mattered.
@@ -784,7 +1271,7 @@
           <span class="tag">Storytelling</span>
         </div>
       </a>
-      <a class="project-card" href="#">
+      <a class="project-card reveal" href="#">
         <span class="project-num">03</span>
         <h3 class="project-title">Project 3</h3>
         <p class="project-desc">A short one to two line descriptor of what this project explored and why it mattered.
@@ -797,15 +1284,16 @@
       </a>
     </div>
 
-    <div class="about-cta">
+    <div class="about-cta reveal">
       <a class="about-btn" href="about.html">Learn more about me <span>&rarr;</span></a>
     </div>
   </section>
 
   <!-- CONTACT -->
-  <section class="contact-section">
-    <h2 class="contact-heading">Would love to talk!<br><span class="ch-light">What cool projects are you working on?</span></h2>
-    <div class="social-links">
+  <section class="contact-section" id="contact">
+    <h2 class="contact-heading reveal">Would love to talk!<br><span class="ch-light">What cool projects are you working
+        on?</span></h2>
+    <div class="social-links reveal">
       <a class="social-link" href="https://www.instagram.com/khushalihaji/" target="_blank" rel="noopener"
         aria-label="Instagram">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
@@ -830,6 +1318,14 @@
           stroke-linejoin="round">
           <rect x="2.5" y="4.5" width="19" height="15" rx="2.5"></rect>
           <path d="M3.5 6.5 12 13l8.5-6.5"></path>
+        </svg>
+      </a>
+      <a class="social-link" href="https://github.com/khushali-haji" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
+          stroke-linejoin="round">
+          <path
+            d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22">
+          </path>
         </svg>
       </a>
     </div>
@@ -1127,6 +1623,11 @@
           // light up the tagline highlight a beat after the body has settled in
           triggers.forEach((w, k) =>
             setTimeout(() => w.classList.add('lit'), 900 + k * 220));
+          // show the hover invite annotation
+          setTimeout(() => {
+            const inv = document.getElementById('hoverInvite');
+            if (inv) inv.classList.add('visible');
+          }, 2400);
         }
       })();
     }
@@ -1278,10 +1779,16 @@
       // Measure the word at rest. The "breathe" keyframe scales it, so without this the
       // box (and therefore every leader length) depends on the animation phase at hover —
       // making the arrows look a different length each time. Neutralise it while measuring.
-      const prevAnim = el.style.animation, prevTransform = el.style.transform;
+      // Also kill the transform transition: if the word (or a just-collapsed previous
+      // composition) is still animating its translateY, setting transform:none won't take
+      // effect synchronously and getBoundingClientRect would read the mid-transition
+      // position — making the measured centre depend on hover timing/approach direction.
+      const prevAnim = el.style.animation, prevTransform = el.style.transform, prevTransition = el.style.transition;
+      el.style.transition = 'none';
       el.style.animation = 'none';
       el.style.transform = 'none';
       const r = el.getBoundingClientRect();
+      el.style.transition = prevTransition;
       el.style.animation = prevAnim;
       el.style.transform = prevTransform;
       // Strip the hover padding so leaders start from the text itself, not the
@@ -1632,6 +2139,14 @@
 
     triggers.forEach((el, idx) => {
       el.addEventListener('mouseenter', () => {
+        // dismiss the hover invite permanently on first hover
+        const inv = document.getElementById('hoverInvite');
+        if (inv) {
+          inv.style.transition = 'opacity 0.4s ease';
+          inv.style.opacity = '0';
+          setTimeout(() => inv.remove(), 450);
+        }
+
         startExpand(el.dataset.key);
         fade.classList.add('active');
         document.body.classList.add('ray-active');
@@ -1661,6 +2176,82 @@
         e.clientY < hoverBounds.top + offY || e.clientY > hoverBounds.bottom + offY;
       if (outside) collapse();
     });
+
+    // ─── Scroll reveal ────────────────────────────────────────────────────────────
+    // Fade/rise elements below the hero into view as the user scrolls down to them.
+    (function initReveal() {
+      const items = document.querySelectorAll('.reveal');
+      if (!items.length) return;
+
+      // No IntersectionObserver (or reduced motion) → just show everything.
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (reduce || !('IntersectionObserver' in window)) {
+        items.forEach(el => el.classList.add('is-visible'));
+        return;
+      }
+
+      const io = new IntersectionObserver((entries, obs) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+            obs.unobserve(entry.target); // reveal once, then stop watching
+          }
+        });
+      }, { threshold: 0.15, rootMargin: '0px 0px -8% 0px' });
+
+      items.forEach(el => io.observe(el));
+    })();
+
+    // ─── Nav: hamburger + mobile submenu accordion ────────────────────────────────
+    (function initNav() {
+      const nav = document.getElementById('nav');
+      const toggle = document.getElementById('navToggle');
+      const menu = document.getElementById('navMenu');
+      if (!nav || !toggle || !menu) return;
+
+      const mobile = () => window.matchMedia('(max-width: 760px)').matches;
+
+      function closeMenu() {
+        nav.classList.remove('open');
+        toggle.setAttribute('aria-expanded', 'false');
+        nav.querySelectorAll('.nav-item.open').forEach(i => i.classList.remove('open'));
+      }
+
+      toggle.addEventListener('click', () => {
+        const open = nav.classList.toggle('open');
+        toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+        if (!open) nav.querySelectorAll('.nav-item.open').forEach(i => i.classList.remove('open'));
+      });
+
+      // On mobile, a parent that owns a submenu toggles its accordion instead of navigating.
+      nav.querySelectorAll('.nav-item').forEach(item => {
+        const parent = item.querySelector('.nav-parent');
+        const drop = item.querySelector('.nav-drop');
+        if (!parent) return;
+        parent.addEventListener('click', e => {
+          if (mobile() && drop) {
+            e.preventDefault();
+            const wasOpen = item.classList.contains('open');
+            nav.querySelectorAll('.nav-item.open').forEach(i => i.classList.remove('open'));
+            if (!wasOpen) item.classList.add('open');
+          } else {
+            // real link (About / Contact / a child) → close the drawer after the tap
+            closeMenu();
+          }
+        });
+      });
+
+      // Tapping a child link closes the whole drawer
+      nav.querySelectorAll('.nav-child').forEach(c => c.addEventListener('click', closeMenu));
+
+      // Close the drawer when tapping outside it
+      document.addEventListener('click', e => {
+        if (nav.classList.contains('open') && !nav.contains(e.target)) closeMenu();
+      });
+
+      // Reset state if resizing from mobile back to desktop
+      window.addEventListener('resize', () => { if (!mobile()) closeMenu(); });
+    })();
   </script>
 </body>
 
