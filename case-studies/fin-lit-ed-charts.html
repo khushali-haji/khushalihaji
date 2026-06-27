@@ -58,11 +58,8 @@
 
   <!-- ============ VERSION A ============ -->
   <section class="panel active" id="A">
-    <h2>1 · The Paradox</h2>
-    <p class="note">Tall bars = how many in each community hit this hardship. The gold line = how many actually took a financial-education course. The gap between them is the entire argument for the app.</p>
-    <div class="ctrl">Vulnerability metric:
-      <select id="aMetric"></select>
-    </div>
+    <h2>1 · The Paradox, All At Once</h2>
+    <p class="note">Every community against every hardship in one grid — darker = more of that group affected. Hover any cell for the exact figure, and drag the scale at the bottom to isolate a severity band and compare across rows. Note the near-blank <em>Took Fin Ed</em> column on the right: barely anyone in any community actually gets help.</p>
     <div id="aParadox" class="chart"></div>
 
     <h2 style="margin-top:36px">2 · Resilience Over Time</h2>
@@ -135,21 +132,31 @@ const AXIS = {color:'#5b554d',fontFamily:'DM Mono',fontSize:11};
 const fillSelect=(el,opts)=>{el.innerHTML=opts.map(o=>`<option>${o}</option>`).join('')};
 
 /* ---------------- chart builders ---------------- */
-// Paradox: vulnerability bars (by group) + fin-ed line
-function paradoxOption(metricIdx){
-  const vals = GROUPS.map(g=>VULN[g][metricIdx]);
+// Paradox heatmap: groups x (5 vulnerabilities + fin-ed), every value visible
+function paradoxOption(){
+  const cols = [...METRICS,'Took Fin Ed'];
+  const colShort = ['No Emergency\nFund','Spends >\nIncome','Struggles\nw/ Bills','Bank\nOverdrafts','Predatory\nLenders','Took Fin\nEd'];
+  const data=[];
+  GROUPS.forEach((g,yi)=>{
+    cols.forEach((c,xi)=>{
+      const v = xi<5 ? VULN[g][xi] : FINED[g];
+      data.push({value:[xi,yi,v],label:{color:v>45?'#fff':'#181512'}});
+    });
+  });
   return {
-    grid:{left:48,right:24,top:48,bottom:36},
-    legend:{data:['Took financial ed'],right:10,top:8,textStyle:AXIS},
-    tooltip:{trigger:'axis',axisPointer:{type:'shadow'}},
-    xAxis:{type:'category',data:GROUPS.map(g=>SHORT[g]),axisLabel:AXIS,axisLine:{lineStyle:{color:'#cfd4d1'}}},
-    yAxis:{type:'value',max:80,name:'% of group',nameTextStyle:AXIS,axisLabel:{...AXIS,formatter:'{value}%'},splitLine:{lineStyle:{color:'#e6eae7'}}},
-    series:[
-      {type:'bar',name:METRICS[metricIdx],data:vals.map((v,i)=>({value:v,itemStyle:{color:COLOR[GROUPS[i]],borderRadius:[3,3,0,0]}})),barWidth:'46%',
-        label:{show:true,position:'top',formatter:'{c}%',color:'#181512',fontFamily:'DM Mono',fontSize:11}},
-      {type:'line',name:'Took financial ed',data:GROUPS.map(g=>FINED[g]),symbol:'circle',symbolSize:9,lineStyle:{color:'#181512',width:2,type:'dashed'},itemStyle:{color:'#181512'},
-        label:{show:true,position:'bottom',formatter:'{c}%',color:'#181512',fontFamily:'DM Mono',fontSize:10}}
-    ]
+    grid:{left:96,right:24,top:14,bottom:88},
+    tooltip:{position:'top',formatter:p=>`${GROUPS[p.value[1]]}<br/>${cols[p.value[0]]}: <b>${p.value[2]}%</b>`},
+    xAxis:{type:'category',data:colShort,splitArea:{show:true},axisTick:{show:false},
+      axisLabel:{...AXIS,interval:0,lineHeight:13},axisLine:{lineStyle:{color:'#cfd4d1'}}},
+    yAxis:{type:'category',data:GROUPS.map(g=>SHORT[g]),splitArea:{show:true},axisTick:{show:false},
+      axisLabel:AXIS,axisLine:{lineStyle:{color:'#cfd4d1'}}},
+    visualMap:{min:0,max:80,calculable:true,orient:'horizontal',left:'center',bottom:8,
+      itemWidth:14,itemHeight:160,textStyle:AXIS,text:['high need','low'],
+      inRange:{color:['#f3efe7','#e8cf9a','#d99b4e','#b5562f','#7a2f17']}},
+    series:[{type:'heatmap',data,
+      label:{show:true,formatter:p=>p.value[2]+'%',fontFamily:'DM Mono',fontSize:11},
+      itemStyle:{borderColor:'#eff3f1',borderWidth:3},
+      emphasis:{itemStyle:{borderColor:'#181512',borderWidth:2,shadowBlur:8,shadowColor:'rgba(0,0,0,0.25)'}}}]
   };
 }
 function timelineOption(band,focus){
@@ -202,11 +209,9 @@ function initTab(name){
   if(initd[name]) {Object.values(charts).forEach(c=>c.resize());return;}
   initd[name]=true;
   if(name==='A'){
-    fillSelect(aMetric,METRICS); aMetric.value='Struggles to Pay Bills';
     fillSelect(aBand,BANDS); aBand.value='$25,000 to $34,999';
-    mk('aParadox',paradoxOption(METRICS.indexOf(aMetric.value)));
+    mk('aParadox',paradoxOption());
     mk('aTime',timelineOption(aBand.value));
-    aMetric.onchange=()=>charts.aParadox.setOption(paradoxOption(METRICS.indexOf(aMetric.value)),true);
     aBand.onchange=()=>charts.aTime.setOption(timelineOption(aBand.value),true);
   }
   if(name==='B'){
