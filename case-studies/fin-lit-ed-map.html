@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>FinEd — State Financial Vulnerability Map (NFCS 2009–2024)</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=DM+Mono:wght@400;500&family=Inter:wght@300;400;600&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts-gl@2/dist/echarts-gl.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+<script src="nfcs-state-map-data.js"></script>
+<script src="us-states-geo.js"></script>
+<style>
+  :root{--ink:#181512;--paper:#eff3f1;--teal:#1a6b6b;--yellow:#c9a227;--muted:#5b554d;--line:#d8ddda}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--paper);color:var(--ink);font-family:'Inter',sans-serif;font-weight:300;padding:40px 24px 64px}
+  .wrap{max-width:1080px;margin:0 auto}
+  h1{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:40px;line-height:1.08;margin-bottom:6px}
+  .sub{font-family:'DM Mono',monospace;font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:22px}
+  p.note{font-size:14px;color:var(--muted);max-width:78ch;margin-bottom:18px}
+  .bar{display:flex;flex-wrap:wrap;align-items:center;gap:22px;margin-bottom:8px}
+  .grouplabel{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-right:2px}
+  .seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:#fff}
+  .seg button{font-family:'DM Mono',monospace;font-size:12px;border:none;background:none;padding:8px 15px;cursor:pointer;color:var(--muted)}
+  .seg button.active{background:var(--teal);color:#fff}
+  #mapWrap{position:relative}
+  #map{width:100%;height:600px}
+  #colorMode{display:none}
+  .hint{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-top:4px}
+  .legendrow{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-top:6px}
+  .legendbar{display:flex;align-items:center;gap:10px;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin:2px 0 10px}
+  .legendbar .grad{width:200px;height:11px;border-radius:6px;border:1px solid var(--line)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Where Financial Vulnerability Lives</h1>
+  <div class="sub">NFCS State-by-State Tracking · 2009–2024 · weighted to each state</div>
+  <p class="note">Each state is a 3D block: <strong>color = financial vulnerability</strong> (darker = more vulnerable — averaging five hardships: struggling to pay bills, no 3-month emergency fund, spending more than income, overdrawing checking, predatory borrowing) and <strong>height = average household income</strong> (taller = higher). So a tall dark block = high-income but high-vulnerability; a short dark block = the poor-and-struggling pattern. <strong>Drag to rotate</strong>, scroll to zoom, <strong>hover</strong> for the breakdown, use the <strong>year timeline</strong>, and <strong>filter by income band</strong>.</p>
+  <div class="legendbar" id="vlegend"></div>
+
+  <div class="bar">
+    <span class="grouplabel">Income band</span>
+    <span class="seg" id="grpSeg">
+      <button data-g="ALL" class="active">All</button>
+      <button data-g="Lower">Lower &lt;$35k</button>
+      <button data-g="Middle">Middle $35–100k</button>
+      <button data-g="Higher">Higher $100k+</button>
+    </span>
+  </div>
+  <div class="hint" id="hint">Color = vulnerability · bar height = average income · click a state to pin its tooltip, click again or click empty space to deselect.</div>
+
+  <div id="mapWrap"><div id="map"></div></div>
+  <div class="legendrow" id="legendrow"></div>
+</div>
+
+<script>
+const D=window.NFCS_MAP;
+const VCOLORS=['#eef3f0','#d8e0c9','#e8cf9a','#d99b4e','#b5562f','#7a2f17'];
+const CSCALE=d3.interpolateRgbBasis(VCOLORS);
+const MET=D.metrics;
+let group='ALL';
+let chart;
+
+// Pre-project the GeoJSON with Albers USA so the 3D map is proportional + AK/HI inset.
+(function projectMap(){
+  const proj=d3.geoAlbersUsa().scale(1300).translate([480,300]);
+  let lastValid=[0,0];
+  const pt=p=>{const q=proj(p); if(q){lastValid=[q[0],-q[1]];} return lastValid;};
+  const walk=c=> (typeof c[0]==='number') ? pt(c) : c.map(walk);
+  const feats=window.US_GEO.features.map(f=>({type:'Feature',properties:f.properties,
+    geometry:{type:f.geometry.type,coordinates:walk(f.geometry.coordinates)}}));
+  echarts.registerMap('USA',{type:'FeatureCollection',features:feats});
+})();
+
+// comparable vulnerability color range across all years of the active group
+function vulnRange(g){
+  let lo=Infinity,hi=-Infinity;
+  D.years.forEach(y=>Object.values(D.data[String(y)][g]||{}).forEach(c=>{
+    if(c.vuln!=null){lo=Math.min(lo,c.vuln);hi=Math.max(hi,c.vuln);}}));
+  return [Math.floor(lo),Math.ceil(hi)];
+}
+// income range for the active group (all years) -> full-contrast, dramatic heights
+function incRangeFor(g){
+  let lo=Infinity,hi=-Infinity;
+  D.years.forEach(y=>Object.values(D.data[String(y)][g]||{}).forEach(c=>{
+    if(c.inc!=null){lo=Math.min(lo,c.inc);hi=Math.max(hi,c.inc);}}));
+  return [lo,hi];
+}
+const MAXH=48, BASEH=0.6;
+
+function curYear(){const o=chart&&chart.getOption(); const i=(o&&o.timeline&&o.timeline[0])?o.timeline[0].currentIndex:D.years.length-1; return D.years[i];}
+
+function dataFor(y,g){           // color lives on data items (map3D reads it here)
+  const [lo,hi]=vulnRange(g); const yr=D.data[String(y)][g]||{};
+  return Object.entries(yr).map(([st,c])=>{
+    const tv=hi>lo?(c.vuln-lo)/(hi-lo):.5;
+    return {name:st, value:c.vuln, itemStyle:{color:CSCALE(tv)}};
+  });
+}
+function heightsFor(y,g){        // height per current view's own income spread
+  const [lo,hi]=incRangeFor(g); const yr=D.data[String(y)][g]||{};
+  return Object.entries(yr).map(([st,c])=>{
+    const t=hi>lo?Math.max(0,Math.min(1,(c.inc-lo)/(hi-lo))):.5;
+    return {name:st, height:BASEH+Math.pow(t,1.1)*MAXH};
+  });
+}
+function tooltip(p){
+  const c=(D.data[String(curYear())][group]||{})[p.name];
+  if(!c) return `${p.name}`;
+  const rows=['bills','nef','spend','od','pred'].map(m=>`${MET[m]}: <b>${c[m]??'–'}%</b>`).join('<br/>');
+  const inc=c.inc!=null?`<br/>Avg income (block height): <b>$${(c.inc).toFixed(0)}k</b>`:'';
+  const head=`<b>${p.name}</b> <span style="color:#888">· ${group==='ALL'?'all incomes':group.toLowerCase()+' income'} · n=${c.n}</span>`;
+  return `${head}<br/><span style="color:#b5562f">Vulnerability index: <b>${c.vuln??'–'}</b></span><br/>${rows}${inc}`;
+}
+
+function buildOption(){
+  const baseOption={
+    backgroundColor:'transparent',
+    tooltip:{trigger:'item',formatter:tooltip,borderColor:'#ccc',textStyle:{fontFamily:'Inter',fontSize:12}},
+    series:[{
+      type:'map3D', map:'USA', name:'states',
+      regionHeight:BASEH, shading:'lambert', boxWidth:100, boxDepth:62,
+      itemStyle:{borderWidth:.5,borderColor:'#dfe4e1'},
+      label:{show:false},
+      emphasis:{label:{show:true,textStyle:{color:'#181512',fontFamily:'DM Mono',fontSize:12,backgroundColor:'rgba(255,255,255,.85)',padding:3,borderRadius:2}},
+        itemStyle:{color:'#1a6b6b'}},
+      light:{main:{intensity:.7,shadow:true,shadowQuality:'high',alpha:45,beta:30},ambient:{intensity:.9}},
+      viewControl:{alpha:36,beta:8,distance:140,minDistance:70,maxDistance:260,
+        autoRotate:false,rotateSensitivity:1.4,zoomSensitivity:1.4,panSensitivity:1,
+        damping:.85,center:[0,0,0]},
+      data:dataFor(D.years[D.years.length-1],group),
+      regions:heightsFor(D.years[D.years.length-1],group)
+    }],
+    timeline:{axisType:'category',data:D.years.map(String),currentIndex:D.years.length-1,
+      autoPlay:false,playInterval:1300,left:60,right:60,bottom:6,
+      controlStyle:{color:'#1a6b6b',borderColor:'#1a6b6b'},
+      checkpointStyle:{color:'#b5562f',borderColor:'#b5562f'},
+      lineStyle:{color:'#cfd4d1'},itemStyle:{color:'#9aa39d'},
+      label:{fontFamily:'DM Mono',fontSize:11,color:'#5b554d'},
+      emphasis:{label:{color:'#181512'}}}
+  };
+  const options=D.years.map(y=>({series:[{data:dataFor(y,group),regions:heightsFor(y,group)}]}));
+  return {baseOption,options};
+}
+function render(){
+  const idx=D.years.indexOf(curYear());
+  const opt=buildOption();
+  opt.baseOption.timeline.currentIndex=idx<0?D.years.length-1:idx;
+  chart.setOption(opt,true);
+  const [lo,hi]=vulnRange(group);
+  document.getElementById('legendrow').textContent =
+    group==='ALL' ? 'Color = vulnerability index. Block height = weighted average household income (taller = higher).'
+    : 'Color = vulnerability index for the '+group.toLowerCase()+'-income band. Block height = that band’s average income.';
+  // color legend
+  const stops=VCOLORS.join(',');
+  document.getElementById('vlegend').innerHTML =
+    `less vulnerable (${lo}) <span class="grad" style="background:linear-gradient(90deg,${stops})"></span> more (${hi}) &nbsp;·&nbsp; block height = avg income`;
+}
+
+try{
+  chart=echarts.init(document.getElementById('map'));
+  render();
+}catch(e){
+  document.getElementById('map').innerHTML='<p style="font-family:monospace;color:#b5562f;padding:20px">Map error: '+e+'</p>';
+  console.error(e);
+}
+
+document.querySelectorAll('#grpSeg button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('#grpSeg button').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active'); group=b.dataset.g; render();
+});
+window.addEventListener('resize',()=>chart&&chart.resize());
+</script>
+</body>
+</html>
