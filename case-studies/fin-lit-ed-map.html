@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>FinEd, State Financial Vulnerability Map (NFCS 2009–2024)</title>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Caveat:wght@600;700&family=DM+Mono:wght@400;500&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Caveat:wght@400;500;600;700&family=DM+Mono:wght@400;500&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/deck.gl@8.9.35/dist.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
@@ -28,6 +28,7 @@
   .threecol{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:12px}
   .s1legend{display:flex;gap:18px;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-top:10px;align-items:center}
   .s1legend i{display:inline-block;width:20px;height:0;border-top-width:2.4px;margin-right:6px;vertical-align:middle}
+  .s1legend b{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px}
   .mini{width:100%;height:230px}
   .chartL{width:100%;height:480px}
   .chartM{width:100%;height:430px}
@@ -132,12 +133,9 @@
   .lead{font-size:17px}
   .secnum{font-weight:600;font-size:12px;letter-spacing:.16em;display:inline-flex;align-items:center;gap:9px;color:var(--terra)}
   .secnum::before{content:'';width:26px;height:3px;border-radius:3px;background:var(--yellow);display:inline-block;transform:rotate(-2deg)}
-  .script{font-family:'Caveat',cursive;font-weight:700;color:var(--terra);font-size:1.35em;line-height:.9}
+  .script{font-family:'Caveat',cursive;font-weight:400;color:var(--terra);font-size:1.4em;line-height:.9}
   .hl{background:linear-gradient(transparent 58%,rgba(201,162,39,.42) 58%);padding:0 .06em;border-radius:2px}
-  /* hand-drawn underline on headings */
-  h2{display:inline-block;position:relative;letter-spacing:-.01em;padding-bottom:11px}
-  h2::after{content:"";position:absolute;left:0;bottom:0;width:100%;height:9px;
-    background:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='9' viewBox='0 0 80 9'><path d='M1 5 Q 10 1 20 5 T 40 5 T 60 5 T 80 5' fill='none' stroke='%23c9a227' stroke-width='2.4' stroke-linecap='round'/></svg>") repeat-x left bottom/80px 9px}
+  h2{letter-spacing:-.01em}
   /* shared hand-drawn card */
   .stat,.card,.persona,.rcard,.step,.exttag{background:#fff;border:2.5px solid var(--ink);
     border-radius:235px 16px 225px 16px/16px 225px 16px 255px;box-shadow:5px 6px 0 rgba(24,21,18,.10)}
@@ -159,7 +157,7 @@
   .persona .picon{width:44px;height:44px;border-radius:14px 8px 16px 8px/8px 16px 8px 14px;display:flex;align-items:center;justify-content:center;margin-bottom:13px}
   .persona .picon svg{width:23px;height:23px}
   .persona .ptag{font-family:'DM Mono',monospace;font-weight:600}
-  .persona .hook{font-family:'Caveat',cursive;font-size:16px;color:var(--teal)}
+  .persona .hook{font-family:'Caveat',cursive;font-weight:400;font-size:17px;color:var(--teal)}
   .p-teal .picon{background:#e0efec;color:var(--teal)} .p-teal .ptag{color:var(--teal);background:#e0efec}
   .p-gold .picon{background:#f6eed2;color:#8a6b12} .p-gold .ptag{color:#8a6b12;background:#f6eed2}
   .p-rust .picon{background:#f6e7e0;color:var(--terra)} .p-rust .ptag{color:var(--terra);background:#f6e7e0}
@@ -168,14 +166,12 @@
   .hero .herocard{background:#fff;border:3px solid var(--ink);
     border-radius:255px 18px 235px 18px/18px 235px 18px 255px;box-shadow:8px 9px 0 rgba(26,107,107,.18);
     color:var(--ink);padding:clamp(40px,6vw,72px) clamp(28px,5vw,60px)}
-  .hero-kicker{font-family:'Caveat',cursive;font-weight:700;font-size:44px;color:var(--terra);line-height:1;margin-bottom:0}
+  .hero-kicker{font-family:'Caveat',cursive;font-weight:400;font-size:46px;color:var(--terra);line-height:1;margin-bottom:0}
   .hero .herocard h1{color:var(--ink);font-size:clamp(42px,6.2vw,76px);line-height:1.0;margin:0 0 18px}
   .hero .herocard .eyebrow{color:var(--teal);margin-bottom:16px}
   .hero .herocard .herosub{color:#4a463f;max-width:60ch}
   /* roadmap */
-  .roadmap.two{grid-template-columns:1fr 1fr}
-  .rcard.success h3{color:var(--teal)}
-  .rcard.success li::before{background:var(--terra)}
+  .roadmap.one{grid-template-columns:minmax(0,480px)}
 </style>
 </head>
 <body>
@@ -185,7 +181,7 @@
       <div class="hero-kicker">the case for</div>
       <h1>A Financial Literacy Education App</h1>
       <div class="eyebrow">Personalized learning, powered by AI</div>
-      <p class="herosub">Built on real data from the National Financial Capability Study and the Survey of Consumer Finances. Every claim here comes from what households report.</p>
+      <p class="herosub">Built on real data from the National Financial Capability Study and the Survey of Consumer Finances. Every claim here comes from <span class="hl">what households report</span>.</p>
     </div>
   </header>
 
@@ -193,7 +189,7 @@
   <section class="nsec reveal">
     <div class="secnum">01 / Why this space</div>
     <h2>The need is big and growing</h2>
-    <p class="lead">Financial education sits between two large markets, fintech and edtech, and a problem the data shows getting worse. We start from measured behavior, not promises.</p>
+    <p class="lead">Financial education sits between two large markets, fintech and edtech, and a problem the data shows getting worse. We start from <span class="hl">measured behavior</span>, not promises.</p>
     <div class="why-stats">
       <div class="stat s-rust"><div class="num">55%</div><div class="lbl">struggled to pay their bills in 2024</div></div>
       <div class="stat s-teal"><div class="num">52%</div><div class="lbl">have no 3 month emergency fund, up since 2021</div></div>
@@ -210,7 +206,7 @@
   <section class="nsec reveal">
     <div class="secnum">02 / The problem</div>
     <h2>One size fits all keeps failing</h2>
-    <p class="note" style="max-width:70ch">Most apps give everyone the same lessons. Three failures follow, and targeting fixes each.</p>
+    <p class="note" style="max-width:70ch">Most apps give everyone the same lessons. Three failures follow, and <span class="hl">targeting fixes each</span>.</p>
     <div class="cards3">
       <div class="card c-rust"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9.5 17H2.5z"/><path d="M12 9.5v5"/><path d="M12 18h.01"/></svg></div><h3>Generic content</h3><p>The same lessons for everyone, ignoring income, habits, and goals.</p></div>
       <div class="card c-gold"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="8" width="16" height="9" rx="2.5"/><path d="M22 11.5v3"/><path d="M6 12.5h4"/></svg></div><h3>User fatigue</h3><p>Too much complexity. People tune out and decide worse.</p></div>
@@ -261,6 +257,13 @@
     <h2>Satisfaction down, vulnerability up, worst at the bottom</h2>
     <p class="note" style="max-width:74ch">Satisfaction peaked in 2021 on pandemic relief, then dropped by 2024. Vulnerability did the opposite. Both are set to their 2009 level of 100 so they share one axis. <strong>Solid lines (satisfaction) drift down, dashed lines (vulnerability) climb.</strong> The <span style="color:#b5562f;font-weight:600">lower income</span> band swings the most.</p>
     <div id="s1b" class="chartL"></div>
+    <div class="s1legend">
+      <span><i style="border-top-style:solid;border-color:#b5562f"></i>Lower income</span>
+      <span><i style="border-top-style:solid;border-color:#c9a227"></i>Middle income</span>
+      <span><i style="border-top-style:solid;border-color:#1a6b6b"></i>Higher income</span>
+      <span style="margin-left:8px"><i style="border-top-style:solid;border-color:#5b554d"></i>satisfaction</span>
+      <span><i style="border-top-style:dashed;border-color:#5b554d"></i>vulnerability</span>
+    </div>
   </section>
 
   <!-- ===================== 05 THE APPETITE ===================== -->
@@ -269,6 +272,11 @@
     <h2>Nonwhite households <span class="script">want it more</span></h2>
     <p class="note" style="max-width:72ch">Each person falls into one of three states: financial education was offered and they <strong>took it</strong>, it was offered and they <strong>skipped it</strong>, or it was <strong>never offered</strong>. Nonwhite households have a bigger took it block and a smaller never offered block. They engage more and are shut out less. Shown for 2024; the pattern holds across 2012 to 2024.</p>
     <div id="s2" class="chartM"></div>
+    <div class="s1legend">
+      <span><b style="background:#1a6b6b"></b>Took it</span>
+      <span><b style="background:#c9a227"></b>Offered, skipped</span>
+      <span><b style="background:#dfe4e1;border:1px solid #c4c9c4"></b>Never offered</span>
+    </div>
     <p class="anote">Nonwhite households are offered financial education more often, and take it more. The one place white households lead is conversion among those already offered, near 74% versus 66%. But far fewer white households are offered it at all, so the appetite still runs higher among minority communities. That is the audience a targeted platform should serve.</p>
   </section>
 
@@ -335,9 +343,8 @@
       <div class="step"><span class="sn">3</span><div><h4>Roadmap</h4><p>A path tuned to income, place, and risks.</p></div></div>
       <div class="step"><span class="sn">4</span><div><h4>Adaptive lessons</h4><p>Content shifts as life changes.</p></div></div>
     </div>
-    <div class="roadmap two">
+    <div class="roadmap one">
       <div class="rcard"><h3>Core MVP</h3><ul><li>Secure user profiles</li><li>Literacy and behavior assessment</li><li>Personalized learning path</li><li>Local context by region</li></ul></div>
-      <div class="rcard success"><h3>How we measure success</h3><ul><li>Bill stress, the share who struggle to pay</li><li>Emergency fund coverage</li><li>Predatory borrowing</li><li>Tracked for active users against the same NFCS measures used here</li></ul></div>
     </div>
   </section>
 </div>
@@ -365,8 +372,8 @@
     series[0].markLine={silent:true,symbol:'none',data:[{yAxis:100}],lineStyle:{color:'#bcb6ad',type:'dotted'},
       label:{formatter:'2009 baseline',color:'#a09a91',fontFamily:'DM Mono',fontSize:9,position:'insideEndTop'}};
     c.setOption({
-      grid:{left:48,right:20,top:78,bottom:28},
-      legend:{type:'plain',top:8,left:'center',textStyle:AX,itemWidth:22,itemHeight:8,itemGap:16},
+      grid:{left:48,right:20,top:24,bottom:28},
+      legend:{show:false},
       tooltip:{trigger:'axis',textStyle:{fontFamily:'Inter',fontSize:11},
         valueFormatter:v=>v==null?'–':v},
       xAxis:{type:'category',data:S1.years.map(String),axisLabel:AX,axisLine:{lineStyle:{color:'#cfd4d1'}},boundaryGap:false},
@@ -388,9 +395,9 @@
     const noff=[W.not_offered[i],NW.not_offered[i]];
     const lab={show:true,formatter:p=>p.value>=4?p.value+'%':'',color:'#fff',fontFamily:'DM Mono',fontSize:11,fontWeight:600};
     c.setOption({
-      grid:{left:96,right:24,top:14,bottom:46},
+      grid:{left:96,right:24,top:16,bottom:28},
       tooltip:{trigger:'item',textStyle:{fontFamily:'Inter',fontSize:11},formatter:p=>`${p.name}, ${p.seriesName}: <b>${p.value}%</b>`},
-      legend:{bottom:6,textStyle:AX,data:['Took it','Offered, skipped','Never offered']},
+      legend:{show:false},
       xAxis:{type:'value',max:100,axisLabel:{...AX,formatter:'{value}%'},splitLine:{lineStyle:{color:'#eef1ef'}}},
       yAxis:{type:'category',data:cats,axisLabel:{fontFamily:'Cormorant Garamond',fontSize:17,color:'#181512'},axisLine:{lineStyle:{color:'#cfd4d1'}},axisTick:{show:false}},
       series:[
