@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>FinEd, State Financial Vulnerability Map (NFCS 2009–2024)</title>
   <link
-    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Caveat:wght@400;500;600;700&family=DM+Mono:wght@400;500&family=Inter:wght@300;400;600;700&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Caveat:wght@400;500;600;700&family=Fredoka:wght@400;500;600;700&family=DM+Mono:wght@400;500&family=Inter:wght@300;400;600;700&display=swap"
     rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/deck.gl@8.9.35/dist.min.js"></script>
@@ -157,13 +157,13 @@
     }
 
     .anote {
-      font-size: 14px;
-      line-height: 1.6;
-      color: #33302b;
+      font-size: 12px;
+      font-style: italic;
+      line-height: 1.7;
+      color: #6b665e;
       max-width: 82ch;
-      margin-top: 16px;
-      padding-left: 14px;
-      border-left: 3px solid var(--teal)
+      margin-top: 30px;
+      text-align: left
     }
 
     .caveat {
@@ -578,6 +578,38 @@
       max-width: 84ch
     }
 
+    .scorecard {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 5px 16px;
+      margin-top: 16px;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--muted)
+    }
+
+    .scorecard .sc-h {
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      font-size: 10px;
+      color: #8a857d
+    }
+
+    .scorecard b {
+      color: var(--terra);
+      font-weight: 500
+    }
+
+    .dropnote {
+      font-size: 11px;
+      font-style: italic;
+      line-height: 1.7;
+      color: #8a857d;
+      max-width: 86ch;
+      margin-top: 14px
+    }
+
     /* ---- 3 cards (problem) ---- */
     .cards3 {
       display: grid;
@@ -608,11 +640,12 @@
     }
 
     .card h3 {
-      font-family: 'Cormorant Garamond', serif;
-      font-weight: 600;
-      font-size: 23px;
+      font-family: 'Caveat', cursive;
+      font-weight: 400;
+      font-size: 32px;
+      line-height: 1.05;
       color: var(--teal);
-      margin-bottom: 9px
+      margin-bottom: 6px
     }
 
     .card p {
@@ -651,10 +684,11 @@
     }
 
     .persona h3 {
-      font-family: 'Cormorant Garamond', serif;
-      font-weight: 600;
-      font-size: 23px;
-      margin-bottom: 7px
+      font-family: 'Caveat', cursive;
+      font-weight: 400;
+      font-size: 32px;
+      line-height: 1.05;
+      margin-bottom: 5px
     }
 
     .persona p {
@@ -729,11 +763,12 @@
     }
 
     .rcard h3 {
-      font-family: 'Cormorant Garamond', serif;
-      font-weight: 600;
-      font-size: 21px;
+      font-family: 'Caveat', cursive;
+      font-weight: 400;
+      font-size: 32px;
+      line-height: 1.05;
       color: var(--teal);
-      margin-bottom: 13px
+      margin-bottom: 10px
     }
 
     .rcard ul {
@@ -1089,7 +1124,7 @@
     <header class="hero">
       <div class="herocard">
         <div class="hero-kicker">the case for</div>
-        <h1>A Financial Literacy Education App</h1>
+        <h1>A Fin-Lit Education App</h1>
         <div class="eyebrow">Personalized learning, powered by AI</div>
         <p class="herosub">Built on real data from the National Financial Capability Study and the Survey of Consumer
           Finances. Every claim here comes from <span class="hl">what households report</span>.</p>
@@ -1102,6 +1137,14 @@
       <h2>The need is big and growing</h2>
       <p class="lead">Financial education sits between two large markets, fintech and edtech, and a problem the data
         shows getting worse. We start from <span class="hl">measured behavior</span>, not promises.</p>
+      <div class="scorecard">
+        <span class="sc-h">Why fintech and edtech, our scoring</span>
+        <span>Growth potential <b>4/5</b></span>
+        <span>Hiring demand <b>5/5</b></span>
+        <span>Data accessibility <b>4/5</b></span>
+        <span>Pain points <b>5/5</b></span>
+        <span>Total opportunity <b>4.5/5</b></span>
+      </div>
       <div class="why-stats">
         <div class="stat s-rust">
           <div class="num">55%</div>
@@ -1122,6 +1165,8 @@
         <p>Industry estimates, not from this analysis. The annual cost of financial illiteracy is put near <b>$415B</b>,
           and the personal finance app market near <b>$207B by 2026</b>.</p>
       </div>
+      <p class="dropnote">Figures we left out: a $2,500+ loss for the top 15%, a $1,015 average annual loss, and a "cost
+        grows with complexity" curve. These dollar loss figures had no basis in our data, so they were dropped.</p>
     </section>
 
     <!-- ===================== 02 THE PROBLEM ===================== -->
@@ -1382,17 +1427,23 @@
         S1.groups.forEach(gp => {
           const d = S1.data[gp];
           series.push({
-            name: gp + ' · satisfaction', type: 'line', data: indexed(d.sat), smooth: true, symbol: 'circle', symbolSize: 5,
-            lineStyle: { color: GCOL[gp], width: 2.6 }, itemStyle: { color: GCOL[gp] }
+            name: gp + ' · satisfaction', type: 'line', data: indexed(d.sat), smooth: true, symbol: 'circle', symbolSize: 6,
+            lineStyle: { color: GCOL[gp], width: 3.2 }, itemStyle: { color: GCOL[gp] }, emphasis: { focus: 'series' }
           });
           series.push({
-            name: gp + ' · vulnerability', type: 'line', data: indexed(d.vuln), smooth: true, symbol: 'emptyCircle', symbolSize: 5,
-            lineStyle: { color: GCOL[gp], width: 2, type: 'dashed' }, itemStyle: { color: GCOL[gp] }
+            name: gp + ' · vulnerability', type: 'line', data: indexed(d.vuln), smooth: true, symbol: 'emptyCircle', symbolSize: 6,
+            lineStyle: { color: GCOL[gp], width: 2.4, type: 'dashed' }, itemStyle: { color: GCOL[gp] }, emphasis: { focus: 'series' }
           });
         });
         series[0].markLine = {
-          silent: true, symbol: 'none', data: [{ yAxis: 100 }], lineStyle: { color: '#bcb6ad', type: 'dotted' },
-          label: { formatter: '2009 baseline', color: '#a09a91', fontFamily: 'DM Mono', fontSize: 9, position: 'insideEndTop' }
+          silent: true, symbol: 'none', data: [{ yAxis: 100 }],
+          lineStyle: { color: '#8a857d', type: 'solid', width: 1.4 },
+          label: { formatter: '2009 level = 100', color: '#8a857d', fontFamily: 'DM Mono', fontSize: 10, position: 'insideStartTop' }
+        };
+        series[0].markArea = {
+          silent: true, itemStyle: { color: 'rgba(181,86,47,0.07)' },
+          data: [[{ xAxis: '2021' }, { xAxis: '2024' }]],
+          label: { show: true, position: 'insideTop', distance: 8, formatter: '2021 to 2024 reversal', color: '#b5562f', fontFamily: 'DM Mono', fontSize: 10 }
         };
         c.setOption({
           grid: { left: 48, right: 20, top: 24, bottom: 28 },
@@ -1402,7 +1453,7 @@
             valueFormatter: v => v == null ? '–' : v
           },
           xAxis: { type: 'category', data: S1.years.map(String), axisLabel: AX, axisLine: { lineStyle: { color: '#cfd4d1' } }, boundaryGap: false },
-          yAxis: { type: 'value', name: 'index (2009 = 100)', nameTextStyle: AX, axisLabel: AX, splitLine: { lineStyle: { color: '#eef1ef' } }, min: 60, max: 140 },
+          yAxis: { type: 'value', name: 'relative to 2009  (2009 = 100, not absolute level)', nameTextStyle: AX, axisLabel: AX, splitLine: { lineStyle: { color: '#eef1ef' } }, min: 68, max: 130 },
           series
         });
         return c;
