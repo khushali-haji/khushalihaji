@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Conflict Lens Case Study — Khushali Haji</title>
   <link
-    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300;1,600&family=DM+Mono:wght@400;500&family=Playfair+Display:ital,wght@0,400;0,700;1,700;1,900&family=Space+Grotesk:wght@400;500;700&family=Bebas+Neue&family=Syne:wght@600;700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Archivo:wght@500;600;700&family=Inter:wght@200;300;400;500;600;700&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300;1,600&family=DM+Mono:wght@400;500&family=Playfair+Display:ital,wght@0,400;0,700;1,700;1,900&family=Space+Grotesk:wght@400;500;700&family=Bebas+Neue&family=Syne:wght@600;700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Archivo:wght@500;600;700&family=Inter:wght@200;300;400;500;600;700&family=Caveat:wght@400;600&display=swap"
     rel="stylesheet">
   <style>
     *,
@@ -429,6 +429,10 @@
       opacity: 0.6;
     }
 
+    .pullquote.no-quote::before {
+      content: none;
+    }
+
     mark {
       background: rgba(201, 162, 39, 0.22);
       color: inherit;
@@ -460,9 +464,10 @@
     }
 
     .hero-oneliner {
-      font-family: var(--serif);
-      font-style: italic;
-      font-weight: 500;
+      font-family: var(--sans);
+      font-style: normal;
+      font-weight: 200;
+      letter-spacing: -0.02em;
       font-size: clamp(19px, 2.4vw, 26px);
       line-height: 1.4;
       color: rgba(40, 36, 33, 0.8);
@@ -1028,6 +1033,270 @@
       border-radius: 2px;
     }
 
+    /* Problem comparison: real screenshot (nightmare) + Conflict Lens wireframe */
+    .tab-shot {
+      width: 100%;
+    }
+
+    .tab-shot img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border: 2px solid var(--ink);
+      border-radius: 3px;
+      box-shadow: 4px 4px 0 var(--rule);
+    }
+
+    .lens-wire {
+      width: 100%;
+      background: var(--card-paper);
+      border: 2px solid var(--ink);
+      box-shadow: 5px 5px 0 var(--rule);
+      overflow: hidden;
+      font-family: var(--mono);
+    }
+
+    .lw-topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem 0.8rem;
+      border-bottom: 2px solid var(--ink);
+      background: rgba(40, 36, 33, 0.05);
+    }
+
+    .lw-chip {
+      font-size: 8.5px;
+      text-transform: uppercase;
+      font-weight: bold;
+      color: var(--teal);
+      border: 1.5px solid var(--teal);
+      border-radius: 3px;
+      padding: 2px 7px;
+      letter-spacing: 0.05em;
+    }
+
+    .lw-dots {
+      display: flex;
+      gap: 5px;
+    }
+
+    .lw-dots i {
+      width: 8px;
+      height: 8px;
+      border: 1.5px solid var(--ink);
+      border-radius: 50%;
+    }
+
+    .lw-body {
+      display: grid;
+      grid-template-columns: 1fr 1.5fr 1.2fr;
+    }
+
+    .lw-panel {
+      padding: 0.9rem 0.8rem;
+      background: #faf8f5;
+    }
+
+    .lw-left {
+      border-right: 2px dashed var(--ink);
+    }
+
+    .lw-right {
+      border-left: 2px dashed var(--ink);
+    }
+
+    .lw-map {
+      background: var(--blueprint);
+      background-image: radial-gradient(rgba(40, 36, 33, 0.07) 1px, transparent 1px);
+      background-size: 13px 13px;
+      position: relative;
+      min-height: 200px;
+    }
+
+    .lw-h {
+      font-family: var(--serif);
+      font-weight: 600;
+      font-size: 17px;
+      color: var(--ink);
+      margin-bottom: 0.5rem;
+    }
+
+    .lw-k {
+      font-size: 8.5px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--slate);
+      font-weight: bold;
+      border-bottom: 1px solid var(--rule);
+      padding-bottom: 4px;
+      margin-bottom: 9px;
+    }
+
+    .lw-sub {
+      font-size: 8px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--coral);
+      font-weight: bold;
+      margin: 10px 0 6px;
+      border-left: 2px solid var(--coral);
+      padding-left: 5px;
+    }
+
+    .lw-field {
+      margin-bottom: 10px;
+    }
+
+    .lw-lab {
+      display: block;
+      font-size: 7.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: rgba(40, 36, 33, 0.45);
+      margin-bottom: 4px;
+    }
+
+    .lw-line {
+      display: block;
+      height: 6px;
+      border-radius: 2px;
+      background: rgba(40, 36, 33, 0.13);
+      margin: 4px 0;
+    }
+
+    .lw-line.w40 {
+      width: 40%;
+    }
+
+    .lw-line.w55 {
+      width: 55%;
+    }
+
+    .lw-line.w60 {
+      width: 60%;
+    }
+
+    .lw-line.w70 {
+      width: 70%;
+    }
+
+    .lw-line.w80 {
+      width: 80%;
+    }
+
+    .lw-line.w85 {
+      width: 85%;
+    }
+
+    .lw-line.w90 {
+      width: 90%;
+    }
+
+    .lw-maptag {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      font-size: 8px;
+      text-transform: uppercase;
+      font-weight: bold;
+      letter-spacing: 0.08em;
+      color: rgba(40, 36, 33, 0.55);
+      background: rgba(250, 248, 244, 0.85);
+      padding: 2px 6px;
+      border: 1px solid var(--rule);
+    }
+
+    .lw-pin {
+      position: absolute;
+      width: 11px;
+      height: 11px;
+      border-radius: 50% 50% 50% 0;
+      transform: rotate(-45deg);
+      border: 1.5px solid rgba(40, 36, 33, 0.45);
+    }
+
+    .lw-pin.p1 {
+      background: var(--slate);
+      top: 36%;
+      left: 56%;
+    }
+
+    .lw-pin.p2 {
+      background: var(--yellow);
+      top: 62%;
+      left: 40%;
+    }
+
+    .lw-pin.p3 {
+      background: var(--coral);
+      top: 67%;
+      left: 46%;
+    }
+
+    .lw-pin.p4 {
+      background: var(--sage);
+      top: 58%;
+      left: 35%;
+    }
+
+    .lw-timeline {
+      border-top: 2px solid var(--ink);
+      padding: 0.7rem 0.8rem;
+      background: #faf8f5;
+    }
+
+    .lw-tl-h {
+      font-size: 8.5px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--slate);
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    .lw-tl-row {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+    }
+
+    .lw-tl-card {
+      border: 1.5px solid var(--ink);
+      border-radius: 3px;
+      padding: 7px 8px;
+      background: #fff;
+      box-shadow: 2px 2px 0 var(--rule);
+    }
+
+    .lw-date {
+      display: block;
+      font-size: 7.5px;
+      font-weight: bold;
+      color: var(--teal);
+      margin-bottom: 6px;
+    }
+
+    @media (max-width: 640px) {
+      .lw-body {
+        grid-template-columns: 1fr;
+      }
+
+      .lw-left {
+        border-right: none;
+        border-bottom: 2px dashed var(--ink);
+      }
+
+      .lw-right {
+        border-left: none;
+        border-top: 2px dashed var(--ink);
+      }
+
+      .lw-tl-row {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
     /* 2. Process Pipeline (Rubber Stamped Blocks style) */
     .flow-pipeline {
       width: 100%;
@@ -1157,6 +1426,31 @@
 
     .pipeline-stage.active .pipeline-label {
       color: var(--teal);
+    }
+
+    /* Once the pipeline has run, each step is clickable to re-read its output */
+    .flow-pipeline.reviewable .pipeline-stage {
+      cursor: pointer;
+    }
+
+    .flow-pipeline.reviewable .pipeline-stage:hover .pipeline-node {
+      border-color: var(--teal);
+      transform: translateY(-2px);
+    }
+
+    .flow-pipeline.reviewable .pipeline-stage:hover .pipeline-label {
+      color: var(--teal);
+    }
+
+    .pipeline-hint {
+      font-family: var(--mono);
+      font-size: 8px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: rgba(40, 36, 33, 0.42);
+      text-align: center;
+      margin-top: 0.7rem;
+      min-height: 10px;
     }
 
     .pipeline-output {
@@ -1518,6 +1812,33 @@
       color: var(--ink);
     }
 
+    /* Handwritten margin note explaining each fix on the Defensive screen */
+    .ai-view-card .ai-annot {
+      font-family: 'Caveat', cursive;
+      font-size: 17px;
+      line-height: 1.3;
+      color: var(--slate);
+      margin: 6px 0 1.1rem;
+      padding-left: 20px;
+      position: relative;
+      transform: rotate(-0.5deg);
+    }
+
+    .ai-view-card .ai-annot::before {
+      content: '\21B3';
+      position: absolute;
+      left: 2px;
+      top: 1px;
+      color: var(--coral);
+      font-family: var(--mono);
+      font-size: 13px;
+    }
+
+    .ai-view-card .ai-annot b {
+      color: var(--teal);
+      font-weight: 700;
+    }
+
     .ai-retry-sim {
       display: inline-flex;
       align-items: center;
@@ -1698,7 +2019,6 @@
       padding: 1.5rem;
       background: var(--card-paper);
       border: 2px solid var(--ink);
-      border-left: 5px solid var(--teal);
       border-radius: 4px;
       margin-bottom: 1.2rem;
       box-shadow: 3px 3px 0 var(--rule);
@@ -1788,16 +2108,21 @@
       border: 1.5px solid var(--ink);
       border-radius: 4px;
       box-shadow: 2px 2px 0 var(--rule);
+      transition: var(--transition);
+    }
+
+    .compare-side:hover {
+      background: #fff;
+      transform: translateY(-2px);
+      box-shadow: 4px 4px 0 var(--ink);
     }
 
     .compare-side.v1 {
       background: #faf4f2;
-      border-left: 4px solid var(--coral);
     }
 
     .compare-side.v2 {
       background: #f1f6f4;
-      border-left: 4px solid var(--teal);
     }
 
     .compare-label {
@@ -1829,6 +2154,54 @@
       grid-template-columns: repeat(2, 1fr);
       gap: 1rem;
       margin: 1.8rem 0;
+    }
+
+    /* Stack as plain-language bullets */
+    .stack-points {
+      list-style: none;
+      padding: 0;
+      margin: 1rem 0 1.8rem;
+      max-width: 74ch;
+    }
+
+    .stack-points li {
+      position: relative;
+      padding: 0.9rem 0 0.9rem 1.5rem;
+      border-bottom: 1px dashed var(--rule);
+    }
+
+    .stack-points li:last-child {
+      border-bottom: none;
+    }
+
+    .stack-points li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 1.25rem;
+      width: 7px;
+      height: 7px;
+      background: var(--yellow);
+      border: 1.5px solid var(--ink);
+      border-radius: 2px;
+    }
+
+    .stack-points b {
+      display: block;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--teal);
+      font-weight: bold;
+      margin-bottom: 0.35rem;
+    }
+
+    .stack-points span {
+      font-family: var(--serif);
+      font-size: 15px;
+      line-height: 1.6;
+      color: var(--ink);
     }
 
     .stack-item {
@@ -1896,6 +2269,62 @@
       max-width: 44ch;
       margin: 0 auto;
       line-height: 1.5;
+    }
+
+    footer .footer-meta {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: 0.5rem 1.2rem;
+      font-family: var(--mono);
+      font-size: 10.5px;
+      color: rgba(40, 36, 33, 0.5);
+      margin-top: 0.4rem;
+    }
+
+    footer .footer-meta a {
+      color: rgba(40, 36, 33, 0.6);
+      text-decoration: none;
+      border-bottom: 1px dashed rgba(40, 36, 33, 0.35);
+    }
+
+    footer .footer-meta a:hover {
+      color: var(--teal);
+      border-color: var(--teal);
+    }
+
+    /* Icon links, matching the landing page social icons */
+    footer .links {
+      gap: 1.4rem;
+    }
+
+    footer .social-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 46px;
+      height: 46px;
+      border-radius: 2px;
+      color: var(--ink);
+      border: 1.5px solid rgba(40, 36, 33, 0.28);
+      box-shadow: 2px 2px 0 rgba(40, 36, 33, 0.08);
+      transition: color 0.35s ease, border-color 0.35s ease, background 0.35s ease,
+        transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s ease;
+    }
+
+    footer .social-link svg {
+      width: 21px;
+      height: 21px;
+      display: block;
+    }
+
+    footer .social-link:hover {
+      color: var(--teal);
+      border-color: var(--yellow);
+      background: rgba(198, 153, 38, 0.14);
+      transform: translate(-2px, -2px);
+      box-shadow: 4px 4px 0 rgba(40, 36, 33, 0.12);
     }
 
     /* Responsive adjustments */
@@ -1979,42 +2408,13 @@
   <div class="progress-line" id="progressBar"></div>
   <div class="cursor-arrow" id="cursorArrow"></div>
 
-  <!-- Collapsible fontpanel adjustment playground -->
-  <div class="fontpanel collapsed sketch-border" id="fontPanel">
-    <div class="fontpanel-header" id="fontPanelHeader">
-      <h3>DRAFTING BOARD</h3>
-      <button class="fontpanel-toggle" id="fontPanelToggle">Expand [+]</button>
-    </div>
-    <div class="fontpanel-content">
-      <h4>Header Font</h4>
-      <div class="row" data-group="headings">
-        <button data-font="'Playfair Display', serif" class="on">Playfair</button>
-        <button data-font="'Cormorant Garamond', serif">Garamond</button>
-        <button data-font="'Space Grotesk', sans-serif">Grotesk</button>
-        <button data-font="'Bebas Neue', sans-serif">Bebas</button>
-      </div>
-
-      <h4>Header Weight <span class="val" id="weightVal">600</span></h4>
-      <input id="weightRange" type="range" min="300" max="900" step="100" value="600">
-
-      <h4>Header Transform</h4>
-      <div class="row">
-        <button id="capsToggle">ALL CAPS: off</button>
-      </div>
-
-      <p class="hint" style="font-size: 8px; color: rgba(40,36,33,0.5); margin-top: 8px;">
-        Use the cursor arrow to test the live sandbox, map points, and tab switchers.
-      </p>
-    </div>
-  </div>
-
   <!-- Sticky Top Nav -->
   <nav class="topnav" id="topNav">
-    <a class="nav-back" href="index.html"><span>&larr;</span>&nbsp; Back to portfolio</a>
+    <a class="nav-back" href="../index.html"><span>&larr;</span>&nbsp; Back to portfolio</a>
     <div class="nav-links">
       <a href="#problem">Problem</a>
       <a href="#research">Research</a>
-      <a href="#interface">Interface</a>
+      <a href="#defining">Interface</a>
       <a href="#ai">Defending AI</a>
       <a href="#stack">Stack</a>
     </div>
@@ -2075,7 +2475,7 @@
       </div>
       <figcaption>
         <b>Live Sandbox:</b> The actual Conflict Lens app, rendered at desktop size and zoomed to fit the column. Drag
-        the map and click around &mdash; or open the full app for a real-size, fully interactive session.
+        the map and click around, or open the full app for a real-size, fully interactive session.
       </figcaption>
     </div>
   </header>
@@ -2086,18 +2486,20 @@
     <!-- ============ 1. THE PROBLEM ============ -->
     <section id="problem">
       <p class="eyebrow">The Problem</p>
-      <h2 class="section-head">Understanding a conflict shouldn't take 12 browser tabs</h2>
+      <h2 class="section-head">Your first read on an international conflict shouldn't take 12 browser tabs</h2>
       <p class="body lede">
-        When an international event breaks, a single news report gives you fragments, not understanding. The location is
-        buried in one paragraph, the actors in another. The historical backdrop is assumed. And the article's own media
-        slant is invisible unless you already know the outlet's political positioning.
+        When an international event breaks, a single news report gives you fragments, not holistic understanding. The
+        main location may be named at the top, but the rest of its international dynamics and its actors are never in
+        visual form. You have to look up who is where, and how the geography plays a role, which we know it does. The
+        historical backdrop is assumed to be knowledge the reader already has. And the article's own media slant is
+        invisible unless you already know the outlet's political positioning.
       </p>
       <p class="body">
         So an engaged reader does the synthesis by hand: open a second map tab to locate where the action occurred, skim
         Wikipedia to understand the history, and load a media-bias tool to detect the narrative framing. Three tools,
         ten minutes, and most readers give up before starting. Worse, the most rigorous reporting sits behind paywalls.
       </p>
-      <p class="pullquote">
+      <p class="pullquote no-quote">
         How might we take someone from a single article to a geographically-grounded, bias-aware understanding of an
         event in under a minute?
       </p>
@@ -2106,48 +2508,20 @@
       <div class="media-container">
         <div class="problem-switcher">
           <div class="switcher-tabs">
-            <button class="switcher-tab active" data-tab="v1">The 12-Tab Nightmare (V1)</button>
-            <button class="switcher-tab" data-tab="v2">Conflict Lens Blueprint (V2)</button>
+            <button class="switcher-tab active" data-tab="v1">The 12-Tab Nightmare</button>
+            <button class="switcher-tab" data-tab="v2">Conflict Lens Blueprint</button>
           </div>
           <div class="switcher-content" id="problemSwitcherContent">
-            <!-- V1 Screen Content -->
-            <div class="tab-status-quo" id="problemTabV1">
-              <div class="mock-tab" style="transform: rotate(-1deg);">
-                <span class="mock-tab-icon">🗺️</span>
-                <span class="mock-tab-title">Google Maps Tab</span>
-                <span class="mock-tab-body">Pinpoint Khan Yunis</span>
-              </div>
-              <div class="mock-tab" style="transform: rotate(1.5deg);">
-                <span class="mock-tab-icon">📖</span>
-                <span class="mock-tab-title">Wikipedia Tab</span>
-                <span class="mock-tab-body">Historical timeline</span>
-              </div>
-              <div class="mock-tab" style="transform: rotate(-1.5deg);">
-                <span class="mock-tab-icon">📰</span>
-                <span class="mock-tab-title">BBC News Tab</span>
-                <span class="mock-tab-body">UK framing bias</span>
-              </div>
-              <div class="mock-tab" style="transform: rotate(2deg);">
-                <span class="mock-tab-icon">🔍</span>
-                <span class="mock-tab-title">Fact Check Tab</span>
-                <span class="mock-tab-body">Verify statement claims</span>
-              </div>
-              <div class="mock-tab" style="opacity: 0.5; transform: rotate(-2deg);">
-                <span class="mock-tab-icon">💵</span>
-                <span class="mock-tab-title">Paywall Login</span>
-                <span class="mock-tab-body">Account credential gate</span>
-              </div>
-              <div class="mock-tab" style="opacity: 0.5; transform: rotate(1deg);">
-                <span class="mock-tab-icon">🌐</span>
-                <span class="mock-tab-title">Local Outlets</span>
-                <span class="mock-tab-body">Translate feed</span>
-              </div>
+            <div class="tab-shot" id="problemTabV1">
+              <img src="Images/Screenshot%202026-07-08%20at%206.23.06%20AM.png" loading="lazy"
+                alt="Nine browser windows open at once to research a single conflict: maps, Wikipedia, news outlets, a live conflict map, a bias tool, and a paywall." />
             </div>
           </div>
         </div>
         <figcaption>
-          <b>UX Tab Switching:</b> Simulates the mental friction of swapping between scattered browser tabs during
-          analysis.
+          <b>Before and after:</b> the real research sprawl, nine windows across maps, encyclopedias, outlets, a live
+          conflict map, and a paywall, next to a wireframe of the Conflict Lens interface that folds map, actors,
+          history, and media bias into one screen. Toggle to compare.
         </figcaption>
       </div>
     </section>
@@ -2155,13 +2529,13 @@
     <!-- ============ 2. RESEARCH & INSIGHT ============ -->
     <section id="research">
       <p class="eyebrow">Research &amp; Insight</p>
-      <h2 class="section-head">I started with the workflow, not the interface</h2>
+      <h2 class="section-head">Starting with the workflow, not the interface</h2>
 
       <h3 class="sub">Who it's for</h3>
       <p class="body">
-        The core user isn't a headline-skimmer &mdash; it's the <strong>engaged reader</strong>: students, analysts,
-        policy makers, and globally-curious individuals. Their bottleneck is not a lack of information; it's a lack of
-        synthesis. The data is available, but the cognitive labor of assembling it is exhausting.
+        The core user is an engaged reader: students, analysts, policy makers, and globally-curious individuals. Their
+        bottleneck is a lack of synthesis. The data is available, but the cognitive labor of assembling it is
+        exhausting.
       </p>
 
       <h3 class="sub">The market gap</h3>
@@ -2218,50 +2592,23 @@
         media framing analysis.
       </figcaption>
 
-      <h3 class="sub">From insights to principles</h3>
-      <p class="body">
-        The user workflows guided four core product pillars:
-      </p>
-
-      <div class="cards">
-        <div class="card sketch-border">
-          <span class="num">01</span>
-          <h4>Geography is the spine</h4>
-          <p>The map leads, the text supports. Coordinates are the anchors that hold narrative fragments together.</p>
-        </div>
-        <div class="card sketch-border">
-          <span class="num">02</span>
-          <h4>Never make them wait</h4>
-          <p>Stream core details in 5s. Let deep LLM analysis load progressively in the background.</p>
-        </div>
-        <div class="card sketch-border">
-          <span class="num">03</span>
-          <h4>Make bias visible</h4>
-          <p>Source framing is a feature to read skeptically, not an invisible bias to fall victim to.</p>
-        </div>
-        <div class="card sketch-border">
-          <span class="num">04</span>
-          <h4>Meet readers where they are</h4>
-          <p>Provide secondary alternative uploads (like PDFs) to bypass scraper paywall obstacles.</p>
-        </div>
-      </div>
     </section>
 
     <!-- ============ 3. DEFINING THE PRODUCT ============ -->
     <section id="defining">
       <p class="eyebrow">Defining the Product</p>
-      <h2 class="section-head">One flow, three moves</h2>
+      <h2 class="section-head">The Flow</h2>
       <p class="body">
-        To maintain product magic, I kept the scope extremely narrow. No user accounts, no saved dashboards, and no feed
-        pages. The entire product is optimized for a single 3-step sequence: **Input link or PDF &rarr; Run processing
-        &rarr; Explore interactive briefing.**
+        For the MVP, I kept the scope extremely narrow. No user accounts, no saved dashboards, and no feed
+        pages. The entire product is optimized for a single 3-step sequence: Input link or PDF &rarr; Run processing
+        &rarr; Explore interactive briefing.
       </p>
 
       <!-- Micro Prototype 2: Stamped Block Process Pipeline -->
       <div class="media-container">
         <div class="flow-pipeline sketch-border">
           <div class="pipeline-input-box">
-            <input type="text" value="https://www.nytimes.com/world/liberia-land-standoff" id="pipelineUrl">
+            <input type="text" value="https://www.bbc.com/news/articles/cwy0q41v1lzo" id="pipelineUrl">
             <button class="pipeline-btn" id="pipelineBtn">Analyze Link</button>
           </div>
           <div class="pipeline-stages">
@@ -2286,40 +2633,40 @@
           <div class="pipeline-output" id="pipelineOutput">
             Paste a URL above and click "Analyze" to run the progressive extraction sequence.
           </div>
+          <p class="pipeline-hint" id="pipelineHint"></p>
         </div>
         <figcaption>
-          <b>Interactive Pipeline Walkthrough:</b> Simulates sequential processing, delivering core spatial metadata
+          <b>Pipeline Walkthrough:</b> Simulates sequential processing, delivering core spatial metadata
           quickly while heavy narrative analysis streams.
         </figcaption>
       </div>
 
       <p class="body">
         <strong>Cut on purpose:</strong> Accounts and multi-article comparisons were discarded to keep performance
-        lightning-fast and focus on the immediate, frictionless readability of paywalled articles.
+        lightning-fast and focus on the immediate readability of paywalled articles.
       </p>
     </section>
 
     <!-- ============ 4. THE INTERFACE (DESKTOP) ============ -->
     <section id="interface">
-      <p class="eyebrow">The Desktop Interface</p>
-      <h2 class="section-head">Three screens, one continuous narrative</h2>
+      <h2 class="section-head">The Desktop Interface</h2>
 
-      <h3 class="sub">Screen 1 &mdash; Input</h3>
+      <h3 class="sub">Screen 1: Input</h3>
       <p class="body">
-        A quiet, editorial entry point: warm neutrals, soft sage highlights, and a clean serif title layout. A simple
+        A quiet, editorial entry point of warm neutrals, sage highlights, and a clean serif title layout. A simple
         two-tab selector allows pasting an article URL or dragging in a raw PDF file.
       </p>
 
-      <h3 class="sub">Screen 2 &mdash; Analysis</h3>
+      <h3 class="sub">Screen 2: Analysis</h3>
       <p class="body">
-        Rather than a generic spinner, the wait screen uses precise copy indicating what stage is processing:
+        The wait screen uses precise copy indicating what stage is processing:
         <em>"Extracting primary incidents and locating actors (~5-10s)..."</em> Honest state indicators manage
         expectations and lower perceived wait times.
       </p>
 
-      <h3 class="sub">Screen 3 &mdash; The Briefing Dashboard</h3>
+      <h3 class="sub">Screen 3: The Briefing Dashboard</h3>
       <p class="body">
-        A dark, high-contrast satellite map fills the background, with clean glassmorphic panels floating on top. Map
+        A dark, high-contrast satellite map fills the background, with clean panels floating on top. Map
         boundaries automatically adjust on load to display all georeferenced events, with timeline markers matching the
         color-coded map pins.
       </p>
@@ -2327,11 +2674,10 @@
 
     <!-- ============ 5. MOBILE LAYOUT ============ -->
     <section id="mobile">
-      <p class="eyebrow">Mobile Interaction Model</p>
-      <h2 class="section-head">The desktop pattern breaks on a phone &mdash; so I changed the metaphor</h2>
+      <h2 class="section-head">Mobile Interaction Model</h2>
       <p class="body">
-        Floating overlays on desktop maps are elegant, but they cover the entire viewport on a mobile screen. Instead of
-        wrapping overlays in tiny scroll zones, I refactored the layout into a **Map-App Pattern**. The map remains the
+        Floating overlays on desktop maps are great, but they cover the entire viewport on a mobile screen. Instead of
+        wrapping overlays in tiny scroll zones, I reordered the layout so that the map remains the
         base layer, and a bottom sheet slides up dynamically.
       </p>
 
@@ -2342,7 +2688,7 @@
             <div class="iphone-notch"></div>
             <div class="iphone-screen">
               <div class="iphone-header">
-                <span class="iphone-header-title">Conflict Lens Mobile</span>
+                <span class="iphone-header-title">Conflict Lens</span>
                 <button class="iphone-header-btn">Reload</button>
               </div>
               <div class="iphone-map-bg" id="mobileMap">
@@ -2369,17 +2715,24 @@
             </div>
           </div>
         </div>
-        <figcaption>
-          <b>Interactive Mobile Simulator:</b> Clicking tabs mimics the slide-up action of sheets. Map pin selections
-          push the map viewport up, ensuring the target pin remains visible.
-        </figcaption>
+
       </div>
     </section>
 
     <!-- ============ 6. KEY DESIGN DECISIONS ============ -->
     <section id="decisions">
       <p class="eyebrow">Key Design Decisions</p>
-      <h2 class="section-head">Decisions, and the tradeoffs behind them</h2>
+      <h2 class="section-head">Decisions and Tradeoffs</h2>
+      <p class="body">Four principles came out of the research.</p>
+
+      <div class="decision">
+        <h4>Geography leads, the text supports</h4>
+        <p class="line"><b>Tension:</b> The familiar layout puts the article first and the map off to the side, which
+          leaves the reader doing the spatial work in their head.</p>
+        <p class="line"><b>Decision:</b> Made the map the primary canvas and anchored every extracted event and actor to
+          coordinates, so the narrative hangs off geography.</p>
+        <p class="why">&#8627; Core Principle: Geography is the spine</p>
+      </div>
 
       <div class="decision">
         <h4>Progressive rendering over single payload</h4>
@@ -2400,17 +2753,21 @@
       </div>
 
       <div class="decision">
-        <h4>Standalone bias diagnostic panel</h4>
-        <p class="line"><b>Decision:</b> Introduced a dedicated "Journalistic Analysis" panel showing institutional lean
-          and regional slants.</p>
+        <h4>Bias read, labeled as the model's view</h4>
+        <p class="line"><b>Tension:</b> The bias read is itself an automated judgment, and the model can hallucinate or
+          carry its own slant, so presenting it as objective truth would be dishonest.</p>
+        <p class="line"><b>Decision:</b> Kept the dedicated "Journalistic Analysis" panel, but state plainly in the
+          product that Gemini produced the framing, so readers weigh it as one model's read and not a verdict.</p>
+        <p class="line"><b>Limitation:</b> A single model grading bias is the current ceiling. A trained or second
+          opinion agent to sort through the framing is the next step (see Reflection).</p>
         <p class="why">&#8627; Core Principle: Make bias visible</p>
       </div>
     </section>
 
     <!-- ============ 7. DESIGNING FOR UNRELIABLE AI ============ -->
     <section id="ai">
-      <p class="eyebrow">Designing for Unreliable AI</p>
-      <h2 class="section-head">The hardest design problem wasn't the UI &mdash; it was the AI</h2>
+      <p class="eyebrow">AI + Safety Nets</p>
+      <h2 class="section-head">Designing for AI</h2>
       <p class="body">
         Language models are probabilistic systems. They can return malformed JSON, hallucinate URLs, or geocode
         coordinates to the middle of the Atlantic Ocean. Designing for AI requires building defensive UI safety nets
@@ -2443,33 +2800,17 @@
           </div>
         </div>
         <figcaption>
-          <b>Defensive UX Sandbox:</b> Toggle to observe how Conflict Lens intercepts LLM failures (like constructing
+          <b>Defensive UX:</b> Toggle to see how Conflict Lens intercepts LLM failures (like constructing
           queries instead of URL paths, and filtering out <code>0,0</code> pins).
         </figcaption>
       </div>
 
-      <div class="fail">
-        <h4>Hallucinated Outbound Links</h4>
-        <p>The model consistently invented article URLs that 404'd. Rather than listing dead links, the backend prompts
-          the model for the outlet name and incident search query, constructing verified Google News search links
-          instead.</p>
-      </div>
-
-      <div class="fail">
-        <h4>Ocean Coordinates</h4>
-        <p>Instead of placing coordinates at <code>0.0, 0.0</code>, the pipeline filters invalid coordinate bounds and
-          centers pins at the capital city of the reported country, flagging coordinate fallback notices in the UI.</p>
-      </div>
-
-      <p class="pullquote">
-        Good UX for AI is as much about handling failure as showing off success.
-      </p>
     </section>
 
     <!-- ============ 8. CONCEPT VS. BUILD ============ -->
     <section id="concept-build">
       <p class="eyebrow">Concept &rarr; Build</p>
-      <h2 class="section-head">What building taught me that the mockups didn't</h2>
+      <h2 class="section-head">What building taught me</h2>
 
       <div class="compare-row">
         <div class="compare-side v1">
@@ -2502,8 +2843,8 @@
         </div>
         <div class="compare-side v2">
           <div class="compare-label">Real-World Friction</div>
-          <div class="compare-text">API noise forced defensive UI checks—sanitizing links and deduping overlapping pins.
-          </div>
+          <div class="compare-text">API noise forced defensive UI checks like sanitizing links and deduping overlapping
+            pins.</div>
         </div>
       </div>
     </section>
@@ -2513,63 +2854,91 @@
       <p class="eyebrow">Technical Architecture</p>
       <h2 class="section-head">Under the hood</h2>
 
-      <div class="stack-grid">
-        <div class="stack-item">
-          <div class="k">Frontend Framework</div>
-          <div class="v">React + Vite, React-Leaflet map overlays (greyscale satellite tile imagery), and customized CSS
-            sheets.</div>
-        </div>
-        <div class="stack-item">
-          <div class="k">Backend Engine</div>
-          <div class="v">Node + Express hosting, orchestrating parallelized streams to Google Gemini for content
-            parsing.</div>
-        </div>
-        <div class="stack-item">
-          <div class="k">Scraper Pipeline</div>
-          <div class="v">Cheerio &amp; Axios text extraction, pdf-parse modules, and a temporary Redis cache to bypass
-            redundant scraping.</div>
-        </div>
-        <div class="stack-item">
-          <div class="k">Deployment</div>
-          <div class="v">Frontend statically served via GitHub Pages, with APIs operating on standard cloud server
-            runtimes.</div>
-        </div>
-      </div>
+      <p class="body">Conflict Lens is four parts working together.</p>
+      <ul class="stack-points">
+        <li>
+          <b>Frontend Framework</b>
+          <span>React with Vite builds the interface, React-Leaflet draws the map over muted greyscale satellite tiles,
+            and the styling is hand tuned in custom CSS.</span>
+        </li>
+        <li>
+          <b>Backend Engine</b>
+          <span>Node and Express run several requests to Google Gemini at once, so each article is broken into
+            structured pieces without a long single wait.</span>
+        </li>
+        <li>
+          <b>Scraper Pipeline</b>
+          <span>Cheerio and Axios pull the text out of a web page, pdf-parse does the same for an uploaded PDF, and a
+            short lived Redis cache remembers recent pages so the same one is never fetched twice.</span>
+        </li>
+        <li>
+          <b>Deployment</b>
+          <span>The interface is served as static files on GitHub Pages, and the data services run on standard cloud
+            servers.</span>
+        </li>
+      </ul>
 
       <!-- Animated Chalkboard SVG Architecture Diagram -->
       <div class="media-container">
         <div class="architecture-svg-box">
           <svg viewBox="0 0 600 240" class="architecture-svg">
-            <!-- Connections -->
-            <path d="M120,120 L220,120" class="arc-line" />
-            <path d="M320,120 L420,120" class="arc-line" />
-            <path d="M470,95 L470,55 L320,55" class="arc-line" />
-            <!-- Client Node -->
+            <defs>
+              <marker id="arc-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7"
+                orient="auto">
+                <path d="M0,0 L10,5 L0,10 z" fill="#282421" />
+              </marker>
+            </defs>
+
+            <!-- Flow: 1 link, 2 text, 3 analyze, 4 briefing back -->
+            <path d="M134,120 L242,120" class="arc-line" marker-end="url(#arc-arrow)" />
+            <path d="M356,120 L466,120" class="arc-line" marker-end="url(#arc-arrow)" />
+            <path d="M300,150 L300,174" class="arc-line" marker-end="url(#arc-arrow)" />
+            <path d="M522,90 L522,56 L78,56 L78,90" class="arc-line" marker-end="url(#arc-arrow)" />
+
+            <!-- Step labels -->
+            <text x="188" y="111" text-anchor="middle" class="arc-text" style="font-size:8px; fill:var(--teal)">1
+              link</text>
+            <text x="411" y="111" text-anchor="middle" class="arc-text" style="font-size:8px; fill:var(--teal)">3
+              analyze</text>
+            <text x="326" y="166" text-anchor="start" class="arc-text" style="font-size:8px; fill:var(--teal)">2
+              text</text>
+            <text x="300" y="48" text-anchor="middle" class="arc-text" style="font-size:8px; fill:var(--teal)">4
+              briefing streamed back</text>
+
+            <!-- Frontend -->
             <g class="arc-group">
-              <rect x="20" y="80" width="100" height="80" rx="3" class="arc-node" />
-              <text x="70" y="115" text-anchor="middle" class="arc-text-title arc-text">React UI</text>
-              <text x="70" y="135" text-anchor="middle" class="arc-text" style="font-size: 8px; fill:var(--teal)">Vite /
-                CSS</text>
+              <rect x="24" y="92" width="108" height="56" rx="3" class="arc-node" />
+              <text x="78" y="116" text-anchor="middle" class="arc-text-title arc-text">React UI</text>
+              <text x="78" y="133" text-anchor="middle" class="arc-text"
+                style="font-size:8px; fill:var(--teal)">Frontend</text>
             </g>
-            <!-- API Node -->
+            <!-- Backend -->
             <g class="arc-group">
-              <rect x="220" y="80" width="100" height="80" rx="3" class="arc-node" />
-              <text x="270" y="115" text-anchor="middle" class="arc-text-title arc-text">Express API</text>
-              <text x="270" y="135" text-anchor="middle" class="arc-text" style="font-size: 8px; fill:var(--teal)">Node
+              <rect x="246" y="92" width="108" height="56" rx="3" class="arc-node" />
+              <text x="300" y="116" text-anchor="middle" class="arc-text-title arc-text">Express API</text>
+              <text x="300" y="133" text-anchor="middle" class="arc-text" style="font-size:8px; fill:var(--teal)">Node
                 Backend</text>
             </g>
             <!-- LLM Engine -->
             <g class="arc-group">
-              <rect x="420" y="80" width="100" height="80" rx="3" class="arc-node" />
-              <text x="470" y="115" text-anchor="middle" class="arc-text-title arc-text">Gemini AI</text>
-              <text x="470" y="135" text-anchor="middle" class="arc-text"
-                style="font-size: 8px; fill:var(--teal)">Geocoding / Bias</text>
+              <rect x="468" y="92" width="108" height="56" rx="3" class="arc-node" />
+              <text x="522" y="116" text-anchor="middle" class="arc-text-title arc-text">Gemini AI</text>
+              <text x="522" y="133" text-anchor="middle" class="arc-text"
+                style="font-size:8px; fill:var(--teal)">Geocoding, Bias</text>
+            </g>
+            <!-- Scraper (feeds the backend) -->
+            <g class="arc-group">
+              <rect x="246" y="176" width="108" height="56" rx="3" class="arc-node" />
+              <text x="300" y="200" text-anchor="middle" class="arc-text-title arc-text">Scraper</text>
+              <text x="300" y="217" text-anchor="middle" class="arc-text"
+                style="font-size:8px; fill:var(--teal)">Cheerio, pdf-parse</text>
             </g>
           </svg>
         </div>
         <figcaption>
-          <b>System Architecture:</b> Core scrape triggers the parallel Node threads. Response layers build
-          sequentially, returning assets to the Client framework.
+          <b>System Architecture:</b> The React client sends a link to the Node backend, which scrapes the article
+          text and passes it to Gemini for geocoding and bias analysis, then streams the finished briefing back to the
+          client.
         </figcaption>
       </div>
     </section>
@@ -2577,17 +2946,19 @@
     <!-- ============ 10. REFLECTION ============ -->
     <section id="reflection">
       <p class="eyebrow">Reflection</p>
-      <h2 class="section-head">What I learned, and where it goes next</h2>
+      <h2 class="section-head">What I learned, and what's next</h2>
       <p class="body">
-        Conflict Lens taught me that designing with AI is fundamentally about designing for volatility. We cannot
-        control the API outputs, so the UI must act as a filter. Managing system speed through progressive skeleton
-        loading, setting realistic expectations with clear waiting copy, and offering failover actions are what
-        transform a fragile AI script into a robust product people trust.
+        Conflict Lens taught me that designing with AI is really about designing for volatility. We cannot control what
+        the API returns, so the interface has to act as a filter. Keeping the system feeling fast with skeleton loading,
+        setting honest expectations with clear waiting copy, and offering a next step when something fails can turn
+        a fragile AI script into a trustable product.
       </p>
       <p class="body">
-        If I were to expand the project scope: I'd build a chronological playback tool that animates the timeline
-        sequence, flying the camera dynamically to each event pin on the map. I would also add keyboard shortcuts to
-        browse events, and implement institutional trust scores to verify citations.
+        If I were to expand the scope, I'd bring in a second source for the bias read. Right now the Gemini API handles
+        it alone, and since an AI can hallucinate, a trained agent or an independent check could make that call more
+        reliable. On the interface, I'd build a chronological playback tool that animates the timeline and flies the
+        view to each event pin on the map. I would also add keyboard shortcuts to browse events, and institutional trust
+        scores to help verify citations.
       </p>
     </section>
 
@@ -2597,13 +2968,35 @@
   <footer>
     <p class="ttl">Conflict Lens</p>
     <div class="links">
-      <a class="btn primary" href="index.html">Back to Portfolio Home</a>
-      <a class="btn" href="mailto:khushali.haji@gmail.com">Contact Designer</a>
-      <a class="btn" href="https://linkedin.com" target="_blank" rel="noopener">LinkedIn</a>
+      <a class="social-link" href="../index.html" aria-label="Portfolio home">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
+          stroke-linejoin="round">
+          <path d="M3 10.5 12 3l9 7.5"></path>
+          <path d="M5 9.5V20h14V9.5"></path>
+          <path d="M9.5 20v-5.5h5V20"></path>
+        </svg>
+      </a>
+      <a class="social-link" href="mailto:khushali.haji@gmail.com" aria-label="Email">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
+          stroke-linejoin="round">
+          <rect x="2.5" y="4.5" width="19" height="15" rx="2.5"></rect>
+          <path d="M3.5 6.5 12 13l8.5-6.5"></path>
+        </svg>
+      </a>
+      <a class="social-link" href="https://linkedin.com/in/khushali-haji" target="_blank" rel="noopener"
+        aria-label="LinkedIn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
+          stroke-linejoin="round">
+          <rect x="2.5" y="2.5" width="19" height="19" rx="3"></rect>
+          <line x1="7" y1="10" x2="7" y2="17"></line>
+          <circle cx="7" cy="6.8" r="1.1" fill="currentColor" stroke="none"></circle>
+          <path d="M11 17v-3.6a2.4 2.4 0 0 1 4.8 0V17M11 10.4V17"></path>
+        </svg>
+      </a>
     </div>
-    <p class="note">
-      This study reviews design iteration during Conflict Lens development. Live demo simulations are hosted on
-      serverless APIs subject to minor startup latency.
+    <p class="footer-meta">
+      <a href="#top">Back to top &uarr;</a>
+      <span>&copy; 2026 Khushali Haji</span>
     </p>
   </footer>
 
@@ -2726,53 +3119,9 @@
       sectionObserver.observe(section);
     });
 
-    // ─── Controls Panel Expand/Collapse Toggle ───────────────────────────────────
-    const fontPanel = document.getElementById('fontPanel');
-    const fontPanelToggle = document.getElementById('fontPanelToggle');
-
-    fontPanelToggle.addEventListener('click', () => {
-      const isCollapsed = fontPanel.classList.toggle('collapsed');
-      fontPanelToggle.textContent = isCollapsed ? 'Expand [+]' : 'Collapse [-]';
-    });
-
-    // ─── Controls Panel Typography adjustments ──────────────────────────────────
-    const weightRange = document.getElementById('weightRange');
-    const weightVal = document.getElementById('weightVal');
-    const headingFontBtns = document.querySelectorAll('.fontpanel [data-group="headings"] button');
-    const capsToggleBtn = document.getElementById('capsToggle');
-
-    // Header weight control
-    weightRange.addEventListener('input', () => {
-      const w = weightRange.value;
-      weightVal.textContent = w;
-      document.querySelectorAll('h1, h2, h3, h4').forEach(h => h.style.fontWeight = w);
-    });
-
-    // Header Font family select
-    headingFontBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        headingFontBtns.forEach(b => b.classList.remove('on'));
-        btn.classList.add('on');
-        document.querySelectorAll('h1, h2, h3, h4').forEach(h => {
-          h.style.fontFamily = btn.dataset.font;
-        });
-      });
-    });
-
-    // All Caps toggle
-    let isCaps = false;
-    capsToggleBtn.addEventListener('click', () => {
-      isCaps = !isCaps;
-      capsToggleBtn.textContent = 'ALL CAPS: ' + (isCaps ? 'on' : 'off');
-      capsToggleBtn.classList.toggle('on', isCaps);
-      document.querySelectorAll('h1, h2.section-head, h3.sub, .eyebrow').forEach(h => {
-        h.style.textTransform = isCaps ? 'uppercase' : 'none';
-      });
-    });
-
     // ─── Typewriter Effect for Title ─────────────────────────────────────────────
     (function typewriter() {
-      const titleText = "Conflict Lens Case Study";
+      const titleText = "Conflict Lens";
       const titleEl = document.getElementById('heroTitle');
       let i = 0;
 
@@ -2843,56 +3192,46 @@
     const switcherTabs = document.querySelectorAll('.switcher-tab');
 
     const problemTabsV1Html = `
-      <div class="tab-status-quo" id="problemTabV1">
-        <div class="mock-tab" style="transform: rotate(-1deg);">
-          <span class="mock-tab-icon">🗺️</span>
-          <span class="mock-tab-title">Google Maps Tab</span>
-          <span class="mock-tab-body">Pinpoint Khan Yunis</span>
-        </div>
-        <div class="mock-tab" style="transform: rotate(1.5deg);">
-          <span class="mock-tab-icon">📖</span>
-          <span class="mock-tab-title">Wikipedia Tab</span>
-          <span class="mock-tab-body">Historical timeline</span>
-        </div>
-        <div class="mock-tab" style="transform: rotate(-1.5deg);">
-          <span class="mock-tab-icon">📰</span>
-          <span class="mock-tab-title">BBC News Tab</span>
-          <span class="mock-tab-body">UK framing bias</span>
-        </div>
-        <div class="mock-tab" style="transform: rotate(2deg);">
-          <span class="mock-tab-icon">🔍</span>
-          <span class="mock-tab-title">Fact Check Tab</span>
-          <span class="mock-tab-body">Verify statement claims</span>
-        </div>
-        <div class="mock-tab" style="opacity: 0.5; transform: rotate(-2deg);">
-          <span class="mock-tab-icon">💵</span>
-          <span class="mock-tab-title">Paywall Login</span>
-          <span class="mock-tab-body">Account credential gate</span>
-        </div>
-        <div class="mock-tab" style="opacity: 0.5; transform: rotate(1deg);">
-          <span class="mock-tab-icon">🌐</span>
-          <span class="mock-tab-title">Local Outlets</span>
-          <span class="mock-tab-body">Translate feed</span>
-        </div>
+      <div class="tab-shot" id="problemTabV1">
+        <img src="Images/Screenshot%202026-07-08%20at%206.23.06%20AM.png" loading="lazy"
+          alt="Nine browser windows open at once to research a single conflict: maps, Wikipedia, news outlets, a live conflict map, a bias tool, and a paywall." />
       </div>
     `;
 
     const problemTabV2Html = `
-      <div class="tab-unified-vision" id="problemTabV2">
-        <div class="unified-mock-header">
-          <span class="unified-mock-title">Conflict Lens Blueprint (Unified Interface)</span>
-          <div class="window-dots"><div class="window-dot"></div><div class="window-dot"></div></div>
+      <div class="lens-wire" id="problemTabV2">
+        <div class="lw-topbar">
+          <span class="lw-chip">+ New Analysis</span>
+          <span class="lw-dots"><i></i><i></i></span>
         </div>
-        <div class="unified-mock-layout">
-          <div class="unified-mock-map"></div>
-          <div class="unified-mock-text">
-            <span class="unified-mock-badge">Bias Diagnosed</span>
-            <p class="unified-mock-snippet">
-              <b>Tactile Context:</b> Map pins anchor raw event segments, side cards compile institutional frames, and search query overrides resolve paywall limits.
-            </p>
-            <div class="unified-mock-footer">
-              <span style="font-size:8px; color:rgba(40,36,33,0.5); font-family:var(--mono);">100% Consolidated</span>
-            </div>
+        <div class="lw-body">
+          <div class="lw-panel lw-left">
+            <div class="lw-h">Conflict Lens</div>
+            <div class="lw-k">Key Details</div>
+            <div class="lw-field"><span class="lw-lab">Actors</span><span class="lw-line w85"></span><span class="lw-line w60"></span></div>
+            <div class="lw-field"><span class="lw-lab">Location</span><span class="lw-line w70"></span></div>
+            <div class="lw-field"><span class="lw-lab">Date</span><span class="lw-line w40"></span></div>
+          </div>
+          <div class="lw-map">
+            <span class="lw-maptag">Map</span>
+            <i class="lw-pin p1"></i><i class="lw-pin p2"></i><i class="lw-pin p3"></i><i class="lw-pin p4"></i>
+          </div>
+          <div class="lw-panel lw-right">
+            <div class="lw-k">Journalistic Analysis</div>
+            <div class="lw-sub">Framing</div>
+            <span class="lw-line w90"></span><span class="lw-line w80"></span><span class="lw-line w55"></span>
+            <div class="lw-sub">Source Analysis</div>
+            <span class="lw-line w85"></span><span class="lw-line w70"></span>
+          </div>
+        </div>
+        <div class="lw-timeline">
+          <div class="lw-tl-h">Lead-up Events Timeline</div>
+          <div class="lw-tl-row">
+            <div class="lw-tl-card"><span class="lw-date">Mar 2026</span><span class="lw-line w90"></span><span class="lw-line w60"></span></div>
+            <div class="lw-tl-card"><span class="lw-date">Mar 2026</span><span class="lw-line w80"></span><span class="lw-line w70"></span></div>
+            <div class="lw-tl-card"><span class="lw-date">Late Mar</span><span class="lw-line w90"></span><span class="lw-line w55"></span></div>
+            <div class="lw-tl-card"><span class="lw-date">Apr 2</span><span class="lw-line w85"></span><span class="lw-line w60"></span></div>
+            <div class="lw-tl-card"><span class="lw-date">Apr 2</span><span class="lw-line w80"></span><span class="lw-line w70"></span></div>
           </div>
         </div>
       </div>
@@ -2912,61 +3251,89 @@
     });
 
     // ─── MOCKUP 2: Section 3 - Animated Product Flow Pipeline logic ──────────────
+    const pipelineWrap = document.querySelector('.flow-pipeline');
     const pipelineBtn = document.getElementById('pipelineBtn');
     const pipelineBar = document.getElementById('pipelineBar');
     const pipelineOutput = document.getElementById('pipelineOutput');
-    const stage1 = document.getElementById('stage1');
-    const stage2 = document.getElementById('stage2');
-    const stage3 = document.getElementById('stage3');
-    const stage4 = document.getElementById('stage4');
+    const pipelineHint = document.getElementById('pipelineHint');
+    const pipelineStages = [
+      document.getElementById('stage1'),
+      document.getElementById('stage2'),
+      document.getElementById('stage3'),
+      document.getElementById('stage4')
+    ];
 
-    pipelineBtn.addEventListener('click', () => {
+    // Content for each step, so the same renderer drives both the auto-run and click-to-review
+    const PIPELINE_STEPS = [
+      { bar: '12%', final: false, html: '[1/4] Scraping text payloads from article' },
+      { bar: '45%', final: false, html: '[2/4] Identifying locations in text.' },
+      { bar: '78%', final: false, html: '[3/4] Running entity framing lean.' },
+      {
+        bar: '100%', final: true, html:
+          `<strong>Pipeline Complete! </strong> Consolidated briefing rendered.`
+      }
+    ];
+
+    let pipelineTimers = [];
+    let pipelineHasRun = false;
+
+    function clearPipelineTimers() {
+      pipelineTimers.forEach(t => clearTimeout(t));
+      pipelineTimers = [];
+    }
+
+    // Render a single step: earlier stages completed, this one active, later ones idle
+    function showPipelineStep(i) {
+      pipelineStages.forEach((s, idx) => {
+        s.className = 'pipeline-stage' + (idx < i ? ' completed' : idx === i ? ' active' : '');
+      });
+      const step = PIPELINE_STEPS[i];
+      pipelineBar.style.width = step.bar;
+      pipelineOutput.className = 'pipeline-output' + (step.final ? ' active' : '');
+      pipelineOutput.innerHTML = step.html;
+    }
+
+    function enablePipelineReview() {
+      if (pipelineHasRun) return;
+      pipelineHasRun = true;
+      pipelineWrap.classList.add('reviewable');
+    }
+
+    function runPipeline() {
+      clearPipelineTimers();
       pipelineBtn.disabled = true;
       pipelineBtn.style.opacity = 0.5;
-
-      // Reset stages
-      [stage1, stage2, stage3, stage4].forEach(s => s.className = 'pipeline-stage');
+      pipelineStages.forEach(s => s.className = 'pipeline-stage');
       pipelineBar.style.width = '0%';
       pipelineOutput.className = 'pipeline-output';
       pipelineOutput.textContent = 'Initiating analysis pipeline...';
 
-      // Step 1: Scrape
-      setTimeout(() => {
-        stage1.className = 'pipeline-stage active';
-        pipelineBar.style.width = '12%';
-        pipelineOutput.textContent = '[1/4] Scraping text payloads from NyTimes article: "liberia-land-standoff"';
-      }, 500);
+      const delays = [500, 2000, 4000, 6000];
+      delays.forEach((d, i) => {
+        pipelineTimers.push(setTimeout(() => {
+          showPipelineStep(i);
+          if (i === PIPELINE_STEPS.length - 1) {
+            pipelineBtn.disabled = false;
+            pipelineBtn.style.opacity = 1;
+          }
+        }, d));
+      });
 
-      // Step 2: Geocode
-      setTimeout(() => {
-        stage1.className = 'pipeline-stage completed';
-        stage2.className = 'pipeline-stage active';
-        pipelineBar.style.width = '45%';
-        pipelineOutput.textContent = '[2/4] Identifying locations in text. Extracting geographic entity: Monrovia (6.31, -10.80) & Sinoe (5.36, -9.04)';
-      }, 2000);
+      // Steps are clickable to review as soon as the run starts, even mid-play
+      enablePipelineReview();
+    }
 
-      // Step 3: Extract Bias
-      setTimeout(() => {
-        stage2.className = 'pipeline-stage completed';
-        stage3.className = 'pipeline-stage active';
-        pipelineBar.style.width = '78%';
-        pipelineOutput.textContent = '[3/4] Running entity sentiment checks. Diagnostics indicate framing lean: Institutional Centrist, minor Western security emphasis.';
-      }, 4000);
+    pipelineBtn.addEventListener('click', runPipeline);
 
-      // Step 4: Render UI
-      setTimeout(() => {
-        stage3.className = 'pipeline-stage completed';
-        stage4.className = 'pipeline-stage active';
-        pipelineBar.style.width = '100%';
-        pipelineOutput.className = 'pipeline-output active';
-        pipelineOutput.innerHTML = `
-          <strong>Pipeline Complete!</strong> Consolidated briefing rendered.<br>
-          🗺️ 2 Locations mapped &bull; 🏷️ 2 Actors flagged &bull; ⚖️ Media Framing analyzed.
-        `;
-
+    // Click a step to stop the auto-run and jump to that step's text to re-read it
+    pipelineStages.forEach((stage, i) => {
+      stage.addEventListener('click', () => {
+        if (!pipelineHasRun) return;
+        clearPipelineTimers();
         pipelineBtn.disabled = false;
         pipelineBtn.style.opacity = 1;
-      }, 6000);
+        showPipelineStep(i);
+      });
     });
 
     // ─── MOCKUP 3: Section 5 - Responsive Mobile Smartphone Mockup logic ─────────
@@ -3055,13 +3422,13 @@
         <h4>Verified Outbound Search Link</h4>
         <p style="margin-bottom:0.8rem;">
           <a href="#" style="color:var(--teal); font-weight:bold; cursor:none; text-decoration: underline;">Search BBC News for "Khan Yunis Standoff" &rarr;</a>
-          <br><span style="font-size:10px; color:rgba(40,36,33,0.5)">Defensively constructed via outlet metadata to prevent dead URLs.</span>
         </p>
+        <p class="ai-annot">The model kept inventing article URLs that 404'd. So instead of dead links, we ask it for the <b>outlet name and a search query</b> and build a real Google News search.</p>
         <h4>Sanitized Location Coordinate</h4>
         <p>
           "lat": 31.34, "lon": 34.30 <span style="color:var(--teal); font-weight:bold;">(Centered at Khan Yunis boundary)</span>
-          <br><span style="font-size:10px; color:rgba(40,36,33,0.5)">Intercepted ocean-bound anomalies. Placed fallback coordinates.</span>
         </p>
+        <p class="ai-annot">A raw <b>0,0</b> lands in the ocean. We filter out invalid coordinates and drop the pin on the reported country's <b>capital city</b>, with a fallback notice.</p>
         <button class="ai-retry-sim" onclick="alert('Simulation: Re-running failed step 4 pipeline')">
           🔄 Retry Analysis
         </button>
