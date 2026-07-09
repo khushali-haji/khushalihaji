@@ -1,0 +1,146 @@
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@200;300;400;500&family=Caveat:wght@400;600&display=swap');
+
+  .site-footer {
+    background: transparent;
+    color: var(--ink, #181512);
+    padding: 5rem 24px;
+    border-top: 2px dashed var(--rule, rgba(40, 36, 33, 0.14));
+    text-align: center;
+    font-family: 'Inter', sans-serif;
+    transform: translateY(130px);
+    opacity: 0;
+    transition: transform 1.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.9s ease;
+    position: relative;
+    z-index: 10;
+  }
+
+  .site-footer.in {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  .site-footer .sf-in {
+    max-width: 1080px;
+    margin: 0 auto;
+  }
+
+  .site-footer .sf-h {
+    font-family: 'Inter', sans-serif;
+    font-weight: 200;
+    font-size: clamp(26px, 3.6vw, 44px);
+    line-height: 1.04;
+    letter-spacing: -0.02em;
+    color: var(--ink, #181512);
+    margin: 0 0 2.4rem;
+  }
+
+  .site-footer .sf-hl {
+    background-image: linear-gradient(transparent 40%, rgba(201, 162, 39, 0.4) 40%, rgba(201, 162, 39, 0.4) 70%, transparent 70%);
+    background-repeat: no-repeat;
+    background-position: left center;
+    background-size: 0% 100%;
+    padding: 0 0.08em;
+    transition: background-size 0.65s ease;
+  }
+
+  .site-footer.in .sf-hl {
+    background-size: 100% 100%;
+    transition-delay: 0.5s;
+  }
+
+  .site-footer .sf-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 2.2rem;
+    position: relative;
+  }
+
+  .doodle-arrow {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    top: -26px;
+    left: 50%;
+    transform: translateX(-145px) rotate(-5deg);
+    pointer-events: none;
+    color: var(--teal, #1a6b6b);
+    opacity: 0;
+    transition: opacity 0.6s ease 0.7s, transform 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.7s;
+  }
+
+  .site-footer.in .doodle-arrow {
+    opacity: 1;
+    transform: translateX(-135px) rotate(0deg);
+  }
+
+  .site-footer .sf-btn {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    text-decoration: none;
+    padding: 0.8rem 1.6rem;
+    border: 1.5px solid var(--ink, #181512);
+    border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
+    color: var(--ink, #181512);
+    background: transparent;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s, border-color 0.2s, color 0.2s;
+  }
+
+  .site-footer .sf-btn.on {
+    background: var(--yellow, #c9a227);
+  }
+
+  .site-footer .sf-btn:hover {
+    transform: translateY(-2px) rotate(-1deg);
+    box-shadow: 4px 4px 0 var(--rule, rgba(40, 36, 33, 0.14));
+  }
+
+  .site-footer .sf-btn.on:hover {
+    background: var(--teal, #1a6b6b);
+    border-color: var(--teal, #1a6b6b);
+    color: #fff;
+  }
+
+  .site-footer .sf-meta {
+    font-family: 'Caveat', cursive;
+    font-size: 20px;
+    color: rgba(40, 36, 33, 0.6);
+    display: flex;
+    gap: 1.4rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .site-footer .sf-meta a {
+    color: var(--teal, #1a6b6b);
+    text-decoration: none;
+  }
+
+  .site-footer .sf-meta a:hover {
+    color: var(--yellow, #c9a227);
+  }
+</style>
+
+<footer class="site-footer">
+  <div class="sf-in">
+    <p class="sf-h">Let's make <span class="sf-hl">something</span></p>
+    <div class="sf-actions">
+      <svg class="doodle-arrow" viewBox="0 0 100 100">
+        <!-- A hand-drawn squiggly arrow pointing right/down towards the button -->
+        <path d="M 10 30 Q 35 -10 65 35 M 45 25 L 65 35 L 50 55" fill="none" stroke="currentColor" stroke-width="2.5"
+          stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+      <a class="sf-btn on" href="mailto:khushali.haji@gmail.com">Email me</a>
+      <a class="sf-btn" href="https://linkedin.com/in/khushali-haji" target="_blank" rel="noopener">LinkedIn</a>
+    </div>
+    <div class="sf-meta">
+      <a href="/khushalihaji/">Home</a>
+      <a href="https://github.com/khushali-haji" target="_blank" rel="noopener">Github</a>
+      <span>&copy; 2026 Khushali Haji</span>
+    </div>
+  </div>
+</footer>

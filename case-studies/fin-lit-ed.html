@@ -1,0 +1,1926 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FinEd, State Financial Vulnerability Map (NFCS 2009 to 2024)</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Caveat:wght@400;500;600;700&family=Fredoka:wght@400;500;600;700&family=DM+Mono:wght@400;500&family=Inter:wght@300;400;600;700&display=swap"
+    rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/deck.gl@8.9.35/dist.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+  <script src="nfcs-state-map-data.js"></script>
+  <script src="nfcs-narrative-data.js"></script>
+  <script src="us-states-inset.js"></script>
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      cursor: none;
+      scroll-behavior: smooth;
+    }
+
+    :root {
+      --ink: #282421;
+      /* Deep charcoal ink */
+      --paper: #f3f0e8;
+      /* Warm archival paper */
+      --card-paper: #faf8f4;
+      /* Off-white heavy cardstock */
+      --teal: #1a6b6b;
+      /* Muted deep teal */
+      --yellow: #c69926;
+      /* Raw ochre yellow */
+      --sage: #779483;
+      /* Soft blueprint sage */
+      --coral: #cc5a43;
+      /* Terracotta red for errors/warnings */
+      --slate: #4f6472;
+      /* Graphite pencil blue */
+      --rule: rgba(40, 36, 33, 0.14);
+      /* Ink guidelines */
+      --blueprint: #e0e6e3;
+      /* Light blueprint map base */
+      --serif: 'Cormorant Garamond', Georgia, serif;
+      --mono: 'DM Mono', monospace;
+      --sans: 'Inter', sans-serif;
+      --transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    html,
+    body {
+      width: 100%;
+      min-height: 100vh;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--serif);
+      overflow-x: hidden;
+    }
+
+    /* Paper grain backdrop */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.5;
+    }
+
+    /* Soft warm vignette instead of tech radial glow */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(ellipse 85% 75% at 50% 50%, transparent 20%, rgba(201, 162, 39, 0.03) 70%, rgba(40, 36, 33, 0.03) 100%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Map grid canvas */
+    #mapGrid {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Drifting background gradient orb */
+    .bg-orb {
+      position: fixed;
+      width: 80vmax;
+      height: 80vmax;
+      border-radius: 50%;
+      background: radial-gradient(circle at center,
+          rgba(201, 162, 39, 0.05) 0%,
+          rgba(26, 107, 107, 0.03) 45%,
+          transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+      animation: orbDrift 28s ease-in-out infinite;
+      will-change: transform;
+    }
+
+    /* Reading progress bar (graphite line style) */
+    .progress-line {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 0%;
+      height: 4px;
+      background: linear-gradient(to right, var(--teal), var(--yellow), var(--coral));
+      z-index: 100;
+      pointer-events: none;
+    }
+
+    /* Custom cursor  graphite arrow pointer */
+    .cursor-arrow {
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 22px;
+      height: 22px;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0;
+      transform-origin: 2px 2px;
+      /* White fill + difference blend = the inverse of whatever colour is underneath */
+      mix-blend-mode: difference;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cfilter id='w'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.04' numOctaves='2' seed='4' result='n'/%3E%3CfeDisplacementMap in='SourceGraphic' in2='n' scale='0.9'/%3E%3C/filter%3E%3Cpath filter='url(%23w)' d='M4 3 L26 17 L16 19 L21 31 L17 33 L12 21 L4 24 Z' fill='%23ffffff' stroke='%23ffffff' stroke-width='1.4' stroke-linejoin='round' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat;
+      transition: opacity 0.3s ease, transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .cursor-arrow.visible {
+      opacity: 1;
+    }
+
+    /* Hover (.hot) cursor: the arrow grows and turns purple. It keeps
+       mix-blend-mode: difference, so filling the arrow with the complementary
+       green flips it to violet over the light paper. */
+    .cursor-arrow.hot {
+      transform: scale(1.18);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cfilter id='wp'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.04' numOctaves='2' seed='4' result='n'/%3E%3CfeDisplacementMap in='SourceGraphic' in2='n' scale='0.9'/%3E%3C/filter%3E%3Cpath filter='url(%23wp)' d='M4 3 L26 17 L16 19 L21 31 L17 33 L12 21 L4 24 Z' fill='%2373b904' stroke='%2373b904' stroke-width='1.4' stroke-linejoin='round' stroke-linecap='round'/%3E%3C/svg%3E");
+    }
+
+    /* Sticky Navigation Bar - Hand-drawn line at bottom */
+    .topnav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 50;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.9rem max(1.5rem, 5vw);
+      background: rgba(243, 240, 232, 0.9);
+      backdrop-filter: blur(12px);
+      border-bottom: 2px solid var(--ink);
+      transition: transform 0.35s ease;
+      will-change: transform;
+    }
+
+    .topnav.nav-hidden {
+      transform: translateY(-110%);
+    }
+
+    .topnav a {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink);
+      text-decoration: none;
+      transition: color 0.3s ease;
+      cursor: none;
+    }
+
+    .topnav a:hover {
+      color: var(--teal);
+      text-decoration: underline;
+    }
+
+    .topnav a.nav-back {
+      font-family: 'Caveat', cursive;
+      font-size: clamp(16px, 1.6vw, 20px);
+      font-weight: 400;
+      text-transform: none;
+      letter-spacing: 0;
+    }
+
+    .nav-back span {
+      display: inline-block;
+      transition: transform 0.3s ease;
+    }
+
+    .nav-back:hover span {
+      transform: translateX(-4px);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 1.5rem;
+    }
+
+    /* Collapsible Controls Panel - Vintage Kraft Paper Aesthetic */
+    .fontpanel {
+      position: fixed;
+      left: 1.5rem;
+      bottom: 1.5rem;
+      z-index: 100;
+      background: #efebe2;
+      border: 2px solid var(--ink);
+      border-radius: 4px;
+      padding: 1.2rem;
+      font-family: var(--mono);
+      box-shadow: 4px 4px 0 var(--rule);
+      max-width: 280px;
+      transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s ease;
+    }
+
+    /* Sketch style border-radius */
+    .sketch-border {
+      border: 2px solid var(--ink) !important;
+      border-radius: 255px 15px 225px 15px/15px 225px 15px 255px !important;
+    }
+
+    .fontpanel.collapsed {
+      transform: translateY(calc(100% - 2.5rem)) scale(0.95);
+      opacity: 0.9;
+    }
+
+    .fontpanel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.8rem;
+      border-bottom: 1px dashed var(--ink);
+      padding-bottom: 0.4rem;
+      cursor: none;
+    }
+
+    .fontpanel-header h3 {
+      font-size: 9.5px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ink);
+    }
+
+    .fontpanel-toggle {
+      font-size: 9px;
+      color: var(--teal);
+      background: none;
+      border: none;
+      cursor: none;
+      font-weight: bold;
+    }
+
+    .fontpanel-content {
+      overflow: hidden;
+    }
+
+    .fontpanel h4 {
+      font-size: 8.5px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink);
+      margin: 0.8rem 0 0.4rem;
+      font-weight: bold;
+    }
+
+    .fontpanel h4:first-of-type {
+      margin-top: 0;
+    }
+
+    .fontpanel .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+
+    .fontpanel button {
+      font-family: var(--mono);
+      font-size: 9px;
+      padding: 3px 6px;
+      border: 1px solid var(--ink);
+      border-radius: 2px;
+      background: #faf8f5;
+      color: var(--ink);
+      cursor: none;
+      transition: var(--transition);
+    }
+
+    .fontpanel button:hover {
+      background: var(--paper);
+    }
+
+    .fontpanel button.on {
+      background: var(--ink);
+      color: var(--paper);
+    }
+
+    .fontpanel input[type="range"] {
+      width: 100%;
+      height: 4px;
+      margin: 4px 0;
+      accent-color: var(--ink);
+      cursor: none;
+      background: var(--rule);
+    }
+
+    .fontpanel .val {
+      text-transform: none;
+      color: rgba(40, 36, 33, 0.6);
+      margin-left: 2px;
+    }
+
+    /* Layout Shell */
+    .wrap {
+      position: relative;
+      z-index: 2;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+
+    section {
+      padding: 9vh 0;
+      border-bottom: 2px dashed var(--rule);
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    section.in-view {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    section:last-of-type {
+      border-bottom: none;
+    }
+
+    /* Editorial Typography with Drop Caps */
+    .eyebrow {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--teal);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .eyebrow::before {
+      content: '★';
+      font-size: 8px;
+      color: var(--yellow);
+    }
+
+    h2.section-head {
+      font-family: var(--serif);
+      font-weight: 600;
+      font-size: clamp(28px, 3.8vw, 40px);
+      line-height: 1.18;
+      letter-spacing: -0.015em;
+      margin-bottom: 1.6rem;
+      color: var(--ink);
+    }
+
+    h3.sub {
+      font-family: var(--serif);
+      font-style: italic;
+      font-weight: 600;
+      font-size: clamp(20px, 2.4vw, 24px);
+      color: var(--teal);
+      margin: 2.2rem 0 0.8rem;
+    }
+
+    p.body {
+      font-family: var(--serif);
+      font-weight: 500;
+      font-size: clamp(16.5px, 1.4vw, 19px);
+      line-height: 1.76;
+      color: rgba(40, 36, 33, 0.85);
+      margin-bottom: 1.35rem;
+    }
+
+    /* Editorial Drop Cap styling */
+    p.lede::first-letter {
+      font-family: var(--serif);
+      font-size: 3.5em;
+      float: left;
+      line-height: 0.8;
+      margin-right: 0.15em;
+      margin-top: 0.05em;
+      color: var(--teal);
+      font-weight: bold;
+    }
+
+    p.body strong {
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .lede {
+      font-size: clamp(18px, 1.5vw, 21px);
+      line-height: 1.68;
+      color: var(--ink);
+      margin-bottom: 1.8rem;
+    }
+
+    .pullquote {
+      font-family: 'Caveat', cursive;
+      font-style: normal;
+      font-weight: 400;
+      font-size: clamp(22px, 2.8vw, 31px);
+      line-height: 1.3;
+      letter-spacing: 0;
+      color: var(--teal);
+      margin: 2.8rem 0 4.5rem;
+      padding: 1.6rem 2.8rem;
+      border: 1.5px solid var(--ink);
+      border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+      background: rgba(201, 162, 39, 0.04);
+      position: relative;
+    }
+
+    .pullquote::before {
+      content: '“';
+      font-size: 4rem;
+      position: absolute;
+      top: -1.2rem;
+      left: 1rem;
+      font-family: var(--serif);
+      color: var(--yellow);
+      opacity: 0.6;
+    }
+
+    .pullquote.no-quote::before {
+      content: none;
+    }
+
+    mark {
+      background: rgba(201, 162, 39, 0.22);
+      color: inherit;
+      padding: 0.05em 0.15em;
+      border-radius: 2px;
+    }
+
+    
+    /* ==============================================================================
+       FIN-LIT-ED SPECIFIC STYLES (Adapted to Conflict Lens Aesthetic)
+       ============================================================================== */
+
+    /* Layout Shell */
+    .wrap {
+      position: relative;
+      z-index: 2;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+
+    section.nsec {
+      padding: 9vh 0;
+      border-bottom: 2px dashed var(--rule);
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+      scroll-snap-align: none;
+      min-height: auto;
+      display: block;
+    }
+    
+    section.nsec.in {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    
+    section.nsec:last-of-type {
+      border-bottom: none;
+    }
+
+    /* Hero Section */
+    .hero {
+      padding-top: 15vh;
+      padding-bottom: 8vh;
+      border-bottom: 2px solid var(--ink);
+    }
+    
+    .herocard {
+      background: var(--card-paper);
+      border: 2.5px solid var(--ink);
+      border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+      box-shadow: 6px 6px 0 var(--rule);
+      padding: clamp(40px, 6vw, 72px) clamp(28px, 5vw, 60px);
+      text-align: left;
+    }
+
+    .hero-kicker {
+      font-family: 'Caveat', cursive;
+      font-size: clamp(32px, 4vw, 46px);
+      color: var(--teal);
+      line-height: 1;
+      margin-bottom: 10px;
+    }
+    
+    .herocard h1 {
+      font-family: var(--serif);
+      font-weight: 600;
+      font-size: clamp(42px, 6.2vw, 72px);
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+      margin-bottom: 1.2rem;
+      color: var(--ink);
+    }
+    
+    .herosub {
+      font-family: var(--serif);
+      font-size: clamp(18px, 1.5vw, 21px);
+      line-height: 1.68;
+      color: var(--ink);
+      max-width: 62ch;
+    }
+
+    /* Common Card Styling (Stats, Persona, Problem) */
+    .stat, .card, .persona, .rcard, .step, .exttag {
+      background: var(--card-paper);
+      border: 2px solid var(--ink);
+      border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+      box-shadow: 4px 4px 0 var(--rule);
+      padding: 24px;
+      transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.3s;
+    }
+    
+    .stat:hover, .card:hover, .persona:hover, .rcard:hover, .step:hover {
+      transform: translateY(-4px) rotate(0deg) !important;
+      box-shadow: 6px 6px 0 rgba(40, 36, 33, 0.15);
+    }
+
+    /* Why Stats */
+    .why-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 22px;
+      margin: 24px 0 16px;
+    }
+    
+    .stat .num {
+      font-family: var(--sans);
+      font-weight: 700;
+      font-size: 48px;
+      line-height: 1;
+      letter-spacing: -0.02em;
+    }
+    .stat.s-rust .num { color: var(--coral); }
+    .stat.s-teal .num { color: var(--teal); }
+    .stat.s-gold .num { color: var(--yellow); }
+    
+    .stat .lbl {
+      font-family: var(--serif);
+      font-size: 16px;
+      color: var(--ink);
+      margin-top: 12px;
+      line-height: 1.45;
+    }
+
+    .srcline {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: rgba(40, 36, 33, 0.6);
+      margin-top: 8px;
+    }
+
+    .scorecard {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 8px 18px;
+      margin-bottom: 24px;
+      font-family: var(--mono);
+      font-size: 11.5px;
+      color: var(--ink);
+      background: rgba(26, 107, 107, 0.05);
+      padding: 12px 18px;
+      border: 1px dashed var(--rule);
+      border-radius: 4px;
+    }
+    .scorecard .sc-h {
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 10px;
+      color: var(--teal);
+      font-weight: bold;
+      width: 100%;
+      margin-bottom: 4px;
+    }
+    .scorecard b {
+      color: var(--coral);
+      font-weight: bold;
+    }
+
+    .exttag {
+      margin-top: 24px;
+      background: #faf8f5;
+      border-style: dashed;
+    }
+    .exttag-h {
+      font-family: var(--mono);
+      font-size: 10.5px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--slate);
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+
+    /* Cards 3 */
+    .cards3 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 22px;
+      margin-top: 24px;
+    }
+    .cards3 .card:nth-child(odd) { transform: rotate(-1deg); }
+    .cards3 .card:nth-child(even) { transform: rotate(1.5deg); }
+    
+    .card .ic {
+      width: 44px;
+      height: 44px;
+      border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+      border: 1.5px solid var(--ink);
+    }
+    .card .ic svg { width: 22px; height: 22px; }
+    
+    .card.c-rust .ic { background: #fdf5f3; color: var(--coral); }
+    .card.c-rust h3 { color: var(--coral); }
+    .card.c-gold .ic { background: #fcf9ee; color: var(--yellow); }
+    .card.c-gold h3 { color: var(--yellow); }
+    .card.c-teal .ic { background: #f0f6f6; color: var(--teal); }
+    .card.c-teal h3 { color: var(--teal); }
+
+    .card h3 {
+      font-family: var(--serif);
+      font-weight: 600;
+      font-size: 24px;
+      margin-bottom: 10px;
+      color: var(--ink);
+    }
+    .card p {
+      font-family: var(--sans);
+      font-size: 14px;
+      line-height: 1.6;
+      color: rgba(40, 36, 33, 0.8);
+    }
+
+    /* Personas */
+    .personas {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 22px;
+      margin-top: 24px;
+    }
+    .personas .persona:nth-child(4n+1) { transform: rotate(-1deg); }
+    .personas .persona:nth-child(4n+2) { transform: rotate(1deg); }
+    .personas .persona:nth-child(4n+3) { transform: rotate(0.5deg); }
+    .personas .persona:nth-child(4n) { transform: rotate(-0.5deg); }
+    
+    .persona .picon {
+      width: 40px;
+      height: 40px;
+      border: 1.5px solid var(--ink);
+      border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 14px;
+    }
+    .persona .picon svg { width: 20px; height: 20px; }
+    
+    .persona .ptag {
+      display: inline-block;
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      font-weight: bold;
+      padding: 3px 8px;
+      border: 1px solid var(--ink);
+      border-radius: 2px;
+      margin-bottom: 12px;
+    }
+    
+    .p-teal .picon { background: #f0f6f6; color: var(--teal); }
+    .p-teal .ptag { background: #f0f6f6; color: var(--teal); }
+    .p-gold .picon { background: #fcf9ee; color: var(--yellow); }
+    .p-gold .ptag { background: #fcf9ee; color: var(--yellow); }
+    .p-rust .picon { background: #fdf5f3; color: var(--coral); }
+    .p-rust .ptag { background: #fdf5f3; color: var(--coral); }
+    .p-plum .picon { background: #f8f5fa; color: #7a4f6d; }
+    .p-plum .ptag { background: #f8f5fa; color: #7a4f6d; }
+
+    .persona h3 {
+      font-family: var(--serif);
+      font-weight: 600;
+      font-size: 26px;
+      line-height: 1.1;
+      margin-bottom: 8px;
+      color: var(--ink);
+    }
+    .persona p {
+      font-family: var(--sans);
+      font-size: 14.5px;
+      line-height: 1.6;
+      color: rgba(40, 36, 33, 0.8);
+      margin-bottom: 16px;
+    }
+    .persona .hook {
+      font-family: 'Caveat', cursive;
+      font-size: 18px;
+      color: var(--teal);
+    }
+
+    /* Steps */
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      margin-top: 24px;
+    }
+    .step {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+    .step .sn {
+      flex: 0 0 36px;
+      width: 36px;
+      height: 36px;
+      border: 1.5px solid var(--ink);
+      border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+      background: var(--teal);
+      color: var(--paper);
+      font-family: var(--mono);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: bold;
+    }
+    .step h4 {
+      font-family: var(--serif);
+      font-weight: 600;
+      font-size: 20px;
+      margin-bottom: 6px;
+      color: var(--ink);
+    }
+    .step p {
+      font-family: var(--sans);
+      font-size: 14px;
+      color: rgba(40, 36, 33, 0.8);
+      line-height: 1.5;
+    }
+
+    /* Roadmap */
+    .roadmap {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 22px;
+      margin-top: 32px;
+    }
+    .rcard h3 {
+      font-family: var(--serif);
+      font-weight: 600;
+      font-size: 26px;
+      color: var(--ink);
+      margin-bottom: 16px;
+      border-bottom: 1.5px dashed var(--rule);
+      padding-bottom: 12px;
+    }
+    .rcard ul {
+      list-style: none;
+      padding: 0;
+    }
+    .rcard li {
+      font-family: var(--sans);
+      font-size: 14.5px;
+      color: rgba(40, 36, 33, 0.85);
+      padding: 8px 0 8px 24px;
+      position: relative;
+    }
+    .rcard li::before {
+      content: '→';
+      position: absolute;
+      left: 0;
+      top: 8px;
+      font-family: var(--mono);
+      color: var(--teal);
+      font-weight: bold;
+    }
+
+    /* Map & Charts wrappers */
+    .dashboard-mockup {
+      width: 100%;
+      background: #ebdcc3;
+      border: 2px solid var(--ink);
+      border-radius: 6px;
+      box-shadow: 6px 6px 0 var(--rule);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+      margin: 32px 0;
+    }
+    .dashboard-header {
+      height: 38px;
+      background: #fdfaf2;
+      border-bottom: 2px solid var(--ink);
+      display: flex;
+      align-items: center;
+      padding: 0 1rem;
+      justify-content: space-between;
+    }
+    .window-dots {
+      display: flex;
+      gap: 6px;
+    }
+    .window-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      border: 1px solid var(--ink);
+      background: #fff;
+    }
+    .dashboard-title-bar {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--ink);
+      font-weight: bold;
+    }
+    .dashboard-body {
+      flex: 1;
+      background: var(--paper);
+      position: relative;
+    }
+    
+    .chartL, .chartM {
+      width: 100%;
+      height: 480px;
+      padding: 16px;
+    }
+
+    #mapWrap {
+      position: relative;
+      width: 100%;
+      height: 620px;
+      background: #faf6ef;
+      background-image:
+        radial-gradient(var(--rule) 1px, transparent 0),
+        linear-gradient(var(--rule) 0.5px, transparent 0.5px);
+      background-size: 18px 18px;
+      overflow: hidden;
+    }
+    #map {
+      width: 100%;
+      height: 100%;
+    }
+
+    .bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px 20px;
+      padding: 14px 16px;
+      background: var(--card-paper);
+      border-bottom: 2px solid var(--ink);
+    }
+    .grouplabel {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink);
+      font-weight: bold;
+    }
+    .seg {
+      display: inline-flex;
+      border: 1.5px solid var(--ink);
+      border-radius: 4px;
+      overflow: hidden;
+      background: #fff;
+    }
+    .seg button {
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: bold;
+      border: none;
+      background: none;
+      padding: 6px 12px;
+      cursor: pointer;
+      color: rgba(40, 36, 33, 0.6);
+      transition: all 0.2s;
+    }
+    .seg button:not(:last-child) {
+      border-right: 1.5px solid var(--ink);
+    }
+    .seg button.active {
+      background: var(--teal);
+      color: #fff;
+    }
+    .seg button:hover:not(.active) {
+      background: rgba(26, 107, 107, 0.1);
+      color: var(--ink);
+    }
+    .msel {
+      font-family: var(--mono);
+      font-size: 11px;
+      padding: 6px 10px;
+      border: 1.5px solid var(--ink);
+      background: #fff;
+      color: var(--ink);
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .yearctl {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-left: auto;
+    }
+    .play {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 1.5px solid var(--ink);
+      background: #fff;
+      color: var(--ink);
+      cursor: pointer;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    .play.on {
+      background: var(--teal);
+      color: #fff;
+      border-color: var(--teal);
+    }
+    .yearscale {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      width: 240px;
+    }
+    input[type=range] {
+      width: 100%;
+      accent-color: var(--teal);
+      height: 4px;
+      background: var(--rule);
+      border-radius: 2px;
+      -webkit-appearance: none;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--teal);
+      border: 1.5px solid var(--ink);
+      cursor: pointer;
+    }
+    .ticks {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--mono);
+      font-size: 10px;
+      color: rgba(40, 36, 33, 0.5);
+    }
+    .ticks span { cursor: pointer; transition: color 0.2s; }
+    .ticks span.active { color: var(--ink); font-weight: bold; }
+    #yearlabel {
+      font-family: var(--mono);
+      font-size: 16px;
+      font-weight: bold;
+      color: var(--ink);
+      min-width: 44px;
+      text-align: right;
+    }
+
+    /* Deck.gl Tooltip Overrides */
+    .dtt {
+      font-family: var(--sans) !important;
+      background: var(--card-paper) !important;
+      color: var(--ink) !important;
+      border: 1.5px solid var(--ink) !important;
+      border-radius: 6px !important;
+      padding: 0 !important;
+      box-shadow: 4px 4px 0 var(--rule) !important;
+      max-width: 280px !important;
+      font-size: 12px !important;
+      overflow: hidden;
+    }
+    .tt-state {
+      font-family: var(--serif);
+      font-weight: 600;
+      font-size: 22px;
+      line-height: 1.1;
+      padding: 14px 16px 4px;
+      border-bottom: 1px dashed var(--rule);
+    }
+    .tt-sub {
+      display: block;
+      font-family: var(--mono);
+      font-size: 9.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--teal);
+      margin-top: 4px;
+    }
+    .tt-head {
+      display: flex;
+      background: rgba(26, 107, 107, 0.04);
+      border-bottom: 1.5px solid var(--ink);
+    }
+    .tt-cell {
+      flex: 1;
+      padding: 10px 16px;
+    }
+    .tt-cell+.tt-cell {
+      border-left: 1.5px solid var(--ink);
+    }
+    .tt-k {
+      display: block;
+      font-family: var(--mono);
+      font-size: 9px;
+      text-transform: uppercase;
+      color: rgba(40, 36, 33, 0.6);
+      margin-bottom: 4px;
+    }
+    .tt-tag { color: rgba(40, 36, 33, 0.4); }
+    .tt-v {
+      font-family: var(--serif);
+      font-size: 24px;
+      font-weight: 600;
+      line-height: 1;
+      color: var(--ink);
+    }
+    .tt-break {
+      padding: 12px 16px 8px;
+    }
+    .tt-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 6px 0;
+    }
+    .tt-row .lbl {
+      flex: 1;
+      color: rgba(40, 36, 33, 0.8);
+      font-size: 11.5px;
+    }
+    .tt-row .barwrap {
+      width: 60px;
+      height: 6px;
+      background: var(--rule);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .tt-row .barfill {
+      height: 100%;
+      background: var(--coral);
+      border-radius: 3px;
+    }
+    .tt-row b {
+      width: 40px;
+      text-align: right;
+      font-family: var(--sans);
+      font-variant-numeric: tabular-nums;
+      font-weight: 600;
+      color: var(--ink);
+    }
+    .tt-row.on .lbl { color: var(--ink); font-weight: 600; }
+    .tt-row.on b { color: var(--coral); }
+    .tt-foot {
+      font-family: var(--mono);
+      font-size: 9.5px;
+      color: rgba(40, 36, 33, 0.6);
+      padding: 8px 16px 14px;
+      background: rgba(201, 162, 39, 0.04);
+      border-top: 1px dashed var(--rule);
+    }
+
+    /* Legends */
+    .s1legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px 20px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--ink);
+      margin-top: 16px;
+      align-items: center;
+      padding: 12px 16px;
+      background: var(--card-paper);
+      border: 1.5px solid var(--ink);
+      border-radius: 4px;
+    }
+    .s1legend i {
+      display: inline-block;
+      width: 24px;
+      height: 0;
+      border-top-width: 2.5px;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+    .s1legend b {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border-radius: 2px;
+      margin-right: 8px;
+      vertical-align: -2px;
+      border: 1px solid rgba(40, 36, 33, 0.2);
+    }
+    
+    .legendbar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--ink);
+      margin: 16px 0;
+      padding: 10px 16px;
+      background: var(--card-paper);
+      border: 1.5px solid var(--ink);
+      border-radius: 4px;
+    }
+    .legendbar .grad {
+      width: 200px;
+      height: 12px;
+      border-radius: 2px;
+      border: 1px solid var(--ink);
+    }
+
+    /* Dropnote / Annotations */
+    .dropnote, .anote, .caveat {
+      font-family: 'Caveat', cursive;
+      font-size: 20px;
+      line-height: 1.4;
+      color: var(--teal);
+      max-width: 72ch;
+      margin-top: 20px;
+      padding-left: 20px;
+      border-left: 2px solid var(--yellow);
+    }
+    .caveat {
+      background: rgba(201, 162, 39, 0.05);
+      padding: 16px 20px;
+      border: 1px dashed var(--ink);
+      border-radius: 4px;
+      border-left: none;
+      font-family: var(--sans);
+      font-size: 14px;
+      color: rgba(40, 36, 33, 0.85);
+    }
+    .caveat b { color: var(--ink); font-weight: 600; }
+    
+    .nextlist {
+      max-width: 72ch;
+      margin: 16px 0;
+      padding-left: 24px;
+    }
+    .nextlist li {
+      font-family: var(--sans);
+      font-size: 15px;
+      line-height: 1.6;
+      color: rgba(40, 36, 33, 0.85);
+      margin: 12px 0;
+    }
+    .nextlist b {
+      color: var(--ink);
+      font-weight: 600;
+    }
+    
+    .hl {
+      background: rgba(201, 162, 39, 0.25);
+      padding: 0 4px;
+      border-radius: 2px;
+      color: var(--ink);
+    }
+    .script {
+      font-family: 'Caveat', cursive;
+      color: var(--coral);
+      font-size: 1.3em;
+    }
+    p.note {
+      font-family: var(--sans);
+      font-size: 15px;
+      color: rgba(40, 36, 33, 0.7);
+      margin-bottom: 16px;
+    }
+    
+    .secnum {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--teal);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1.2rem;
+      font-weight: bold;
+    }
+    .secnum::before {
+      content: '★';
+      font-size: 8px;
+      color: var(--yellow);
+    }
+
+    /* Annotations & Prompts */
+    .post-it {
+      font-family: 'Caveat', cursive;
+      font-size: 20px;
+      line-height: 1.3;
+      color: var(--ink);
+      background: #fdfaf2;
+      border: 1px solid var(--rule);
+      box-shadow: 3px 3px 6px rgba(40, 36, 33, 0.08);
+      padding: 12px 18px;
+      margin: 16px 0;
+      max-width: 380px;
+      border-radius: 2px 2px 25px 2px / 2px 2px 2px 25px;
+      position: relative;
+      transform: rotate(-1.5deg);
+    }
+    .post-it::before {
+      content: '';
+      position: absolute;
+      top: -8px;
+      left: 50%;
+      width: 40px;
+      height: 16px;
+      background: rgba(201, 162, 39, 0.4);
+      transform: translateX(-50%) rotate(2deg);
+      box-shadow: 1px 1px 2px rgba(40,36,33,0.1);
+    }
+    .post-it.tilt-right {
+      transform: rotate(2deg);
+      align-self: flex-end;
+    }
+    
+    .interactive-prompt {
+      font-family: 'Caveat', cursive;
+      font-size: 18px;
+      color: var(--teal);
+      animation: pulseText 2.5s infinite;
+      margin-left: 12px;
+      display: inline-block;
+    }
+    @keyframes pulseText {
+      0%, 100% { opacity: 0.7; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.05); }
+    }
+
+</style>
+</head>
+
+<body>
+  <div id="mapGrid"></div>
+  <div class="bg-orb"></div>
+  <div class="progress-line" id="progressBar"></div>
+  <div class="cursor-arrow" id="cursorArrow"></div>
+
+  <nav class="topnav" id="topNav">
+    <a class="nav-back" href="../index.html"><span>&larr;</span>&nbsp; Back to home</a>
+    <div class="nav-links">
+      <a href="#problem">The problem</a>
+      <a href="#strain">The strain</a>
+      <a href="#targeting">The map</a>
+      <a href="#build">What we'd build</a>
+    </div>
+  </nav>
+
+  <div class="wrap">
+    <header class="hero">
+      <div class="herocard">
+        <div class="hero-kicker">the case for</div>
+        <h1>A Fin-Lit Education App</h1>
+        <div class="eyebrow">Personalized learning, powered by AI</div>
+        <p class="herosub">Built on real data from the National Financial Capability Study and the Survey of Consumer
+          Finances. Every claim here comes from <span class="hl">what households report</span>.</p>
+      </div>
+    </header>
+
+    <!-- ===================== 01 METHODOLOGY ===================== -->
+    <section class="nsec reveal">
+      <div class="secnum">01 / Methodology & Data</div>
+      <h2 class="section-head">Built on real behavior</h2>
+      <p class="lede">To build this platform, I processed 15 years of raw respondent data from the National Financial Capability Study (NFCS). This involved cleaning and normalizing over 50,000 rows of survey responses using Python and Pandas. The final outputs were visualized using ECharts for time-series trends and Deck.gl for geospatial mapping.</p>
+    </section>
+
+
+    <!-- ===================== 01 WHY THIS SPACE ===================== -->
+    <section class="nsec reveal">
+      <div class="secnum">02 / Why this space</div>
+      <h2 class="section-head">The need is big and growing</h2>
+      <p class="lede">Financial education sits between two large markets, fintech and edtech, and a problem the data
+        shows getting worse. We start from <span class="hl">measured behavior</span>, not promises.</p>
+      <div class="scorecard">
+        <span class="sc-h">Why fintech and edtech, our scoring</span>
+        <span>Growth potential <b>4/5</b></span>
+        <span>Hiring demand <b>5/5</b></span>
+        <span>Data accessibility <b>4/5</b></span>
+        <span>Pain points <b>5/5</b></span>
+        <span>Total opportunity <b>4.5/5</b></span>
+      </div>
+      <div class="why-stats">
+        <div class="stat s-rust">
+          <div class="num">55%</div>
+          <div class="lbl">struggled to pay their bills in 2024</div>
+        </div>
+        <div class="stat s-teal">
+          <div class="num">52%</div>
+          <div class="lbl">have no 3 month emergency fund, up since 2021</div>
+        </div>
+        <div class="stat s-gold">
+          <div class="num">1 in 5</div>
+          <div class="lbl">have ever taken a financial education course</div>
+        </div>
+      </div>
+      <p class="srcline">Source: NFCS, weighted to the U.S. population.</p>
+      <div class="exttag">
+        <div class="exttag-h">External market context</div>
+        <p>Industry estimates, not from this analysis. The annual cost of financial illiteracy is put near <b>$415B</b>,
+          and the personal finance app market near <b>$207B by 2026</b>.</p>
+      </div>
+      <p class="dropnote">Figures we left out: a $2,500+ loss for the top 15%, a $1,015 average annual loss, and a "cost
+        grows with complexity" curve. These dollar loss figures had no basis in our data, so they were dropped.</p>
+    </section>
+
+    <!-- ===================== 02 THE PROBLEM ===================== -->
+    <section class="nsec reveal" id="problem">
+      <div class="secnum">03 / The problem</div>
+      <h2 class="section-head">One size fits all keeps failing</h2>
+      <p class="note" style="max-width:70ch">Most apps give everyone the same lessons. Three failures follow, and <span
+          class="hl">targeting fixes each</span>.</p>
+      <div class="cards3">
+        <div class="card c-rust">
+          <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 3l9.5 17H2.5z" />
+              <path d="M12 9.5v5" />
+              <path d="M12 18h.01" />
+            </svg></div>
+          <h3>Generic content</h3>
+          <p>The same lessons for everyone, ignoring income, habits, and goals.</p>
+        </div>
+        <div class="card c-gold">
+          <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+              stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="8" width="16" height="9" rx="2.5" />
+              <path d="M22 11.5v3" />
+              <path d="M6 12.5h4" />
+            </svg></div>
+          <h3>User fatigue</h3>
+          <p>Too much complexity. People tune out and decide worse.</p>
+        </div>
+        <div class="card c-teal">
+          <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 21s7-6 7-11a7 7 0 0 0-14 0c0 5 7 11 7 11z" />
+              <circle cx="12" cy="10" r="2.6" />
+            </svg></div>
+          <h3>Context gap</h3>
+          <p>Lessons ignore where someone lives and what it costs.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== 03 PERSONAS ===================== -->
+    <section class="nsec reveal">
+      <div class="secnum">04 / Who we build for</div>
+      <h2 class="section-head">Segments the data can prove</h2>
+      <p class="note" style="max-width:70ch">We target groups the evidence here can identify, by income, community, and
+        place.</p>
+      <div class="personas">
+        <div class="persona p-teal">
+          <div class="picon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 10.5L12 4l9 6.5" />
+              <path d="M5 9.5V20h14V9.5" />
+              <path d="M9.5 20v-5h5v5" />
+            </svg></div>
+          <div class="ptag">Income</div>
+          <h3>Lower income families</h3>
+          <p>The deepest strain, and the widest swing from 2021 to 2024.</p>
+          <div class="hook">See 05, The strain</div>
+        </div>
+        <div class="persona p-gold">
+          <div class="picon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 9.5L12 5 2 9.5l10 4.5 10-4.5z" />
+              <path d="M6 11.5V17c0 1.1 2.7 2 6 2s6-.9 6-2v-5.5" />
+            </svg></div>
+          <div class="ptag">Life stage and place</div>
+          <h3>Recent graduates in high strain states</h3>
+          <p>Young and credentialed, in states where vulnerability runs high.</p>
+          <div class="hook">See 07, The targeting</div>
+        </div>
+        <div class="persona p-rust">
+          <div class="picon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+              stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="9" cy="8" r="3" />
+              <path d="M3 19c0-3.3 2.7-5 6-5s6 1.7 6 5" />
+              <circle cx="17.5" cy="9" r="2.2" />
+              <path d="M16 14.2c2.6.2 4.5 1.6 4.5 4.3" />
+            </svg></div>
+          <div class="ptag">Community</div>
+          <h3>Minority communities</h3>
+          <p>Non-White households are offered financial education more, and take it more.</p>
+          <div class="hook">See 06, The appetite</div>
+        </div>
+        <div class="persona p-plum">
+          <div class="picon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+              stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="9" />
+              <path d="M3 12h18" />
+              <path d="M12 3c2.8 2.6 2.8 15.4 0 18M12 3c-2.8 2.6-2.8 15.4 0 18" />
+            </svg></div>
+          <div class="ptag">Frontier</div>
+          <h3>New immigrant families</h3>
+          <p>The group public data cannot isolate yet. The first we would add.</p>
+          <div class="hook">See 08, Where this goes next</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== 04 THE STRAIN ===================== -->
+    <section class="nsec reveal" id="strain">
+      <div class="secnum">05 / The strain</div>
+      <h2 class="section-head">Satisfaction down, vulnerability up, worst at the bottom</h2>
+      <p class="note" style="max-width:74ch">Satisfaction peaked in 2021 on pandemic relief, then dropped by 2024.
+        Vulnerability did the opposite. Both are set to their 2009 level of 100 so they share one axis. <strong>Solid
+          lines (satisfaction) drift down, dashed lines (vulnerability) climb.</strong> The <span
+          style="color:#b5562f;font-weight:600">lower income</span> band swings the most.</p>
+      <div class="dashboard-mockup">
+        <div class="dashboard-header">
+          <div class="window-dots">
+            <div class="window-dot" style="background:#cc5a43"></div>
+            <div class="window-dot" style="background:#c69926"></div>
+            <div class="window-dot" style="background:#779483"></div>
+          </div>
+          <div class="dashboard-title-bar">strain-index.chart</div>
+          <div></div>
+        </div>
+        
+      <div class="post-it" style="position: absolute; right: 30px; top: -60px; z-index: 10;">
+        <strong>Data Note:</strong> Indexing all metrics to a 2009 baseline of 100 normalizes completely different data types onto a single axis. This clearly visualizes the 2021 to 2024 reversal.
+      </div>
+
+        <div class="dashboard-body">
+          <div id="s1b" class="chartL"></div>
+        </div>
+      </div>
+      <div class="s1legend">
+        <span><i style="border-top-style:solid;border-color:#b5562f"></i>Lower income</span>
+        <span><i style="border-top-style:solid;border-color:#c9a227"></i>Middle income</span>
+        <span><i style="border-top-style:solid;border-color:#1a6b6b"></i>Higher income</span>
+        <span style="margin-left:8px"><i style="border-top-style:solid;border-color:#5b554d"></i>satisfaction</span>
+        <span><i style="border-top-style:dashed;border-color:#5b554d"></i>vulnerability</span>
+      </div>
+    </section>
+
+    <!-- ===================== 05 THE APPETITE ===================== -->
+    <section class="nsec reveal">
+      <div class="secnum">06 / The appetite</div>
+      <h2 class="section-head">Non-White households <span class="script">want it more</span></h2>
+      <p class="note" style="max-width:72ch">Each person falls into one of three states: financial education was offered
+        and they <strong>took it</strong>, it was offered and they <strong>skipped it</strong>, or it was <strong>never
+          offered</strong>. Non-White households have a bigger took it block and a smaller never offered block. They
+        engage more and are shut out less. Shown for 2024; the pattern holds across 2012 to 2024.</p>
+      <div class="dashboard-mockup">
+        <div class="dashboard-header">
+          <div class="window-dots">
+            <div class="window-dot" style="background:#cc5a43"></div>
+            <div class="window-dot" style="background:#c69926"></div>
+            <div class="window-dot" style="background:#779483"></div>
+          </div>
+          <div class="dashboard-title-bar">appetite-demographics.chart</div>
+          <div></div>
+        </div>
+        <div class="dashboard-body">
+          <div id="s2" class="chartM"></div>
+        </div>
+      </div>
+      <div class="s1legend">
+        <span><b style="background:#1a6b6b"></b>Took it</span>
+        <span><b style="background:#c9a227"></b>Offered, skipped</span>
+        <span><b style="background:#dfe4e1;border:1px solid #c4c9c4"></b>Never offered</span>
+      </div>
+      <p class="anote">Non-White households are offered financial education more often, and take it more. The one place
+        White households lead is conversion among those already offered, near 74% versus 66%. But far fewer White
+        households are offered it at all, so the appetite still runs higher among minority communities. That is the
+        audience a targeted platform should serve.</p>
+    </section>
+
+    <!-- ===================== 06 THE TARGETING (MAP) ===================== -->
+    <section class="nsec reveal" id="targeting">
+      <div class="secnum">07 / The targeting</div>
+      
+      <div class="post-it tilt-right" style="margin-bottom: 24px; max-width: 600px;">
+        <strong>Data Note:</strong> Raw survey data is messy. To create a single vulnerability score, I engineered a composite metric. I applied custom weights to five boolean survey answers: struggling with bills, lacking an emergency fund, overspending, frequent overdrafts, and predatory borrowing. This translated qualitative survey answers into a clean 0 to 100 index.
+      </div>
+
+      <h2 class="section-head">Where vulnerability lives</h2>
+      <p class="note" style="max-width:78ch">Each state is a 3D block. <strong>Color is financial vulnerability</strong>
+        (darker is worse, averaging five hardships: bills, emergency fund, overspending, overdrafts, predatory
+        borrowing). <strong>Height is average income</strong> (taller is higher). A tall dark block means high income
+        but high strain; a short dark block is the poorer, struggling pattern. <strong>Drag to rotate, scroll to
+          zoom</strong>, hover for the detail.</p>
+      <div class="legendbar" id="vlegend"></div>
+
+      <div class="dashboard-mockup">
+        <div class="dashboard-header">
+          <div class="window-dots">
+            <div class="window-dot" style="background:#cc5a43"></div>
+            <div class="window-dot" style="background:#c69926"></div>
+            <div class="window-dot" style="background:#779483"></div>
+          </div>
+          <div class="dashboard-title-bar">vulnerability-map.gl</div>
+          <div></div>
+        </div>
+        
+        <div class="bar">
+          <span class="grouplabel">Income band</span>
+          <span class="seg" id="grpSeg">
+            <button data-g="ALL" class="active">All</button>
+            <button data-g="Lower">Lower &lt;$35k</button>
+            <button data-g="Middle">Middle $35k to 100k</button>
+            <button data-g="Higher">Higher $100k+</button>
+          </span>
+          <span class="grouplabel">Color by</span>
+          <select id="metricSel" class="msel">
+            <option value="vuln">Overall vulnerability</option>
+            <option value="bills">Struggles with bills</option>
+            <option value="nef">No emergency fund</option>
+            <option value="spend">Spends &gt; income</option>
+            <option value="od">Overdrafts</option>
+            <option value="pred">Predatory loans</option>
+          </select>
+          <span class="yearctl">
+            <button class="play" id="play">▶</button>
+            <span class="yearscale">
+              <input type="range" id="yslider" min="0" max="5" step="1" value="5" />
+              <span class="ticks" id="ticks"></span>
+            </span>
+            <span id="yearlabel">2024</span><span class="interactive-prompt">Try dragging the timeline &rarr;</span>
+          </span>
+          <span class="seg"><button id="viewBtn">Top view</button></span>
+          <span class="seg"><button id="resetBtn">Reset view</button></span>
+        </div>
+
+        
+        <div class="post-it" style="position: absolute; right: 30px; top: -50px; z-index: 10;">
+          <strong>Data Note:</strong> Standard flat maps hide the relationship between income and financial strain. By extruding the blocks based on average income, this bivariate map exposes high income areas that still suffer from high vulnerability.
+        </div>
+
+        <div id="mapWrap">
+          <div id="map"></div><span class="interactive-prompt" style="position: absolute; top: 15px; left: 15px; z-index: 10;">Hover over states to see the breakdown</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== 07 WHERE THIS GOES NEXT ===================== -->
+    <section class="nsec reveal">
+      <div class="secnum">08 / Where this goes next</div>
+      <h2 class="section-head">Beyond broad groups</h2>
+      <p class="lede">The race groups here are <strong>coarse</strong>. One "Hispanic" or "Asian" number hides very different communities. To take this further, we need to look at immigration and generation, as recency of arrival shapes money habits more than broad race categories.</p>
+      <p class="caveat">The NFCS does not record where someone was born. Getting this data requires merging external sets like the Census ACS or the Federal Reserve SHED. This introduces real data friction. Joining disparate datasets often involves resolving mismatched geographical boundaries and differing survey weights.</p>
+    </section>
+
+    <!-- ===================== 08 WHAT WE WOULD BUILD ===================== -->
+    <section class="nsec reveal" id="build">
+      <div class="secnum">09 / What we would build</div>
+      <h2 class="section-head">What we would build</h2>
+      <p class="note" style="max-width:70ch">The product turns the evidence into a path for each user. No generic
+        videos, a profile built from real signals.</p>
+      <div class="steps">
+        <div class="step"><span class="sn">1</span>
+          <div>
+            <h4>Onboarding</h4>
+            <p>A short quiz captures literacy, habits, and goals.</p>
+          </div>
+        </div>
+        <div class="step"><span class="sn">2</span>
+          <div>
+            <h4>Profile</h4>
+            <p>Signals become a living profile, not a one time test.</p>
+          </div>
+        </div>
+        <div class="step"><span class="sn">3</span>
+          <div>
+            <h4>Roadmap</h4>
+            <p>A path tuned to income, place, and risks.</p>
+          </div>
+        </div>
+        <div class="step"><span class="sn">4</span>
+          <div>
+            <h4>Adaptive lessons</h4>
+            <p>Content shifts as life changes.</p>
+          </div>
+        </div>
+      </div>
+      <div class="roadmap one">
+        <div class="rcard">
+          <h3>Core MVP</h3>
+          <ul>
+            <li>Secure user profiles</li>
+            <li>Literacy and behavior assessment</li>
+            <li>Personalized learning path</li>
+            <li>Local context by region</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ===================== SECTIONS 1 & 2 (ECharts) ===================== -->
+  <script>
+    (function () {
+      const N = window.NFCS_NARR, S1 = N.section1, S2 = N.section2;
+      const AX = { color: '#5b554d', fontFamily: 'DM Mono', fontSize: 10 };
+      const TEAL = '#1a6b6b', RED = '#b5562f', AMBER = '#c9a227', GREY = '#dfe4e1';
+      const GCOL = { Lower: '#b5562f', Middle: '#c9a227', Higher: '#1a6b6b' };
+
+      // ---- Section 1: indexed to 2009 = 100, all bands together ----
+      function indexed(arr) { const b = arr[0]; return arr.map(v => v == null || b == null ? null : Math.round(v / b * 1000) / 10); }
+      function optB() {
+        const c = echarts.init(document.getElementById('s1b'));
+        const series = [];
+        S1.groups.forEach(gp => {
+          const d = S1.data[gp];
+          series.push({
+            name: gp + ' · satisfaction', type: 'line', data: indexed(d.sat), smooth: true, symbol: 'circle', symbolSize: 6,
+            lineStyle: { color: GCOL[gp], width: 3.2 }, itemStyle: { color: GCOL[gp] }, emphasis: { focus: 'series' }
+          });
+          series.push({
+            name: gp + ' · vulnerability', type: 'line', data: indexed(d.vuln), smooth: true, symbol: 'emptyCircle', symbolSize: 6,
+            lineStyle: { color: GCOL[gp], width: 2.4, type: 'dashed' }, itemStyle: { color: GCOL[gp] }, emphasis: { focus: 'series' }
+          });
+        });
+        series[0].markLine = {
+          silent: true, symbol: 'none', data: [{ yAxis: 100 }],
+          lineStyle: { color: '#8a857d', type: 'solid', width: 1.4 },
+          label: { formatter: '2009 level = 100', color: '#8a857d', fontFamily: 'DM Mono', fontSize: 10, position: 'insideStartTop' }
+        };
+        series[0].markArea = {
+          silent: true, itemStyle: { color: 'rgba(181,86,47,0.07)' },
+          data: [[{ xAxis: '2021' }, { xAxis: '2024' }]],
+          label: { show: true, position: 'insideTop', distance: 8, formatter: '2021 to 2024 reversal', color: '#b5562f', fontFamily: 'DM Mono', fontSize: 10 }
+        };
+        c.setOption({
+          grid: { left: 48, right: 20, top: 24, bottom: 28 },
+          legend: { show: false },
+          tooltip: {
+            trigger: 'axis', textStyle: { fontFamily: 'Inter', fontSize: 11 },
+            valueFormatter: v => v == null ? '–' : v
+          },
+          xAxis: { type: 'category', data: S1.years.map(String), axisLabel: AX, axisLine: { lineStyle: { color: '#cfd4d1' } }, boundaryGap: false },
+          yAxis: { type: 'value', name: 'relative to 2009  (2009 = 100, not absolute level)', nameTextStyle: AX, axisLabel: AX, splitLine: { lineStyle: { color: '#eef1ef' } }, min: 68, max: 130 },
+          series
+        });
+        return c;
+      }
+      const cB = optB();
+
+      // ---- Section 2: 100%-stacked fin-ed decomposition, White vs Non-White (2024) ----
+      function sec2() {
+        const c = echarts.init(document.getElementById('s2'));
+        const i = S2.years.indexOf(2024);
+        const W = S2.data['White'], NW = S2.data['Non-White'];
+        const cats = ['White', 'Non-White'];
+        const part = [W.participated[i], NW.participated[i]];
+        const offn = [W.offered_not[i], NW.offered_not[i]];
+        const noff = [W.not_offered[i], NW.not_offered[i]];
+        const lab = { show: true, formatter: p => p.value >= 4 ? p.value + '%' : '', color: '#fff', fontFamily: 'DM Mono', fontSize: 11, fontWeight: 600 };
+        c.setOption({
+          grid: { left: 96, right: 24, top: 16, bottom: 28 },
+          tooltip: { trigger: 'item', textStyle: { fontFamily: 'Inter', fontSize: 11 }, formatter: p => `${p.name}, ${p.seriesName}: <b>${p.value}%</b>` },
+          legend: { show: false },
+          xAxis: { type: 'value', max: 100, axisLabel: { ...AX, formatter: '{value}%' }, splitLine: { lineStyle: { color: '#eef1ef' } } },
+          yAxis: { type: 'category', data: cats, axisLabel: { fontFamily: 'Cormorant Garamond', fontSize: 17, color: '#181512' }, axisLine: { lineStyle: { color: '#cfd4d1' } }, axisTick: { show: false } },
+          series: [
+            { name: 'Took it', type: 'bar', stack: 'x', data: part, label: lab, itemStyle: { color: TEAL }, barWidth: '52%' },
+            { name: 'Offered, skipped', type: 'bar', stack: 'x', data: offn, label: { ...lab, color: '#5b4a1f' }, itemStyle: { color: AMBER } },
+            { name: 'Never offered', type: 'bar', stack: 'x', data: noff, label: { ...lab, color: '#6b675f' }, itemStyle: { color: GREY } }
+          ]
+        });
+        return c;
+      }
+      const c2 = sec2();
+
+      window.addEventListener('resize', () => { cB.resize(); c2.resize(); });
+    })();
+  </script>
+
+  <!-- ===================== SECTION 3 MAP (deck.gl) ===================== -->
+  <script>
+    const D = window.NFCS_MAP, MET = D.metrics;
+    const VCOLORS = ['#eef3f0', '#d8e0c9', '#e8cf9a', '#d99b4e', '#b5562f', '#7a2f17'];
+    const CSCALE = d3.interpolateRgbBasis(VCOLORS);
+    const ELEVSCALE = 620000;     // metres per unit of (0..1) normalised income
+    let group = 'ALL', yidx = D.years.length - 1, timer = null, colorField = 'vuln';
+
+    function cur() { return D.data[String(D.years[yidx])][group] || {}; }
+    function rangeOf(g, field) {
+      let lo = Infinity, hi = -Infinity;
+      D.years.forEach(y => Object.values(D.data[String(y)][g] || {}).forEach(c => {
+        if (c[field] != null) { lo = Math.min(lo, c[field]); hi = Math.max(hi, c[field]); }
+      }));
+      return [lo, hi];
+    }
+    function fillFor(name) {
+      const c = cur()[name]; if (!c || c[colorField] == null) return [225, 225, 225, 255];
+      const [lo, hi] = rangeOf(group, colorField); const t = hi > lo ? (c[colorField] - lo) / (hi - lo) : .5;
+      const col = d3.color(CSCALE(Math.max(0, Math.min(1, t)))); return [col.r, col.g, col.b, 255];
+    }
+    function elevFor(name) {
+      const c = cur()[name]; if (!c || c.inc == null) return 0;
+      const [lo, hi] = rangeOf(group, 'inc'); const t = hi > lo ? (c.inc - lo) / (hi - lo) : .5;
+      return Math.max(0, Math.min(1, t));
+    }
+    const SHORT = { bills: 'Struggles with bills', nef: 'No emergency fund', spend: 'Spends &gt; income', od: 'Overdrafts', pred: 'Predatory loans' };
+    function ttHTML(name) {
+      const c = cur()[name]; if (!c) return null;
+      const [vlo, vhi] = rangeOf(group, colorField); const tv = vhi > vlo ? (c[colorField] - vlo) / (vhi - vlo) : .5;
+      const vcol = CSCALE(Math.max(0, Math.min(1, tv)));
+      const band = group === 'ALL' ? 'all incomes' : group.toLowerCase() + ' income';
+      const rows = ['bills', 'nef', 'spend', 'od', 'pred'].map(m => {
+        const v = c[m]; const w = Math.max(0, Math.min(100, v || 0));
+        return `<div class="tt-row${m === colorField ? ' on' : ''}"><span class="lbl">${SHORT[m]}</span>` +
+          `<span class="barwrap"><span class="barfill" style="width:${w}%"></span></span>` +
+          `<b>${v == null ? '–' : v + '%'}</b></div>`;
+      }).join('');
+      const headLbl = colorField === 'vuln' ? 'Vulnerability' : SHORT[colorField];
+      const headVal = colorField === 'vuln' ? (c.vuln ?? '–') : (c[colorField] == null ? '–' : c[colorField] + '%');
+      const overall = colorField === 'vuln' ? '' :
+        `<div class="tt-foot" style="padding-top:0">Overall vulnerability index: <b style="color:#b5562f">${c.vuln ?? '–'}</b></div>`;
+      return `<div class="tt-state">${name}<span class="tt-sub">${D.years[yidx]} · ${band}</span></div>` +
+        `<div class="tt-head">` +
+        `<div class="tt-cell"><span class="tt-k">${headLbl} <span class="tt-tag">› color</span></span>` +
+        `<span class="tt-v" style="color:${vcol}">${headVal}</span></div>` +
+        `<div class="tt-cell"><span class="tt-k">Avg income <span class="tt-tag">› height</span></span>` +
+        `<span class="tt-v">$${c.inc != null ? c.inc.toFixed(0) : '–'}k</span></div>` +
+        `</div>` +
+        `<div class="tt-break">${rows}</div>` + overall +
+        `<div class="tt-foot">based on ${c.n} respondents</div>`;
+    }
+
+    const { DeckGL, GeoJsonLayer, AmbientLight, DirectionalLight, LightingEffect } = deck;
+    const lighting = new LightingEffect({
+      ambient: new AmbientLight({ color: [255, 255, 255], intensity: 1.05 }),
+      dir: new DirectionalLight({ color: [255, 255, 255], intensity: 1.0, direction: [-1, -3, -1] })
+    });
+    function layer() {
+      return new GeoJsonLayer({
+        id: 'states', data: window.US_GEO_INSET, extruded: true, filled: true, stroked: true, wireframe: true,
+        getElevation: f => elevFor(f.properties.name), elevationScale: ELEVSCALE,
+        getFillColor: f => fillFor(f.properties.name),
+        getLineColor: [120, 120, 120, 150], getLineWidth: 1, lineWidthUnits: 'pixels',
+        material: { ambient: .6, diffuse: .55, shininess: 24, specularColor: [255, 255, 255] },
+        pickable: true, autoHighlight: true, highlightColor: [201, 162, 39, 140],
+        updateTriggers: { getElevation: [yidx, group], getFillColor: [yidx, group, colorField] }
+      });
+    }
+    const HOME = { longitude: -96, latitude: 36.5, zoom: 3.35, pitch: 52, bearing: 0, minZoom: 2, maxZoom: 8 };
+    let viewState = { ...HOME };
+    const deckgl = new DeckGL({
+      container: document.getElementById('map'),
+      viewState,
+      controller: true, effects: [lighting],
+      layers: [layer()],
+      onViewStateChange: ({ viewState: vs }) => { viewState = vs; deckgl.setProps({ viewState }); },
+      getTooltip: ({ object }) => object ? { html: ttHTML(object.properties.name), className: 'dtt' } : null
+    });
+
+    // Top view <-> 3D view toggle
+    let topView = false;
+    document.getElementById('viewBtn').onclick = function () {
+      topView = !topView;
+      viewState = {
+        ...viewState, pitch: topView ? 0 : 52, bearing: 0,
+        transitionDuration: 650, transitionInterpolator: new deck.LinearInterpolator(['pitch', 'bearing'])
+      };
+      this.textContent = topView ? '3D view' : 'Top view';
+      this.classList.toggle('active', topView);
+      deckgl.setProps({ viewState });
+    };
+
+    function refresh() { deckgl.setProps({ layers: [layer()] }); drawLegend(); }
+    function drawLegend() {
+      const [lo, hi] = rangeOf(group, colorField);
+      const u = colorField === 'vuln' ? '' : '%';
+      document.getElementById('vlegend').innerHTML =
+        `<b style="font-weight:600;color:#56514a">${MET[colorField]}</b> &nbsp; low (${Math.round(lo)}${u}) ` +
+        `<span class="grad" style="background:linear-gradient(90deg,${VCOLORS.join(',')})"></span> high (${Math.round(hi)}${u})` +
+        ` &nbsp;·&nbsp; block height = avg income`;
+    }
+
+    // year slider + ticks + play
+    const slider = document.getElementById('yslider'), ylabel = document.getElementById('yearlabel'),
+      playBtn = document.getElementById('play'), ticks = document.getElementById('ticks');
+    ticks.innerHTML = D.years.map((y, i) => `<span data-i="${i}">${y}</span>`).join('');
+    ticks.querySelectorAll('span').forEach(s => s.onclick = () => setYear(+s.dataset.i));
+    function setYear(i) {
+      yidx = i; slider.value = i; ylabel.textContent = D.years[i];
+      ticks.querySelectorAll('span').forEach(s => s.classList.toggle('active', +s.dataset.i === i));
+      refresh();
+    }
+    slider.oninput = () => setYear(+slider.value);
+    setYear(yidx);   // mark initial active tick
+    playBtn.onclick = () => {
+      if (timer) { clearInterval(timer); timer = null; playBtn.classList.remove('on'); playBtn.textContent = '▶'; return; }
+      playBtn.classList.add('on'); playBtn.textContent = '❚❚';
+      timer = setInterval(() => setYear((yidx + 1) % D.years.length), 1300);
+    };
+    document.querySelectorAll('#grpSeg button').forEach(b => b.onclick = () => {
+      document.querySelectorAll('#grpSeg button').forEach(x => x.classList.remove('active'));
+      b.classList.add('active'); group = b.dataset.g; refresh();
+    });
+    document.getElementById('metricSel').onchange = function () { colorField = this.value; refresh(); };
+    document.getElementById('resetBtn').onclick = () => {
+      topView = false;
+      const vb = document.getElementById('viewBtn'); vb.textContent = 'Top view'; vb.classList.remove('active');
+      viewState = { ...HOME, transitionDuration: 800, transitionInterpolator: new deck.FlyToInterpolator() };
+      deckgl.setProps({ viewState });
+    };
+    drawLegend();
+  </script>
+
+  <!-- ===================== scroll reveal ===================== -->
+  <script>
+    (function () {
+      const els = document.querySelectorAll('.reveal');
+      if (!('IntersectionObserver' in window)) { els.forEach(e => e.classList.add('in')); return; }
+      const obs = new IntersectionObserver((entries) => {
+        entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); obs.unobserve(e.target); } });
+      }, { threshold: 0.12, rootMargin: '0px 0px -7% 0px' });
+      els.forEach(el => obs.observe(el));
+      // safety: reveal anything already in view on load
+      window.addEventListener('load', () => els.forEach(el => {
+        const r = el.getBoundingClientRect(); if (r.top < window.innerHeight * 0.9) el.classList.add('in');
+      }));
+    })();
+  </script>
+
+  <!-- ===================== case study 1 chrome logic ===================== -->
+  <script>
+    // Custom cursor
+    (function () {
+      const cursorArrow = document.getElementById('cursorArrow');
+      if (!cursorArrow) return;
+      let started = false;
+      document.addEventListener('mousemove', e => {
+        cursorArrow.style.left = (e.clientX - 2) + 'px';
+        cursorArrow.style.top = (e.clientY - 2) + 'px';
+        if (!started) { cursorArrow.classList.add('visible'); started = true; }
+      });
+      document.addEventListener('mouseover', e => {
+        const hot = e.target.closest('a, button, input, select, [data-clickable]');
+        cursorArrow.classList.toggle('hot', !!hot);
+      });
+    })();
+
+    // Reading progress bar
+    (function () {
+      const bar = document.getElementById('progressBar');
+      if (!bar) return;
+      document.addEventListener('scroll', () => {
+        const h = document.documentElement;
+        const scrolled = h.scrollTop / (h.scrollHeight - h.clientHeight);
+        bar.style.width = (scrolled * 100) + '%';
+      }, { passive: true });
+    })();
+
+    // Hide top nav on scroll down, reveal on scroll up
+    (function () {
+      const nav = document.getElementById('topNav');
+      if (!nav) return;
+      let lastY = window.scrollY;
+      window.addEventListener('scroll', () => {
+        const y = window.scrollY;
+        if (y > lastY && y > 80) nav.classList.add('nav-hidden');
+        else nav.classList.remove('nav-hidden');
+        lastY = y;
+      }, { passive: true });
+    })();
+  </script>
+
+  <div id="footer-placeholder"></div>
+  <script src="../js/include-footer.js"></script>
+</body>
+
+</html>
