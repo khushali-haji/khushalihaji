@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>St. Joe's Hoes Case Study — Khushali Haji</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300;1,600&family=DM+Mono:wght@400;500&family=Inter:wght@200;300;400;500;600;700&family=Caveat:wght@400;600&display=swap"
+    rel="stylesheet">
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      cursor: none;
+      scroll-behavior: smooth;
+    }
+
+    :root {
+      --ink: #1a1a1a;
+      --paper: #f5f5f5;
+      --teal: #1a6b6b;
+      --yellow: #c69926;
+      --serif: 'Cormorant Garamond', Georgia, serif;
+      --mono: 'DM Mono', monospace;
+      --sans: 'Inter', sans-serif;
+      --transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    body {
+      width: 100%;
+      height: 100vh;
+      overflow: hidden; /* we will scroll the inner container */
+      background: var(--ink);
+      color: var(--paper);
+      font-family: var(--serif);
+    }
+
+    /* Film grain overlay applied above backgrounds but under text */
+    .grain-overlay {
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.05'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    /* Reading progress bar */
+    .progress-line {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 0%;
+      height: 4px;
+      background: linear-gradient(to right, var(--teal), var(--yellow));
+      z-index: 100;
+      pointer-events: none;
+    }
+
+    /* Custom cursor */
+    .cursor-arrow {
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 22px;
+      height: 22px;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0;
+      transform-origin: 2px 2px;
+      mix-blend-mode: difference;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cfilter id='w'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.04' numOctaves='2' seed='4' result='n'/%3E%3CfeDisplacementMap in='SourceGraphic' in2='n' scale='0.9'/%3E%3C/filter%3E%3Cpath filter='url(%23w)' d='M4 3 L26 17 L16 19 L21 31 L17 33 L12 21 L4 24 Z' fill='%23ffffff' stroke='%23ffffff' stroke-width='1.4' stroke-linejoin='round' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat;
+      transition: opacity 0.3s ease, transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .cursor-arrow.visible {
+      opacity: 1;
+    }
+
+    .cursor-arrow.hot {
+      transform: scale(1.18);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cfilter id='wp'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.04' numOctaves='2' seed='4' result='n'/%3E%3CfeDisplacementMap in='SourceGraphic' in2='n' scale='0.9'/%3E%3C/filter%3E%3Cpath filter='url(%23wp)' d='M4 3 L26 17 L16 19 L21 31 L17 33 L12 21 L4 24 Z' fill='%2373b904' stroke='%2373b904' stroke-width='1.4' stroke-linejoin='round' stroke-linecap='round'/%3E%3C/svg%3E");
+    }
+
+    /* Sticky Navigation Bar */
+    .topnav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 50;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.9rem max(1.5rem, 5vw);
+      background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+      transition: transform 0.35s ease;
+    }
+
+    .topnav a {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--paper);
+      text-decoration: none;
+      transition: color 0.3s ease;
+      cursor: none;
+    }
+
+    .topnav a:hover {
+      color: var(--yellow);
+      text-decoration: underline;
+    }
+
+    .topnav a.nav-back {
+      font-family: 'Caveat', cursive;
+      font-size: clamp(16px, 1.6vw, 20px);
+      font-weight: 400;
+      text-transform: none;
+      letter-spacing: 0;
+    }
+
+    .nav-back span {
+      display: inline-block;
+      transition: transform 0.3s ease;
+    }
+
+    .nav-back:hover span {
+      transform: translateX(-4px);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 1.5rem;
+    }
+
+    /* Slideshow Container */
+    .slideshow-container {
+      height: 100vh;
+      overflow-y: scroll;
+      scroll-snap-type: y mandatory;
+      scroll-behavior: smooth;
+      scrollbar-width: none; /* Firefox */
+    }
+    
+    .slideshow-container::-webkit-scrollbar {
+      display: none; /* Chrome/Safari */
+    }
+
+    /* Individual Slide */
+    .slide {
+      position: relative;
+      height: 100vh;
+      width: 100vw;
+      scroll-snap-align: start;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 0 max(2rem, 10vw);
+      z-index: 1;
+    }
+
+    /* Background image with cinematic gradient */
+    .slide-bg {
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background-size: cover;
+      background-position: center;
+    }
+
+    .slide-bg::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      /* Dark gradient to ensure text readability on the left */
+      background: linear-gradient(to right, rgba(12,10,8,0.95) 0%, rgba(12,10,8,0.6) 50%, rgba(12,10,8,0.2) 100%);
+    }
+
+    /* Content Wrapper inside Slide */
+    .slide-content {
+      position: relative;
+      z-index: 20;
+      max-width: 750px;
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.8s ease 0.2s, transform 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.2s;
+    }
+
+    .slide.is-active .slide-content {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Typography inside Slides */
+    .eyebrow {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--yellow);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .eyebrow::before {
+      content: '★';
+      font-size: 8px;
+      color: var(--teal);
+    }
+
+    h2.section-head {
+      font-family: var(--serif);
+      font-weight: 600;
+      font-size: clamp(32px, 4vw, 48px);
+      line-height: 1.1;
+      letter-spacing: -0.015em;
+      margin-bottom: 1.2rem;
+      color: var(--paper);
+    }
+
+    h1.hero-title {
+      font-family: var(--serif);
+      font-weight: 600;
+      font-size: clamp(52px, 7vw, 84px);
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+      margin-bottom: 1rem;
+      color: var(--paper);
+    }
+
+    .hero-oneliner {
+      font-family: var(--sans);
+      font-weight: 300;
+      font-size: clamp(20px, 2vw, 26px);
+      line-height: 1.4;
+      color: rgba(245, 245, 245, 0.9);
+      margin-bottom: 2rem;
+    }
+
+    .recognition {
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--teal);
+      border-left: 2px solid var(--yellow);
+      padding-left: 1rem;
+      margin-bottom: 2rem;
+      line-height: 1.5;
+    }
+
+    p.body {
+      font-family: var(--serif);
+      font-weight: 500;
+      font-size: clamp(18px, 1.6vw, 22px);
+      line-height: 1.6;
+      color: rgba(245, 245, 245, 0.85);
+      margin-bottom: 1.5rem;
+    }
+
+    .pullquote {
+      font-family: 'Caveat', cursive;
+      font-size: clamp(26px, 2.8vw, 36px);
+      line-height: 1.2;
+      color: var(--yellow);
+      margin: 2rem 0;
+      padding: 1.5rem 0;
+      border-top: 1px dashed rgba(245, 245, 245, 0.2);
+      border-bottom: 1px dashed rgba(245, 245, 245, 0.2);
+    }
+
+    /* Video Placeholders */
+    .video-placeholder {
+      width: 100%;
+      aspect-ratio: 16/9;
+      background: rgba(0,0,0,0.5);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 4px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--paper);
+      cursor: none;
+      position: relative;
+      overflow: hidden;
+      margin-top: 1.5rem;
+      transition: var(--transition);
+      backdrop-filter: blur(5px);
+    }
+
+    .video-placeholder::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--yellow);
+      opacity: 0;
+      transition: var(--transition);
+      z-index: 1;
+    }
+
+    .video-placeholder:hover {
+      border-color: var(--yellow);
+      transform: scale(1.02);
+    }
+
+    .video-placeholder:hover::before {
+      opacity: 0.15;
+    }
+
+    .video-placeholder span {
+      position: relative;
+      z-index: 2;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      font-weight: bold;
+    }
+    
+    /* Footer Slide specific */
+    .footer-slide {
+      height: auto;
+      min-height: 50vh;
+      display: block;
+      padding: 0;
+    }
+    
+    .footer-content {
+      padding: 6vh max(2rem, 10vw);
+    }
+
+    /* Team Grid */
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+
+    .team-member {
+      border-left: 2px solid var(--teal);
+      padding-left: 1rem;
+    }
+
+    .team-role {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--yellow);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.5rem;
+    }
+
+    .team-name {
+      font-family: var(--sans);
+      font-size: 18px;
+      color: var(--paper);
+      font-weight: 600;
+    }
+
+    /* =============================================
+       PROTAGONISTS MAP SLIDE
+       ============================================= */
+    .map-slide {
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .map-slide .slide-bg::after {
+      background: rgba(12,10,8,0.7);
+    }
+
+    /* SVG world map background */
+    .map-svg-wrap {
+      position: absolute;
+      inset: 0;
+      z-index: 5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    .map-svg-wrap svg.world-map {
+      width: 90%;
+      max-width: 1200px;
+      height: auto;
+      opacity: 0.25;
+    }
+
+    /* Connection lines overlay */
+    .connections-svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 15;
+      pointer-events: none;
+    }
+
+    .conn-path {
+      fill: none;
+      stroke: var(--yellow);
+      stroke-width: 2;
+      stroke-dasharray: 8 6;
+      stroke-dashoffset: 600;
+      transition: stroke-dashoffset 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+      opacity: 0;
+    }
+
+    .conn-path.is-drawing {
+      stroke-dashoffset: 0;
+      opacity: 1;
+    }
+
+    /* City dots on the map */
+    .city-dot {
+      position: absolute;
+      z-index: 18;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--teal);
+      border: 2px solid var(--yellow);
+      opacity: 0;
+      transform: scale(0);
+      transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+      pointer-events: none;
+    }
+
+    .city-dot.is-visible {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .city-dot .city-label {
+      position: absolute;
+      top: -22px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--yellow);
+      white-space: nowrap;
+    }
+
+    /* NYC dot is always visible */
+    .city-dot.nyc {
+      opacity: 1;
+      transform: scale(1);
+      background: var(--yellow);
+      width: 14px;
+      height: 14px;
+      box-shadow: 0 0 12px rgba(198, 153, 38, 0.6);
+    }
+    .city-dot.nyc::after {
+      content: '';
+      position: absolute;
+      inset: -6px;
+      border-radius: 50%;
+      border: 1px solid var(--yellow);
+      opacity: 0.4;
+      animation: pingDot 2s ease-out infinite;
+    }
+    @keyframes pingDot {
+      0% { transform: scale(0.8); opacity: 0.5; }
+      100% { transform: scale(2); opacity: 0; }
+    }
+
+    /* Cast Row at bottom of map slide */
+    .cast-row {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 25;
+      display: flex;
+      justify-content: center;
+      gap: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 100%);
+      padding-top: 6vh;
+    }
+
+    .cast-card {
+      position: relative;
+      flex: 0 1 25%;
+      max-width: 260px;
+      text-align: center;
+      cursor: none;
+      padding: 0 0.5rem;
+      transition: var(--transition);
+    }
+
+    .cast-card:hover {
+      transform: translateY(-8px);
+    }
+
+    /* Portrait placeholder */
+    .cast-portrait {
+      width: 100%;
+      aspect-ratio: 3/4;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 4px 4px 0 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--mono);
+      font-size: 10px;
+      color: rgba(255,255,255,0.4);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      overflow: hidden;
+      transition: var(--transition);
+    }
+
+    .cast-card:hover .cast-portrait {
+      border-color: var(--yellow);
+      background: rgba(198, 153, 38, 0.08);
+    }
+
+    .cast-card-name {
+      font-family: var(--serif);
+      font-weight: 600;
+      font-size: clamp(20px, 2.4vw, 30px);
+      color: var(--paper);
+      margin-top: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+
+    /* Tooltip that appears on hover */
+    .cast-intro {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--yellow);
+      margin-top: 0.3rem;
+      margin-bottom: 1rem;
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity 0.35s ease, transform 0.35s ease;
+    }
+
+    .cast-card:hover .cast-intro {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Eyebrow heading on map slide */
+    .map-title {
+      position: absolute;
+      top: 10vh;
+      left: max(2rem, 10vw);
+      z-index: 25;
+    }
+
+    .map-title .eyebrow {
+      margin-bottom: 0.5rem;
+    }
+
+    .map-title h2 {
+      font-family: var(--serif);
+      font-weight: 600;
+      font-size: clamp(28px, 3.5vw, 42px);
+      color: var(--paper);
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <div class="grain-overlay"></div>
+  <div class="progress-line" id="progressBar"></div>
+  <div class="cursor-arrow" id="cursorArrow"></div>
+
+  <div class="topnav" id="topNav">
+    <a class="nav-back" href="../index.html"><span>&larr;</span> Back to Work</a>
+    <div class="nav-links">
+      <a href="../about.html">About</a>
+      <a href="mailto:khushali.haji@gmail.com">Contact</a>
+    </div>
+  </div>
+
+  <div class="slideshow-container" id="slideshow">
+    
+    <!-- Slide 1: Hero -->
+    <section class="slide">
+      <div class="slide-bg" style="background-image: url('Images/image1.png');"></div>
+      <div class="slide-content">
+        <span class="eyebrow">Documentary Film</span>
+        <h1 class="hero-title">St. Joe's Hoes</h1>
+        <p class="hero-oneliner">A character driven documentary exploring immigration, housing insecurity, and creative ambition in New York City.</p>
+        
+        <div class="recognition">
+          Woodstock Film Festival 2025 — Special Jury Mention<br>
+          NYSCA 2026 — Grant Recipient
+        </div>
+
+        <div class="video-placeholder" data-clickable>
+          <span>[ Teaser / Sizzle Video Placeholder ]</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 2: The Premise -->
+    <section class="slide">
+      <div class="slide-bg" style="background-image: url('Images/image2.png');"></div>
+      <div class="slide-content">
+        <span class="eyebrow">The Premise</span>
+        <h2 class="section-head">Four strangers, one address.</h2>
+        <p class="body">In a time not far from now, before current immigration policy shifts, before billions were spent to build mass detention camps, and millions of immigrants faced uncertain futures…</p>
+        <p class="body">A French-Gabonese dancer, a painter from Mumbai, a photographer from Delhi, and a Korean-American writer walked into a former nunnery in Times Square.</p>
+        <p class="body">It's not the start of a joke — it’s the start of the documentary. It’s set in a crumbling Catholic nunnery-turned-women’s dormitory with a rat-prone kitchen, a stained-glass chapel, and communal showers with clogged drains. Each woman came here for one reason: to make it in New York City, all before their two years of affordable housing are up.</p>
+      </div>
+    </section>
+
+    <!-- Slide 3: Intro Extract -->
+    <section class="slide">
+      <div class="slide-bg" style="background-image: url('Images/image12.png');"></div>
+      <div class="slide-content">
+        <span class="eyebrow">Scene</span>
+        <h2 class="section-head">The Arrival</h2>
+        <div class="video-placeholder" data-clickable>
+          <span>[ Intro Extract Video Placeholder ]</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 4: Interactive Protagonists Map -->
+    <section class="slide map-slide" id="mapSlide">
+      <div class="slide-bg" style="background-image: url('Images/image2.png');"></div>
+
+      <!-- Title -->
+      <div class="map-title">
+        <span class="eyebrow">The Cast</span>
+        <h2>Four women. Four cities. One address.</h2>
+      </div>
+
+      <!-- Inline SVG World Map (simplified) -->
+      <div class="map-svg-wrap">
+        <svg class="world-map" viewBox="0 0 1000 500" xmlns="http://www.w3.org/2000/svg">
+          <!-- Simplified world map outlines -->
+          <g fill="none" stroke="rgba(245,245,245,0.35)" stroke-width="0.8">
+            <!-- North America -->
+            <path d="M80,80 L120,60 L180,55 L230,70 L260,90 L270,120 L250,150 L230,180 L200,200 L180,220 L160,240 L140,230 L110,200 L90,170 L70,140 L65,110 Z" />
+            <!-- Central America -->
+            <path d="M140,230 L160,240 L170,260 L165,280 L155,290 L145,285 L135,270 L130,250 Z" />
+            <!-- South America -->
+            <path d="M165,290 L190,300 L220,320 L240,360 L250,400 L240,440 L220,460 L200,450 L180,420 L160,380 L150,340 L155,310 Z" />
+            <!-- Europe -->
+            <path d="M420,60 L440,55 L470,58 L500,65 L520,75 L530,90 L520,110 L500,120 L480,130 L460,135 L440,130 L420,120 L410,100 L415,80 Z" />
+            <!-- Africa -->
+            <path d="M420,140 L450,135 L480,140 L510,160 L530,190 L540,230 L535,280 L520,320 L500,350 L480,370 L460,375 L440,360 L425,330 L415,290 L410,250 L405,210 L410,170 Z" />
+            <!-- Middle East -->
+            <path d="M530,100 L560,90 L590,95 L610,110 L620,130 L610,150 L590,160 L560,155 L540,140 Z" />
+            <!-- South Asia / India -->
+            <path d="M620,130 L650,120 L680,125 L700,140 L710,170 L700,200 L680,220 L660,230 L640,220 L625,200 L615,170 L610,150 Z" />
+            <!-- East Asia -->
+            <path d="M710,60 L740,50 L770,55 L800,70 L820,90 L830,120 L820,150 L800,170 L770,175 L740,165 L720,140 L710,110 L705,85 Z" />
+            <!-- Southeast Asia -->
+            <path d="M720,180 L750,175 L780,185 L800,200 L810,220 L800,240 L780,250 L750,245 L730,230 L720,210 Z" />
+            <!-- Australia -->
+            <path d="M780,330 L820,310 L860,315 L890,330 L900,360 L890,390 L860,405 L830,400 L800,385 L785,360 Z" />
+            <!-- Greenland -->
+            <path d="M300,30 L340,20 L370,25 L390,40 L385,60 L365,70 L340,65 L310,55 Z" />
+          </g>
+        </svg>
+      </div>
+
+      <!-- Connection lines SVG overlay -->
+      <svg class="connections-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+        <!-- Christine: LA (12%, 33%) -> NYC (27%, 32%) -->
+        <path class="conn-path" id="connChristine" d="M 12,33 C 16,28 22,28 27,32" />
+        <!-- Lior: Paris (46%, 22%) -> NYC (27%, 32%) -->
+        <path class="conn-path" id="connLior" d="M 46,22 C 40,20 32,22 27,32" />
+        <!-- Fatema: Mumbai (66%, 38%) -> NYC (27%, 32%) -->
+        <path class="conn-path" id="connFatema" d="M 66,38 C 55,30 40,28 27,32" />
+        <!-- Shreya: Delhi (67%, 32%) -> NYC (27%, 32%) -->
+        <path class="conn-path" id="connShreya" d="M 67,32 C 55,26 40,25 27,32" />
+      </svg>
+
+      <!-- City dots -->
+      <div class="city-dot nyc" style="left: 26.5%; top: 30%;"><span class="city-label">NYC</span></div>
+      <div class="city-dot" id="dotLA" style="left: 11.5%; top: 31%;"><span class="city-label">Los Angeles</span></div>
+      <div class="city-dot" id="dotParis" style="left: 45.5%; top: 20%;"><span class="city-label">Paris</span></div>
+      <div class="city-dot" id="dotMumbai" style="left: 65.5%; top: 36%;"><span class="city-label">Mumbai</span></div>
+      <div class="city-dot" id="dotDelhi" style="left: 66.5%; top: 30%;"><span class="city-label">Delhi</span></div>
+
+      <!-- Cast row at the bottom -->
+      <div class="cast-row">
+        <div class="cast-card" data-clickable data-conn="connChristine" data-dot="dotLA">
+          <div class="cast-portrait">[ Portrait ]</div>
+          <div class="cast-card-name">Christine</div>
+          <div class="cast-intro">22, Writer</div>
+        </div>
+        <div class="cast-card" data-clickable data-conn="connLior" data-dot="dotParis">
+          <div class="cast-portrait">[ Portrait ]</div>
+          <div class="cast-card-name">Lior</div>
+          <div class="cast-intro">20, Dancer</div>
+        </div>
+        <div class="cast-card" data-clickable data-conn="connFatema" data-dot="dotMumbai">
+          <div class="cast-portrait">[ Portrait ]</div>
+          <div class="cast-card-name">Fatema</div>
+          <div class="cast-intro">26, Painter</div>
+        </div>
+        <div class="cast-card" data-clickable data-conn="connShreya" data-dot="dotDelhi">
+          <div class="cast-portrait">[ Portrait ]</div>
+          <div class="cast-card-name">Shreya</div>
+          <div class="cast-intro">27, Photographer</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 5: Fatema -->
+    <section class="slide">
+      <div class="slide-bg" style="background-image: url('Images/image3.png');"></div>
+      <div class="slide-content">
+        <span class="eyebrow">The Cast</span>
+        <h2 class="section-head">Fatema</h2>
+        <p class="body">A painter from Mumbai’s Bohra Muslim community who studied art at the New York Academy of Art.</p>
+        <p class="body">She becomes pregnant during the film and must reconcile her creative ambitions with new responsibilities as a mother and wife.</p>
+      </div>
+    </section>
+
+    <!-- Slide 5: Christine -->
+    <section class="slide">
+      <div class="slide-bg" style="background-image: url('Images/image4.png');"></div>
+      <div class="slide-content">
+        <span class="eyebrow">The Cast</span>
+        <h2 class="section-head">Christine</h2>
+        <p class="body">A Korean-American humor writer from California, studying for her MFA at the New School.</p>
+        <p class="body">She tries to balance her writing aspirations with her conservative immigrant upbringing, and the weight of her father’s expectations.</p>
+      </div>
+    </section>
+
+    <!-- Slide 6: Lior -->
+    <section class="slide">
+      <div class="slide-bg" style="background-image: url('Images/image5.png');"></div>
+      <div class="slide-content">
+        <span class="eyebrow">The Cast</span>
+        <h2 class="section-head">Lior</h2>
+        <p class="body">A French-Gabonese ballet dancer from Paris who came to New York for a fresh start after a troubled past.</p>
+        <p class="body">She seeks self-worth and belongingness, chasing a shot at her dream school, Alvin Ailey, which brought her to this side of the world.</p>
+      </div>
+    </section>
+
+    <!-- Slide 7: Shreya -->
+    <section class="slide">
+      <div class="slide-bg" style="background-image: url('Images/image6.png');"></div>
+      <div class="slide-content">
+        <span class="eyebrow">The Cast</span>
+        <h2 class="section-head">Shreya</h2>
+        <p class="body">A photographer from Delhi who studied at ICP.</p>
+        <p class="body">She is all about capturing the raw truth at St. Joseph's, but internally, she’s navigating her own imposter syndrome and insecurities about work and personal life.</p>
+      </div>
+    </section>
+
+    <!-- Slide 8: Artistic Approach -->
+    <section class="slide">
+      <div class="slide-bg" style="background-image: url('Images/image7.png');"></div>
+      <div class="slide-content">
+        <span class="eyebrow">Artistic Approach</span>
+        <h2 class="section-head">The Fifth Character</h2>
+        <p class="body">The film is quiet and intimate, using handheld camera footage. Character arcs are interwoven, while the nunnery becomes a fifth character — creaking floors, wooden crosses, old statues.</p>
+        <p class="body">The tone is observational and playful.</p>
+      </div>
+    </section>
+
+    <!-- Slide 9: Director's Note -->
+    <section class="slide">
+      <div class="slide-bg" style="background-image: url('Images/image8.jpg');"></div>
+      <div class="slide-content">
+        <span class="eyebrow">Director's Note</span>
+        <h2 class="section-head">Living the Story</h2>
+        <p class="body">I didn’t just make this film. I lived it. St. Joseph’s was my first home in the city. I met these women in our shared kitchens and late-night conversations, and they became my first community in New York.</p>
+        <p class="body">With a background in international reporting, urban design, and scriptwriting, I’ve always been drawn to layered stories where politics and intimacy overlap. This story is deeply personal, because in many ways, I’m one of these women.</p>
+      </div>
+    </section>
+
+    <!-- Slide 10: Themes -->
+    <section class="slide">
+      <div class="slide-bg" style="background-image: url('Images/image9.png');"></div>
+      <div class="slide-content">
+        <span class="eyebrow">The Themes</span>
+        <h2 class="section-head">Making it in 2025</h2>
+        <p class="body">It's undoubtedly an old story told many times over, artists making it in New York City. But what does “making it” mean in 2025? We’re living in a tense climate where immigrant is a politically-heavy word.</p>
+        <p class="body">These women’s stories become a testament to a time before current policy shifts, when immigrants could come with greater security into a country where they felt like they had a shot at their dreams.</p>
+        <div class="pullquote">
+          This isn’t a film about trauma, stereotyping or identity politics. It’s a film about tenacity, changing and growing, in proximity, in discomfort, in community.
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 11: Accountability -->
+    <section class="slide">
+      <div class="slide-bg" style="background-image: url('Images/image10.png');"></div>
+      <div class="slide-content">
+        <span class="eyebrow">UX & Ethics</span>
+        <h2 class="section-head">Accountability Maintained</h2>
+        <p class="body">The film was shot in a communal hostel where I also lived. This shared space naturally fostered trust, and the film’s participants were individuals with whom I already had personal relationships. From inception through to the final cut, they were consistently informed and engaged.</p>
+        <p class="body">Prior to every interview, I communicated the topics we would discuss and emphasized that they could skip questions or stop at any time. If discomfort arose, the camera was turned off immediately.</p>
+        <p class="body">I maintained regular check-ins to make sure each participant felt comfortable. At no point was anything filmed, edited, or included without full and ongoing consent.</p>
+      </div>
+    </section>
+
+    <!-- Slide 12: Team Credits & Footer -->
+    <section class="slide footer-slide">
+      <div class="slide-bg" style="background-image: url('Images/image11.png');"></div>
+      <div class="slide-content footer-content">
+        <span class="eyebrow">Credits</span>
+        <h2 class="section-head">The Team</h2>
+        
+        <div class="team-grid">
+          <div class="team-member">
+            <div class="team-role">Director, Editor, Cinematographer</div>
+            <div class="team-name">Khushali Haji</div>
+          </div>
+          <div class="team-member">
+            <div class="team-role">Cinematographer, Participant</div>
+            <div class="team-name">Shreya Sahai</div>
+          </div>
+          <div class="team-member">
+            <div class="team-role">Co-Developer</div>
+            <div class="team-name">Hazare Renn-Glover</div>
+          </div>
+          <div class="team-member">
+            <div class="team-role">Story Consultant & Mentor</div>
+            <div class="team-name">Sabrina Gordon</div>
+          </div>
+          <div class="team-member">
+            <div class="team-role">Editorial Mentor</div>
+            <div class="team-name">Mary Manhardt</div>
+          </div>
+          <div class="team-member">
+            <div class="team-role">Creative Advisor</div>
+            <div class="team-name">Yoruba Richen</div>
+          </div>
+          <div class="team-member">
+            <div class="team-role">Producing Mentor</div>
+            <div class="team-name">Judith Helfand</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Footer inclusion inside the final slide -->
+      <div style="position: absolute; bottom: 0; width: 100%; z-index: 50;">
+        <div id="footer-placeholder"></div>
+        <script src="../js/include-footer.js"></script>
+      </div>
+    </section>
+
+  </div>
+
+  <script>
+    // Custom cursor
+    (function () {
+      const cursorArrow = document.getElementById('cursorArrow');
+      if (!cursorArrow) return;
+      let started = false;
+      document.addEventListener('mousemove', e => {
+        cursorArrow.style.left = (e.clientX - 2) + 'px';
+        cursorArrow.style.top = (e.clientY - 2) + 'px';
+        if (!started) { cursorArrow.classList.add('visible'); started = true; }
+      });
+      document.addEventListener('mouseover', e => {
+        const hot = e.target.closest('a, button, input, select, [data-clickable]');
+        cursorArrow.classList.toggle('hot', !!hot);
+      });
+    })();
+
+    // Scroll progress bar and active slide detection
+    (function () {
+      const container = document.getElementById('slideshow');
+      const bar = document.getElementById('progressBar');
+      const slides = document.querySelectorAll('.slide');
+
+      if (!container || !bar) return;
+
+      container.addEventListener('scroll', () => {
+        // Progress Bar
+        const scrolled = container.scrollTop / (container.scrollHeight - container.clientHeight);
+        bar.style.width = (scrolled * 100) + '%';
+
+        // Intersection-like logic for revealing content in active slide
+        slides.forEach(slide => {
+          const rect = slide.getBoundingClientRect();
+          if (rect.top <= window.innerHeight * 0.5 && rect.bottom >= window.innerHeight * 0.5) {
+            slide.classList.add('is-active');
+          } else {
+            slide.classList.remove('is-active');
+          }
+        });
+      }, { passive: true });
+
+      // Trigger once on load
+      container.dispatchEvent(new Event('scroll'));
+    })();
+
+    // Protagonists Map: hover interactions
+    (function () {
+      const castCards = document.querySelectorAll('.cast-card[data-conn]');
+
+      castCards.forEach(card => {
+        const connId = card.dataset.conn;
+        const dotId = card.dataset.dot;
+        const connPath = document.getElementById(connId);
+        const dot = document.getElementById(dotId);
+
+        if (!connPath || !dot) return;
+
+        // Measure path length and set dasharray/offset for draw animation
+        const pathLen = connPath.getTotalLength();
+        connPath.style.strokeDasharray = pathLen;
+        connPath.style.strokeDashoffset = pathLen;
+        connPath.style.opacity = '0.6';
+
+        card.addEventListener('mouseenter', () => {
+          connPath.classList.add('is-drawing');
+          connPath.style.strokeDashoffset = '0';
+          connPath.style.opacity = '1';
+          dot.classList.add('is-visible');
+        });
+
+        card.addEventListener('mouseleave', () => {
+          connPath.classList.remove('is-drawing');
+          connPath.style.strokeDashoffset = pathLen;
+          connPath.style.opacity = '0.6';
+          dot.classList.remove('is-visible');
+        });
+      });
+    })();
+  </script>
+</body>
+
+</html>

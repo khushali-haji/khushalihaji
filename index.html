@@ -968,7 +968,7 @@
       font-weight: 300;
       color: rgba(24, 21, 18, 0.55);
       letter-spacing: 0;
-      margin-top: 0.1rem;
+      margin-top: 0.5rem;
     }
 
     .project-desc {
@@ -1162,10 +1162,157 @@
         grid-template-columns: 1fr;
       }
     }
+
+    /* ─── Construction notice modal ────────────────────────────────────────── */
+    .construction-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      background: rgba(24, 21, 18, 0.42);
+      -webkit-backdrop-filter: blur(6px) saturate(1.1);
+      backdrop-filter: blur(6px) saturate(1.1);
+      opacity: 0;
+      transition: opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .construction-overlay.visible {
+      opacity: 1;
+    }
+
+    .construction-overlay.closing {
+      opacity: 0;
+    }
+
+    body.modal-open {
+      overflow: hidden;
+    }
+
+    /* Hold the page's entrance animations at their starting frame while the
+       construction notice is up, so the reveal plays fresh once dismissed
+       instead of finishing unseen behind the overlay. */
+    body.modal-open :not(.construction-overlay):not(.construction-overlay *) {
+      animation-play-state: paused !important;
+    }
+
+    .construction-card {
+      position: relative;
+      max-width: 420px;
+      width: 100%;
+      background: rgba(250, 248, 244, 0.98);
+      border: 1.5px solid rgba(40, 36, 33, 0.42);
+      border-radius: 3px;
+      box-shadow: 7px 7px 0 rgba(40, 36, 33, 0.14);
+      padding: 2.4rem 2.2rem 2rem;
+      text-align: center;
+      transform: translateY(14px) scale(0.98);
+      transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .construction-overlay.visible .construction-card {
+      transform: translateY(0) scale(1);
+    }
+
+    .construction-icon {
+      width: 54px;
+      height: 54px;
+      display: inline-block;
+      margin-bottom: 0.6rem;
+      color: var(--ink);
+      animation: breathe 3s ease-in-out infinite;
+    }
+
+    .construction-title {
+      font-family: 'Caveat', cursive;
+      font-weight: 400;
+      font-size: clamp(28px, 4vw, 34px);
+      color: var(--teal);
+      line-height: 1.15;
+      margin-bottom: 0.9rem;
+    }
+
+    .construction-body {
+      font-family: var(--serif);
+      font-weight: 500;
+      font-size: 15.5px;
+      line-height: 1.7;
+      color: rgba(24, 21, 18, 0.78);
+      margin-bottom: 1.9rem;
+    }
+
+    .construction-body strong {
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .construction-btn {
+      font-family: var(--mono);
+      font-size: 12.5px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ink);
+      background: rgba(250, 248, 244, 0.9);
+      padding: 0.85rem 1.9rem;
+      border: 1.5px solid var(--ink);
+      border-radius: 0;
+      box-shadow: 3px 3px 0 rgba(40, 36, 33, 0.1);
+      cursor: none;
+      transition: background 0.35s ease, color 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease, transform 0.2s ease;
+    }
+
+    .construction-btn:hover {
+      background: rgba(201, 162, 39, 0.14);
+      color: var(--teal);
+      border-color: var(--yellow);
+      box-shadow: 5px 5px 0 rgba(201, 162, 39, 0.18);
+    }
+
+    .construction-btn:active {
+      transform: translate(1px, 1px);
+      box-shadow: 2px 2px 0 rgba(40, 36, 33, 0.1);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .construction-icon {
+        animation: none;
+      }
+    }
   </style>
 </head>
 
 <body>
+
+  <div class="construction-overlay" id="constructionOverlay" role="dialog" aria-modal="true"
+    aria-labelledby="constructionTitle">
+    <div class="construction-card">
+      <svg class="construction-icon" viewBox="0 0 60 60" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <filter id="doodleWobble">
+          <feTurbulence type="fractalNoise" baseFrequency="0.045" numOctaves="2" seed="7" result="n" />
+          <feDisplacementMap in="SourceGraphic" in2="n" scale="2.6" />
+        </filter>
+        <g filter="url(#doodleWobble)">
+          <!-- lopsided warning triangle -->
+          <path d="M30 7 L54 50 Q30 54 6 50 Z" />
+          <!-- exclamation mark -->
+          <path d="M30 22 L29.5 37" />
+          <circle cx="29.7" cy="44" r="1.6" fill="currentColor" stroke="none" />
+          <!-- a couple of stray sketch lines for extra doodle texture -->
+          <path d="M17 44 Q15 46 13 45" stroke-width="1.3" opacity="0.6" />
+          <path d="M47 43 Q49 45 51 44" stroke-width="1.3" opacity="0.6" />
+        </g>
+      </svg>
+      <h2 class="construction-title" id="constructionTitle">Pardon the dust!</h2>
+      <p class="construction-body">This site is still very much <strong>under construction</strong>. A few
+        corners are unpainted and some links lead nowhere (yet). Please excuse the mess while I keep tinkering.
+        <br>Best viewed on <strong>desktop</strong> for now.</p>
+      <button class="construction-btn" id="constructionCancel" data-clickable>Cancel &amp; peek anyway</button>
+    </div>
+  </div>
 
   <nav class="nav" id="nav">
     <a class="nav-brand" href="index.html">Khushali Haji</a>
@@ -1275,24 +1422,26 @@
         <h3 class="project-title">Fin-Lit Education<span class="pt-sub">
             <p>(A Data Analysis)</p>
           </span></h3>
-        <p class="project-desc">Making the case for a Fin-Lit education app that personalizes learning by income group,
-          state, immigration status, age and community. Built on data from the National Financial Capability Study and
-          the Survey of Consumer Finances.</p>
+        <p class="project-desc">Making the case for a financial literacy education app that personalizes learning by
+          income group, state, immigration status, age and community. Built on National Financial Capability Study and
+          the Survey of Consumer Finances data.</p>
         <div class="project-tags">
           <span class="tag">Product Strategy</span>
           <span class="tag">Data Viz</span>
           <span class="tag">Research</span>
         </div>
       </a>
-      <a class="project-card reveal" href="#">
+      <a class="project-card reveal" href="case-studies/st-joes-hoes.html">
         <span class="project-num">03</span>
-        <h3 class="project-title">Project 3</h3>
-        <p class="project-desc">A short one to two line descriptor of what this project explored and why it mattered.
+        <h3 class="project-title">St. Joe's Hoes</h3>
+        <p class="project-desc">A character-driven documentary exploring immigration, housing insecurity, and creative
+          ambition in NYC.
+          Edited, filmed, and produced independently. Premiered at Woodstock Film Festival 2026.
         </p>
         <div class="project-tags">
-          <span class="tag">Fieldwork</span>
-          <span class="tag">Documentary</span>
-          <span class="tag">UX</span>
+          <span class="tag">Storytelling</span>
+          <span class="tag">Documentary Film-making</span>
+          <span class="tag">Ethnography</span>
         </div>
       </a>
     </div>
@@ -1579,7 +1728,7 @@
 
     // ─── Typewriter for greeting ──────────────────────────────────────────────────
 
-    (function typewriter() {
+    function typewriter() {
       const boldText = 'Hi,';
       const lightText = " I'm Khushali.";
 
@@ -1608,7 +1757,7 @@
       }
 
       setTimeout(tick, 320);
-    })();
+    }
 
     // ─── Word reveal (typewriter style, after the greeting) ──────────────────────
 
@@ -2264,6 +2413,42 @@
 
       // Reset state if resizing from mobile back to desktop
       window.addEventListener('resize', () => { if (!mobile()) closeMenu(); });
+    })();
+
+    // ─── Construction notice ─────────────────────────────────────────────────
+    (function initConstructionNotice() {
+      const overlay = document.getElementById('constructionOverlay');
+      const cancelBtn = document.getElementById('constructionCancel');
+      if (!overlay || !cancelBtn) return;
+
+      const SEEN_KEY = 'khConstructionNoticeSeen';
+
+      // Already shown this browser session (e.g. navigated back to the landing
+      // page from another link) — skip it and start the hero straight away.
+      if (sessionStorage.getItem(SEEN_KEY)) {
+        overlay.remove();
+        typewriter();
+        return;
+      }
+
+      document.body.classList.add('modal-open');
+      requestAnimationFrame(() => overlay.classList.add('visible'));
+
+      let dismissed = false;
+      function dismiss() {
+        if (dismissed) return;
+        dismissed = true;
+        overlay.classList.add('closing');
+        overlay.classList.remove('visible');
+        document.body.classList.remove('modal-open');
+        overlay.addEventListener('transitionend', () => overlay.remove(), { once: true });
+        sessionStorage.setItem(SEEN_KEY, '1');
+        typewriter(); // hold the hero's entrance sequence until the notice is dismissed
+      }
+
+      cancelBtn.addEventListener('click', dismiss);
+      overlay.addEventListener('click', e => { if (e.target === overlay) dismiss(); });
+      document.addEventListener('keydown', e => { if (e.key === 'Escape') dismiss(); }, { once: true });
     })();
   </script>
 </body>

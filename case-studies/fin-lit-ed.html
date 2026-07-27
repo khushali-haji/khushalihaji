@@ -399,7 +399,7 @@
     }
 
     /* Editorial Drop Cap styling */
-    p.lede::first-letter {
+    p.lede.dropcap::first-letter {
       font-family: var(--serif);
       font-size: 3.5em;
       float: left;
@@ -408,6 +408,16 @@
       margin-top: 0.05em;
       color: var(--teal);
       font-weight: bold;
+    }
+
+    /* opt out of the drop cap on a specific lede */
+    p.lede.plain::first-letter {
+      font-size: inherit;
+      float: none;
+      line-height: inherit;
+      margin: 0;
+      color: inherit;
+      font-weight: inherit;
     }
 
     p.body strong {
@@ -460,7 +470,7 @@
       border-radius: 2px;
     }
 
-    
+
     /* ==============================================================================
        FIN-LIT-ED SPECIFIC STYLES (Adapted to Conflict Lens Aesthetic)
        ============================================================================== */
@@ -484,12 +494,12 @@
       min-height: auto;
       display: block;
     }
-    
+
     section.nsec.in {
       opacity: 1;
       transform: translateY(0);
     }
-    
+
     section.nsec:last-of-type {
       border-bottom: none;
     }
@@ -500,7 +510,7 @@
       padding-bottom: 8vh;
       border-bottom: 2px solid var(--ink);
     }
-    
+
     .herocard {
       background: var(--card-paper);
       border: 2.5px solid var(--ink);
@@ -517,7 +527,7 @@
       line-height: 1;
       margin-bottom: 10px;
     }
-    
+
     .herocard h1 {
       font-family: var(--serif);
       font-weight: 600;
@@ -527,17 +537,22 @@
       margin-bottom: 1.2rem;
       color: var(--ink);
     }
-    
+
     .herosub {
       font-family: var(--serif);
       font-size: clamp(18px, 1.5vw, 21px);
       line-height: 1.68;
       color: var(--ink);
-      max-width: 62ch;
+      max-width: 82ch;
     }
 
     /* Common Card Styling (Stats, Persona, Problem) */
-    .stat, .card, .persona, .rcard, .step, .exttag {
+    .stat,
+    .card,
+    .persona,
+    .rcard,
+    .step,
+    .exttag {
       background: var(--card-paper);
       border: 2px solid var(--ink);
       border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
@@ -545,8 +560,12 @@
       padding: 24px;
       transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.3s;
     }
-    
-    .stat:hover, .card:hover, .persona:hover, .rcard:hover, .step:hover {
+
+    .stat:hover,
+    .card:hover,
+    .persona:hover,
+    .rcard:hover,
+    .step:hover {
       transform: translateY(-4px) rotate(0deg) !important;
       box-shadow: 6px 6px 0 rgba(40, 36, 33, 0.15);
     }
@@ -558,7 +577,7 @@
       gap: 22px;
       margin: 24px 0 16px;
     }
-    
+
     .stat .num {
       font-family: var(--sans);
       font-weight: 700;
@@ -566,10 +585,19 @@
       line-height: 1;
       letter-spacing: -0.02em;
     }
-    .stat.s-rust .num { color: var(--coral); }
-    .stat.s-teal .num { color: var(--teal); }
-    .stat.s-gold .num { color: var(--yellow); }
-    
+
+    .stat.s-rust .num {
+      color: var(--coral);
+    }
+
+    .stat.s-teal .num {
+      color: var(--teal);
+    }
+
+    .stat.s-gold .num {
+      color: var(--yellow);
+    }
+
     .stat .lbl {
       font-family: var(--serif);
       font-size: 16px;
@@ -599,6 +627,7 @@
       border: 1px dashed var(--rule);
       border-radius: 4px;
     }
+
     .scorecard .sc-h {
       text-transform: uppercase;
       letter-spacing: 0.08em;
@@ -608,6 +637,7 @@
       width: 100%;
       margin-bottom: 4px;
     }
+
     .scorecard b {
       color: var(--coral);
       font-weight: bold;
@@ -618,6 +648,7 @@
       background: #faf8f5;
       border-style: dashed;
     }
+
     .exttag-h {
       font-family: var(--mono);
       font-size: 10.5px;
@@ -635,9 +666,15 @@
       gap: 22px;
       margin-top: 24px;
     }
-    .cards3 .card:nth-child(odd) { transform: rotate(-1deg); }
-    .cards3 .card:nth-child(even) { transform: rotate(1.5deg); }
-    
+
+    .cards3 .card:nth-child(odd) {
+      transform: rotate(-1deg);
+    }
+
+    .cards3 .card:nth-child(even) {
+      transform: rotate(1.5deg);
+    }
+
     .card .ic {
       width: 44px;
       height: 44px;
@@ -648,14 +685,38 @@
       margin-bottom: 16px;
       border: 1.5px solid var(--ink);
     }
-    .card .ic svg { width: 22px; height: 22px; }
-    
-    .card.c-rust .ic { background: #fdf5f3; color: var(--coral); }
-    .card.c-rust h3 { color: var(--coral); }
-    .card.c-gold .ic { background: #fcf9ee; color: var(--yellow); }
-    .card.c-gold h3 { color: var(--yellow); }
-    .card.c-teal .ic { background: #f0f6f6; color: var(--teal); }
-    .card.c-teal h3 { color: var(--teal); }
+
+    .card .ic svg {
+      width: 22px;
+      height: 22px;
+    }
+
+    .card.c-rust .ic {
+      background: #fdf5f3;
+      color: var(--coral);
+    }
+
+    .card.c-rust h3 {
+      color: var(--coral);
+    }
+
+    .card.c-gold .ic {
+      background: #fcf9ee;
+      color: var(--yellow);
+    }
+
+    .card.c-gold h3 {
+      color: var(--yellow);
+    }
+
+    .card.c-teal .ic {
+      background: #f0f6f6;
+      color: var(--teal);
+    }
+
+    .card.c-teal h3 {
+      color: var(--teal);
+    }
 
     .card h3 {
       font-family: var(--serif);
@@ -664,6 +725,7 @@
       margin-bottom: 10px;
       color: var(--ink);
     }
+
     .card p {
       font-family: var(--sans);
       font-size: 14px;
@@ -678,11 +740,23 @@
       gap: 22px;
       margin-top: 24px;
     }
-    .personas .persona:nth-child(4n+1) { transform: rotate(-1deg); }
-    .personas .persona:nth-child(4n+2) { transform: rotate(1deg); }
-    .personas .persona:nth-child(4n+3) { transform: rotate(0.5deg); }
-    .personas .persona:nth-child(4n) { transform: rotate(-0.5deg); }
-    
+
+    .personas .persona:nth-child(4n+1) {
+      transform: rotate(-1deg);
+    }
+
+    .personas .persona:nth-child(4n+2) {
+      transform: rotate(1deg);
+    }
+
+    .personas .persona:nth-child(4n+3) {
+      transform: rotate(0.5deg);
+    }
+
+    .personas .persona:nth-child(4n) {
+      transform: rotate(-0.5deg);
+    }
+
     .persona .picon {
       width: 40px;
       height: 40px;
@@ -693,8 +767,12 @@
       justify-content: center;
       margin-bottom: 14px;
     }
-    .persona .picon svg { width: 20px; height: 20px; }
-    
+
+    .persona .picon svg {
+      width: 20px;
+      height: 20px;
+    }
+
     .persona .ptag {
       display: inline-block;
       font-family: var(--mono);
@@ -707,15 +785,46 @@
       border-radius: 2px;
       margin-bottom: 12px;
     }
-    
-    .p-teal .picon { background: #f0f6f6; color: var(--teal); }
-    .p-teal .ptag { background: #f0f6f6; color: var(--teal); }
-    .p-gold .picon { background: #fcf9ee; color: var(--yellow); }
-    .p-gold .ptag { background: #fcf9ee; color: var(--yellow); }
-    .p-rust .picon { background: #fdf5f3; color: var(--coral); }
-    .p-rust .ptag { background: #fdf5f3; color: var(--coral); }
-    .p-plum .picon { background: #f8f5fa; color: #7a4f6d; }
-    .p-plum .ptag { background: #f8f5fa; color: #7a4f6d; }
+
+    .p-teal .picon {
+      background: #f0f6f6;
+      color: var(--teal);
+    }
+
+    .p-teal .ptag {
+      background: #f0f6f6;
+      color: var(--teal);
+    }
+
+    .p-gold .picon {
+      background: #fcf9ee;
+      color: var(--yellow);
+    }
+
+    .p-gold .ptag {
+      background: #fcf9ee;
+      color: var(--yellow);
+    }
+
+    .p-rust .picon {
+      background: #fdf5f3;
+      color: var(--coral);
+    }
+
+    .p-rust .ptag {
+      background: #fdf5f3;
+      color: var(--coral);
+    }
+
+    .p-plum .picon {
+      background: #f8f5fa;
+      color: #7a4f6d;
+    }
+
+    .p-plum .ptag {
+      background: #f8f5fa;
+      color: #7a4f6d;
+    }
 
     .persona h3 {
       font-family: var(--serif);
@@ -725,6 +834,7 @@
       margin-bottom: 8px;
       color: var(--ink);
     }
+
     .persona p {
       font-family: var(--sans);
       font-size: 14.5px;
@@ -732,6 +842,7 @@
       color: rgba(40, 36, 33, 0.8);
       margin-bottom: 16px;
     }
+
     .persona .hook {
       font-family: 'Caveat', cursive;
       font-size: 18px;
@@ -739,44 +850,243 @@
     }
 
     /* Steps */
-    .steps {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 20px;
+    /* Onboarding steps walkthrough — same node-and-line pattern as the Conflict Lens
+       Pipeline Walkthrough: numbered stages on a connecting line, click one and its
+       description opens in the single larger card below. */
+    .flow-pipeline.steps-walkthrough {
+      width: 100%;
+      background: var(--card-paper);
+      border: 2px solid var(--ink);
+      border-radius: 4px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+      box-shadow: 4px 4px 0 var(--rule);
       margin-top: 24px;
     }
-    .step {
+
+    .steps-walkthrough .pipeline-stages {
       display: flex;
-      gap: 16px;
-      align-items: flex-start;
+      justify-content: space-between;
+      position: relative;
+      margin: 0.4rem 0 1rem;
     }
-    .step .sn {
-      flex: 0 0 36px;
-      width: 36px;
-      height: 36px;
-      border: 1.5px solid var(--ink);
-      border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+
+    .steps-walkthrough .pipeline-stages::before {
+      content: '';
+      position: absolute;
+      top: 18px;
+      left: 5%;
+      right: 5%;
+      height: 2px;
+      border-bottom: 2px dotted var(--ink);
+      z-index: 1;
+    }
+
+    .steps-walkthrough .pipeline-stage-progress {
+      position: absolute;
+      top: 18px;
+      left: 5%;
+      width: 8%;
+      height: 2px;
       background: var(--teal);
-      color: var(--paper);
-      font-family: var(--mono);
+      z-index: 2;
+      transition: width 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .steps-walkthrough .pipeline-stage {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.6rem;
+      position: relative;
+      z-index: 3;
+      width: 25%;
+      text-align: center;
+      cursor: none;
+    }
+
+    .steps-walkthrough .pipeline-node {
+      width: 38px;
+      height: 38px;
+      border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+      background: #fff;
+      border: 1.5px solid var(--ink);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 16px;
+      font-family: var(--mono);
+      font-weight: bold;
+      font-size: 15px;
+      color: var(--ink);
+      transition: var(--transition);
+      box-shadow: 2px 2px 0 var(--rule);
+    }
+
+    .steps-walkthrough .pipeline-stage.active .pipeline-node {
+      background: var(--teal);
+      color: #fff;
+      border-color: var(--teal);
+      box-shadow: 0 0 0 2px var(--paper), 0 0 0 4px var(--teal);
+    }
+
+    .steps-walkthrough .pipeline-stage.completed .pipeline-node {
+      background: var(--yellow);
+      border-color: var(--yellow);
+      color: var(--ink);
+      transform: rotate(-3deg);
+    }
+
+    .steps-walkthrough .pipeline-stage:hover .pipeline-node {
+      border-color: var(--teal);
+      transform: translateY(-2px);
+    }
+
+    .steps-walkthrough .pipeline-label {
+      font-family: var(--mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: rgba(40, 36, 33, 0.6);
       font-weight: bold;
     }
-    .step h4 {
-      font-family: var(--serif);
-      font-weight: 600;
-      font-size: 20px;
-      margin-bottom: 6px;
-      color: var(--ink);
+
+    .steps-walkthrough .pipeline-stage.active .pipeline-label,
+    .steps-walkthrough .pipeline-stage:hover .pipeline-label {
+      color: var(--teal);
     }
-    .step p {
+
+    .steps-walkthrough .pipeline-output {
+      min-height: 130px;
+      border: 1.5px dashed var(--ink);
+      border-radius: 4px;
+      padding: 1.4rem 1.6rem;
+      background: #fdfdfc;
+      font-family: var(--serif);
+      font-size: 15px;
+      color: rgba(40, 36, 33, 0.85);
+      transition: var(--transition);
+    }
+
+    .steps-walkthrough .pipeline-output.active {
+      border-style: solid;
+      background: #faf8f4;
+      box-shadow: 3px 3px 0 var(--rule);
+    }
+
+    .steps-walkthrough .pipeline-output-title {
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: bold;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--teal);
+      margin-bottom: 10px;
+    }
+
+    .steps-walkthrough .pipeline-output-body {
+      font-family: var(--serif);
+      font-weight: 500;
+      font-size: 15px;
+      line-height: 1.55;
+      color: rgba(40, 36, 33, 0.85);
+    }
+
+    .steps-walkthrough .pipeline-output-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .steps-walkthrough .pipeline-output-chip {
+      font-family: var(--sans);
+      font-size: 12.5px;
+      padding: 6px 13px;
+      border: 1px solid rgba(40, 36, 33, 0.3);
+      border-radius: 999px;
+      background: #fff;
+      color: rgba(40, 36, 33, 0.82);
+    }
+
+    .steps-walkthrough .pipeline-output-list {
+      list-style: none;
+      padding: 0;
+      margin-top: 6px;
+    }
+
+    .steps-walkthrough .pipeline-output-list li {
       font-family: var(--sans);
       font-size: 14px;
-      color: rgba(40, 36, 33, 0.8);
-      line-height: 1.5;
+      color: rgba(40, 36, 33, 0.85);
+      padding: 6px 0 6px 22px;
+      position: relative;
+    }
+
+    .steps-walkthrough .pipeline-output-list li::before {
+      content: '→';
+      position: absolute;
+      left: 0;
+      color: var(--yellow);
+      font-weight: bold;
+    }
+
+    .steps-walkthrough .pipeline-hint {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      color: rgba(40, 36, 33, 0.42);
+      text-align: center;
+      margin: 0;
+    }
+
+    /* Core MVP — a title, two plain-language paragraphs on what the first release
+       is scoped to prove, and a bulleted scope list (not an inline sentence). */
+    .mvp-statement {
+      margin-top: 28px;
+    }
+
+    .mvp-statement-title {
+      font-family: var(--serif);
+      font-style: italic;
+      font-weight: 600;
+      font-size: clamp(24px, 3vw, 32px);
+      color: var(--teal);
+      margin-bottom: 1rem;
+    }
+
+    .mvp-statement-body {
+      font-family: var(--serif);
+      font-size: clamp(18px, 1.5vw, 21px);
+      line-height: 1.68;
+      color: var(--ink);
+      margin-bottom: 16px;
+    }
+
+    .mvp-statement-list {
+      list-style: none;
+      padding: 0;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 10px 20px;
+    }
+
+    .mvp-statement-list li {
+      font-family: var(--sans);
+      font-size: 14.5px;
+      color: rgba(40, 36, 33, 0.85);
+      padding-left: 24px;
+      position: relative;
+    }
+
+    .mvp-statement-list li::before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      color: var(--teal);
+      font-weight: bold;
     }
 
     /* Roadmap */
@@ -786,6 +1096,7 @@
       gap: 22px;
       margin-top: 32px;
     }
+
     .rcard h3 {
       font-family: var(--serif);
       font-weight: 600;
@@ -795,10 +1106,12 @@
       border-bottom: 1.5px dashed var(--rule);
       padding-bottom: 12px;
     }
+
     .rcard ul {
       list-style: none;
       padding: 0;
     }
+
     .rcard li {
       font-family: var(--sans);
       font-size: 14.5px;
@@ -806,6 +1119,7 @@
       padding: 8px 0 8px 24px;
       position: relative;
     }
+
     .rcard li::before {
       content: '→';
       position: absolute;
@@ -819,52 +1133,58 @@
     /* Map & Charts wrappers */
     .dashboard-mockup {
       width: 100%;
-      background: #ebdcc3;
-      border: 2px solid var(--ink);
-      border-radius: 6px;
-      box-shadow: 6px 6px 0 var(--rule);
+      background: transparent;
       display: flex;
       flex-direction: column;
       position: relative;
-      overflow: hidden;
-      margin: 32px 0;
+      margin: 10px 0 32px;
     }
-    .dashboard-header {
-      height: 38px;
-      background: #fdfaf2;
-      border-bottom: 2px solid var(--ink);
+
+    /* Filename label promoted to a heading above each visual */
+    .viz-title {
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: bold;
+      letter-spacing: 0.02em;
+      color: var(--teal);
       display: flex;
       align-items: center;
-      padding: 0 1rem;
-      justify-content: space-between;
+      gap: 9px;
+      margin: 32px 0 4px;
     }
-    .window-dots {
-      display: flex;
-      gap: 6px;
-    }
-    .window-dot {
-      width: 9px;
-      height: 9px;
+
+    .viz-title::before {
+      content: "";
+      width: 8px;
+      height: 8px;
       border-radius: 50%;
-      border: 1px solid var(--ink);
-      background: #fff;
+      background: var(--yellow);
+      border: 1.5px solid var(--ink);
+      flex: none;
     }
-    .dashboard-title-bar {
-      font-family: var(--mono);
-      font-size: 10px;
-      color: var(--ink);
-      font-weight: bold;
-    }
+
     .dashboard-body {
       flex: 1;
       background: var(--paper);
       position: relative;
     }
-    
-    .chartL, .chartM {
+
+    .chartL,
+    .chartM {
       width: 100%;
       height: 480px;
       padding: 16px;
+    }
+
+    /* ECharts and deck.gl set their own inline cursor styles on hover/drag;
+       force ours so the custom cursor arrow doesn't double up with a native one */
+    .chartL,
+    .chartL *,
+    .chartM,
+    .chartM *,
+    #map,
+    #map * {
+      cursor: none !important;
     }
 
     #mapWrap {
@@ -878,6 +1198,7 @@
       background-size: 18px 18px;
       overflow: hidden;
     }
+
     #map {
       width: 100%;
       height: 100%;
@@ -892,6 +1213,7 @@
       background: var(--card-paper);
       border-bottom: 2px solid var(--ink);
     }
+
     .grouplabel {
       font-family: var(--mono);
       font-size: 10px;
@@ -900,6 +1222,7 @@
       color: var(--ink);
       font-weight: bold;
     }
+
     .seg {
       display: inline-flex;
       border: 1.5px solid var(--ink);
@@ -907,6 +1230,7 @@
       overflow: hidden;
       background: #fff;
     }
+
     .seg button {
       font-family: var(--mono);
       font-size: 10px;
@@ -918,17 +1242,21 @@
       color: rgba(40, 36, 33, 0.6);
       transition: all 0.2s;
     }
+
     .seg button:not(:last-child) {
       border-right: 1.5px solid var(--ink);
     }
+
     .seg button.active {
       background: var(--teal);
       color: #fff;
     }
+
     .seg button:hover:not(.active) {
       background: rgba(26, 107, 107, 0.1);
       color: var(--ink);
     }
+
     .msel {
       font-family: var(--mono);
       font-size: 11px;
@@ -947,6 +1275,7 @@
       gap: 12px;
       margin-left: auto;
     }
+
     .play {
       width: 32px;
       height: 32px;
@@ -961,17 +1290,20 @@
       justify-content: center;
       transition: all 0.2s;
     }
+
     .play.on {
       background: var(--teal);
       color: #fff;
       border-color: var(--teal);
     }
+
     .yearscale {
       display: flex;
       flex-direction: column;
       gap: 4px;
       width: 240px;
     }
+
     input[type=range] {
       width: 100%;
       accent-color: var(--teal);
@@ -980,6 +1312,7 @@
       border-radius: 2px;
       -webkit-appearance: none;
     }
+
     input[type=range]::-webkit-slider-thumb {
       -webkit-appearance: none;
       width: 14px;
@@ -989,6 +1322,7 @@
       border: 1.5px solid var(--ink);
       cursor: pointer;
     }
+
     .ticks {
       display: flex;
       justify-content: space-between;
@@ -996,8 +1330,17 @@
       font-size: 10px;
       color: rgba(40, 36, 33, 0.5);
     }
-    .ticks span { cursor: pointer; transition: color 0.2s; }
-    .ticks span.active { color: var(--ink); font-weight: bold; }
+
+    .ticks span {
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+
+    .ticks span.active {
+      color: var(--ink);
+      font-weight: bold;
+    }
+
     #yearlabel {
       font-family: var(--mono);
       font-size: 16px;
@@ -1020,6 +1363,7 @@
       font-size: 12px !important;
       overflow: hidden;
     }
+
     .tt-state {
       font-family: var(--serif);
       font-weight: 600;
@@ -1028,6 +1372,7 @@
       padding: 14px 16px 4px;
       border-bottom: 1px dashed var(--rule);
     }
+
     .tt-sub {
       display: block;
       font-family: var(--mono);
@@ -1037,18 +1382,22 @@
       color: var(--teal);
       margin-top: 4px;
     }
+
     .tt-head {
       display: flex;
       background: rgba(26, 107, 107, 0.04);
       border-bottom: 1.5px solid var(--ink);
     }
+
     .tt-cell {
       flex: 1;
       padding: 10px 16px;
     }
+
     .tt-cell+.tt-cell {
       border-left: 1.5px solid var(--ink);
     }
+
     .tt-k {
       display: block;
       font-family: var(--mono);
@@ -1057,7 +1406,11 @@
       color: rgba(40, 36, 33, 0.6);
       margin-bottom: 4px;
     }
-    .tt-tag { color: rgba(40, 36, 33, 0.4); }
+
+    .tt-tag {
+      color: rgba(40, 36, 33, 0.4);
+    }
+
     .tt-v {
       font-family: var(--serif);
       font-size: 24px;
@@ -1065,20 +1418,24 @@
       line-height: 1;
       color: var(--ink);
     }
+
     .tt-break {
       padding: 12px 16px 8px;
     }
+
     .tt-row {
       display: flex;
       align-items: center;
       gap: 10px;
       margin: 6px 0;
     }
+
     .tt-row .lbl {
       flex: 1;
       color: rgba(40, 36, 33, 0.8);
       font-size: 11.5px;
     }
+
     .tt-row .barwrap {
       width: 60px;
       height: 6px;
@@ -1086,11 +1443,13 @@
       border-radius: 3px;
       overflow: hidden;
     }
+
     .tt-row .barfill {
       height: 100%;
       background: var(--coral);
       border-radius: 3px;
     }
+
     .tt-row b {
       width: 40px;
       text-align: right;
@@ -1099,8 +1458,16 @@
       font-weight: 600;
       color: var(--ink);
     }
-    .tt-row.on .lbl { color: var(--ink); font-weight: 600; }
-    .tt-row.on b { color: var(--coral); }
+
+    .tt-row.on .lbl {
+      color: var(--ink);
+      font-weight: 600;
+    }
+
+    .tt-row.on b {
+      color: var(--coral);
+    }
+
     .tt-foot {
       font-family: var(--mono);
       font-size: 9.5px;
@@ -1125,6 +1492,7 @@
       border: 1.5px solid var(--ink);
       border-radius: 4px;
     }
+
     .s1legend i {
       display: inline-block;
       width: 24px;
@@ -1133,6 +1501,7 @@
       margin-right: 8px;
       vertical-align: middle;
     }
+
     .s1legend b {
       display: inline-block;
       width: 14px;
@@ -1142,7 +1511,7 @@
       vertical-align: -2px;
       border: 1px solid rgba(40, 36, 33, 0.2);
     }
-    
+
     .legendbar {
       display: flex;
       align-items: center;
@@ -1156,6 +1525,7 @@
       border: 1.5px solid var(--ink);
       border-radius: 4px;
     }
+
     .legendbar .grad {
       width: 200px;
       height: 12px;
@@ -1163,8 +1533,8 @@
       border: 1px solid var(--ink);
     }
 
-    /* Dropnote / Annotations */
-    .dropnote, .anote, .caveat {
+    /* Annotations */
+    .caveat {
       font-family: 'Caveat', cursive;
       font-size: 20px;
       line-height: 1.4;
@@ -1174,6 +1544,7 @@
       padding-left: 20px;
       border-left: 2px solid var(--yellow);
     }
+
     .caveat {
       background: rgba(201, 162, 39, 0.05);
       padding: 16px 20px;
@@ -1184,13 +1555,109 @@
       font-size: 14px;
       color: rgba(40, 36, 33, 0.85);
     }
-    .caveat b { color: var(--ink); font-weight: 600; }
-    
+
+    .caveat b {
+      color: var(--ink);
+      font-weight: 600;
+    }
+
+    /* Interactive "what's hidden in a broad category" demo */
+    h3.sub#build {
+      scroll-margin-top: 90px;
+      font-size: clamp(24px, 3vw, 32px);
+    }
+
+    .coarse-demo {
+      margin: 22px 0 6px;
+    }
+
+    .coarse-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .coarse-pill {
+      font-family: var(--mono);
+      font-size: 12.5px;
+      font-weight: bold;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 10px 20px;
+      border: 1.5px solid var(--ink);
+      border-radius: 999px;
+      background: var(--card-paper);
+      color: var(--ink);
+      cursor: none;
+      box-shadow: 3px 3px 0 var(--rule);
+      transition: var(--transition);
+    }
+
+    .coarse-pill:hover {
+      background: rgba(201, 153, 38, 0.14);
+      border-color: var(--yellow);
+    }
+
+    .coarse-pill.active {
+      background: var(--teal);
+      border-color: var(--teal);
+      color: var(--paper);
+    }
+
+    /* Miniature ray-burst — same idea as the landing page's Researcher/Designer/
+       Storyteller hover (radiating leader lines + scattered labels), scaled down
+       to a small canvas that fits inside body text instead of taking the page. */
+    .ray-mini-field {
+      position: relative;
+      margin-top: 18px;
+      min-height: 168px;
+    }
+
+    .ray-mini-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .ray-mini-hint {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Caveat', cursive;
+      font-size: 18px;
+      color: rgba(40, 36, 33, 0.32);
+      pointer-events: none;
+      transition: opacity 0.35s ease;
+      margin: 0;
+    }
+
+    .ray-mini-hint.hidden {
+      opacity: 0;
+    }
+
+    .coarse-demo-note {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.01em;
+      color: rgba(40, 36, 33, 0.5);
+      margin-top: 16px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .ray-mini-canvas {
+        display: none;
+      }
+    }
+
     .nextlist {
       max-width: 72ch;
       margin: 16px 0;
       padding-left: 24px;
     }
+
     .nextlist li {
       font-family: var(--sans);
       font-size: 15px;
@@ -1198,29 +1665,37 @@
       color: rgba(40, 36, 33, 0.85);
       margin: 12px 0;
     }
+
     .nextlist b {
       color: var(--ink);
       font-weight: 600;
     }
-    
+
     .hl {
       background: rgba(201, 162, 39, 0.25);
       padding: 0 4px;
       border-radius: 2px;
       color: var(--ink);
     }
+
+    .hl.nowrap {
+      white-space: nowrap;
+    }
+
     .script {
       font-family: 'Caveat', cursive;
       color: var(--coral);
       font-size: 1.3em;
     }
+
     p.note {
-      font-family: var(--sans);
-      font-size: 15px;
-      color: rgba(40, 36, 33, 0.7);
+      font-family: var(--serif);
+      font-size: clamp(18px, 1.5vw, 21px);
+      line-height: 1.68;
+      color: var(--ink);
       margin-bottom: 16px;
     }
-    
+
     .secnum {
       font-family: var(--mono);
       font-size: 11px;
@@ -1233,6 +1708,7 @@
       margin-bottom: 1.2rem;
       font-weight: bold;
     }
+
     .secnum::before {
       content: '★';
       font-size: 8px;
@@ -1255,6 +1731,7 @@
       position: relative;
       transform: rotate(-1.5deg);
     }
+
     .post-it::before {
       content: '';
       position: absolute;
@@ -1264,13 +1741,55 @@
       height: 16px;
       background: rgba(201, 162, 39, 0.4);
       transform: translateX(-50%) rotate(2deg);
-      box-shadow: 1px 1px 2px rgba(40,36,33,0.1);
+      box-shadow: 1px 1px 2px rgba(40, 36, 33, 0.1);
     }
+
     .post-it.tilt-right {
       transform: rotate(2deg);
       align-self: flex-end;
     }
-    
+
+    /* Insight callouts — sit outside the visual, connected to it by a hand-drawn arrow */
+    /* Side annotation beside a viz (plain text, no card). The map itself keeps its full
+       width; the note lives in a frame around #mapWrap (which has its own overflow:hidden
+       for the canvas) so it can hang out past the map's right edge, into the page's side
+       margin, without getting clipped. */
+    .map-frame {
+      position: relative;
+    }
+
+    .viz-note-side {
+      position: absolute;
+      top: 50%;
+      left: 100%;
+      transform: translateY(-50%);
+      margin-left: 28px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 180px;
+    }
+
+    .viz-note {
+      font-family: 'Caveat', cursive;
+      font-size: 17px;
+      line-height: 1.35;
+      color: var(--ink);
+    }
+
+    .viz-note b,
+    .viz-note strong {
+      color: var(--ink);
+      font-weight: 600;
+    }
+
+    .viz-note-arrow {
+      width: 36px;
+      height: 24px;
+      color: rgba(40, 36, 33, 0.42);
+      flex-shrink: 0;
+    }
+
     .interactive-prompt {
       font-family: 'Caveat', cursive;
       font-size: 18px;
@@ -1279,12 +1798,49 @@
       margin-left: 12px;
       display: inline-block;
     }
+
     @keyframes pulseText {
-      0%, 100% { opacity: 0.7; transform: scale(1); }
-      50% { opacity: 1; transform: scale(1.05); }
+
+      0%,
+      100% {
+        opacity: 0.7;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: 1;
+        transform: scale(1.05);
+      }
     }
 
-</style>
+    .interactive-prompt.dismissed {
+      animation: none;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      pointer-events: none;
+    }
+
+    .map-hint {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      transition: opacity 0.4s ease;
+    }
+
+    .map-hint.dismissed {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .map-hint-arrow {
+      width: 24px;
+      height: 40px;
+      color: var(--teal);
+      opacity: 0.7;
+      flex-shrink: 0;
+    }
+  </style>
 </head>
 
 <body>
@@ -1310,62 +1866,51 @@
         <h1>A Fin-Lit Education App</h1>
         <div class="eyebrow">Personalized learning, powered by AI</div>
         <p class="herosub">Built on real data from the National Financial Capability Study and the Survey of Consumer
-          Finances. Every claim here comes from <span class="hl">what households report</span>.</p>
+          Finances. Every claim here comes from <span class="hl nowrap">what households report</span>.</p>
       </div>
     </header>
 
-    <!-- ===================== 01 METHODOLOGY ===================== -->
-    <section class="nsec reveal">
-      <div class="secnum">01 / Methodology & Data</div>
-      <h2 class="section-head">Built on real behavior</h2>
-      <p class="lede">To build this platform, I processed 15 years of raw respondent data from the National Financial Capability Study (NFCS). This involved cleaning and normalizing over 50,000 rows of survey responses using Python and Pandas. The final outputs were visualized using ECharts for time-series trends and Deck.gl for geospatial mapping.</p>
-    </section>
-
-
     <!-- ===================== 01 WHY THIS SPACE ===================== -->
     <section class="nsec reveal">
-      <div class="secnum">02 / Why this space</div>
+      <div class="secnum">01 / The case for fin-lit</div>
       <h2 class="section-head">The need is big and growing</h2>
-      <p class="lede">Financial education sits between two large markets, fintech and edtech, and a problem the data
-        shows getting worse. We start from <span class="hl">measured behavior</span>, not promises.</p>
-      <div class="scorecard">
-        <span class="sc-h">Why fintech and edtech, our scoring</span>
-        <span>Growth potential <b>4/5</b></span>
-        <span>Hiring demand <b>5/5</b></span>
-        <span>Data accessibility <b>4/5</b></span>
-        <span>Pain points <b>5/5</b></span>
-        <span>Total opportunity <b>4.5/5</b></span>
-      </div>
+      <p class="lede dropcap">Most U.S. adults are under real financial strain, and the data shows it <span
+          class="hl">getting
+          worse</span>, not better. The financial education they do get is generic, the same lessons for everyone, so it
+        rarely fits the person in front of it. Targeted financial literacy, tuned to a person's income range, state,
+        community, language, family, and immigration status, barely exists today. This is the case for building it,
+        education grounded in what people report about their own lives, and shaped to actually reach them.</p>
       <div class="why-stats">
         <div class="stat s-rust">
-          <div class="num">55%</div>
+          <div class="num" data-count="55" data-suffix="%">55%</div>
           <div class="lbl">struggled to pay their bills in 2024</div>
         </div>
         <div class="stat s-teal">
-          <div class="num">52%</div>
+          <div class="num" data-count="52" data-suffix="%">52%</div>
           <div class="lbl">have no 3 month emergency fund, up since 2021</div>
         </div>
         <div class="stat s-gold">
-          <div class="num">1 in 5</div>
-          <div class="lbl">have ever taken a financial education course</div>
+          <div class="num" data-count="4" data-suffix=" in 5">4 in 5</div>
+          <div class="lbl">have never even taken a financial literacy course</div>
         </div>
       </div>
       <p class="srcline">Source: NFCS, weighted to the U.S. population.</p>
       <div class="exttag">
-        <div class="exttag-h">External market context</div>
-        <p>Industry estimates, not from this analysis. The annual cost of financial illiteracy is put near <b>$415B</b>,
-          and the personal finance app market near <b>$207B by 2026</b>.</p>
+        <div class="exttag-h">The bigger picture</div>
+        <p>These figures come from outside our own analysis. In a 2024 survey, U.S. adults said that not understanding
+          money cost them about <b>$1,015 each</b> that year, roughly <b>$243 billion</b> across the country (National
+          Financial Educators Council). At the same time, money apps are one of the fastest growing corners of tech, one
+          forecast puts the market near <b>$208 billion by 2026</b>, growing about 25% a year (Business Research
+          Insights). A large and worsening need, meeting a fast growing market.</p>
       </div>
-      <p class="dropnote">Figures we left out: a $2,500+ loss for the top 15%, a $1,015 average annual loss, and a "cost
-        grows with complexity" curve. These dollar loss figures had no basis in our data, so they were dropped.</p>
     </section>
 
     <!-- ===================== 02 THE PROBLEM ===================== -->
     <section class="nsec reveal" id="problem">
-      <div class="secnum">03 / The problem</div>
+      <div class="secnum">02 / The problem</div>
       <h2 class="section-head">One size fits all keeps failing</h2>
-      <p class="note" style="max-width:70ch">Most apps give everyone the same lessons. Three failures follow, and <span
-          class="hl">targeting fixes each</span>.</p>
+      <p class="lede">Most money apps teach everyone the same way, no matter their income, habits, or where they live.
+        But a lesson that ignores your situation is easy to ignore back. Three points of failure emerge:</p>
       <div class="cards3">
         <div class="card c-rust">
           <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
@@ -1399,12 +1944,13 @@
       </div>
     </section>
 
-    <!-- ===================== 03 PERSONAS ===================== -->
+    <!-- ===================== 03 DATA + WHO WE BUILD FOR ===================== -->
     <section class="nsec reveal">
-      <div class="secnum">04 / Who we build for</div>
+      <div class="secnum">03 / The Data</div>
       <h2 class="section-head">Segments the data can prove</h2>
-      <p class="note" style="max-width:70ch">We target groups the evidence here can identify, by income, community, and
-        place.</p>
+      <p class="lede plain">This runs on 15 years of respondent data from the National Financial Capability Study
+        (NFCS), over 50,000 rows cleaned and normalized in Python and Pandas. That evidence points to real groups we can
+        identify, by income, community, and place.</p>
       <div class="personas">
         <div class="persona p-teal">
           <div class="picon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
@@ -1415,8 +1961,8 @@
             </svg></div>
           <div class="ptag">Income</div>
           <h3>Lower income families</h3>
-          <p>The deepest strain, and the widest swing from 2021 to 2024.</p>
-          <div class="hook">See 05, The strain</div>
+          <p>Under the most financial pressure, and their outlook has swung the hardest since 2021.</p>
+          <div class="hook">See 04, The strain</div>
         </div>
         <div class="persona p-gold">
           <div class="picon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
@@ -1426,8 +1972,8 @@
             </svg></div>
           <div class="ptag">Life stage and place</div>
           <h3>Recent graduates in high strain states</h3>
-          <p>Young and credentialed, in states where vulnerability runs high.</p>
-          <div class="hook">See 07, The targeting</div>
+          <p>Young, degree-holding adults living in states where money troubles are most common.</p>
+          <div class="hook">See 06, The targeting</div>
         </div>
         <div class="persona p-rust">
           <div class="picon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
@@ -1439,8 +1985,8 @@
             </svg></div>
           <div class="ptag">Community</div>
           <h3>Minority communities</h3>
-          <p>Non-White households are offered financial education more, and take it more.</p>
-          <div class="hook">See 06, The appetite</div>
+          <p>Non-White households get offered financial education more often, and say yes to it more too.</p>
+          <div class="hook">See 05, The appetite</div>
         </div>
         <div class="persona p-plum">
           <div class="picon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
@@ -1451,35 +1997,23 @@
             </svg></div>
           <div class="ptag">Frontier</div>
           <h3>New immigrant families</h3>
-          <p>The group public data cannot isolate yet. The first we would add.</p>
-          <div class="hook">See 08, Where this goes next</div>
+          <p>There's no public data on this group yet. They'd be the first we add once there is.</p>
+          <div class="hook">See 07, Where this goes next</div>
         </div>
       </div>
     </section>
 
     <!-- ===================== 04 THE STRAIN ===================== -->
     <section class="nsec reveal" id="strain">
-      <div class="secnum">05 / The strain</div>
+      <div class="secnum">04 / The strain</div>
       <h2 class="section-head">Satisfaction down, vulnerability up, worst at the bottom</h2>
-      <p class="note" style="max-width:74ch">Satisfaction peaked in 2021 on pandemic relief, then dropped by 2024.
-        Vulnerability did the opposite. Both are set to their 2009 level of 100 so they share one axis. <strong>Solid
-          lines (satisfaction) drift down, dashed lines (vulnerability) climb.</strong> The <span
+      <p class="note">People felt best about their finances in 2021, thanks to pandemic relief, then that feeling
+        dropped off by 2024. Financial vulnerability moved the opposite way: down in 2021, back up by 2024. Both
+        scores start at the same point (100) in 2009, so they're easy to compare on one chart. <strong>Solid
+          lines (satisfaction) trend down, dashed lines (vulnerability) trend up.</strong> The <span
           style="color:#b5562f;font-weight:600">lower income</span> band swings the most.</p>
+      <div class="viz-title">Strain Index Chart</div>
       <div class="dashboard-mockup">
-        <div class="dashboard-header">
-          <div class="window-dots">
-            <div class="window-dot" style="background:#cc5a43"></div>
-            <div class="window-dot" style="background:#c69926"></div>
-            <div class="window-dot" style="background:#779483"></div>
-          </div>
-          <div class="dashboard-title-bar">strain-index.chart</div>
-          <div></div>
-        </div>
-        
-      <div class="post-it" style="position: absolute; right: 30px; top: -60px; z-index: 10;">
-        <strong>Data Note:</strong> Indexing all metrics to a 2009 baseline of 100 normalizes completely different data types onto a single axis. This clearly visualizes the 2021 to 2024 reversal.
-      </div>
-
         <div class="dashboard-body">
           <div id="s1b" class="chartL"></div>
         </div>
@@ -1491,26 +2025,24 @@
         <span style="margin-left:8px"><i style="border-top-style:solid;border-color:#5b554d"></i>satisfaction</span>
         <span><i style="border-top-style:dashed;border-color:#5b554d"></i>vulnerability</span>
       </div>
+      <p class="srcline">Time trends charted with ECharts.</p>
     </section>
 
     <!-- ===================== 05 THE APPETITE ===================== -->
     <section class="nsec reveal">
-      <div class="secnum">06 / The appetite</div>
+      <div class="secnum">05 / The appetite</div>
       <h2 class="section-head">Non-White households <span class="script">want it more</span></h2>
-      <p class="note" style="max-width:72ch">Each person falls into one of three states: financial education was offered
-        and they <strong>took it</strong>, it was offered and they <strong>skipped it</strong>, or it was <strong>never
-          offered</strong>. Non-White households have a bigger took it block and a smaller never offered block. They
-        engage more and are shut out less. Shown for 2024; the pattern holds across 2012 to 2024.</p>
+      <p class="note">Everyone falls into one of three groups: offered financial education and
+        <strong>took it</strong>, offered it and <strong>skipped it</strong>, or <strong>never
+          offered</strong> it at all. Non-White households are offered financial education more often, and say yes to
+        it more often too; they're more engaged and less often left out. The one place White households come out
+        ahead is among people who were already offered it, more of them actually took it, about 74% versus 66%. But
+        far fewer White households are offered it in the first place, so overall, the appetite for it is still
+        stronger in minority communities. That's the audience a targeted platform should serve first. This is shown
+        for 2024, but the same pattern holds all the way back to 2012.
+      </p>
+      <div class="viz-title">Appetite Demographics Chart</div>
       <div class="dashboard-mockup">
-        <div class="dashboard-header">
-          <div class="window-dots">
-            <div class="window-dot" style="background:#cc5a43"></div>
-            <div class="window-dot" style="background:#c69926"></div>
-            <div class="window-dot" style="background:#779483"></div>
-          </div>
-          <div class="dashboard-title-bar">appetite-demographics.chart</div>
-          <div></div>
-        </div>
         <div class="dashboard-body">
           <div id="s2" class="chartM"></div>
         </div>
@@ -1520,39 +2052,24 @@
         <span><b style="background:#c9a227"></b>Offered, skipped</span>
         <span><b style="background:#dfe4e1;border:1px solid #c4c9c4"></b>Never offered</span>
       </div>
-      <p class="anote">Non-White households are offered financial education more often, and take it more. The one place
-        White households lead is conversion among those already offered, near 74% versus 66%. But far fewer White
-        households are offered it at all, so the appetite still runs higher among minority communities. That is the
-        audience a targeted platform should serve.</p>
+      <p class="srcline">Stacked bars charted with ECharts.</p>
     </section>
 
     <!-- ===================== 06 THE TARGETING (MAP) ===================== -->
     <section class="nsec reveal" id="targeting">
-      <div class="secnum">07 / The targeting</div>
-      
-      <div class="post-it tilt-right" style="margin-bottom: 24px; max-width: 600px;">
-        <strong>Data Note:</strong> Raw survey data is messy. To create a single vulnerability score, I engineered a composite metric. I applied custom weights to five boolean survey answers: struggling with bills, lacking an emergency fund, overspending, frequent overdrafts, and predatory borrowing. This translated qualitative survey answers into a clean 0 to 100 index.
-      </div>
+      <div class="secnum">06 / The targeting</div>
 
       <h2 class="section-head">Where vulnerability lives</h2>
-      <p class="note" style="max-width:78ch">Each state is a 3D block. <strong>Color is financial vulnerability</strong>
+      <p class="note">Each state is a 3D block. <strong>Color is financial vulnerability</strong>
         (darker is worse, averaging five hardships: bills, emergency fund, overspending, overdrafts, predatory
         borrowing). <strong>Height is average income</strong> (taller is higher). A tall dark block means high income
         but high strain; a short dark block is the poorer, struggling pattern. <strong>Drag to rotate, scroll to
           zoom</strong>, hover for the detail.</p>
       <div class="legendbar" id="vlegend"></div>
 
+      <div class="viz-title">Vulnerability Map</div>
       <div class="dashboard-mockup">
-        <div class="dashboard-header">
-          <div class="window-dots">
-            <div class="window-dot" style="background:#cc5a43"></div>
-            <div class="window-dot" style="background:#c69926"></div>
-            <div class="window-dot" style="background:#779483"></div>
-          </div>
-          <div class="dashboard-title-bar">vulnerability-map.gl</div>
-          <div></div>
-        </div>
-        
+
         <div class="bar">
           <span class="grouplabel">Income band</span>
           <span class="seg" id="grpSeg">
@@ -1576,73 +2093,111 @@
               <input type="range" id="yslider" min="0" max="5" step="1" value="5" />
               <span class="ticks" id="ticks"></span>
             </span>
-            <span id="yearlabel">2024</span><span class="interactive-prompt">Try dragging the timeline &rarr;</span>
+            <span id="yearlabel">2024</span><span class="interactive-prompt" id="dragPrompt"
+              style="margin-left: -6px;">&larr; Try dragging the timeline</span>
           </span>
           <span class="seg"><button id="viewBtn">Top view</button></span>
           <span class="seg"><button id="resetBtn">Reset view</button></span>
         </div>
 
-        
-        <div class="post-it" style="position: absolute; right: 30px; top: -50px; z-index: 10;">
-          <strong>Data Note:</strong> Standard flat maps hide the relationship between income and financial strain. By extruding the blocks based on average income, this bivariate map exposes high income areas that still suffer from high vulnerability.
-        </div>
-
-        <div id="mapWrap">
-          <div id="map"></div><span class="interactive-prompt" style="position: absolute; top: 15px; left: 15px; z-index: 10;">Hover over states to see the breakdown</span>
+        <div class="map-frame">
+          <div id="mapWrap">
+            <div id="map"></div>
+            <span class="map-hint" id="mapHint" style="position: absolute; top: 55px; left: 15px; z-index: 10;">
+              <span class="interactive-prompt">Hover over states to see the breakdown</span>
+              <svg class="map-hint-arrow" viewBox="0 0 26 40" fill="none" stroke="currentColor" stroke-linecap="round"
+                stroke-linejoin="round">
+                <path d="M 22 4 C 18 14, 10 26, 4 38" stroke-width="1.7" />
+                <path d="M 4 38 L 11 33 M 4 38 L 9 29" stroke-width="1.7" />
+              </svg>
+            </span>
+          </div>
+          <div class="viz-note-side">
+            <svg class="viz-note-arrow" viewBox="0 0 40 26" fill="none" stroke="currentColor" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path d="M 36 4 C 26 6, 14 10, 4 13" stroke-width="1.7" />
+              <path d="M 4 13 L 11 8 M 4 13 L 11 18" stroke-width="1.7" />
+            </svg>
+            <p class="viz-note">Utah, Alaska, and North Dakota all out-earn the national average, and land above it
+              on vulnerability too. Income and financial safety don't move together the way you'd expect.</p>
+          </div>
         </div>
       </div>
+      <p class="srcline">3D map built with Deck.gl.</p>
     </section>
 
-    <!-- ===================== 07 WHERE THIS GOES NEXT ===================== -->
+    <!-- ===================== 07 WHERE THIS GOES NEXT + WHAT WE'D BUILD ===================== -->
     <section class="nsec reveal">
-      <div class="secnum">08 / Where this goes next</div>
-      <h2 class="section-head">Beyond broad groups</h2>
-      <p class="lede">The race groups here are <strong>coarse</strong>. One "Hispanic" or "Asian" number hides very different communities. To take this further, we need to look at immigration and generation, as recency of arrival shapes money habits more than broad race categories.</p>
-      <p class="caveat">The NFCS does not record where someone was born. Getting this data requires merging external sets like the Census ACS or the Federal Reserve SHED. This introduces real data friction. Joining disparate datasets often involves resolving mismatched geographical boundaries and differing survey weights.</p>
-    </section>
+      <div class="secnum">07 / Where this goes next</div>
+      <h2 class="section-head">Beyond broad groups, into a real product</h2>
+      <p class="lede">The race categories here are broad. A single "Hispanic" or "Asian" label can hide very
+        different communities inside it, each with different income and homeownership patterns. Click a group
+        below to see what it's actually made up of.</p>
 
-    <!-- ===================== 08 WHAT WE WOULD BUILD ===================== -->
-    <section class="nsec reveal" id="build">
-      <div class="secnum">09 / What we would build</div>
-      <h2 class="section-head">What we would build</h2>
-      <p class="note" style="max-width:70ch">The product turns the evidence into a path for each user. No generic
-        videos, a profile built from real signals.</p>
-      <div class="steps">
-        <div class="step"><span class="sn">1</span>
-          <div>
-            <h4>Onboarding</h4>
-            <p>A short quiz captures literacy, habits, and goals.</p>
+      <div class="coarse-demo">
+        <div class="ray-mini" id="rayMini">
+          <div class="coarse-pills" id="coarsePills">
+            <button class="coarse-pill" data-group="hispanic" type="button">Hispanic</button>
+            <button class="coarse-pill" data-group="asian" type="button">Asian</button>
+            <button class="coarse-pill" data-group="black" type="button">Black</button>
+            <button class="coarse-pill" data-group="white" type="button">White</button>
+          </div>
+          <div class="ray-mini-field" id="rayMiniField">
+            <canvas class="ray-mini-canvas" id="rayMiniCanvas"></canvas>
+            <p class="ray-mini-hint" id="rayMiniHint">hover a category above</p>
           </div>
         </div>
-        <div class="step"><span class="sn">2</span>
-          <div>
-            <h4>Profile</h4>
-            <p>Signals become a living profile, not a one time test.</p>
-          </div>
-        </div>
-        <div class="step"><span class="sn">3</span>
-          <div>
-            <h4>Roadmap</h4>
-            <p>A path tuned to income, place, and risks.</p>
-          </div>
-        </div>
-        <div class="step"><span class="sn">4</span>
-          <div>
-            <h4>Adaptive lessons</h4>
-            <p>Content shifts as life changes.</p>
-          </div>
-        </div>
+        <p class="coarse-demo-note">Illustrative sub-groups — the NFCS itself doesn't break its race categories out
+          this far. That gap is exactly the point below.</p>
       </div>
-      <div class="roadmap one">
-        <div class="rcard">
-          <h3>Core MVP</h3>
-          <ul>
-            <li>Secure user profiles</li>
-            <li>Literacy and behavior assessment</li>
-            <li>Personalized learning path</li>
-            <li>Local context by region</li>
-          </ul>
+
+      <p class="caveat">To actually split people out this way, we'd want to know how recently someone immigrated,
+        since that shapes money habits more than a broad race label does. The catch: the survey we used doesn't ask
+        where someone was born. Getting that means combining it with other datasets, like the Census or the Federal
+        Reserve's own surveys, and those don't line up perfectly, their geographic boundaries and survey weights
+        differ.</p>
+
+      <h3 class="sub" id="build">What we'd build</h3>
+      <p class="note">The product turns the evidence into a path for each user. No generic
+        videos, a profile built from real signals.</p>
+      <div class="flow-pipeline steps-walkthrough" id="stepsPipeline">
+        <div class="pipeline-stages">
+          <div class="pipeline-stage-progress" id="stepsBar"></div>
+          <div class="pipeline-stage active" data-step="1">
+            <div class="pipeline-node">1</div>
+            <span class="pipeline-label">Onboarding</span>
+          </div>
+          <div class="pipeline-stage" data-step="2">
+            <div class="pipeline-node">2</div>
+            <span class="pipeline-label">Profile</span>
+          </div>
+          <div class="pipeline-stage" data-step="3">
+            <div class="pipeline-node">3</div>
+            <span class="pipeline-label">Roadmap</span>
+          </div>
+          <div class="pipeline-stage" data-step="4">
+            <div class="pipeline-node">4</div>
+            <span class="pipeline-label">Adaptive lessons</span>
+          </div>
         </div>
+        <div class="pipeline-output active" id="stepsOutput"></div>
+        <p class="pipeline-hint">Click a step to walk through it</p>
+      </div>
+
+      <div class="mvp-statement">
+        <p class="mvp-statement-title">MVP Scope</p>
+        <p class="mvp-statement-body">The first release only has to prove that a lesson tuned to someone's income,
+          state, and life stage lands differently than generic advice.</p>
+        <p class="mvp-statement-body">Gamification, credentialing, social features can wait. The first step is the
+          personalization loop itself, so the MVP is scoped down to just what's needed to run that test:</p>
+        <p></p>
+
+        <ul class="mvp-statement-list">
+          <li>Secure user profiles</li>
+          <li>Literacy and behavior assessment</li>
+          <li>Personalized learning path</li>
+          <li>Local context by region</li>
+        </ul>
       </div>
     </section>
   </div>
@@ -1679,7 +2234,10 @@
         series[0].markArea = {
           silent: true, itemStyle: { color: 'rgba(181,86,47,0.07)' },
           data: [[{ xAxis: '2021' }, { xAxis: '2024' }]],
-          label: { show: true, position: 'insideTop', distance: 8, formatter: '2021 to 2024 reversal', color: '#b5562f', fontFamily: 'DM Mono', fontSize: 10 }
+          label: {
+            show: true, position: 'insideLeft', distance: 8, formatter: '2021 to 2024 reversal', color: '#b5562f',
+            fontFamily: 'DM Mono', fontSize: 10, backgroundColor: '#f3f0e8', padding: [3, 5], borderRadius: 2
+          }
         };
         c.setOption({
           grid: { left: 48, right: 20, top: 24, bottom: 28 },
@@ -1795,7 +2353,7 @@
         updateTriggers: { getElevation: [yidx, group], getFillColor: [yidx, group, colorField] }
       });
     }
-    const HOME = { longitude: -96, latitude: 36.5, zoom: 3.35, pitch: 52, bearing: 0, minZoom: 2, maxZoom: 8 };
+    const HOME = { longitude: -98, latitude: 38.5, zoom: 3.02, pitch: 40, bearing: 0, minZoom: 2, maxZoom: 8 };
     let viewState = { ...HOME };
     const deckgl = new DeckGL({
       container: document.getElementById('map'),
@@ -1803,15 +2361,26 @@
       controller: true, effects: [lighting],
       layers: [layer()],
       onViewStateChange: ({ viewState: vs }) => { viewState = vs; deckgl.setProps({ viewState }); },
-      getTooltip: ({ object }) => object ? { html: ttHTML(object.properties.name), className: 'dtt' } : null
+      getTooltip: ({ object, x, y }) => {
+        if (!object) return null;
+        const onRightHalf = x > document.getElementById('map').clientWidth / 2;
+        return {
+          html: ttHTML(object.properties.name), className: 'dtt',
+          style: onRightHalf ? { transform: `translate(calc(${x}px - 100% - 14px), ${y}px)` } : undefined
+        };
+      },
+      onHover: ({ object }) => { if (object) dismissMapHint(); }
     });
+
+    const mapHint = document.getElementById('mapHint');
+    function dismissMapHint() { if (mapHint) mapHint.classList.add('dismissed'); }
 
     // Top view <-> 3D view toggle
     let topView = false;
     document.getElementById('viewBtn').onclick = function () {
       topView = !topView;
       viewState = {
-        ...viewState, pitch: topView ? 0 : 52, bearing: 0,
+        ...viewState, pitch: topView ? 0 : 40, bearing: 0,
         transitionDuration: 650, transitionInterpolator: new deck.LinearInterpolator(['pitch', 'bearing'])
       };
       this.textContent = topView ? '3D view' : 'Top view';
@@ -1831,15 +2400,17 @@
 
     // year slider + ticks + play
     const slider = document.getElementById('yslider'), ylabel = document.getElementById('yearlabel'),
-      playBtn = document.getElementById('play'), ticks = document.getElementById('ticks');
+      playBtn = document.getElementById('play'), ticks = document.getElementById('ticks'),
+      dragPrompt = document.getElementById('dragPrompt');
+    function dismissDragPrompt() { if (dragPrompt) dragPrompt.classList.add('dismissed'); }
     ticks.innerHTML = D.years.map((y, i) => `<span data-i="${i}">${y}</span>`).join('');
-    ticks.querySelectorAll('span').forEach(s => s.onclick = () => setYear(+s.dataset.i));
+    ticks.querySelectorAll('span').forEach(s => s.onclick = () => { setYear(+s.dataset.i); dismissDragPrompt(); });
     function setYear(i) {
       yidx = i; slider.value = i; ylabel.textContent = D.years[i];
       ticks.querySelectorAll('span').forEach(s => s.classList.toggle('active', +s.dataset.i === i));
       refresh();
     }
-    slider.oninput = () => setYear(+slider.value);
+    slider.oninput = () => { setYear(+slider.value); dismissDragPrompt(); };
     setYear(yidx);   // mark initial active tick
     playBtn.onclick = () => {
       if (timer) { clearInterval(timer); timer = null; playBtn.classList.remove('on'); playBtn.textContent = '▶'; return; }
@@ -1873,6 +2444,254 @@
       window.addEventListener('load', () => els.forEach(el => {
         const r = el.getBoundingClientRect(); if (r.top < window.innerHeight * 0.9) el.classList.add('in');
       }));
+    })();
+  </script>
+
+  <!-- ===================== stat counters ===================== -->
+  <script>
+    (function () {
+      const nums = document.querySelectorAll('.why-stats .num[data-count]');
+      if (!nums.length) return;
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      function animateNum(el) {
+        const target = parseFloat(el.dataset.count);
+        if (reduceMotion || isNaN(target)) return;
+        const suffix = el.dataset.suffix || '';
+        const finalText = el.textContent;
+        const duration = 1200;
+        const start = performance.now();
+        function tick(now) {
+          const p = Math.min((now - start) / duration, 1);
+          const eased = 1 - Math.pow(1 - p, 3);
+          el.textContent = Math.round(target * eased) + suffix;
+          if (p < 1) requestAnimationFrame(tick);
+          else el.textContent = finalText;
+        }
+        requestAnimationFrame(tick);
+      }
+
+      if (!('IntersectionObserver' in window)) return;
+      const obs = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          if (e.isIntersecting) { animateNum(e.target); obs.unobserve(e.target); }
+        });
+      }, { threshold: 0.4 });
+      nums.forEach(el => obs.observe(el));
+    })();
+  </script>
+
+  <!-- ===================== coarse category demo (mini ray-burst) ===================== -->
+  <!-- Same idea as the landing page's Researcher/Designer/Storyteller hover: rays
+       radiate from the hovered word to scattered labels. This is a scaled-down,
+       canvas-confined version that fits inside body text instead of the full page. -->
+  <script>
+    (function () {
+      const DATA = {
+        hispanic: ['Mexican-origin', 'Puerto Rican', 'Cuban', 'Central American', 'South American', 'Dominican'],
+        asian: ['Chinese', 'Indian', 'Filipino', 'Vietnamese', 'Korean', 'Other Asian origins'],
+        black: ['U.S.-born, multi-gen.', 'Caribbean immigrant', 'African immigrant'],
+        white: ['Multi-gen. U.S.-born', 'Recent European immigrant', 'MENA origin']
+      };
+
+      const rayMini = document.getElementById('rayMini');
+      const pillsWrap = document.getElementById('coarsePills');
+      const field = document.getElementById('rayMiniField');
+      const canvas = document.getElementById('rayMiniCanvas');
+      const hint = document.getElementById('rayMiniHint');
+      if (!rayMini || !pillsWrap || !field || !canvas || !hint) return;
+      const ctx = canvas.getContext('2d');
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      const DURATION = 420;
+      let fieldW = 0, fieldH = 0;
+
+      function resize() {
+        const r = field.getBoundingClientRect();
+        fieldW = r.width;
+        fieldH = r.height;
+        const dpr = window.devicePixelRatio || 1;
+        canvas.width = Math.round(fieldW * dpr);
+        canvas.height = Math.round(fieldH * dpr);
+        canvas.style.width = fieldW + 'px';
+        canvas.style.height = fieldH + 'px';
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+      resize();
+
+      function easeOutExpo(t) { return t === 1 ? 1 : 1 - Math.pow(2, -10 * t); }
+
+      let activeKey = null, activeAnchorX = 0, items = [], startTime = null, rafId = null;
+
+      // Fan the sub-group labels out below the hovered pill, clamped to stay inside the field.
+      function buildItems(key, anchorX) {
+        const texts = DATA[key];
+        const N = texts.length;
+        const anchorY = -6;
+        const spreadHalf = Math.min(1.15, 0.35 + N * 0.13);
+        const baseAngle = Math.PI / 2;
+        return texts.map((text, i) => {
+          const t = N === 1 ? 0.5 : i / (N - 1);
+          const angle = baseAngle - spreadHalf + t * spreadHalf * 2;
+          const radius = 56 + (i % 2 === 0 ? 0 : 16) + i * 7;
+          const x1 = Math.max(46, Math.min(fieldW - 46, anchorX + Math.cos(angle) * radius));
+          const y1 = Math.max(22, Math.min(fieldH - 12, anchorY + Math.sin(angle) * radius));
+          return { x0: anchorX, y0: anchorY, x1, y1, text, delay: i * 70 };
+        });
+      }
+
+      function draw(progress) {
+        ctx.clearRect(0, 0, fieldW, fieldH);
+        items.forEach(it => {
+          const raw = Math.max(0, Math.min(1, (progress - it.delay / DURATION) / (1 - (it.delay / DURATION) * 0.4)));
+          if (raw <= 0) return;
+          const p = easeOutExpo(raw);
+          const x = it.x0 + (it.x1 - it.x0) * p;
+          const y = it.y0 + (it.y1 - it.y0) * p;
+
+          ctx.strokeStyle = 'rgba(26,107,107,0.48)';
+          ctx.lineWidth = 1.3;
+          ctx.beginPath();
+          ctx.moveTo(it.x0, it.y0);
+          ctx.lineTo(x, y);
+          ctx.stroke();
+
+          ctx.beginPath();
+          ctx.fillStyle = '#1a6b6b';
+          ctx.arc(x, y, 2.4 * Math.min(1, raw * 1.6), 0, Math.PI * 2);
+          ctx.fill();
+
+          const textAlpha = Math.min(1, raw * 1.7);
+          if (textAlpha > 0.02) {
+            ctx.save();
+            ctx.globalAlpha = textAlpha;
+            ctx.font = "italic 600 14px 'Cormorant Garamond', serif";
+            ctx.fillStyle = '#282421';
+            ctx.textBaseline = 'middle';
+            const align = x < it.x0 - 2 ? 'right' : x > it.x0 + 2 ? 'left' : 'center';
+            ctx.textAlign = align;
+            const tx = align === 'left' ? x + 6 : align === 'right' ? x - 6 : x;
+            ctx.fillText(it.text, tx, y);
+            ctx.restore();
+          }
+        });
+      }
+
+      function animate(ts) {
+        if (!startTime) startTime = ts;
+        const progress = Math.min(1, (ts - startTime) / DURATION);
+        draw(progress);
+        if (progress < 1) rafId = requestAnimationFrame(animate);
+      }
+
+      function showGroup(key, anchorEl) {
+        const r = anchorEl.getBoundingClientRect();
+        const fr = field.getBoundingClientRect();
+        const anchorX = Math.max(30, Math.min(fieldW - 30, r.left + r.width / 2 - fr.left));
+        activeKey = key;
+        activeAnchorX = anchorX;
+        items = buildItems(key, anchorX);
+        hint.classList.add('hidden');
+        pillsWrap.querySelectorAll('.coarse-pill').forEach(b => b.classList.toggle('active', b === anchorEl));
+        if (rafId) cancelAnimationFrame(rafId);
+        startTime = null;
+        if (reduceMotion) { draw(1); return; }
+        rafId = requestAnimationFrame(animate);
+      }
+
+      function clearField() {
+        activeKey = null;
+        if (rafId) cancelAnimationFrame(rafId);
+        ctx.clearRect(0, 0, fieldW, fieldH);
+        hint.classList.remove('hidden');
+        pillsWrap.querySelectorAll('.coarse-pill').forEach(b => b.classList.remove('active'));
+      }
+
+      window.addEventListener('resize', () => {
+        resize();
+        if (activeKey) { items = buildItems(activeKey, activeAnchorX); draw(1); }
+      });
+
+      pillsWrap.querySelectorAll('.coarse-pill').forEach(btn => {
+        btn.addEventListener('mouseenter', () => showGroup(btn.dataset.group, btn));
+        btn.addEventListener('focus', () => showGroup(btn.dataset.group, btn));
+        // Click/tap fallback for touch devices, which have no hover state.
+        btn.addEventListener('click', () => {
+          if (activeKey === btn.dataset.group) clearField();
+          else showGroup(btn.dataset.group, btn);
+        });
+      });
+
+      // Stay open while the cursor is anywhere over the pills or the ray field below
+      // them; only collapse once it leaves the whole composition.
+      rayMini.addEventListener('mouseleave', clearField);
+      rayMini.addEventListener('focusout', e => {
+        if (!rayMini.contains(e.relatedTarget)) clearField();
+      });
+    })();
+  </script>
+
+  <!-- ===================== onboarding steps walkthrough ===================== -->
+  <script>
+    (function () {
+      // Same node-and-line "pipeline walkthrough" pattern as Conflict Lens: click a
+      // stage, its description opens in the one larger output card below.
+      const STEP_CONTENT = [
+        {
+          title: 'Onboarding',
+          html: '<p class="pipeline-output-body">A short quiz captures literacy, habits, and goals. Sample question:' +
+            ' "Do you have money set aside to cover a $400 emergency?"</p>' +
+            '<div class="pipeline-output-chips">' +
+            '<span class="pipeline-output-chip">Yes</span>' +
+            '<span class="pipeline-output-chip">No</span>' +
+            '<span class="pipeline-output-chip">Not sure</span>' +
+            '</div>'
+        },
+        {
+          title: 'Profile',
+          html: '<p class="pipeline-output-body">Signals become a living profile, not a one time test. Every answer' +
+            ' adds to it:</p>' +
+            '<div class="pipeline-output-chips">' +
+            '<span class="pipeline-output-chip">Income band: Middle</span>' +
+            '<span class="pipeline-output-chip">Emergency fund: None</span>' +
+            '<span class="pipeline-output-chip">Goal: Save for a home</span>' +
+            '<span class="pipeline-output-chip">State: NC</span>' +
+            '</div>'
+        },
+        {
+          title: 'Roadmap',
+          html: '<p class="pipeline-output-body">A path tuned to income, place, and risks, for example:</p>' +
+            '<ul class="pipeline-output-list">' +
+            '<li>Build a starter emergency fund</li>' +
+            '<li>Learn your state\'s first-time homebuyer assistance programs</li>' +
+            '<li>Credit basics for first mortgages</li>' +
+            '</ul>'
+        },
+        {
+          title: 'Adaptive lessons',
+          html: '<p class="pipeline-output-body">Content shifts as life changes. Life event logged: ' +
+            '<strong>started a new job</strong>.<br>Roadmap updates to add: 401(k) employer matching, and ' +
+            'adjusting tax withholding.</p>'
+        }
+      ];
+      const BAR_WIDTH = ['7.5%', '32.5%', '57.5%', '82.5%'];
+
+      const wrap = document.getElementById('stepsPipeline');
+      const bar = document.getElementById('stepsBar');
+      const output = document.getElementById('stepsOutput');
+      if (!wrap || !bar || !output) return;
+      const stages = [...wrap.querySelectorAll('.pipeline-stage')];
+
+      function showStep(i) {
+        stages.forEach((s, idx) => {
+          s.className = 'pipeline-stage' + (idx < i ? ' completed' : idx === i ? ' active' : '');
+        });
+        bar.style.width = BAR_WIDTH[i];
+        const d = STEP_CONTENT[i];
+        output.innerHTML = '<div class="pipeline-output-title">' + d.title + '</div>' + d.html;
+      }
+      stages.forEach((stage, i) => stage.addEventListener('click', () => showStep(i)));
+      showStep(0);
     })();
   </script>
 
