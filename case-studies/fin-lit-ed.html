@@ -659,6 +659,15 @@
       font-weight: bold;
     }
 
+    /* Cormorant's default leading is tight for a full paragraph of body copy. */
+    .exttag p {
+      line-height: 1.55;
+    }
+
+    .exttag p + p {
+      margin-top: 12px;
+    }
+
     /* Cards 3 */
     .cards3 {
       display: grid;
@@ -1068,24 +1077,24 @@
     .mvp-statement-list {
       list-style: none;
       padding: 0;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 10px 20px;
+      margin: 0;
+      max-width: 74ch;
     }
 
     .mvp-statement-list li {
       font-family: var(--sans);
       font-size: 14.5px;
       color: rgba(40, 36, 33, 0.85);
-      padding-left: 24px;
+      padding: 7px 0 7px 24px;
       position: relative;
     }
 
+    /* Same yellow arrowhead as the sub-group and roadmap lists. */
     .mvp-statement-list li::before {
-      content: '✓';
+      content: '→';
       position: absolute;
       left: 0;
-      color: var(--teal);
+      color: var(--yellow);
       font-weight: bold;
     }
 
@@ -1238,7 +1247,7 @@
       border: none;
       background: none;
       padding: 6px 12px;
-      cursor: pointer;
+      cursor: none;
       color: rgba(40, 36, 33, 0.6);
       transition: all 0.2s;
     }
@@ -1265,7 +1274,7 @@
       background: #fff;
       color: var(--ink);
       border-radius: 4px;
-      cursor: pointer;
+      cursor: none;
       font-weight: bold;
     }
 
@@ -1283,7 +1292,7 @@
       border: 1.5px solid var(--ink);
       background: #fff;
       color: var(--ink);
-      cursor: pointer;
+      cursor: none;
       font-size: 12px;
       display: flex;
       align-items: center;
@@ -1320,7 +1329,7 @@
       border-radius: 50%;
       background: var(--teal);
       border: 1.5px solid var(--ink);
-      cursor: pointer;
+      cursor: none;
     }
 
     .ticks {
@@ -1332,7 +1341,7 @@
     }
 
     .ticks span {
-      cursor: pointer;
+      cursor: none;
       transition: color 0.2s;
     }
 
@@ -1533,34 +1542,6 @@
       border: 1px solid var(--ink);
     }
 
-    /* Annotations */
-    .caveat {
-      font-family: 'Caveat', cursive;
-      font-size: 20px;
-      line-height: 1.4;
-      color: var(--teal);
-      max-width: 72ch;
-      margin-top: 20px;
-      padding-left: 20px;
-      border-left: 2px solid var(--yellow);
-    }
-
-    .caveat {
-      background: rgba(201, 162, 39, 0.05);
-      padding: 16px 20px;
-      border: 1px dashed var(--ink);
-      border-radius: 4px;
-      border-left: none;
-      font-family: var(--sans);
-      font-size: 14px;
-      color: rgba(40, 36, 33, 0.85);
-    }
-
-    .caveat b {
-      color: var(--ink);
-      font-weight: 600;
-    }
-
     /* Interactive "what's hidden in a broad category" demo */
     h3.sub#build {
       scroll-margin-top: 90px;
@@ -1571,84 +1552,59 @@
       margin: 22px 0 6px;
     }
 
-    .coarse-pills {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-
-    .coarse-pill {
-      font-family: var(--mono);
-      font-size: 12.5px;
-      font-weight: bold;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      padding: 10px 20px;
-      border: 1.5px solid var(--ink);
-      border-radius: 999px;
-      background: var(--card-paper);
-      color: var(--ink);
-      cursor: none;
-      box-shadow: 3px 3px 0 var(--rule);
-      transition: var(--transition);
-    }
-
-    .coarse-pill:hover {
-      background: rgba(201, 153, 38, 0.14);
-      border-color: var(--yellow);
-    }
-
-    .coarse-pill.active {
-      background: var(--teal);
-      border-color: var(--teal);
-      color: var(--paper);
-    }
-
-    /* Miniature ray-burst — same idea as the landing page's Researcher/Designer/
-       Storyteller hover (radiating leader lines + scattered labels), scaled down
-       to a small canvas that fits inside body text instead of taking the page. */
-    .ray-mini-field {
-      position: relative;
-      margin-top: 18px;
-      min-height: 168px;
-    }
-
-    .ray-mini-canvas {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-    }
-
-    .ray-mini-hint {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: 'Caveat', cursive;
-      font-size: 18px;
-      color: rgba(40, 36, 33, 0.32);
-      pointer-events: none;
-      transition: opacity 0.35s ease;
+    /* Static breakdown: each broad label, then the communities it flattens.
+       Same yellow arrowhead as the roadmap list in the walkthrough below. */
+    .coarse-list {
+      list-style: none;
+      padding: 0;
       margin: 0;
+      max-width: 74ch;
     }
 
-    .ray-mini-hint.hidden {
-      opacity: 0;
+    .coarse-list li {
+      display: grid;
+      grid-template-columns: 22px minmax(78px, auto) 1fr;
+      align-items: baseline;
+      column-gap: 12px;
+      padding: 11px 0;
+      border-bottom: 1px solid var(--rule);
     }
 
-    .coarse-demo-note {
+    .coarse-list li:last-child {
+      border-bottom: none;
+    }
+
+    .coarse-list li::before {
+      content: '→';
+      color: var(--yellow);
+      font-weight: bold;
+    }
+
+    .coarse-group {
       font-family: var(--mono);
-      font-size: 11px;
-      letter-spacing: 0.01em;
-      color: rgba(40, 36, 33, 0.5);
-      margin-top: 16px;
+      font-size: 12px;
+      font-weight: bold;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--ink);
     }
 
-    @media (prefers-reduced-motion: reduce) {
-      .ray-mini-canvas {
-        display: none;
+    .coarse-subs {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 17px;
+      line-height: 1.5;
+      color: rgba(40, 36, 33, 0.82);
+    }
+
+    @media (max-width: 620px) {
+      .coarse-list li {
+        grid-template-columns: 22px 1fr;
+        row-gap: 3px;
+      }
+
+      .coarse-subs {
+        grid-column: 2;
       }
     }
 
@@ -1855,7 +1811,7 @@
       <a href="#problem">The problem</a>
       <a href="#strain">The strain</a>
       <a href="#targeting">The map</a>
-      <a href="#build">What we'd build</a>
+      <a href="#build">THE MVP</a>
     </div>
   </nav>
 
@@ -2103,7 +2059,7 @@
         <div class="map-frame">
           <div id="mapWrap">
             <div id="map"></div>
-            <span class="map-hint" id="mapHint" style="position: absolute; top: 55px; left: 15px; z-index: 10;">
+            <span class="map-hint" id="mapHint" style="position: absolute; top: 76px; left: 55px; z-index: 10;">
               <span class="interactive-prompt">Hover over states to see the breakdown</span>
               <svg class="map-hint-arrow" viewBox="0 0 26 40" fill="none" stroke="currentColor" stroke-linecap="round"
                 stroke-linejoin="round">
@@ -2131,31 +2087,40 @@
       <div class="secnum">07 / Where this goes next</div>
       <h2 class="section-head">Beyond broad groups, into a real product</h2>
       <p class="lede">The race categories here are broad. A single "Hispanic" or "Asian" label can hide very
-        different communities inside it, each with different income and homeownership patterns. Click a group
-        below to see what it's actually made up of.</p>
+        different communities inside it, each with different income and homeownership patterns.
+      </p>
 
       <div class="coarse-demo">
-        <div class="ray-mini" id="rayMini">
-          <div class="coarse-pills" id="coarsePills">
-            <button class="coarse-pill" data-group="hispanic" type="button">Hispanic</button>
-            <button class="coarse-pill" data-group="asian" type="button">Asian</button>
-            <button class="coarse-pill" data-group="black" type="button">Black</button>
-            <button class="coarse-pill" data-group="white" type="button">White</button>
-          </div>
-          <div class="ray-mini-field" id="rayMiniField">
-            <canvas class="ray-mini-canvas" id="rayMiniCanvas"></canvas>
-            <p class="ray-mini-hint" id="rayMiniHint">hover a category above</p>
-          </div>
-        </div>
-        <p class="coarse-demo-note">Illustrative sub-groups — the NFCS itself doesn't break its race categories out
-          this far. That gap is exactly the point below.</p>
+        <ul class="coarse-list">
+          <li>
+            <span class="coarse-group">Hispanic</span>
+            <span class="coarse-subs">Mexican-origin, Puerto Rican, Cuban, Central American, South American,
+              Dominican</span>
+          </li>
+          <li>
+            <span class="coarse-group">Asian</span>
+            <span class="coarse-subs">Chinese, Indian, Filipino, Vietnamese, Korean, other Asian origins</span>
+          </li>
+          <li>
+            <span class="coarse-group">Black</span>
+            <span class="coarse-subs">U.S.-born multi-generational, Caribbean immigrant, African immigrant</span>
+          </li>
+          <li>
+            <span class="coarse-group">White</span>
+            <span class="coarse-subs">Multi-generational U.S.-born, recent European immigrant, MENA origin</span>
+          </li>
+        </ul>
       </div>
 
-      <p class="caveat">To actually split people out this way, we'd want to know how recently someone immigrated,
-        since that shapes money habits more than a broad race label does. The catch: the survey we used doesn't ask
-        where someone was born. Getting that means combining it with other datasets, like the Census or the Federal
-        Reserve's own surveys, and those don't line up perfectly, their geographic boundaries and survey weights
-        differ.</p>
+      <div class="exttag">
+        <div class="exttag-h">The data gap</div>
+        <p>How recently someone immigrated shapes money habits <b>more than a broad race label does</b>. The catch:
+          our survey never asks where someone was born. Pulling it from the Census or the Fed means merging datasets
+          whose geographic boundaries and survey weights don't line up.</p>
+        <p><b>The fix is to ask directly.</b> Onboarding already builds a profile, so it can collect country of origin
+          and years in the U.S. first-hand. Until that pool is large enough, Census figures guide what we build, but
+          they don't back claims about any specific group.</p>
+      </div>
 
       <h3 class="sub" id="build">What we'd build</h3>
       <p class="note">The product turns the evidence into a path for each user. No generic
@@ -2186,11 +2151,10 @@
 
       <div class="mvp-statement">
         <p class="mvp-statement-title">MVP Scope</p>
-        <p class="mvp-statement-body">The first release only has to prove that a lesson tuned to someone's income,
+        <p class="mvp-statement-body">Gamification, credentialing, social features can wait. The first release only has
+          to prove that a lesson tuned to someone's income,
           state, and life stage lands differently than generic advice.</p>
-        <p class="mvp-statement-body">Gamification, credentialing, social features can wait. The first step is the
-          personalization loop itself, so the MVP is scoped down to just what's needed to run that test:</p>
-        <p></p>
+        <p class="mvp-statement-body">The MVP is scoped down to just the personalization loop:</p>
 
         <ul class="mvp-statement-list">
           <li>Secure user profiles</li>
@@ -2342,6 +2306,17 @@
       ambient: new AmbientLight({ color: [255, 255, 255], intensity: 1.05 }),
       dir: new DirectionalLight({ color: [255, 255, 255], intensity: 1.0, direction: [-1, -3, -1] })
     });
+    // The source inset drops Alaska far enough south-west that it clips out of the
+    // 620px frame. Nudge it up and in so it reads as part of the composition.
+    (function nudgeAlaskaInset() {
+      const DLON = 6.5, DLAT = 6;
+      const ak = (window.US_GEO_INSET.features || []).find(f => f.properties.name === 'Alaska');
+      if (!ak) return;
+      (function shift(a) {
+        if (typeof a[0] === 'number') { a[0] += DLON; a[1] += DLAT; } else a.forEach(shift);
+      })(ak.geometry.coordinates);
+    })();
+
     function layer() {
       return new GeoJsonLayer({
         id: 'states', data: window.US_GEO_INSET, extruded: true, filled: true, stroked: true, wireframe: true,
@@ -2481,156 +2456,6 @@
     })();
   </script>
 
-  <!-- ===================== coarse category demo (mini ray-burst) ===================== -->
-  <!-- Same idea as the landing page's Researcher/Designer/Storyteller hover: rays
-       radiate from the hovered word to scattered labels. This is a scaled-down,
-       canvas-confined version that fits inside body text instead of the full page. -->
-  <script>
-    (function () {
-      const DATA = {
-        hispanic: ['Mexican-origin', 'Puerto Rican', 'Cuban', 'Central American', 'South American', 'Dominican'],
-        asian: ['Chinese', 'Indian', 'Filipino', 'Vietnamese', 'Korean', 'Other Asian origins'],
-        black: ['U.S.-born, multi-gen.', 'Caribbean immigrant', 'African immigrant'],
-        white: ['Multi-gen. U.S.-born', 'Recent European immigrant', 'MENA origin']
-      };
-
-      const rayMini = document.getElementById('rayMini');
-      const pillsWrap = document.getElementById('coarsePills');
-      const field = document.getElementById('rayMiniField');
-      const canvas = document.getElementById('rayMiniCanvas');
-      const hint = document.getElementById('rayMiniHint');
-      if (!rayMini || !pillsWrap || !field || !canvas || !hint) return;
-      const ctx = canvas.getContext('2d');
-      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-      const DURATION = 420;
-      let fieldW = 0, fieldH = 0;
-
-      function resize() {
-        const r = field.getBoundingClientRect();
-        fieldW = r.width;
-        fieldH = r.height;
-        const dpr = window.devicePixelRatio || 1;
-        canvas.width = Math.round(fieldW * dpr);
-        canvas.height = Math.round(fieldH * dpr);
-        canvas.style.width = fieldW + 'px';
-        canvas.style.height = fieldH + 'px';
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      }
-      resize();
-
-      function easeOutExpo(t) { return t === 1 ? 1 : 1 - Math.pow(2, -10 * t); }
-
-      let activeKey = null, activeAnchorX = 0, items = [], startTime = null, rafId = null;
-
-      // Fan the sub-group labels out below the hovered pill, clamped to stay inside the field.
-      function buildItems(key, anchorX) {
-        const texts = DATA[key];
-        const N = texts.length;
-        const anchorY = -6;
-        const spreadHalf = Math.min(1.15, 0.35 + N * 0.13);
-        const baseAngle = Math.PI / 2;
-        return texts.map((text, i) => {
-          const t = N === 1 ? 0.5 : i / (N - 1);
-          const angle = baseAngle - spreadHalf + t * spreadHalf * 2;
-          const radius = 56 + (i % 2 === 0 ? 0 : 16) + i * 7;
-          const x1 = Math.max(46, Math.min(fieldW - 46, anchorX + Math.cos(angle) * radius));
-          const y1 = Math.max(22, Math.min(fieldH - 12, anchorY + Math.sin(angle) * radius));
-          return { x0: anchorX, y0: anchorY, x1, y1, text, delay: i * 70 };
-        });
-      }
-
-      function draw(progress) {
-        ctx.clearRect(0, 0, fieldW, fieldH);
-        items.forEach(it => {
-          const raw = Math.max(0, Math.min(1, (progress - it.delay / DURATION) / (1 - (it.delay / DURATION) * 0.4)));
-          if (raw <= 0) return;
-          const p = easeOutExpo(raw);
-          const x = it.x0 + (it.x1 - it.x0) * p;
-          const y = it.y0 + (it.y1 - it.y0) * p;
-
-          ctx.strokeStyle = 'rgba(26,107,107,0.48)';
-          ctx.lineWidth = 1.3;
-          ctx.beginPath();
-          ctx.moveTo(it.x0, it.y0);
-          ctx.lineTo(x, y);
-          ctx.stroke();
-
-          ctx.beginPath();
-          ctx.fillStyle = '#1a6b6b';
-          ctx.arc(x, y, 2.4 * Math.min(1, raw * 1.6), 0, Math.PI * 2);
-          ctx.fill();
-
-          const textAlpha = Math.min(1, raw * 1.7);
-          if (textAlpha > 0.02) {
-            ctx.save();
-            ctx.globalAlpha = textAlpha;
-            ctx.font = "italic 600 14px 'Cormorant Garamond', serif";
-            ctx.fillStyle = '#282421';
-            ctx.textBaseline = 'middle';
-            const align = x < it.x0 - 2 ? 'right' : x > it.x0 + 2 ? 'left' : 'center';
-            ctx.textAlign = align;
-            const tx = align === 'left' ? x + 6 : align === 'right' ? x - 6 : x;
-            ctx.fillText(it.text, tx, y);
-            ctx.restore();
-          }
-        });
-      }
-
-      function animate(ts) {
-        if (!startTime) startTime = ts;
-        const progress = Math.min(1, (ts - startTime) / DURATION);
-        draw(progress);
-        if (progress < 1) rafId = requestAnimationFrame(animate);
-      }
-
-      function showGroup(key, anchorEl) {
-        const r = anchorEl.getBoundingClientRect();
-        const fr = field.getBoundingClientRect();
-        const anchorX = Math.max(30, Math.min(fieldW - 30, r.left + r.width / 2 - fr.left));
-        activeKey = key;
-        activeAnchorX = anchorX;
-        items = buildItems(key, anchorX);
-        hint.classList.add('hidden');
-        pillsWrap.querySelectorAll('.coarse-pill').forEach(b => b.classList.toggle('active', b === anchorEl));
-        if (rafId) cancelAnimationFrame(rafId);
-        startTime = null;
-        if (reduceMotion) { draw(1); return; }
-        rafId = requestAnimationFrame(animate);
-      }
-
-      function clearField() {
-        activeKey = null;
-        if (rafId) cancelAnimationFrame(rafId);
-        ctx.clearRect(0, 0, fieldW, fieldH);
-        hint.classList.remove('hidden');
-        pillsWrap.querySelectorAll('.coarse-pill').forEach(b => b.classList.remove('active'));
-      }
-
-      window.addEventListener('resize', () => {
-        resize();
-        if (activeKey) { items = buildItems(activeKey, activeAnchorX); draw(1); }
-      });
-
-      pillsWrap.querySelectorAll('.coarse-pill').forEach(btn => {
-        btn.addEventListener('mouseenter', () => showGroup(btn.dataset.group, btn));
-        btn.addEventListener('focus', () => showGroup(btn.dataset.group, btn));
-        // Click/tap fallback for touch devices, which have no hover state.
-        btn.addEventListener('click', () => {
-          if (activeKey === btn.dataset.group) clearField();
-          else showGroup(btn.dataset.group, btn);
-        });
-      });
-
-      // Stay open while the cursor is anywhere over the pills or the ray field below
-      // them; only collapse once it leaves the whole composition.
-      rayMini.addEventListener('mouseleave', clearField);
-      rayMini.addEventListener('focusout', e => {
-        if (!rayMini.contains(e.relatedTarget)) clearField();
-      });
-    })();
-  </script>
-
   <!-- ===================== onboarding steps walkthrough ===================== -->
   <script>
     (function () {
@@ -2669,9 +2494,12 @@
         },
         {
           title: 'Adaptive lessons',
-          html: '<p class="pipeline-output-body">Content shifts as life changes. Life event logged: ' +
-            '<strong>started a new job</strong>.<br>Roadmap updates to add: 401(k) employer matching, and ' +
-            'adjusting tax withholding.</p>'
+          html: '<p class="pipeline-output-body">Content shifts as life changes. With ' +
+            '<strong>started a new job</strong> logged, the roadmap updates to add:</p>' +
+            '<ul class="pipeline-output-list">' +
+            '<li>401(k) employer matching</li>' +
+            '<li>Adjusting tax withholding</li>' +
+            '</ul>'
         }
       ];
       const BAR_WIDTH = ['7.5%', '32.5%', '57.5%', '82.5%'];
