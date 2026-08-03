@@ -5,10 +5,46 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>St. Joe's Hoes Case Study — Khushali Haji</title>
+  <meta name="description"
+    content="A character driven documentary exploring immigration, housing insecurity, and creative ambition in New York City.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
     href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300;1,600&family=DM+Mono:wght@400;500&family=Inter:wght@200;300;400;500;600;700&family=Caveat:wght@400;600&display=swap"
     rel="stylesheet">
+  <!-- Gate every "hidden until revealed" state on JS being alive, so the page
+       still reads as a finished document if the script never runs. -->
+  <script>document.documentElement.classList.add('js');</script>
   <style>
+    /* =========================================================
+       TOKENS
+       ========================================================= */
+    :root {
+      --ink: #f2efe9;
+      /* type on dark */
+      --void: #0b0b0c;
+      /* page base */
+      --void-2: #121214;
+      /* raised surface */
+      --paper: #f3f0e8;
+      /* light section base */
+      --teal: #4fa3a3;
+      --teal-deep: #1a6b6b;
+      --yellow: #c69926;
+      --rule: rgba(242, 239, 233, 0.14);
+      --dim: rgba(242, 239, 233, 0.62);
+
+      --serif: 'Cormorant Garamond', Georgia, serif;
+      --mono: 'DM Mono', ui-monospace, monospace;
+      --sans: 'Inter', system-ui, sans-serif;
+      --hand: 'Caveat', cursive;
+
+      --ease: cubic-bezier(0.22, 1, 0.36, 1);
+      --gutter: max(1.5rem, 6vw);
+      --measure: 62ch;
+      --section-y: clamp(6rem, 14vh, 12rem);
+    }
+
     *,
     *::before,
     *::after {
@@ -18,52 +54,117 @@
     }
 
     html {
-      cursor: none;
       scroll-behavior: smooth;
-    }
-
-    :root {
-      --ink: #1a1a1a;
-      --paper: #f5f5f5;
-      --teal: #1a6b6b;
-      --yellow: #c69926;
-      --serif: 'Cormorant Garamond', Georgia, serif;
-      --mono: 'DM Mono', monospace;
-      --sans: 'Inter', sans-serif;
-      --transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+      -webkit-text-size-adjust: 100%;
     }
 
     body {
-      width: 100%;
-      height: 100vh;
-      overflow: hidden; /* we will scroll the inner container */
-      background: var(--ink);
-      color: var(--paper);
+      background: var(--void);
+      color: var(--ink);
       font-family: var(--serif);
+      overflow-x: clip;
+      -webkit-font-smoothing: antialiased;
     }
 
-    /* Film grain overlay applied above backgrounds but under text */
+    /* Hide the native cursor only where the custom one can follow it */
+    @media (hover: hover) and (pointer: fine) {
+
+      html,
+      a,
+      button,
+      [data-clickable] {
+        cursor: none;
+      }
+    }
+
+    img {
+      display: block;
+      max-width: 100%;
+    }
+
+    ::selection {
+      background: var(--yellow);
+      color: #0b0b0c;
+    }
+
+    /* =========================================================
+       CHROME — grain, progress, cursor, nav
+       ========================================================= */
     .grain-overlay {
       position: fixed;
       inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.05'/%3E%3C/svg%3E");
+      z-index: 60;
       pointer-events: none;
-      z-index: 10;
+      opacity: 0.55;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.05'/%3E%3C/svg%3E");
     }
 
-    /* Reading progress bar */
-    .progress-line {
+    /* Segmented reading progress: one track per chapter, sized to how much
+       of the page that chapter occupies, so the bar doubles as a contents bar. */
+    .progress-rail {
       position: fixed;
       top: 0;
       left: 0;
-      width: 0%;
-      height: 4px;
-      background: linear-gradient(to right, var(--teal), var(--yellow));
-      z-index: 100;
+      right: 0;
+      z-index: 80;
+      display: flex;
+      gap: 2px;
+      padding: 0 2px;
+      height: 16px;
+      align-items: flex-start;
       pointer-events: none;
     }
 
-    /* Custom cursor */
+    .progress-seg {
+      position: relative;
+      height: 3px;
+      background: rgba(242, 239, 233, 0.16);
+      overflow: hidden;
+    }
+
+    .progress-seg::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to right, var(--teal-deep), var(--yellow));
+      transform: scaleX(var(--p, 0));
+      transform-origin: 0 50%;
+      transition: transform 0.12s linear;
+    }
+
+    .progress-seg__label {
+      position: absolute;
+      top: 9px;
+      left: 0;
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      color: var(--yellow);
+      opacity: 0;
+      transform: translateY(-4px);
+      transition: opacity 0.35s ease, transform 0.35s var(--ease);
+    }
+
+    /* segments in the right-hand half hang their label off the right edge so
+       it never slides under the nav links */
+    .progress-seg__label.align-end {
+      left: auto;
+      right: 0;
+    }
+
+    .progress-seg.is-current .progress-seg__label {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 700px) {
+      .progress-seg__label {
+        display: none;
+      }
+    }
+
     .cursor-arrow {
       position: fixed;
       left: 0;
@@ -76,7 +177,7 @@
       transform-origin: 2px 2px;
       mix-blend-mode: difference;
       background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cfilter id='w'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.04' numOctaves='2' seed='4' result='n'/%3E%3CfeDisplacementMap in='SourceGraphic' in2='n' scale='0.9'/%3E%3C/filter%3E%3Cpath filter='url(%23w)' d='M4 3 L26 17 L16 19 L21 31 L17 33 L12 21 L4 24 Z' fill='%23ffffff' stroke='%23ffffff' stroke-width='1.4' stroke-linejoin='round' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat;
-      transition: opacity 0.3s ease, transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+      transition: opacity 0.3s ease, transform 0.2s var(--ease);
     }
 
     .cursor-arrow.visible {
@@ -85,860 +186,1994 @@
 
     .cursor-arrow.hot {
       transform: scale(1.18);
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cfilter id='wp'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.04' numOctaves='2' seed='4' result='n'/%3E%3CfeDisplacementMap in='SourceGraphic' in2='n' scale='0.9'/%3E%3C/filter%3E%3Cpath filter='url(%23wp)' d='M4 3 L26 17 L16 19 L21 31 L17 33 L12 21 L4 24 Z' fill='%2373b904' stroke='%2373b904' stroke-width='1.4' stroke-linejoin='round' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cfilter id='wp'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.04' numOctaves='2' seed='4' result='n'/%3E%3CfeDisplacementMap in='SourceGraphic' in2='n' scale='0.9'/%3E%3C/filter%3E%3Cpath filter='url(%23wp)' d='M4 3 L26 17 L16 19 L21 31 L17 33 L12 21 L4 24 Z' fill='%23c69926' stroke='%23c69926' stroke-width='1.4' stroke-linejoin='round' stroke-linecap='round'/%3E%3C/svg%3E");
     }
 
-    /* Sticky Navigation Bar */
+    @media (hover: none) {
+      .cursor-arrow {
+        display: none;
+      }
+    }
+
     .topnav {
       position: fixed;
       top: 0;
       left: 0;
       right: 0;
-      z-index: 50;
+      z-index: 70;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 0.9rem max(1.5rem, 5vw);
-      background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
-      transition: transform 0.35s ease;
+      gap: 0.75rem;
+      /* extra top padding clears the chapter rail and its label */
+      padding: 1.65rem var(--gutter) 1.1rem;
+      max-width: 100vw;
+      background: linear-gradient(to bottom, rgba(11, 11, 12, 0.86), rgba(11, 11, 12, 0));
+      transition: transform 0.45s var(--ease), background 0.45s ease;
+      will-change: transform;
+    }
+
+    .topnav.is-hidden {
+      transform: translateY(-110%);
+    }
+
+    .topnav.is-solid {
+      background: rgba(11, 11, 12, 0.82);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--rule);
     }
 
     .topnav a {
       font-family: var(--mono);
       font-size: 11px;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.1em;
       text-transform: uppercase;
-      color: var(--paper);
+      color: var(--ink);
       text-decoration: none;
       transition: color 0.3s ease;
-      cursor: none;
     }
 
     .topnav a:hover {
       color: var(--yellow);
-      text-decoration: underline;
     }
 
     .topnav a.nav-back {
-      font-family: 'Caveat', cursive;
-      font-size: clamp(16px, 1.6vw, 20px);
-      font-weight: 400;
+      font-family: var(--hand);
+      font-size: clamp(17px, 1.6vw, 21px);
       text-transform: none;
       letter-spacing: 0;
     }
 
     .nav-back span {
       display: inline-block;
-      transition: transform 0.3s ease;
+      transition: transform 0.3s var(--ease);
     }
 
     .nav-back:hover span {
-      transform: translateX(-4px);
+      transform: translateX(-5px);
     }
 
     .nav-links {
       display: flex;
-      gap: 1.5rem;
-    }
-
-    /* Slideshow Container */
-    .slideshow-container {
-      height: 100vh;
-      overflow-y: scroll;
-      scroll-snap-type: y mandatory;
-      scroll-behavior: smooth;
-      scrollbar-width: none; /* Firefox */
-    }
-    
-    .slideshow-container::-webkit-scrollbar {
-      display: none; /* Chrome/Safari */
-    }
-
-    /* Individual Slide */
-    .slide {
-      position: relative;
-      height: 100vh;
-      width: 100vw;
-      scroll-snap-align: start;
-      display: flex;
+      gap: clamp(1rem, 2vw, 2rem);
       align-items: center;
-      justify-content: flex-start;
-      padding: 0 max(2rem, 10vw);
-      z-index: 1;
     }
 
-    /* Background image with cinematic gradient */
-    .slide-bg {
-      position: absolute;
-      inset: 0;
-      z-index: -1;
-      background-size: cover;
-      background-position: center;
+    .topnav a.nav-back {
+      white-space: nowrap;
     }
 
-    .slide-bg::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      /* Dark gradient to ensure text readability on the left */
-      background: linear-gradient(to right, rgba(12,10,8,0.95) 0%, rgba(12,10,8,0.6) 50%, rgba(12,10,8,0.2) 100%);
+    /* Not enough room for the chapter jumps on a phone — the rail already
+       shows where you are, so drop them and keep the two exits. */
+    @media (max-width: 860px) {
+      .nav-links a[href^="#"] {
+        display: none;
+      }
     }
 
-    /* Content Wrapper inside Slide */
-    .slide-content {
-      position: relative;
-      z-index: 20;
-      max-width: 750px;
-      opacity: 0;
-      transform: translateY(30px);
-      transition: opacity 0.8s ease 0.2s, transform 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.2s;
+    /* =========================================================
+       MOTION PRIMITIVES
+       ========================================================= */
+
+    /* Line-masked heading reveal: each line rides up out of a clipped row.
+       The padding/negative-margin pairs widen the clip box just enough that
+       overhanging glyphs (the J of "Joe's") aren't sliced off. */
+    .line-mask {
+      display: block;
+      overflow: hidden;
+      padding-bottom: 0.08em;
+      margin-bottom: -0.08em;
+      padding-inline: 0.14em;
+      margin-inline: -0.14em;
     }
 
-    .slide.is-active .slide-content {
-      opacity: 1;
+    .line-mask>i {
+      display: block;
+      font-style: inherit;
+      transition: transform 1.05s var(--ease);
+      transition-delay: var(--d, 0s);
+    }
+
+    .js .line-mask>i {
+      transform: translateY(110%);
+    }
+
+    .is-in .line-mask>i,
+    .line-mask.is-in>i {
       transform: translateY(0);
     }
 
-    /* Typography inside Slides */
+    /* Generic fade-up reveal */
+    [data-reveal] {
+      transition: opacity 0.9s ease var(--d, 0s), transform 1s var(--ease) var(--d, 0s);
+    }
+
+    .js [data-reveal] {
+      opacity: 0;
+      transform: translateY(28px);
+    }
+
+    [data-reveal].is-in {
+      opacity: 1;
+      transform: none;
+    }
+
+    /* Media frame: image scales down into place, frame wipes open */
+    .frame {
+      position: relative;
+      overflow: hidden;
+      background: var(--void-2);
+      transition: clip-path 1.2s var(--ease) var(--d, 0s);
+    }
+
+    .js .frame {
+      clip-path: inset(0 0 100% 0);
+    }
+
+    .frame.is-in {
+      clip-path: inset(0 0 0 0);
+    }
+
+    .frame img,
+    .frame video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 1.6s var(--ease) var(--d, 0s);
+      will-change: transform;
+    }
+
+    .js .frame img,
+    .js .frame video {
+      transform: scale(1.18);
+    }
+
+    .frame.is-in img,
+    .frame.is-in video {
+      transform: scale(1);
+    }
+
+    /* Parallax layers get their offset written by JS */
+    [data-parallax] {
+      will-change: transform;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+
+      html {
+        scroll-behavior: auto;
+      }
+
+      [data-reveal],
+      .frame,
+      .frame img,
+      .line-mask>i {
+        opacity: 1 !important;
+        transform: none !important;
+        clip-path: none !important;
+        transition: none !important;
+      }
+
+      .marquee__track {
+        animation: none !important;
+      }
+    }
+
+    /* =========================================================
+       LAYOUT
+       ========================================================= */
+    .wrap {
+      width: 100%;
+      max-width: 1400px;
+      margin-inline: auto;
+      padding-inline: var(--gutter);
+    }
+
+    .section {
+      padding-block: var(--section-y);
+      position: relative;
+    }
+
+    .bleed {
+      width: 100%;
+      position: relative;
+    }
+
+    /* Two-column: sticky label rail on the left, copy on the right */
+    .split {
+      display: grid;
+      grid-template-columns: minmax(200px, 22%) 1fr;
+      gap: clamp(2rem, 6vw, 6rem);
+      align-items: start;
+    }
+
+    .split__rail {
+      position: sticky;
+      top: 22vh;
+    }
+
+    @media (max-width: 860px) {
+      .split {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+      }
+
+      .split__rail {
+        position: static;
+      }
+    }
+
+    /* =========================================================
+       TYPE
+       ========================================================= */
     .eyebrow {
       font-family: var(--mono);
       font-size: 11px;
-      letter-spacing: 0.16em;
+      letter-spacing: 0.18em;
       text-transform: uppercase;
-      color: var(--yellow);
-      display: flex;
+      color: var(--teal);
+      display: inline-flex;
       align-items: center;
       gap: 0.5rem;
-      margin-bottom: 1.2rem;
     }
 
     .eyebrow::before {
       content: '★';
       font-size: 8px;
-      color: var(--teal);
-    }
-
-    h2.section-head {
-      font-family: var(--serif);
-      font-weight: 600;
-      font-size: clamp(32px, 4vw, 48px);
-      line-height: 1.1;
-      letter-spacing: -0.015em;
-      margin-bottom: 1.2rem;
-      color: var(--paper);
+      color: var(--yellow);
     }
 
     h1.hero-title {
       font-family: var(--serif);
       font-weight: 600;
-      font-size: clamp(52px, 7vw, 84px);
-      line-height: 1.05;
-      letter-spacing: -0.02em;
-      margin-bottom: 1rem;
-      color: var(--paper);
+      font-size: clamp(38px, 10vw, 148px);
+      line-height: 1.02;
+      letter-spacing: -0.025em;
+      white-space: nowrap;
     }
 
-    .hero-oneliner {
+    h2.display {
+      font-family: var(--serif);
+      font-weight: 600;
+      font-size: clamp(34px, 5.4vw, 82px);
+      line-height: 1.02;
+      letter-spacing: -0.025em;
+    }
+
+    h3.sub {
+      font-family: var(--serif);
+      font-weight: 600;
+      font-size: clamp(24px, 2.6vw, 38px);
+      line-height: 1.14;
+      letter-spacing: -0.015em;
+    }
+
+    .lede {
       font-family: var(--sans);
-      font-weight: 300;
-      font-size: clamp(20px, 2vw, 26px);
-      line-height: 1.4;
-      color: rgba(245, 245, 245, 0.9);
-      margin-bottom: 2rem;
-    }
-
-    .recognition {
-      font-family: var(--mono);
-      font-size: 12px;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--teal);
-      border-left: 2px solid var(--yellow);
-      padding-left: 1rem;
-      margin-bottom: 2rem;
-      line-height: 1.5;
+      font-weight: 200;
+      font-size: clamp(22px, 2.9vw, 44px);
+      line-height: 1.3;
+      letter-spacing: -0.02em;
+      max-width: 22ch;
     }
 
     p.body {
-      font-family: var(--serif);
+      font-family: var(--sans);
+      font-weight: 300;
+      font-size: clamp(17px, 1.45vw, 22px);
+      line-height: 1.7;
+      color: var(--dim);
+      max-width: var(--measure);
+    }
+
+    p.body+p.body {
+      margin-top: 1.25em;
+    }
+
+    p.body strong {
+      color: var(--ink);
       font-weight: 500;
-      font-size: clamp(18px, 1.6vw, 22px);
-      line-height: 1.6;
-      color: rgba(245, 245, 245, 0.85);
-      margin-bottom: 1.5rem;
     }
 
-    .pullquote {
-      font-family: 'Caveat', cursive;
-      font-size: clamp(26px, 2.8vw, 36px);
-      line-height: 1.2;
-      color: var(--yellow);
-      margin: 2rem 0;
-      padding: 1.5rem 0;
-      border-top: 1px dashed rgba(245, 245, 245, 0.2);
-      border-bottom: 1px dashed rgba(245, 245, 245, 0.2);
-    }
-
-    /* Video Placeholders */
-    .video-placeholder {
-      width: 100%;
-      aspect-ratio: 16/9;
-      background: rgba(0,0,0,0.5);
-      border: 1px solid rgba(255,255,255,0.2);
-      border-radius: 4px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+    /* Same eyebrow treatment as the Conflict Lens sections */
+    .rail-label {
       font-family: var(--mono);
-      font-size: 12px;
-      color: var(--paper);
-      cursor: none;
-      position: relative;
-      overflow: hidden;
-      margin-top: 1.5rem;
-      transition: var(--transition);
-      backdrop-filter: blur(5px);
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--teal);
+      padding-top: 0.7rem;
+      border-top: 1px solid var(--rule);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
     }
 
-    .video-placeholder::before {
+    .rail-label::before {
+      content: '★';
+      font-size: 8px;
+      color: var(--yellow);
+    }
+
+    /* =========================================================
+       HERO
+       ========================================================= */
+    .hero {
+      min-height: 100svh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding-block: clamp(6.5rem, 15vh, 11rem) 14vh;
+      position: relative;
+      isolation: isolate;
+      overflow: hidden;
+    }
+
+    .hero__bg {
+      position: absolute;
+      inset: -10% 0;
+      z-index: -2;
+    }
+
+    .hero__bg img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 42%;
+      filter: brightness(1.16) saturate(1.04);
+    }
+
+    /* Two scrims: one horizontal so the copy always sits on near-black, one
+       vertical to seat the nav and the caption. */
+    .hero::before {
       content: '';
       position: absolute;
       inset: 0;
-      background: var(--yellow);
-      opacity: 0;
-      transition: var(--transition);
-      z-index: 1;
+      z-index: -1;
+      background:
+        linear-gradient(to right, rgba(11, 11, 12, 0.74) 0%, rgba(11, 11, 12, 0.6) 30%, rgba(11, 11, 12, 0.22) 62%, rgba(11, 11, 12, 0.06) 100%),
+        linear-gradient(to bottom, rgba(11, 11, 12, 0.62) 0%, transparent 20%, transparent 52%, rgba(11, 11, 12, 0.32) 66%, rgba(11, 11, 12, 0.62) 84%, rgba(11, 11, 12, 0.8) 100%);
     }
 
-    .video-placeholder:hover {
-      border-color: var(--yellow);
-      transform: scale(1.02);
+    /* With a lighter scrim the copy carries its own contrast */
+    .hero .eyebrow,
+    .hero-title,
+    .hero__sub,
+    .hero__meta,
+    .hero__caption {
+      text-shadow: 0 1px 2px rgba(11, 11, 12, 0.9), 0 2px 30px rgba(11, 11, 12, 0.9);
     }
 
-    .video-placeholder:hover::before {
-      opacity: 0.15;
+    /* teal reads thin against a photograph — lift it on the hero only */
+    .hero .eyebrow {
+      color: #83d2d2;
     }
 
-    .video-placeholder span {
-      position: relative;
-      z-index: 2;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      font-weight: bold;
-    }
-    
-    /* Footer Slide specific */
-    .footer-slide {
-      height: auto;
-      min-height: 50vh;
-      display: block;
-      padding: 0;
-    }
-    
-    .footer-content {
-      padding: 6vh max(2rem, 10vw);
+    /* On a phone the copy spans the full width, so a left-weighted scrim leaves
+       the right-hand ends of lines sitting on bare photo. Even it out. */
+    @media (max-width: 860px) {
+      .hero::before {
+        background: linear-gradient(to bottom,
+            rgba(11, 11, 12, 0.78) 0%,
+            rgba(11, 11, 12, 0.66) 40%,
+            rgba(11, 11, 12, 0.7) 75%,
+            rgba(11, 11, 12, 0.82) 100%);
+      }
     }
 
-    /* Team Grid */
-    .team-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 2rem;
-      margin-top: 2rem;
-    }
-
-    .team-member {
-      border-left: 2px solid var(--teal);
-      padding-left: 1rem;
-    }
-
-    .team-role {
+    .hero__caption {
+      position: absolute;
+      right: var(--gutter);
+      bottom: 1.6rem;
       font-family: var(--mono);
-      font-size: 11px;
-      color: var(--yellow);
+      font-size: 10px;
+      letter-spacing: 0.16em;
       text-transform: uppercase;
-      letter-spacing: 0.1em;
-      margin-bottom: 0.5rem;
+      color: rgba(242, 239, 233, 0.7);
+      text-shadow: 0 1px 12px rgba(0, 0, 0, 0.9);
     }
 
-    .team-name {
+    @media (max-width: 700px) {
+      .hero__caption {
+        left: var(--gutter);
+        right: auto;
+      }
+    }
+
+    .hero__eyebrow {
+      margin-bottom: clamp(1.2rem, 3vh, 2.4rem);
+    }
+
+    .hero__sub {
+      margin-top: clamp(1.4rem, 3.5vh, 2.2rem);
       font-family: var(--sans);
-      font-size: 18px;
-      color: var(--paper);
-      font-weight: 600;
+      font-weight: 200;
+      font-size: clamp(19px, 2.4vw, 26px);
+      line-height: 1.4;
+      letter-spacing: -0.02em;
+      color: rgba(242, 239, 233, 0.9);
+      max-width: 30ch;
     }
 
-    /* =============================================
-       PROTAGONISTS MAP SLIDE
-       ============================================= */
-    .map-slide {
-      padding: 0;
+    .hero__meta {
+      margin-top: clamp(1.8rem, 5vh, 4rem);
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(210px, 100%), 1fr));
+      gap: clamp(1.2rem, 3vw, 3rem);
+      border-top: 1px solid var(--rule);
+      padding-top: 1.4rem;
+    }
+
+    .meta-item {
+      min-width: 0;
+    }
+
+    .meta-item dt {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--teal);
+      margin-bottom: 0.45rem;
+    }
+
+    .meta-item dd {
+      font-family: var(--sans);
+      font-weight: 300;
+      font-size: 15px;
+      line-height: 1.5;
+      color: var(--ink);
+    }
+
+    /* =========================================================
+       FULL-BLEED MEDIA
+       ========================================================= */
+    .bleed-media {
+      height: clamp(60vh, 88vh, 1000px);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .bleed-media__inner {
+      /* Overscanned top and bottom so the parallax shift can never
+         expose an edge (max shift ≈ 0.94 × depth × vh). */
+      position: absolute;
+      inset: -16% 0;
+    }
+
+    .bleed-media img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .bleed-media::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(to bottom, rgba(11, 11, 12, 0.55) 0%, transparent 28%, transparent 62%, rgba(11, 11, 12, 0.75) 100%);
+    }
+
+    /* Overlay quote variant */
+    .bleed-quote {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      padding-inline: var(--gutter);
+    }
+
+    .bleed-quote p {
+      font-family: var(--serif);
+      font-weight: 600;
+      font-size: clamp(28px, 4.4vw, 66px);
+      line-height: 1.06;
+      letter-spacing: -0.025em;
+      max-width: 16ch;
+      text-shadow: 0 2px 40px rgba(0, 0, 0, 0.6);
+    }
+
+    /* =========================================================
+       SUMMARY
+       ========================================================= */
+    .summary {
+      padding-block: clamp(5rem, 12vh, 10rem);
+    }
+
+    .summary__grid {
+      display: grid;
+      grid-template-columns: minmax(200px, 22%) 1fr;
+      gap: clamp(2rem, 6vw, 6rem);
+      align-items: start;
+    }
+
+    /* Inter, at the larger scale and measure of the serif treatment it replaced */
+    .summary p {
+      font-family: var(--sans);
+      font-weight: 300;
+      font-size: clamp(20px, 1.9vw, 27px);
+      line-height: 1.62;
+      letter-spacing: -0.01em;
+      color: rgba(242, 239, 233, 0.92);
+      max-width: 44ch;
+    }
+
+    .summary p em {
+      font-family: var(--serif);
+      font-style: italic;
+      font-weight: 600;
+      color: var(--yellow);
+      /* Cormorant sits small next to Inter at the same px, so bump it a step.
+         1.2 × 1.35 = 1.62em, matching the parent's line box so leading holds. */
+      font-size: 1.2em;
+      line-height: 1.35;
+    }
+
+    @media (max-width: 860px) {
+      .summary__grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+      }
+    }
+
+    /* =========================================================
+       VIDEO (full bleed, click-to-play facade)
+       ========================================================= */
+    .video-bleed {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      max-height: 100svh;
+      background: #000;
       overflow: hidden;
     }
 
-    .map-slide .slide-bg::after {
-      background: rgba(12,10,8,0.7);
+    /* Once the player is in, hand the pointer back so YouTube's own controls
+       get a real cursor instead of inheriting the page's `cursor: none`. */
+    .video-bleed.is-playing {
+      cursor: auto;
     }
 
-    /* SVG world map background */
-    .map-svg-wrap {
-      position: absolute;
-      inset: 0;
-      z-index: 5;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      pointer-events: none;
-    }
-
-    .map-svg-wrap svg.world-map {
-      width: 90%;
-      max-width: 1200px;
-      height: auto;
-      opacity: 0.25;
-    }
-
-    /* Connection lines overlay */
-    .connections-svg {
+    .video-bleed iframe {
       position: absolute;
       inset: 0;
       width: 100%;
       height: 100%;
-      z-index: 15;
-      pointer-events: none;
+      border: 0;
     }
 
-    .conn-path {
-      fill: none;
-      stroke: var(--yellow);
-      stroke-width: 2;
-      stroke-dasharray: 8 6;
-      stroke-dashoffset: 600;
-      transition: stroke-dashoffset 1.2s cubic-bezier(0.22, 1, 0.36, 1);
-      opacity: 0;
-    }
-
-    .conn-path.is-drawing {
-      stroke-dashoffset: 0;
-      opacity: 1;
-    }
-
-    /* City dots on the map */
-    .city-dot {
+    .video-facade {
       position: absolute;
-      z-index: 18;
-      width: 12px;
-      height: 12px;
+      inset: 0;
+      border: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background: #000;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+    }
+
+    .video-facade img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0.48;
+      transform: scale(1.02);
+      transition: transform 1.1s var(--ease), opacity 0.6s ease;
+    }
+
+    .video-facade:hover img {
+      transform: scale(1.06);
+      opacity: 0.62;
+    }
+
+    .video-facade__btn {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      place-items: center;
+      gap: 0.9rem;
+      color: var(--ink);
+    }
+
+    .video-facade__ring {
+      width: clamp(78px, 9vw, 128px);
+      aspect-ratio: 1;
       border-radius: 50%;
-      background: var(--teal);
-      border: 2px solid var(--yellow);
-      opacity: 0;
-      transform: scale(0);
-      transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
-      pointer-events: none;
+      border: 1px solid rgba(242, 239, 233, 0.55);
+      display: grid;
+      place-items: center;
+      transition: background 0.45s var(--ease), border-color 0.45s ease, transform 0.45s var(--ease);
+      backdrop-filter: blur(2px);
     }
 
-    .city-dot.is-visible {
-      opacity: 1;
-      transform: scale(1);
+    .video-facade__ring::after {
+      content: '';
+      width: 0;
+      height: 0;
+      margin-left: 6px;
+      border-left: 16px solid currentColor;
+      border-top: 10px solid transparent;
+      border-bottom: 10px solid transparent;
     }
 
-    .city-dot .city-label {
-      position: absolute;
-      top: -22px;
-      left: 50%;
-      transform: translateX(-50%);
+    .video-facade:hover .video-facade__ring {
+      background: var(--yellow);
+      border-color: var(--yellow);
+      color: #0b0b0c;
+      transform: scale(1.06);
+    }
+
+    .video-facade__label {
       font-family: var(--mono);
-      font-size: 9px;
-      letter-spacing: 0.1em;
+      font-size: 11px;
+      letter-spacing: 0.18em;
       text-transform: uppercase;
-      color: var(--yellow);
+    }
+
+    /* =========================================================
+       MARQUEE
+       ========================================================= */
+    .marquee {
+      overflow: hidden;
+      margin-top: clamp(3.5rem, 9vh, 7rem);
+      border-block: 1px solid var(--rule);
+      padding-block: clamp(1.6rem, 4vh, 2.6rem);
+      user-select: none;
+      /* feather both ends so words drift in and out instead of being sliced */
+      -webkit-mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent);
+      mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent);
+    }
+
+    .marquee__track {
+      display: flex;
+      width: max-content;
+      animation: slide 68s linear infinite;
+    }
+
+    .marquee:hover .marquee__track {
+      animation-play-state: paused;
+    }
+
+    /* Caveat — the same hand the cast roles and the director's signature use */
+    .marquee__track span {
+      font-family: var(--hand);
+      font-weight: 600;
+      font-size: clamp(27px, 3.1vw, 48px);
+      letter-spacing: 0.015em;
+      line-height: 1;
+      padding-inline: clamp(1.4rem, 3vw, 3rem);
+      display: inline-flex;
+      align-items: center;
+      gap: clamp(1.4rem, 3vw, 3rem);
+      color: rgba(242, 239, 233, 0.55);
       white-space: nowrap;
     }
 
-    /* NYC dot is always visible */
-    .city-dot.nyc {
-      opacity: 1;
-      transform: scale(1);
-      background: var(--yellow);
-      width: 14px;
-      height: 14px;
-      box-shadow: 0 0 12px rgba(198, 153, 38, 0.6);
-    }
-    .city-dot.nyc::after {
+    .marquee__track span::after {
       content: '';
-      position: absolute;
-      inset: -6px;
+      width: 4px;
+      height: 4px;
       border-radius: 50%;
-      border: 1px solid var(--yellow);
-      opacity: 0.4;
-      animation: pingDot 2s ease-out infinite;
-    }
-    @keyframes pingDot {
-      0% { transform: scale(0.8); opacity: 0.5; }
-      100% { transform: scale(2); opacity: 0; }
+      background: var(--yellow);
+      opacity: 0.8;
+      flex: none;
     }
 
-    /* Cast Row at bottom of map slide */
-    .cast-row {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      z-index: 25;
-      display: flex;
-      justify-content: center;
-      gap: 0;
-      background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 100%);
-      padding-top: 6vh;
+    @keyframes slide {
+      to {
+        transform: translateX(-50%);
+      }
     }
 
-    .cast-card {
-      position: relative;
-      flex: 0 1 25%;
-      max-width: 260px;
-      text-align: center;
-      cursor: none;
-      padding: 0 0.5rem;
-      transition: var(--transition);
+    /* =========================================================
+       BENTO GRID
+       ========================================================= */
+    .bento {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: clamp(0.6rem, 1.2vw, 1.2rem);
+      margin-top: clamp(3rem, 8vh, 6rem);
     }
 
-    .cast-card:hover {
-      transform: translateY(-8px);
+    .bento .frame {
+      border-radius: 3px;
     }
 
-    /* Portrait placeholder */
-    .cast-portrait {
-      width: 100%;
-      aspect-ratio: 3/4;
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.15);
-      border-radius: 4px 4px 0 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    .bento__a {
+      grid-column: span 4;
+      aspect-ratio: 16 / 10;
+    }
+
+    .bento__b {
+      grid-column: span 2;
+      aspect-ratio: 3 / 4;
+    }
+
+    .bento__c {
+      grid-column: span 6;
+      aspect-ratio: 21 / 9;
+    }
+
+    @media (max-width: 720px) {
+
+      .bento__a,
+      .bento__b,
+      .bento__c {
+        grid-column: span 6;
+        aspect-ratio: 4 / 3;
+      }
+    }
+
+    .figcap {
       font-family: var(--mono);
       font-size: 10px;
-      color: rgba(255,255,255,0.4);
-      letter-spacing: 0.08em;
+      letter-spacing: 0.14em;
       text-transform: uppercase;
+      color: rgba(242, 239, 233, 0.42);
+      margin-top: 0.7rem;
+    }
+
+    /* =========================================================
+       ORIGIN MAP VIDEO
+       ========================================================= */
+    .map-section {
+      /* headroom for the parallax drift, which moves the frame rather than
+         cropping inside it */
       overflow: hidden;
-      transition: var(--transition);
     }
 
-    .cast-card:hover .cast-portrait {
-      border-color: var(--yellow);
-      background: rgba(198, 153, 38, 0.08);
+    .map-frame {
+      position: relative;
+      border-radius: 3px;
+      overflow: hidden;
+      background: #f4efd8;
+      box-shadow: 0 30px 90px rgba(0, 0, 0, 0.5);
     }
 
-    .cast-card-name {
+    .map-frame video {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .map-figcap {
+      text-align: right;
+    }
+
+    @media (max-width: 720px) {
+      .map-figcap {
+        text-align: left;
+      }
+    }
+
+    /* =========================================================
+       CAST — sticky heading + scrolling panels
+       ========================================================= */
+    .cast {
+      position: relative;
+      background: var(--void-2);
+      border-block: 1px solid var(--rule);
+    }
+
+    .cast__head {
+      padding-block: clamp(4rem, 10vh, 8rem) clamp(1.5rem, 4vh, 3rem);
+    }
+
+    .cast__counter {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      color: var(--teal);
+      margin-top: 0.8rem;
+    }
+
+    .cast__counter b {
+      color: var(--yellow);
+      font-weight: 500;
+    }
+
+    .cast__list {
+      padding-bottom: clamp(4rem, 10vh, 8rem);
+    }
+
+    .cast-item {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(1.5rem, 4vw, 4rem);
+      align-items: start;
+      padding-block: clamp(3rem, 8vh, 7rem);
+      border-top: 1px solid var(--rule);
+    }
+
+    /* The media column is the taller one, so the copy holds in place
+       while the portrait and the scene shot scroll past it. */
+    .cast-item__body {
+      position: sticky;
+      top: 24vh;
+    }
+
+    .cast-item:nth-child(even) .cast-item__media {
+      order: 2;
+    }
+
+    .cast-item__media {
+      position: relative;
+    }
+
+    /* Portrait cutouts sit on a warm paper card so their white edges disappear */
+    .portrait-card {
+      position: relative;
+      aspect-ratio: 4 / 5;
+      background: linear-gradient(160deg, #f7f4ee, #e6e1d6);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    /* The portraits are alpha cutouts sitting off-centre in their source
+       frames, so object-fit can't frame them. Each card gets a width/left/top
+       triple derived from that image's alpha bounding box, sized so every
+       figure reads at a comparable scale and stands on the card's bottom edge. */
+    .portrait-card img {
+      position: absolute;
+      /* these crops are deliberately wider than the card, so opt out of the
+         global max-width clamp */
+      max-width: none;
+      width: var(--pw);
+      left: var(--px);
+      top: var(--py);
+      height: auto;
+      transform-origin: 50% 100%;
+      transition: transform 1.1s var(--ease);
+    }
+
+    /* beats `.js .frame img`, which would otherwise apply the generic zoom */
+    .js .portrait-card img {
+      transform: scale(1.05);
+    }
+
+    .portrait-card.is-in img {
+      transform: scale(1);
+    }
+
+    .cast-item:hover .portrait-card img {
+      transform: scale(1);
+    }
+
+    .portrait-card__city {
+      position: absolute;
+      left: 1rem;
+      bottom: 0.9rem;
+      z-index: 2;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #1a1a1a;
+      background: var(--yellow);
+      padding: 0.35rem 0.6rem;
+      border-radius: 2px;
+    }
+
+    .cast-item__scene {
+      margin-top: clamp(0.6rem, 1.2vw, 1.2rem);
+      aspect-ratio: 16 / 9;
+    }
+
+    .cast-item__num {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      color: var(--yellow);
+      display: block;
+      margin-bottom: 1rem;
+    }
+
+    .cast-item__name {
       font-family: var(--serif);
       font-weight: 600;
-      font-size: clamp(20px, 2.4vw, 30px);
-      color: var(--paper);
-      margin-top: 0.6rem;
-      text-transform: uppercase;
-      letter-spacing: 0.02em;
+      font-size: clamp(40px, 6vw, 92px);
+      line-height: 0.95;
+      letter-spacing: -0.03em;
+      margin-bottom: 0.4rem;
     }
 
-    /* Tooltip that appears on hover */
-    .cast-intro {
+    .cast-item__role {
+      font-family: var(--hand);
+      font-size: clamp(21px, 2.2vw, 30px);
+      color: var(--teal);
+      margin-bottom: 1.6rem;
+    }
+
+    @media (max-width: 820px) {
+      .cast-item {
+        grid-template-columns: 1fr;
+      }
+
+      .cast-item:nth-child(even) .cast-item__media {
+        order: 0;
+      }
+
+      .cast-item__body {
+        position: static;
+      }
+    }
+
+    /* =========================================================
+       PULLQUOTE
+       ========================================================= */
+    .pullquote {
+      font-family: var(--hand);
+      font-size: clamp(28px, 3.6vw, 54px);
+      line-height: 1.18;
+      color: var(--yellow);
+      max-width: 24ch;
+      padding-block: clamp(1.5rem, 4vh, 2.5rem);
+      border-block: 1px dashed var(--rule);
+      margin-top: clamp(2rem, 5vh, 3.5rem);
+    }
+
+    .signature {
+      font-family: var(--hand);
+      font-size: clamp(24px, 2.2vw, 32px);
+      color: var(--teal);
+      margin-top: clamp(1.8rem, 4vh, 2.8rem);
+    }
+
+    /* =========================================================
+       IMPACT / STATS
+       ========================================================= */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: clamp(1.2rem, 2.2vw, 2.4rem);
+      margin-top: clamp(3rem, 7vh, 5rem);
+    }
+
+    .stat {
+      border-top: 1px solid var(--rule);
+      padding-top: 1.2rem;
+    }
+
+    .stat__num {
+      font-family: var(--serif);
+      font-weight: 600;
+      font-size: clamp(48px, 6vw, 92px);
+      line-height: 0.9;
+      letter-spacing: -0.03em;
+      color: var(--ink);
+      display: block;
+    }
+
+    .stat__label {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      color: var(--dim);
+      margin-top: 0.9rem;
+      line-height: 1.6;
+    }
+
+    .honours {
+      list-style: none;
+      margin-top: clamp(2.5rem, 6vh, 4rem);
+      border-top: 1px solid var(--rule);
+    }
+
+    .honours li {
+      font-family: var(--sans);
+      font-weight: 300;
+      font-size: clamp(15px, 1.15vw, 18px);
+      color: var(--ink);
+      padding: 1.1rem 0;
+      border-bottom: 1px solid var(--rule);
+      display: flex;
+      gap: clamp(1rem, 3vw, 2.5rem);
+      align-items: baseline;
+    }
+
+    .honours span {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      color: var(--yellow);
+      flex: none;
+      min-width: 4ch;
+    }
+
+    /* =========================================================
+       ETHICS CARDS
+       ========================================================= */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: clamp(1rem, 2vw, 2rem);
+      margin-top: clamp(3rem, 7vh, 5rem);
+    }
+
+    .card {
+      border: 1px solid var(--rule);
+      border-radius: 3px;
+      padding: clamp(1.5rem, 2.4vw, 2.4rem);
+      background: rgba(242, 239, 233, 0.02);
+      transition: border-color 0.4s ease, background 0.4s ease, transform 0.5s var(--ease);
+    }
+
+    .card:hover {
+      border-color: rgba(198, 153, 38, 0.55);
+      background: rgba(198, 153, 38, 0.05);
+      transform: translateY(-4px);
+    }
+
+    .card__num {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      color: var(--yellow);
+      margin-bottom: 1.4rem;
+      display: block;
+    }
+
+    .card h4 {
+      font-family: var(--serif);
+      font-weight: 600;
+      font-size: clamp(22px, 2vw, 28px);
+      line-height: 1.15;
+      margin-bottom: 0.9rem;
+    }
+
+    .card p {
+      font-family: var(--sans);
+      font-weight: 300;
+      font-size: 15px;
+      line-height: 1.68;
+      color: var(--dim);
+    }
+
+    /* =========================================================
+       CREDITS
+       ========================================================= */
+    .credits {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: clamp(1.2rem, 2.6vw, 2.6rem);
+      margin-top: clamp(3rem, 7vh, 5rem);
+    }
+
+    .credit {
+      border-left: 2px solid var(--teal-deep);
+      padding-left: 1.1rem;
+      transition: border-color 0.35s ease;
+    }
+
+    .credit:hover {
+      border-color: var(--yellow);
+    }
+
+    .credit__role {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--yellow);
+      margin-bottom: 0.45rem;
+      line-height: 1.5;
+    }
+
+    .credit__name {
+      font-family: var(--sans);
+      font-weight: 500;
+      font-size: 17px;
+    }
+
+    /* =========================================================
+       CTA + MORE WORK
+       ========================================================= */
+    .cta {
+      text-align: center;
+      padding-block: clamp(6rem, 16vh, 12rem);
+      border-top: 1px solid var(--rule);
+    }
+
+    .cta h2 {
+      margin-bottom: 2.4rem;
+    }
+
+    .cta__link {
       font-family: var(--mono);
       font-size: 12px;
-      color: var(--yellow);
-      margin-top: 0.3rem;
-      margin-bottom: 1rem;
-      opacity: 0;
-      transform: translateY(6px);
-      transition: opacity 0.35s ease, transform 0.35s ease;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--ink);
+      text-decoration: none;
+      border: 1px solid var(--rule);
+      border-radius: 999px;
+      padding: 1.05rem 2.2rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.7rem;
+      transition: background 0.4s var(--ease), color 0.4s ease, border-color 0.4s ease, transform 0.4s var(--ease);
     }
 
-    .cast-card:hover .cast-intro {
-      opacity: 1;
-      transform: translateY(0);
+    .cta__link:hover {
+      background: var(--yellow);
+      border-color: var(--yellow);
+      color: #0b0b0c;
+      transform: translateY(-3px);
     }
 
-    /* Eyebrow heading on map slide */
-    .map-title {
-      position: absolute;
-      top: 10vh;
-      left: max(2rem, 10vw);
-      z-index: 25;
+    .cta__link span {
+      transition: transform 0.35s var(--ease);
     }
 
-    .map-title .eyebrow {
-      margin-bottom: 0.5rem;
+    .cta__link:hover span {
+      transform: translateX(5px);
     }
 
-    .map-title h2 {
+    .more {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: clamp(1rem, 2vw, 2rem);
+      margin-top: clamp(2.5rem, 6vh, 4rem);
+    }
+
+    .more-card {
+      display: block;
+      text-decoration: none;
+      color: inherit;
+      border: 1px solid var(--rule);
+      border-radius: 3px;
+      padding: clamp(1.6rem, 2.4vw, 2.4rem);
+      transition: border-color 0.4s ease, background 0.4s ease, transform 0.5s var(--ease);
+      text-align: left;
+    }
+
+    .more-card:hover {
+      border-color: rgba(198, 153, 38, 0.55);
+      background: rgba(198, 153, 38, 0.05);
+      transform: translateY(-5px);
+    }
+
+    .more-card__num {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      color: var(--teal);
+    }
+
+    .more-card h4 {
       font-family: var(--serif);
       font-weight: 600;
-      font-size: clamp(28px, 3.5vw, 42px);
-      color: var(--paper);
+      font-size: clamp(26px, 2.6vw, 36px);
+      line-height: 1.08;
+      margin: 1.2rem 0 0.8rem;
     }
 
+    .more-card p {
+      font-family: var(--sans);
+      font-weight: 300;
+      font-size: 15px;
+      line-height: 1.65;
+      color: var(--dim);
+      margin-bottom: 1.4rem;
+    }
+
+    .more-card__cta {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--yellow);
+      display: inline-flex;
+      gap: 0.5rem;
+    }
+
+    .more-card__cta span {
+      transition: transform 0.35s var(--ease);
+    }
+
+    .more-card:hover .more-card__cta span {
+      transform: translateX(5px);
+    }
+
+    /* =========================================================
+       FOOTER — remap the shared include's tokens for a dark page
+       ========================================================= */
+    .footer-wrap {
+      --ink: #f2efe9;
+      --rule: rgba(242, 239, 233, 0.16);
+      --teal: #6fb8b8;
+      --yellow: #d8ab34;
+      background: var(--void);
+    }
+
+    .footer-wrap .site-footer .sf-meta {
+      color: rgba(242, 239, 233, 0.55);
+    }
+
+    .footer-wrap .site-footer .sf-btn.on {
+      color: #0b0b0c;
+    }
+
+    .footer-wrap .site-footer .sf-btn.on:hover {
+      color: #fff;
+    }
   </style>
 </head>
 
 <body>
 
   <div class="grain-overlay"></div>
-  <div class="progress-line" id="progressBar"></div>
+  <div class="progress-rail" id="progressRail" aria-hidden="true"></div>
   <div class="cursor-arrow" id="cursorArrow"></div>
 
-  <div class="topnav" id="topNav">
+  <nav class="topnav" id="topNav">
     <a class="nav-back" href="../index.html"><span>&larr;</span> Back to Work</a>
     <div class="nav-links">
-      <a href="../about.html">About</a>
-      <a href="mailto:khushali.haji@gmail.com">Contact</a>
+      <a href="#premise">Premise</a>
+      <a href="#cast">Cast</a>
+      <a href="#approach">Approach</a>
+      <a href="#impact">Impact</a>
+      <a href="mailto:khushali.haji@gmail.com">Email</a>
     </div>
+  </nav>
+
+  <main>
+
+    <!-- ============================ HERO ============================ -->
+    <header class="hero wrap" id="top" data-chapter="Overview">
+      <div class="hero__bg" data-parallax="0.05">
+        <img src="Images/image12.png" alt="The residents of St. Joseph's gathered around the communal dinner table."
+          fetchpriority="high">
+      </div>
+
+      <span class="eyebrow hero__eyebrow" data-reveal>Case Study 03 &middot; Documentary Film</span>
+
+      <h1 class="hero-title">
+        <span class="line-mask"><i style="--d:.05s">St. Joe's Hoes</i></span>
+      </h1>
+
+      <p class="hero__sub" data-reveal style="--d:.42s">
+        A character driven documentary exploring immigration, housing insecurity, and creative ambition in New York
+        City.
+      </p>
+
+      <dl class="hero__meta" data-reveal style="--d:.56s">
+        <div class="meta-item">
+          <dt>Role</dt>
+          <dd>Director, Editor, Cinematographer</dd>
+        </div>
+        <div class="meta-item">
+          <dt>Recognition</dt>
+          <dd>Woodstock Film Festival 2025 — Special Jury Mention</dd>
+        </div>
+        <div class="meta-item">
+          <dt>Support</dt>
+          <dd>NYSCA 2026 — Grant Recipient</dd>
+        </div>
+        <div class="meta-item">
+          <dt>Location</dt>
+          <dd>Manhattan, New York City</dd>
+        </div>
+      </dl>
+
+      <span class="hero__caption">The communal table, St. Joseph's</span>
+    </header>
+
+    <!-- ========================= SUMMARY ========================= -->
+    <section class="section summary wrap" data-chapter="Summary">
+      <div class="summary__grid">
+        <span class="rail-label" data-reveal>01 / Logline</span>
+        <p data-reveal style="--d:.1s">
+          Four women from around the world – a dancer, a painter, a photographer, and a writer – move into a crumbling
+          Catholic
+          nunnery-turned-women's dormitory in Times Square, each with two years of affordable housing to
+          <em>make it</em> in New York. I lived there too, and filmed it from the inside over those two years.
+          What emerged is less a story about arriving than about what it costs to stay.
+        </p>
+      </div>
+    </section>
+
+    <!-- ==================== FULL-BLEED VIDEO ==================== -->
+    <section class="bleed video-bleed" id="film" data-chapter="The Film">
+      <button class="video-facade" data-yt="UPGntTxWMRU" data-title="St. Joe's Hoes — film" data-clickable
+        aria-label="Play the St. Joe's Hoes trailer on YouTube">
+        <img src="https://i.ytimg.com/vi/UPGntTxWMRU/maxresdefault.jpg" alt="" loading="lazy" aria-hidden="true">
+        <span class="video-facade__btn">
+          <span class="video-facade__ring"></span>
+          <span class="video-facade__label">Watch the film</span>
+        </span>
+      </button>
+    </section>
+
+    <!-- ========================= MARQUEE ========================= -->
+    <div class="marquee" aria-hidden="true">
+      <div class="marquee__track">
+        <span>Immigration</span><span>Housing Insecurity</span><span>Creative Ambition</span><span>Community</span>
+        <span>Immigration</span><span>Housing Insecurity</span><span>Creative Ambition</span><span>Community</span>
+      </div>
+    </div>
+
+    <!-- ========================= PREMISE ========================= -->
+    <section class="section wrap" id="premise" data-chapter="Premise">
+      <div class="split">
+        <span class="rail-label" data-reveal>02 / The Premise</span>
+        <div>
+          <h2 class="display">
+            <span class="line-mask"><i>Four strangers,</i></span>
+            <span class="line-mask"><i style="--d:.1s">one address.</i></span>
+          </h2>
+          <div style="margin-top: clamp(2rem,5vh,3.5rem)">
+            <p class="body" data-reveal style="--d:.1s">In a time not far from now, before billions were spent to
+              build mass detention camps, before millions of immigrants faced uncertain futures, a French-Gabonese
+              dancer, a painter from Mumbai, a photographer from Delhi, and a Korean-American writer walked into a
+              former nunnery in Times Square.</p>
+            <p class="body" data-reveal style="--d:.16s">The building has a rat-prone kitchen, a stained-glass chapel,
+              and communal showers with clogged drains. <strong>Rent is capped, and so is the stay: two years.</strong>
+              Every woman arrived for the same reason and is on the same clock.</p>
+          </div>
+
+          <div class="bento">
+            <figure class="bento__a frame" data-frame>
+              <img src="Images/image15.png" alt="A single dormitory room at St. Joseph's: narrow bed, window, radiator."
+                loading="lazy">
+            </figure>
+            <figure class="bento__b frame" data-frame style="--d:.1s">
+              <img src="Images/image8.jpg" alt="Filming handheld inside the dormitory's shared dining room."
+                loading="lazy">
+            </figure>
+            <figure class="bento__c frame" data-frame style="--d:.06s">
+              <img src="Images/image9.png"
+                alt="A religious icon hanging beside a curtained window in a common room of the nunnery."
+                loading="lazy">
+            </figure>
+          </div>
+          <p class="figcap" data-reveal>Fig. 01 — The room, the chapel, the camera. Everything was shot inside the
+            building.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== FULL-BLEED VIDEO: SIZZLE ==================== -->
+    <section class="bleed video-bleed" id="sizzle" data-chapter="Sizzle">
+      <button class="video-facade" data-yt="5zKy74hgvu8" data-title="St. Joe's Hoes — sizzle reel" data-clickable
+        aria-label="Play the St. Joe's Hoes sizzle reel on YouTube">
+        <img src="https://i.ytimg.com/vi/5zKy74hgvu8/maxresdefault.jpg" alt="" loading="lazy" aria-hidden="true">
+        <span class="video-facade__btn">
+          <span class="video-facade__ring"></span>
+          <span class="video-facade__label">Watch the sizzle</span>
+        </span>
+      </button>
+    </section>
+
+    <!-- ===================== ORIGIN MAP (video) ===================== -->
+    <section class="section map-section" data-chapter="Origins" aria-label="Where each of them travelled from">
+      <div class="wrap">
+        <!-- Drifts rather than crops: the names sit on the frame's bottom edge,
+             so an overflow-clipped parallax would cut them off. -->
+        <figure class="map-frame" data-parallax="0.04" data-reveal>
+          <video id="mapVideo" muted playsinline preload="none" poster="Images/map-poster.jpg"
+            aria-label="Animated map tracing each woman's route from her home city to New York.">
+            <source src="Images/map.mp4" type="video/mp4">
+          </video>
+        </figure>
+        <p class="figcap map-figcap" data-reveal style="--d:.1s">Fig. 02 — Los Angeles, Paris, Mumbai, Delhi. Every
+          line ends at the same door.</p>
+      </div>
+    </section>
+
+    <!-- =========================== CAST =========================== -->
+    <section class="cast" id="cast" data-chapter="The Cast">
+      <div class="wrap">
+        <div class="cast__head">
+          <span class="eyebrow">03 / The Cast</span>
+          <h2 class="display" style="margin-top:1rem">
+            <span class="line-mask"><i>Meet the protagonists.</i></span>
+
+          </h2>
+
+        </div>
+
+        <div class="cast__list">
+
+          <article class="cast-item">
+            <div class="cast-item__media">
+              <div class="portrait-card frame" data-frame style="--pw:94%; --px:1%; --py:25%">
+                <img src="Images/image2.png" alt="Portrait of Fatema, a painter from Mumbai." loading="lazy">
+                <span class="portrait-card__city">Mumbai &rarr; NYC</span>
+              </div>
+              <figure class="cast-item__scene frame" data-frame style="--d:.12s">
+                <img src="Images/image10.png" alt="Fatema's studio: paintings, a supply cart, and her at the easel."
+                  loading="lazy">
+              </figure>
+            </div>
+            <div class="cast-item__body">
+              <span class="cast-item__num">01 / 04</span>
+              <h3 class="cast-item__name">
+                <span class="line-mask"><i>Fatema</i></span>
+              </h3>
+              <p class="cast-item__role" data-reveal style="--d:.1s">26, painter</p>
+              <p class="body" data-reveal style="--d:.16s">A painter from Mumbai's Bohra Muslim community who studied
+                at the New York Academy of Art.</p>
+              <p class="body" data-reveal style="--d:.2s">She becomes pregnant during the film and has to reconcile her
+                creative ambitions with new responsibilities as a mother and a wife.</p>
+            </div>
+          </article>
+
+          <article class="cast-item">
+            <div class="cast-item__media">
+              <div class="portrait-card frame" data-frame style="--pw:200%; --px:-102%; --py:-16%">
+                <img src="Images/image6.png" alt="Portrait of Christine, a Korean-American writer from California."
+                  loading="lazy">
+                <span class="portrait-card__city">California &rarr; NYC</span>
+              </div>
+              <figure class="cast-item__scene frame" data-frame style="--d:.12s">
+                <img src="Images/image13.png" alt="Christine writing at her desk in her dormitory room at night."
+                  loading="lazy">
+              </figure>
+            </div>
+            <div class="cast-item__body">
+              <span class="cast-item__num">02 / 04</span>
+              <h3 class="cast-item__name">
+                <span class="line-mask"><i>Christine</i></span>
+              </h3>
+              <p class="cast-item__role" data-reveal style="--d:.1s">22, writer</p>
+              <p class="body" data-reveal style="--d:.16s">A Korean-American humor writer from California, studying for
+                her MFA at the New School.</p>
+              <p class="body" data-reveal style="--d:.2s">She tries to balance her writing aspirations with her
+                conservative immigrant upbringing, and the weight of her father's expectations.</p>
+            </div>
+          </article>
+
+          <article class="cast-item">
+            <div class="cast-item__media">
+              <div class="portrait-card frame" data-frame style="--pw:177%; --px:5%; --py:-3%">
+                <img src="Images/image3.png" alt="Portrait of Lior, a French-Gabonese ballet dancer from Paris."
+                  loading="lazy">
+                <span class="portrait-card__city">Paris &rarr; NYC</span>
+              </div>
+              <figure class="cast-item__scene frame" data-frame style="--d:.12s">
+                <img src="Images/image18.png" alt="Lior dancing outdoors with her arms raised beneath autumn trees."
+                  loading="lazy">
+              </figure>
+            </div>
+            <div class="cast-item__body">
+              <span class="cast-item__num">03 / 04</span>
+              <h3 class="cast-item__name">
+                <span class="line-mask"><i>Lior</i></span>
+              </h3>
+              <p class="cast-item__role" data-reveal style="--d:.1s">20, dancer</p>
+              <p class="body" data-reveal style="--d:.16s">A French-Gabonese ballet dancer from Paris who came to New
+                York for a fresh start after a troubled past.</p>
+              <p class="body" data-reveal style="--d:.2s">She is chasing self-worth, belonging, and a shot at her dream
+                school, Alvin Ailey — the thing that brought her to this side of the world.</p>
+            </div>
+          </article>
+
+          <article class="cast-item">
+            <div class="cast-item__media">
+              <div class="portrait-card frame" data-frame style="--pw:211%; --px:-120%; --py:-22%">
+                <img src="Images/image17.png" alt="Portrait of Shreya, a photographer from Delhi." loading="lazy">
+                <span class="portrait-card__city">Delhi &rarr; NYC</span>
+              </div>
+              <figure class="cast-item__scene frame" data-frame style="--d:.12s">
+                <img src="Images/image14.png" alt="Shreya loading her camera on a lit set." loading="lazy">
+              </figure>
+            </div>
+            <div class="cast-item__body">
+              <span class="cast-item__num">04 / 04</span>
+              <h3 class="cast-item__name">
+                <span class="line-mask"><i>Shreya</i></span>
+              </h3>
+              <p class="cast-item__role" data-reveal style="--d:.1s">27, photographer</p>
+              <p class="body" data-reveal style="--d:.16s">A photographer from Delhi who studied at ICP, and the film's
+                second camera.</p>
+              <p class="body" data-reveal style="--d:.2s">She is after the raw truth of St. Joseph's while quietly
+                negotiating her own imposter syndrome — about the work, and about the life around it.</p>
+            </div>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ FULL-BLEED: ARRIVAL + OVERLAY QUOTE ============ -->
+    <section class="bleed bleed-media">
+      <div class="bleed-media__inner" data-parallax="0.10">
+        <img src="Images/image16.png" alt="The residents walking into the dormitory together, laughing." loading="lazy">
+      </div>
+      <div class="bleed-quote wrap">
+        <p data-reveal>Everyone arrives alone. Nobody stays that way.</p>
+      </div>
+    </section>
+
+    <!-- ==================== ARTISTIC APPROACH ==================== -->
+    <section class="section wrap" id="approach" data-chapter="Approach">
+      <div class="split">
+        <span class="rail-label" data-reveal>04 / Artistic Approach</span>
+        <div>
+          <h2 class="display">
+            <span class="line-mask"><i>The fifth</i></span>
+            <span class="line-mask"><i style="--d:.1s">character.</i></span>
+          </h2>
+          <div style="margin-top: clamp(2rem,5vh,3.5rem)">
+            <p class="body" data-reveal style="--d:.1s">The film is quiet and intimate, shot almost entirely handheld.
+              Four arcs are interwoven rather than told in sequence, and the nunnery itself becomes the fifth character
+              — creaking floors, wooden crosses, old statues, a chapel nobody prays in anymore.</p>
+            <p class="body" data-reveal style="--d:.16s">The tone stays observational and playful. No voiceover, no
+              re-enactment, no explaining the women to the audience.</p>
+            <p class="pullquote" data-reveal style="--d:.2s">The building keeps the time. The women keep the story.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== DIRECTOR'S NOTE ==================== -->
+    <section class="section wrap" id="note" data-chapter="Director's Note">
+      <div class="split">
+        <span class="rail-label" data-reveal>05 / Director's Note</span>
+        <div>
+          <h2 class="display">
+            <span class="line-mask"><i>I didn't just make</i></span>
+            <span class="line-mask"><i style="--d:.1s">this film. I lived it.</i></span>
+          </h2>
+          <div style="margin-top: clamp(2rem,5vh,3.5rem)">
+            <p class="body" data-reveal style="--d:.1s">St. Joseph's was my first home in the city. I met these women
+              in our shared kitchens and late-night conversations, and they became my first community in New York.</p>
+            <p class="body" data-reveal style="--d:.16s">With a background in international reporting, urban design,
+              and scriptwriting, I've always been drawn to layered stories where politics and intimacy overlap. This
+              one is deeply personal, because in many ways I'm one of these women.</p>
+            <p class="signature" data-reveal style="--d:.22s">— Khushali Haji, director</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================= THEMES ========================= -->
+    <section class="section wrap" id="themes" data-chapter="Themes">
+      <div class="split">
+        <span class="rail-label" data-reveal>06 / The Themes</span>
+        <div>
+          <h2 class="display">
+            <span class="line-mask"><i>What "making it"</i></span>
+            <span class="line-mask"><i style="--d:.1s">means in 2025.</i></span>
+          </h2>
+          <div style="margin-top: clamp(2rem,5vh,3.5rem)">
+            <p class="body" data-reveal style="--d:.1s">It's an old story told many times over — artists trying to make
+              it in New York City. But we're living in a tense climate where <strong>immigrant</strong> is a
+              politically heavy word, and the terms of the story have changed underneath it.</p>
+            <p class="body" data-reveal style="--d:.16s">These women's stories become a testament to a time before
+              current policy shifts, when immigrants could arrive with greater security into a country where they felt
+              like they had a shot.</p>
+            <p class="pullquote" data-reveal style="--d:.2s">This isn't a film about trauma, stereotyping, or identity
+              politics. It's a film about tenacity — changing and growing, in proximity, in discomfort, in community.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================== IMPACT ========================== -->
+    <section class="section wrap" id="impact" data-chapter="Impact">
+      <div class="split">
+        <span class="rail-label" data-reveal>07 / Impact</span>
+        <div>
+          <h2 class="display">
+            <span class="line-mask"><i>Where it landed.</i></span>
+          </h2>
+          <div class="stats">
+            <!-- the rendered value is the real one; the counter animates up to it -->
+            <div class="stat" data-reveal>
+              <span class="stat__num" data-count="2">2</span>
+              <span class="stat__label">Years filmed inside the building, start to final cut</span>
+            </div>
+            <div class="stat" data-reveal style="--d:.08s">
+              <span class="stat__num" data-count="4">4</span>
+              <span class="stat__label">Protagonists, followed from move-in to move-out</span>
+            </div>
+            <div class="stat" data-reveal style="--d:.16s">
+              <span class="stat__num" data-count="4">4</span>
+              <span class="stat__label">Cities of origin — Los Angeles, Paris, Mumbai, Delhi</span>
+            </div>
+            <div class="stat" data-reveal style="--d:.24s">
+              <span class="stat__num" data-count="1">1</span>
+              <span class="stat__label">Address, from the first frame to the last</span>
+            </div>
+          </div>
+
+          <ul class="honours" data-reveal style="--d:.3s">
+            <li><span>2025</span> Woodstock Film Festival — Special Jury Mention</li>
+            <li><span>2026</span> NYSCA Grant Recipient — supporting the finish</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== ETHICS / CONSENT ==================== -->
+    <section class="section wrap" id="ethics" data-chapter="Ethics">
+      <div class="split">
+        <span class="rail-label" data-reveal>08 / Ethics &amp; Consent</span>
+        <div>
+          <h2 class="display">
+            <span class="line-mask"><i>Accountability,</i></span>
+            <span class="line-mask"><i style="--d:.1s">maintained.</i></span>
+          </h2>
+          <p class="body" data-reveal style="--d:.1s; margin-top: clamp(2rem,5vh,3.5rem)">The film was shot in a
+            communal hostel where I also lived. That shared space built trust before it built footage — every
+            participant was someone I already knew, and from inception to final cut they stayed informed and engaged.
+          </p>
+
+          <div class="cards">
+            <div class="card" data-reveal>
+              <span class="card__num">01</span>
+              <h4>Briefed before every interview</h4>
+              <p>I shared the topics we would cover in advance and made it explicit that any question could be skipped,
+                and any session stopped, at any point.</p>
+            </div>
+            <div class="card" data-reveal style="--d:.08s">
+              <span class="card__num">02</span>
+              <h4>Camera off at the first sign of discomfort</h4>
+              <p>If discomfort came up, filming stopped immediately — no negotiating for one more take, no "we'll cut
+                it later."</p>
+            </div>
+            <div class="card" data-reveal style="--d:.16s">
+              <span class="card__num">03</span>
+              <h4>Consent as an ongoing check-in</h4>
+              <p>Regular check-ins ran through the edit. Nothing was filmed, cut, or included without full and ongoing
+                consent.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================= CREDITS ========================= -->
+    <section class="section wrap" id="credits" data-chapter="Credits">
+      <div class="split">
+        <span class="rail-label" data-reveal>09 / Credits</span>
+        <div>
+          <h2 class="display">
+            <span class="line-mask"><i>The team.</i></span>
+          </h2>
+          <div class="credits">
+            <div class="credit" data-reveal>
+              <div class="credit__role">Director, Editor, Cinematographer</div>
+              <div class="credit__name">Khushali Haji</div>
+            </div>
+            <div class="credit" data-reveal style="--d:.05s">
+              <div class="credit__role">Cinematographer, Participant</div>
+              <div class="credit__name">Shreya Sahai</div>
+            </div>
+            <div class="credit" data-reveal style="--d:.1s">
+              <div class="credit__role">Co-Developer</div>
+              <div class="credit__name">Hazare Renn-Glover</div>
+            </div>
+            <div class="credit" data-reveal style="--d:.15s">
+              <div class="credit__role">Story Consultant &amp; Mentor</div>
+              <div class="credit__name">Sabrina Gordon</div>
+            </div>
+            <div class="credit" data-reveal style="--d:.2s">
+              <div class="credit__role">Editorial Mentor</div>
+              <div class="credit__name">Mary Manhardt</div>
+            </div>
+            <div class="credit" data-reveal style="--d:.25s">
+              <div class="credit__role">Creative Advisor</div>
+              <div class="credit__name">Yoruba Richen</div>
+            </div>
+            <div class="credit" data-reveal style="--d:.3s">
+              <div class="credit__role">Producing Mentor</div>
+              <div class="credit__name">Judith Helfand</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== CTA + MORE WORK ===================== -->
+    <section class="cta wrap" data-chapter="More Work">
+      <h2 class="display">
+        <span class="line-mask"><i>Have a story to tell?</i></span>
+      </h2>
+      <a class="cta__link" href="mailto:khushali.haji@gmail.com" data-reveal style="--d:.15s">Get in touch
+        <span>&rarr;</span></a>
+
+      <div class="more" style="text-align:left">
+        <a class="more-card" href="conflict-lens.html" data-reveal>
+          <span class="more-card__num">01</span>
+          <h4>Conflict Lens</h4>
+          <p>Turns a single news article into a geo-referenced, bias-aware conflict briefing in under a minute.</p>
+          <span class="more-card__cta">View case <span>&rarr;</span></span>
+        </a>
+        <a class="more-card" href="fin-lit-ed.html" data-reveal style="--d:.08s">
+          <span class="more-card__num">02</span>
+          <h4>Fin-Lit Education</h4>
+          <p>Making the case for a financial literacy app that personalizes learning by income, state, and status.</p>
+          <span class="more-card__cta">View case <span>&rarr;</span></span>
+        </a>
+      </div>
+    </section>
+
+  </main>
+
+  <div class="footer-wrap">
+    <div id="footer-placeholder"></div>
   </div>
-
-  <div class="slideshow-container" id="slideshow">
-    
-    <!-- Slide 1: Hero -->
-    <section class="slide">
-      <div class="slide-bg" style="background-image: url('Images/image1.png');"></div>
-      <div class="slide-content">
-        <span class="eyebrow">Documentary Film</span>
-        <h1 class="hero-title">St. Joe's Hoes</h1>
-        <p class="hero-oneliner">A character driven documentary exploring immigration, housing insecurity, and creative ambition in New York City.</p>
-        
-        <div class="recognition">
-          Woodstock Film Festival 2025 — Special Jury Mention<br>
-          NYSCA 2026 — Grant Recipient
-        </div>
-
-        <div class="video-placeholder" data-clickable>
-          <span>[ Teaser / Sizzle Video Placeholder ]</span>
-        </div>
-      </div>
-    </section>
-
-    <!-- Slide 2: The Premise -->
-    <section class="slide">
-      <div class="slide-bg" style="background-image: url('Images/image2.png');"></div>
-      <div class="slide-content">
-        <span class="eyebrow">The Premise</span>
-        <h2 class="section-head">Four strangers, one address.</h2>
-        <p class="body">In a time not far from now, before current immigration policy shifts, before billions were spent to build mass detention camps, and millions of immigrants faced uncertain futures…</p>
-        <p class="body">A French-Gabonese dancer, a painter from Mumbai, a photographer from Delhi, and a Korean-American writer walked into a former nunnery in Times Square.</p>
-        <p class="body">It's not the start of a joke — it’s the start of the documentary. It’s set in a crumbling Catholic nunnery-turned-women’s dormitory with a rat-prone kitchen, a stained-glass chapel, and communal showers with clogged drains. Each woman came here for one reason: to make it in New York City, all before their two years of affordable housing are up.</p>
-      </div>
-    </section>
-
-    <!-- Slide 3: Intro Extract -->
-    <section class="slide">
-      <div class="slide-bg" style="background-image: url('Images/image12.png');"></div>
-      <div class="slide-content">
-        <span class="eyebrow">Scene</span>
-        <h2 class="section-head">The Arrival</h2>
-        <div class="video-placeholder" data-clickable>
-          <span>[ Intro Extract Video Placeholder ]</span>
-        </div>
-      </div>
-    </section>
-
-    <!-- Slide 4: Interactive Protagonists Map -->
-    <section class="slide map-slide" id="mapSlide">
-      <div class="slide-bg" style="background-image: url('Images/image2.png');"></div>
-
-      <!-- Title -->
-      <div class="map-title">
-        <span class="eyebrow">The Cast</span>
-        <h2>Four women. Four cities. One address.</h2>
-      </div>
-
-      <!-- Inline SVG World Map (simplified) -->
-      <div class="map-svg-wrap">
-        <svg class="world-map" viewBox="0 0 1000 500" xmlns="http://www.w3.org/2000/svg">
-          <!-- Simplified world map outlines -->
-          <g fill="none" stroke="rgba(245,245,245,0.35)" stroke-width="0.8">
-            <!-- North America -->
-            <path d="M80,80 L120,60 L180,55 L230,70 L260,90 L270,120 L250,150 L230,180 L200,200 L180,220 L160,240 L140,230 L110,200 L90,170 L70,140 L65,110 Z" />
-            <!-- Central America -->
-            <path d="M140,230 L160,240 L170,260 L165,280 L155,290 L145,285 L135,270 L130,250 Z" />
-            <!-- South America -->
-            <path d="M165,290 L190,300 L220,320 L240,360 L250,400 L240,440 L220,460 L200,450 L180,420 L160,380 L150,340 L155,310 Z" />
-            <!-- Europe -->
-            <path d="M420,60 L440,55 L470,58 L500,65 L520,75 L530,90 L520,110 L500,120 L480,130 L460,135 L440,130 L420,120 L410,100 L415,80 Z" />
-            <!-- Africa -->
-            <path d="M420,140 L450,135 L480,140 L510,160 L530,190 L540,230 L535,280 L520,320 L500,350 L480,370 L460,375 L440,360 L425,330 L415,290 L410,250 L405,210 L410,170 Z" />
-            <!-- Middle East -->
-            <path d="M530,100 L560,90 L590,95 L610,110 L620,130 L610,150 L590,160 L560,155 L540,140 Z" />
-            <!-- South Asia / India -->
-            <path d="M620,130 L650,120 L680,125 L700,140 L710,170 L700,200 L680,220 L660,230 L640,220 L625,200 L615,170 L610,150 Z" />
-            <!-- East Asia -->
-            <path d="M710,60 L740,50 L770,55 L800,70 L820,90 L830,120 L820,150 L800,170 L770,175 L740,165 L720,140 L710,110 L705,85 Z" />
-            <!-- Southeast Asia -->
-            <path d="M720,180 L750,175 L780,185 L800,200 L810,220 L800,240 L780,250 L750,245 L730,230 L720,210 Z" />
-            <!-- Australia -->
-            <path d="M780,330 L820,310 L860,315 L890,330 L900,360 L890,390 L860,405 L830,400 L800,385 L785,360 Z" />
-            <!-- Greenland -->
-            <path d="M300,30 L340,20 L370,25 L390,40 L385,60 L365,70 L340,65 L310,55 Z" />
-          </g>
-        </svg>
-      </div>
-
-      <!-- Connection lines SVG overlay -->
-      <svg class="connections-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
-        <!-- Christine: LA (12%, 33%) -> NYC (27%, 32%) -->
-        <path class="conn-path" id="connChristine" d="M 12,33 C 16,28 22,28 27,32" />
-        <!-- Lior: Paris (46%, 22%) -> NYC (27%, 32%) -->
-        <path class="conn-path" id="connLior" d="M 46,22 C 40,20 32,22 27,32" />
-        <!-- Fatema: Mumbai (66%, 38%) -> NYC (27%, 32%) -->
-        <path class="conn-path" id="connFatema" d="M 66,38 C 55,30 40,28 27,32" />
-        <!-- Shreya: Delhi (67%, 32%) -> NYC (27%, 32%) -->
-        <path class="conn-path" id="connShreya" d="M 67,32 C 55,26 40,25 27,32" />
-      </svg>
-
-      <!-- City dots -->
-      <div class="city-dot nyc" style="left: 26.5%; top: 30%;"><span class="city-label">NYC</span></div>
-      <div class="city-dot" id="dotLA" style="left: 11.5%; top: 31%;"><span class="city-label">Los Angeles</span></div>
-      <div class="city-dot" id="dotParis" style="left: 45.5%; top: 20%;"><span class="city-label">Paris</span></div>
-      <div class="city-dot" id="dotMumbai" style="left: 65.5%; top: 36%;"><span class="city-label">Mumbai</span></div>
-      <div class="city-dot" id="dotDelhi" style="left: 66.5%; top: 30%;"><span class="city-label">Delhi</span></div>
-
-      <!-- Cast row at the bottom -->
-      <div class="cast-row">
-        <div class="cast-card" data-clickable data-conn="connChristine" data-dot="dotLA">
-          <div class="cast-portrait">[ Portrait ]</div>
-          <div class="cast-card-name">Christine</div>
-          <div class="cast-intro">22, Writer</div>
-        </div>
-        <div class="cast-card" data-clickable data-conn="connLior" data-dot="dotParis">
-          <div class="cast-portrait">[ Portrait ]</div>
-          <div class="cast-card-name">Lior</div>
-          <div class="cast-intro">20, Dancer</div>
-        </div>
-        <div class="cast-card" data-clickable data-conn="connFatema" data-dot="dotMumbai">
-          <div class="cast-portrait">[ Portrait ]</div>
-          <div class="cast-card-name">Fatema</div>
-          <div class="cast-intro">26, Painter</div>
-        </div>
-        <div class="cast-card" data-clickable data-conn="connShreya" data-dot="dotDelhi">
-          <div class="cast-portrait">[ Portrait ]</div>
-          <div class="cast-card-name">Shreya</div>
-          <div class="cast-intro">27, Photographer</div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Slide 5: Fatema -->
-    <section class="slide">
-      <div class="slide-bg" style="background-image: url('Images/image3.png');"></div>
-      <div class="slide-content">
-        <span class="eyebrow">The Cast</span>
-        <h2 class="section-head">Fatema</h2>
-        <p class="body">A painter from Mumbai’s Bohra Muslim community who studied art at the New York Academy of Art.</p>
-        <p class="body">She becomes pregnant during the film and must reconcile her creative ambitions with new responsibilities as a mother and wife.</p>
-      </div>
-    </section>
-
-    <!-- Slide 5: Christine -->
-    <section class="slide">
-      <div class="slide-bg" style="background-image: url('Images/image4.png');"></div>
-      <div class="slide-content">
-        <span class="eyebrow">The Cast</span>
-        <h2 class="section-head">Christine</h2>
-        <p class="body">A Korean-American humor writer from California, studying for her MFA at the New School.</p>
-        <p class="body">She tries to balance her writing aspirations with her conservative immigrant upbringing, and the weight of her father’s expectations.</p>
-      </div>
-    </section>
-
-    <!-- Slide 6: Lior -->
-    <section class="slide">
-      <div class="slide-bg" style="background-image: url('Images/image5.png');"></div>
-      <div class="slide-content">
-        <span class="eyebrow">The Cast</span>
-        <h2 class="section-head">Lior</h2>
-        <p class="body">A French-Gabonese ballet dancer from Paris who came to New York for a fresh start after a troubled past.</p>
-        <p class="body">She seeks self-worth and belongingness, chasing a shot at her dream school, Alvin Ailey, which brought her to this side of the world.</p>
-      </div>
-    </section>
-
-    <!-- Slide 7: Shreya -->
-    <section class="slide">
-      <div class="slide-bg" style="background-image: url('Images/image6.png');"></div>
-      <div class="slide-content">
-        <span class="eyebrow">The Cast</span>
-        <h2 class="section-head">Shreya</h2>
-        <p class="body">A photographer from Delhi who studied at ICP.</p>
-        <p class="body">She is all about capturing the raw truth at St. Joseph's, but internally, she’s navigating her own imposter syndrome and insecurities about work and personal life.</p>
-      </div>
-    </section>
-
-    <!-- Slide 8: Artistic Approach -->
-    <section class="slide">
-      <div class="slide-bg" style="background-image: url('Images/image7.png');"></div>
-      <div class="slide-content">
-        <span class="eyebrow">Artistic Approach</span>
-        <h2 class="section-head">The Fifth Character</h2>
-        <p class="body">The film is quiet and intimate, using handheld camera footage. Character arcs are interwoven, while the nunnery becomes a fifth character — creaking floors, wooden crosses, old statues.</p>
-        <p class="body">The tone is observational and playful.</p>
-      </div>
-    </section>
-
-    <!-- Slide 9: Director's Note -->
-    <section class="slide">
-      <div class="slide-bg" style="background-image: url('Images/image8.jpg');"></div>
-      <div class="slide-content">
-        <span class="eyebrow">Director's Note</span>
-        <h2 class="section-head">Living the Story</h2>
-        <p class="body">I didn’t just make this film. I lived it. St. Joseph’s was my first home in the city. I met these women in our shared kitchens and late-night conversations, and they became my first community in New York.</p>
-        <p class="body">With a background in international reporting, urban design, and scriptwriting, I’ve always been drawn to layered stories where politics and intimacy overlap. This story is deeply personal, because in many ways, I’m one of these women.</p>
-      </div>
-    </section>
-
-    <!-- Slide 10: Themes -->
-    <section class="slide">
-      <div class="slide-bg" style="background-image: url('Images/image9.png');"></div>
-      <div class="slide-content">
-        <span class="eyebrow">The Themes</span>
-        <h2 class="section-head">Making it in 2025</h2>
-        <p class="body">It's undoubtedly an old story told many times over, artists making it in New York City. But what does “making it” mean in 2025? We’re living in a tense climate where immigrant is a politically-heavy word.</p>
-        <p class="body">These women’s stories become a testament to a time before current policy shifts, when immigrants could come with greater security into a country where they felt like they had a shot at their dreams.</p>
-        <div class="pullquote">
-          This isn’t a film about trauma, stereotyping or identity politics. It’s a film about tenacity, changing and growing, in proximity, in discomfort, in community.
-        </div>
-      </div>
-    </section>
-
-    <!-- Slide 11: Accountability -->
-    <section class="slide">
-      <div class="slide-bg" style="background-image: url('Images/image10.png');"></div>
-      <div class="slide-content">
-        <span class="eyebrow">UX & Ethics</span>
-        <h2 class="section-head">Accountability Maintained</h2>
-        <p class="body">The film was shot in a communal hostel where I also lived. This shared space naturally fostered trust, and the film’s participants were individuals with whom I already had personal relationships. From inception through to the final cut, they were consistently informed and engaged.</p>
-        <p class="body">Prior to every interview, I communicated the topics we would discuss and emphasized that they could skip questions or stop at any time. If discomfort arose, the camera was turned off immediately.</p>
-        <p class="body">I maintained regular check-ins to make sure each participant felt comfortable. At no point was anything filmed, edited, or included without full and ongoing consent.</p>
-      </div>
-    </section>
-
-    <!-- Slide 12: Team Credits & Footer -->
-    <section class="slide footer-slide">
-      <div class="slide-bg" style="background-image: url('Images/image11.png');"></div>
-      <div class="slide-content footer-content">
-        <span class="eyebrow">Credits</span>
-        <h2 class="section-head">The Team</h2>
-        
-        <div class="team-grid">
-          <div class="team-member">
-            <div class="team-role">Director, Editor, Cinematographer</div>
-            <div class="team-name">Khushali Haji</div>
-          </div>
-          <div class="team-member">
-            <div class="team-role">Cinematographer, Participant</div>
-            <div class="team-name">Shreya Sahai</div>
-          </div>
-          <div class="team-member">
-            <div class="team-role">Co-Developer</div>
-            <div class="team-name">Hazare Renn-Glover</div>
-          </div>
-          <div class="team-member">
-            <div class="team-role">Story Consultant & Mentor</div>
-            <div class="team-name">Sabrina Gordon</div>
-          </div>
-          <div class="team-member">
-            <div class="team-role">Editorial Mentor</div>
-            <div class="team-name">Mary Manhardt</div>
-          </div>
-          <div class="team-member">
-            <div class="team-role">Creative Advisor</div>
-            <div class="team-name">Yoruba Richen</div>
-          </div>
-          <div class="team-member">
-            <div class="team-role">Producing Mentor</div>
-            <div class="team-name">Judith Helfand</div>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Footer inclusion inside the final slide -->
-      <div style="position: absolute; bottom: 0; width: 100%; z-index: 50;">
-        <div id="footer-placeholder"></div>
-        <script src="../js/include-footer.js"></script>
-      </div>
-    </section>
-
-  </div>
+  <script src="../js/include-footer.js"></script>
 
   <script>
-    // Custom cursor
     (function () {
-      const cursorArrow = document.getElementById('cursorArrow');
-      if (!cursorArrow) return;
-      let started = false;
-      document.addEventListener('mousemove', e => {
-        cursorArrow.style.left = (e.clientX - 2) + 'px';
-        cursorArrow.style.top = (e.clientY - 2) + 'px';
-        if (!started) { cursorArrow.classList.add('visible'); started = true; }
-      });
-      document.addEventListener('mouseover', e => {
-        const hot = e.target.closest('a, button, input, select, [data-clickable]');
-        cursorArrow.classList.toggle('hot', !!hot);
-      });
-    })();
+      'use strict';
+      var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    // Scroll progress bar and active slide detection
-    (function () {
-      const container = document.getElementById('slideshow');
-      const bar = document.getElementById('progressBar');
-      const slides = document.querySelectorAll('.slide');
+      /* ---------- Custom cursor ----------
+         Position rides the standalone `translate` property so it tracks the
+         pointer 1:1, while `transform` is left free to carry the transitioned
+         hover scale. Putting both on `transform` made every move ease over
+         200ms, which is what read as lag. */
+      var cursorOff = function () { };
+      var cursorOn = function () { };
+      var cursorVideoLock = function () { };
 
-      if (!container || !bar) return;
+      (function () {
+        var cursor = document.getElementById('cursorArrow');
+        if (!cursor || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
 
-      container.addEventListener('scroll', () => {
-        // Progress Bar
-        const scrolled = container.scrollTop / (container.scrollHeight - container.clientHeight);
-        bar.style.width = (scrolled * 100) + '%';
+        var shown = false;
+        var suppressed = false;
+        var overVideo = false;
 
-        // Intersection-like logic for revealing content in active slide
-        slides.forEach(slide => {
-          const rect = slide.getBoundingClientRect();
-          if (rect.top <= window.innerHeight * 0.5 && rect.bottom >= window.innerHeight * 0.5) {
-            slide.classList.add('is-active');
-          } else {
-            slide.classList.remove('is-active');
-          }
+        function place(e) {
+          cursor.style.translate = (e.clientX - 2) + 'px ' + (e.clientY - 2) + 'px';
+          if (!shown && !suppressed) { cursor.classList.add('visible'); shown = true; }
+        }
+
+        document.addEventListener('mousemove', place, { passive: true });
+
+        document.addEventListener('mouseover', function (e) {
+          var hot = e.target.closest('a, button, [data-clickable]');
+          cursor.classList.toggle('hot', !!hot);
         });
+
+        // Hand the pointer back to the OS wherever we can't track it — inside
+        // the YouTube iframe, or once the pointer has left the window entirely.
+        cursorOff = function () {
+          suppressed = true;
+          shown = false;
+          cursor.classList.remove('visible', 'hot');
+        };
+        // While the player owns the pointer, nothing else may bring us back.
+        cursorOn = function () { if (!overVideo) suppressed = false; };
+        cursorVideoLock = function (locked) {
+          overVideo = locked;
+          if (locked) { cursorOff(); } else { suppressed = false; }
+        };
+
+        document.addEventListener('mouseleave', cursorOff);
+        document.addEventListener('mouseenter', cursorOn);
+        // Focus moving into the iframe (i.e. the film starts playing) blurs us.
+        window.addEventListener('blur', cursorOff);
+        window.addEventListener('focus', cursorOn);
+      })();
+
+      /* ---------- Reveal on scroll ----------
+         One observer drives every motion primitive: fade-ups, line-masked
+         headings, and clip-path media frames. Scenes stagger their own
+         children so markup stays declarative. */
+      var revealTargets = document.querySelectorAll('[data-reveal], [data-frame], .line-mask');
+
+      if (!('IntersectionObserver' in window) || reduced) {
+        revealTargets.forEach(function (el) { el.classList.add('is-in'); });
+      } else {
+        var io = new IntersectionObserver(function (entries) {
+          entries.forEach(function (entry) {
+            if (!entry.isIntersecting) return;
+            entry.target.classList.add('is-in');
+            io.unobserve(entry.target);
+          });
+        }, { rootMargin: '0px 0px -12% 0px', threshold: 0.12 });
+        revealTargets.forEach(function (el) { io.observe(el); });
+      }
+
+      /* ---------- Count-up stats ---------- */
+      var counters = document.querySelectorAll('[data-count]');
+      if (counters.length) {
+        if (reduced || !('IntersectionObserver' in window)) {
+          counters.forEach(function (el) { setCount(el, +el.dataset.count); });
+        } else {
+          var cio = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+              if (!entry.isIntersecting) return;
+              runCount(entry.target);
+              cio.unobserve(entry.target);
+            });
+          }, { threshold: 0.6 });
+          counters.forEach(function (el) { cio.observe(el); });
+        }
+      }
+
+      function setCount(el, value) {
+        el.textContent = value;
+      }
+
+      function runCount(el) {
+        var target = +el.dataset.count;
+        var duration = 900;
+        var start = performance.now();
+        (function tick(now) {
+          var t = Math.min((now - start) / duration, 1);
+          var eased = 1 - Math.pow(1 - t, 3);
+          setCount(el, Math.round(target * eased));
+          if (t < 1) requestAnimationFrame(tick);
+        })(start);
+      }
+
+      /* ---------- Origin map: plays itself once, on first sight ----------
+         Muted + playsinline so autoplay isn't refused, and it runs a single
+         time, holding its last frame (the completed map) instead of looping.
+         Driven off the scroll pass below rather than its own observer: the
+         <video> box depends on the poster having loaded, which makes it an
+         unreliable observer target. */
+      var mapVideo = document.getElementById('mapVideo');
+      var mapPlayed = !mapVideo;
+
+      if (mapVideo && reduced) {
+        // Don't start motion unasked — hand over the controls instead.
+        mapVideo.setAttribute('controls', '');
+        mapVideo.setAttribute('preload', 'metadata');
+        mapPlayed = true;
+      }
+
+      function maybePlayMap() {
+        if (mapPlayed) return;
+        var r = mapVideo.getBoundingClientRect();
+        var vh = window.innerHeight;
+        if (r.top > vh * 0.8 || r.bottom < vh * 0.25) return;
+        mapPlayed = true;
+        mapVideo.load();
+        var p = mapVideo.play();
+        // Autoplay can still be refused; leave something clickable, not a
+        // dead frame.
+        if (p && p.catch) {
+          p.catch(function () { mapVideo.setAttribute('controls', ''); });
+        }
+      }
+
+      /* ---------- Chaptered progress rail ----------
+         Each [data-chapter] section gets one segment, flex-sized to the share
+         of the page it occupies, so the rail reads as a table of contents that
+         fills as you move through it. */
+      var rail = document.getElementById('progressRail');
+      var chapters = [];
+
+      function buildRail() {
+        if (!rail) return;
+        rail.textContent = '';
+        chapters = [];
+        var docH = document.documentElement.scrollHeight;
+        var run = 0;
+        document.querySelectorAll('[data-chapter]').forEach(function (section) {
+          var top = section.getBoundingClientRect().top + window.scrollY;
+          var share = section.offsetHeight / docH;
+          var seg = document.createElement('div');
+          seg.className = 'progress-seg';
+          seg.style.flex = share;
+          var label = document.createElement('span');
+          label.className = 'progress-seg__label' + (run > 0.62 ? ' align-end' : '');
+          label.textContent = section.dataset.chapter;
+          run += share;
+          seg.appendChild(label);
+          rail.appendChild(seg);
+          chapters.push({ el: seg, top: top, height: section.offsetHeight });
+        });
+      }
+
+      var currentChapter = -1;
+
+      function paintRail(y) {
+        var mid = y + window.innerHeight * 0.5;
+        chapters.forEach(function (c, i) {
+          var p = (mid - c.top) / c.height;
+          c.el.style.setProperty('--p', Math.max(0, Math.min(1, p)));
+          // Full-bleed interludes sit between chapters, so hold the last match
+          // rather than blanking the label as you scroll across them.
+          if (p >= 0 && p < 1) currentChapter = i;
+        });
+        chapters.forEach(function (c, i) {
+          c.el.classList.toggle('is-current', i === currentChapter);
+        });
+      }
+
+      /* ---------- Scroll-driven: progress, nav, parallax ---------- */
+      var nav = document.getElementById('topNav');
+      var parallaxEls = reduced ? [] : Array.prototype.slice.call(document.querySelectorAll('[data-parallax]'));
+      var lastY = window.scrollY;
+      var ticking = false;
+
+      function onFrame() {
+        ticking = false;
+        var y = window.scrollY;
+
+        paintRail(y);
+        maybePlayMap();
+
+        if (nav) {
+          nav.classList.toggle('is-solid', y > window.innerHeight * 0.6);
+          // Hide going down, reveal going up — but never over the hero.
+          nav.classList.toggle('is-hidden', y > lastY + 4 && y > window.innerHeight * 0.9);
+        }
+
+        var vh = window.innerHeight;
+        parallaxEls.forEach(function (el) {
+          var rect = el.parentElement.getBoundingClientRect();
+          if (rect.bottom < -vh || rect.top > vh * 2) return;
+          // -1 (below the fold) .. 1 (above it), 0 when centred
+          var progress = (rect.top + rect.height / 2 - vh / 2) / vh;
+          var depth = parseFloat(el.dataset.parallax) || 0.1;
+          el.style.transform = 'translate3d(0,' + (progress * depth * vh * -1).toFixed(2) + 'px,0)';
+        });
+
+        lastY = y;
+      }
+
+      window.addEventListener('scroll', function () {
+        if (!ticking) { requestAnimationFrame(onFrame); ticking = true; }
       }, { passive: true });
+      window.addEventListener('resize', function () { buildRail(); onFrame(); }, { passive: true });
+      // Images settling changes section offsets, so re-measure once they land.
+      window.addEventListener('load', function () { buildRail(); onFrame(); });
+      buildRail();
+      onFrame();
 
-      // Trigger once on load
-      container.dispatchEvent(new Event('scroll'));
-    })();
+      /* ---------- YouTube facades: only load a player on demand ----------
+         Each poster is a button carrying its own video id, so the players
+         cost nothing until someone actually asks for one. */
+      document.querySelectorAll('.video-facade[data-yt]').forEach(function (facade) {
+        facade.addEventListener('click', function () {
+          var iframe = document.createElement('iframe');
+          iframe.src = 'https://www.youtube-nocookie.com/embed/' + facade.dataset.yt +
+            '?autoplay=1&rel=0&modestbranding=1';
+          iframe.title = facade.dataset.title || 'Video';
+          iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+          iframe.allowFullscreen = true;
 
-    // Protagonists Map: hover interactions
-    (function () {
-      const castCards = document.querySelectorAll('.cast-card[data-conn]');
+          var stage = facade.parentElement;
+          facade.replaceWith(iframe);
+          stage.classList.add('is-playing');
 
-      castCards.forEach(card => {
-        const connId = card.dataset.conn;
-        const dotId = card.dataset.dot;
-        const connPath = document.getElementById(connId);
-        const dot = document.getElementById(dotId);
-
-        if (!connPath || !dot) return;
-
-        // Measure path length and set dasharray/offset for draw animation
-        const pathLen = connPath.getTotalLength();
-        connPath.style.strokeDasharray = pathLen;
-        connPath.style.strokeDashoffset = pathLen;
-        connPath.style.opacity = '0.6';
-
-        card.addEventListener('mouseenter', () => {
-          connPath.classList.add('is-drawing');
-          connPath.style.strokeDashoffset = '0';
-          connPath.style.opacity = '1';
-          dot.classList.add('is-visible');
-        });
-
-        card.addEventListener('mouseleave', () => {
-          connPath.classList.remove('is-drawing');
-          connPath.style.strokeDashoffset = pathLen;
-          connPath.style.opacity = '0.6';
-          dot.classList.remove('is-visible');
+          // The parent gets no mousemove over a cross-origin iframe, so our
+          // arrow would freeze mid-screen while YouTube drew its own pointer.
+          // The pointer is already inside the stage at click time, so mouseenter
+          // won't fire again — lock it down here, and release only on the way out.
+          cursorVideoLock(true);
+          stage.addEventListener('mouseenter', function () { cursorVideoLock(true); });
+          stage.addEventListener('mouseleave', function () { cursorVideoLock(false); });
         });
       });
     })();
