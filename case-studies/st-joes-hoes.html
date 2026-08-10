@@ -99,70 +99,17 @@
       background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.05'/%3E%3C/svg%3E");
     }
 
-    /* Segmented reading progress: one track per chapter, sized to how much
-       of the page that chapter occupies, so the bar doubles as a contents bar. */
-    .progress-rail {
+    /* Smooth continuous reading progress line — width tracks overall scroll
+       position, no per-chapter breaks. */
+    .progress-line {
       position: fixed;
       top: 0;
       left: 0;
-      right: 0;
-      z-index: 80;
-      display: flex;
-      gap: 2px;
-      padding: 0 2px;
-      height: 16px;
-      align-items: flex-start;
-      pointer-events: none;
-    }
-
-    .progress-seg {
-      position: relative;
+      width: 0%;
       height: 3px;
-      background: rgba(242, 239, 233, 0.16);
-      overflow: hidden;
-    }
-
-    .progress-seg::after {
-      content: '';
-      position: absolute;
-      inset: 0;
+      z-index: 80;
       background: linear-gradient(to right, var(--teal-deep), var(--yellow));
-      transform: scaleX(var(--p, 0));
-      transform-origin: 0 50%;
-      transition: transform 0.12s linear;
-    }
-
-    .progress-seg__label {
-      position: absolute;
-      top: 9px;
-      left: 0;
-      font-family: var(--mono);
-      font-size: 9px;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      white-space: nowrap;
-      color: var(--yellow);
-      opacity: 0;
-      transform: translateY(-4px);
-      transition: opacity 0.35s ease, transform 0.35s var(--ease);
-    }
-
-    /* segments in the right-hand half hang their label off the right edge so
-       it never slides under the nav links */
-    .progress-seg__label.align-end {
-      left: auto;
-      right: 0;
-    }
-
-    .progress-seg.is-current .progress-seg__label {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    @media (max-width: 700px) {
-      .progress-seg__label {
-        display: none;
-      }
+      pointer-events: none;
     }
 
     .cursor-arrow {
@@ -191,6 +138,29 @@
 
     @media (hover: none) {
       .cursor-arrow {
+        display: none;
+      }
+    }
+
+    /* Soft cursor glow — same trailing highlight as the homepage and the
+       other two case studies, tinted with this page's own brighter teal so
+       it reads against the dark background instead of the light-paper one. */
+    .cursor-glow {
+      position: fixed;
+      width: 440px;
+      height: 440px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(79, 163, 163, 0.07) 0%, rgba(79, 163, 163, 0.02) 40%, transparent 68%);
+      pointer-events: none;
+      z-index: 2;
+      transform: translate(-50%, -50%);
+      opacity: 0;
+      transition: opacity 0.8s ease;
+      will-change: left, top;
+    }
+
+    @media (hover: none) {
+      .cursor-glow {
         display: none;
       }
     }
@@ -535,9 +505,13 @@
       overflow: hidden;
     }
 
+    /* Overscan is asymmetric on purpose: the crucifix on the wall sits near
+       the very top of the source photo, so the box takes almost none of its
+       slack off the top (or the resting crop, before any scroll-driven
+       parallax, would cut the cross off) and makes it up on the bottom. */
     .hero__bg {
       position: absolute;
-      inset: -10% 0;
+      inset: -2% 0 -18% 0;
       z-index: -2;
     }
 
@@ -545,7 +519,7 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
-      object-position: center 42%;
+      object-position: center;
       filter: brightness(1.16) saturate(1.04);
     }
 
@@ -987,7 +961,7 @@
     }
 
     .cast__head {
-      padding-block: clamp(4rem, 10vh, 8rem) clamp(1.5rem, 4vh, 3rem);
+      padding-block: clamp(4rem, 10vh, 8rem) clamp(3.5rem, 9vh, 7rem);
     }
 
     .cast__counter {
@@ -1517,7 +1491,8 @@
 <body>
 
   <div class="grain-overlay"></div>
-  <div class="progress-rail" id="progressRail" aria-hidden="true"></div>
+  <div class="cursor-glow" id="cursorGlow"></div>
+  <div class="progress-line" id="progressBar" aria-hidden="true"></div>
   <div class="cursor-arrow" id="cursorArrow"></div>
 
   <nav class="topnav" id="topNav">
@@ -1534,7 +1509,7 @@
   <main>
 
     <!-- ============================ HERO ============================ -->
-    <header class="hero" id="top" data-chapter="Overview">
+    <header class="hero" id="top">
       <div class="hero__bg" data-parallax="0.05">
         <img src="Images/image12.png" alt="The residents of St. Joseph's gathered around the communal dinner table."
           fetchpriority="high">
@@ -1580,7 +1555,7 @@
     </header>
 
     <!-- ========================= SUMMARY ========================= -->
-    <section class="section summary wrap" data-chapter="Summary">
+    <section class="section summary wrap">
       <div class="summary__grid">
         <span class="rail-label" data-reveal>01 / Logline</span>
         <p data-reveal style="--d:.1s">
@@ -1594,7 +1569,7 @@
     </section>
 
     <!-- ==================== FULL-BLEED VIDEO ==================== -->
-    <section class="bleed video-bleed" id="film" data-chapter="The Film">
+    <section class="bleed video-bleed" id="film">
       <button class="video-facade" data-yt="UPGntTxWMRU" data-title="St. Joe's Hoes — film" data-clickable
         aria-label="Play the St. Joe's Hoes trailer on YouTube">
         <img src="https://i.ytimg.com/vi/UPGntTxWMRU/maxresdefault.jpg" alt="" loading="lazy" aria-hidden="true">
@@ -1614,7 +1589,7 @@
     </div>
 
     <!-- ========================= PREMISE ========================= -->
-    <section class="section wrap" id="premise" data-chapter="Premise">
+    <section class="section wrap" id="premise">
       <div class="split">
         <span class="rail-label" data-reveal>02 / The Premise</span>
         <div>
@@ -1637,7 +1612,7 @@
     </section>
 
     <!-- ==================== FULL-BLEED VIDEO: SIZZLE ==================== -->
-    <section class="bleed video-bleed" id="sizzle" data-chapter="Sizzle">
+    <section class="bleed video-bleed" id="sizzle">
       <button class="video-facade" data-yt="5zKy74hgvu8" data-title="St. Joe's Hoes — sizzle reel" data-clickable
         aria-label="Play the St. Joe's Hoes sizzle reel on YouTube">
         <img src="https://i.ytimg.com/vi/5zKy74hgvu8/maxresdefault.jpg" alt="" loading="lazy" aria-hidden="true">
@@ -1649,7 +1624,7 @@
     </section>
 
     <!-- ORIGIN MAP (video) — pulled for now. To restore, drop this block back in:
-    <section class="section map-section" data-chapter="Origins" aria-label="Where each of them travelled from">
+    <section class="section map-section" aria-label="Where each of them travelled from">
       <figure class="map-frame" data-parallax="0.04" data-reveal>
         <video id="mapVideo" muted playsinline preload="none" poster="Images/map-poster.jpg"
           aria-label="Animated map tracing each woman's route from her home city to New York.">
@@ -1664,7 +1639,7 @@
     -->
 
     <!-- =========================== CAST =========================== -->
-    <section class="cast" id="cast" data-chapter="The Cast">
+    <section class="cast" id="cast">
       <div class="wrap">
         <div class="cast__head">
           <span class="eyebrow">03 / The Cast</span>
@@ -1781,7 +1756,7 @@
     <!-- ==================== ARTISTIC APPROACH ==================== -->
     <!-- The section itself is full width so the still strip can bleed; the copy
          keeps the shared column via .wrap on the inner block. -->
-    <section class="section section--flush" id="approach" data-chapter="Approach">
+    <section class="section section--flush" id="approach">
       <div class="wrap">
         <div class="split">
           <span class="rail-label" data-reveal>04 / Artistic Approach</span>
@@ -1825,7 +1800,7 @@
     </section>
 
     <!-- ==================== DIRECTOR'S NOTE ==================== -->
-    <section class="section wrap" id="note" data-chapter="Director's Note">
+    <section class="section wrap" id="note">
       <div class="split">
         <div class="note-rail">
           <span class="rail-label" data-reveal>05 / Director's Note</span>
@@ -1865,7 +1840,7 @@
     </section>
 
     <!-- ========================= THEMES ========================= -->
-    <section class="section section--flush" id="themes" data-chapter="Themes">
+    <section class="section section--flush" id="themes">
       <div class="wrap">
         <div class="split">
           <span class="rail-label" data-reveal>06 / The Themes</span>
@@ -1926,7 +1901,7 @@
     </section>
 
     <!-- ========================== IMPACT ========================== -->
-    <section class="section wrap" id="impact" data-chapter="Where It Stands">
+    <section class="section wrap" id="impact">
       <div class="split">
         <span class="rail-label" data-reveal>07 / Where It Stands</span>
         <div>
@@ -1949,7 +1924,7 @@
     </section>
 
     <!-- ========================= CREDITS ========================= -->
-    <section class="section" id="credits" data-chapter="Credits">
+    <section class="section" id="credits">
       <!-- Full-bleed backdrop, same back-layer treatment as the title section:
            .team-bg sits behind everything via negative z-index, scrimmed by
            #credits::before so the credit list stays readable. -->
@@ -1995,15 +1970,15 @@
             <p class="thanks" data-reveal style="--d:.3s">Special thanks to the 2024 Doc cohort at the Craig Newmark
               Graduate School of Journalism at CUNY, Stephanie Wang Breal, Amanda Nassem, and the Woodstock Film
               Festival team for recognition and support; to Hazare Renne-Glover for his collaboration during the
-              initial development stage; and to the veteran editors and filmmakers — Mable Chan, Pierce Varous, Dara
-              Kell, Melissa Thompson, and Sweta Vohra — who generously shared their wisdom along the way.</p>
+              initial development stage; and to the veteran editors and filmmakers – Mable Chan, Pierce Varous, Dara
+              Kell, Melissa Thompson, and Sweta Vohra – who generously shared their wisdom along the way.</p>
           </div>
         </div>
       </div>
     </section>
 
     <!-- ===================== CTA + MORE WORK ===================== -->
-    <section class="cta wrap" data-chapter="More Work">
+    <section class="cta wrap">
       <h2 class="display">
         <span class="line-mask"><i>Have a story to tell?</i></span>
       </h2>
@@ -2049,6 +2024,7 @@
 
       (function () {
         var cursor = document.getElementById('cursorArrow');
+        var glow = document.getElementById('cursorGlow');
         if (!cursor || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
 
         var shown = false;
@@ -2057,6 +2033,11 @@
 
         function place(e) {
           cursor.style.translate = (e.clientX - 2) + 'px ' + (e.clientY - 2) + 'px';
+          if (glow && !suppressed) {
+            glow.style.left = e.clientX + 'px';
+            glow.style.top = e.clientY + 'px';
+            glow.style.opacity = '1';
+          }
           if (!shown && !suppressed) { cursor.classList.add('visible'); shown = true; }
         }
 
@@ -2073,6 +2054,7 @@
           suppressed = true;
           shown = false;
           cursor.classList.remove('visible', 'hot');
+          if (glow) glow.style.opacity = '0';
         };
         // While the player owns the pointer, nothing else may bring us back.
         cursorOn = function () { if (!overVideo) suppressed = false; };
@@ -2158,15 +2140,22 @@
          the photograph gets a beat on its own before the text lands on it. */
       var protagonists = Array.prototype.slice.call(document.querySelectorAll('.protagonist'));
       var TEXT_AT = 0.32;
+      var FADE_OUT_AT = 0.8;
 
       function paintProtagonists() {
         var vh = window.innerHeight;
         protagonists.forEach(function (el) {
           var r = el.getBoundingClientRect();
-          el.classList.toggle('img-in', r.top < vh * 0.92 && r.bottom > vh * 0.08);
+          var inView = r.top < vh * 0.92 && r.bottom > vh * 0.08;
           var travel = r.height - vh;
           var p = travel > 0 ? -r.top / travel : 1;
-          el.classList.toggle('text-in', p >= TEXT_AT);
+          // Past FADE_OUT_AT the block is about to hand off to the next
+          // character — fade the photo and copy out on the spot instead of
+          // holding them until the sticky frame physically slides away, so
+          // attention lands on the incoming character, not the outgoing one.
+          var leaving = p > FADE_OUT_AT;
+          el.classList.toggle('img-in', inView && !leaving);
+          el.classList.toggle('text-in', p >= TEXT_AT && !leaving);
         });
       }
 
@@ -2175,49 +2164,15 @@
         paintProtagonists = function () { };
       }
 
-      /* ---------- Chaptered progress rail ----------
-         Each [data-chapter] section gets one segment, flex-sized to the share
-         of the page it occupies, so the rail reads as a table of contents that
-         fills as you move through it. */
-      var rail = document.getElementById('progressRail');
-      var chapters = [];
+      /* ---------- Smooth reading progress line ----------
+         Width tracks how far down the whole page the reader has scrolled. */
+      var progressBar = document.getElementById('progressBar');
 
-      function buildRail() {
-        if (!rail) return;
-        rail.textContent = '';
-        chapters = [];
-        var docH = document.documentElement.scrollHeight;
-        var run = 0;
-        document.querySelectorAll('[data-chapter]').forEach(function (section) {
-          var top = section.getBoundingClientRect().top + window.scrollY;
-          var share = section.offsetHeight / docH;
-          var seg = document.createElement('div');
-          seg.className = 'progress-seg';
-          seg.style.flex = share;
-          var label = document.createElement('span');
-          label.className = 'progress-seg__label' + (run > 0.62 ? ' align-end' : '');
-          label.textContent = section.dataset.chapter;
-          run += share;
-          seg.appendChild(label);
-          rail.appendChild(seg);
-          chapters.push({ el: seg, top: top, height: section.offsetHeight });
-        });
-      }
-
-      var currentChapter = -1;
-
-      function paintRail(y) {
-        var mid = y + window.innerHeight * 0.5;
-        chapters.forEach(function (c, i) {
-          var p = (mid - c.top) / c.height;
-          c.el.style.setProperty('--p', Math.max(0, Math.min(1, p)));
-          // Full-bleed interludes sit between chapters, so hold the last match
-          // rather than blanking the label as you scroll across them.
-          if (p >= 0 && p < 1) currentChapter = i;
-        });
-        chapters.forEach(function (c, i) {
-          c.el.classList.toggle('is-current', i === currentChapter);
-        });
+      function paintProgress() {
+        if (!progressBar) return;
+        var h = document.documentElement;
+        var scrolled = h.scrollTop / (h.scrollHeight - h.clientHeight);
+        progressBar.style.width = (Math.max(0, Math.min(1, scrolled)) * 100) + '%';
       }
 
       /* ---------- Scroll-driven: progress, nav, parallax ---------- */
@@ -2231,7 +2186,7 @@
         var y = window.scrollY;
 
         paintReveals();
-        paintRail(y);
+        paintProgress();
         paintProtagonists();
         maybePlayMap();
 
@@ -2262,10 +2217,9 @@
       window.addEventListener('scroll', function () {
         if (!ticking) { requestAnimationFrame(onFrame); ticking = true; }
       }, { passive: true });
-      window.addEventListener('resize', function () { buildRail(); onFrame(); }, { passive: true });
-      // Images settling changes section offsets, so re-measure once they land.
-      window.addEventListener('load', function () { buildRail(); onFrame(); });
-      buildRail();
+      window.addEventListener('resize', onFrame, { passive: true });
+      // Images settling changes document height, so re-measure once they land.
+      window.addEventListener('load', onFrame);
       onFrame();
 
       /* ---------- YouTube facades: only load a player on demand ----------

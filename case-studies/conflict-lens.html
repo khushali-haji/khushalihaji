@@ -22,6 +22,17 @@
       scroll-behavior: smooth;
     }
 
+    /* Native form controls carry their own browser-default cursor that the
+       inherited "none" above can't reach — reset them explicitly so the
+       custom arrow stays the only cursor over buttons, inputs, video, etc. */
+    button,
+    input,
+    select,
+    textarea,
+    video {
+      cursor: none;
+    }
+
     :root {
       --ink: #282421;
       /* Deep charcoal ink */
@@ -57,6 +68,14 @@
       color: var(--ink);
       font-family: var(--serif);
       overflow-x: hidden;
+    }
+
+    /* Shared site footer (injected by js/include-footer.js) is transparent by
+       default, so it shows this page's warm --paper. Override it to the cool
+       pale blue used on the landing page (index.html --paper: #eff3f1) instead,
+       without touching this page's own --paper everywhere else. */
+    #footer-placeholder .site-footer {
+      background: #eff3f1;
     }
 
     /* Paper grain backdrop */
@@ -104,6 +123,23 @@
       z-index: 0;
       animation: orbDrift 28s ease-in-out infinite;
       will-change: transform;
+    }
+
+    /* Soft cursor glow — same treatment as the homepage: a gentle teal
+       highlight that trails the pointer. Purely decorative (pointer-events:
+       none), so it never competes with cards or interactive elements. */
+    .cursor-glow {
+      position: fixed;
+      width: 440px;
+      height: 440px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(26, 107, 107, 0.07) 0%, rgba(26, 107, 107, 0.02) 40%, transparent 68%);
+      pointer-events: none;
+      z-index: 2;
+      transform: translate(-50%, -50%);
+      opacity: 0;
+      transition: opacity 0.8s ease;
+      will-change: left, top;
     }
 
     /* Reading progress bar (graphite line style) */
@@ -1444,7 +1480,7 @@
 
     /* Once the pipeline has run, each step is clickable to re-read its output */
     .flow-pipeline.reviewable .pipeline-stage {
-      cursor: pointer;
+      cursor: none;
     }
 
     .flow-pipeline.reviewable .pipeline-stage:hover .pipeline-node {
@@ -1853,22 +1889,6 @@
       font-weight: 700;
     }
 
-    .ai-retry-sim {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.3rem;
-      font-family: var(--mono);
-      font-size: 9px;
-      text-transform: uppercase;
-      padding: 4px 8px;
-      border: 1px solid var(--ink);
-      color: var(--ink);
-      background: var(--paper);
-      margin-top: 0.6rem;
-      border-radius: 2px;
-      font-weight: bold;
-    }
-
     /* 5. Stack Architecture (sketched chalkboard layout) */
     .architecture-svg-box {
       width: 100%;
@@ -2118,6 +2138,20 @@
       display: block;
       width: 100%;
       background: #111;
+    }
+
+    /* The native <video> controls (play/pause, scrubber, volume) live in a
+       browser-owned shadow tree that "cursor: none" on the element can't
+       reach by itself — target the exposed Chrome/Safari pseudo-elements too. */
+    .ui-video::-webkit-media-controls-panel,
+    .ui-video::-webkit-media-controls-play-button,
+    .ui-video::-webkit-media-controls-timeline,
+    .ui-video::-webkit-media-controls-current-time-display,
+    .ui-video::-webkit-media-controls-time-remaining-display,
+    .ui-video::-webkit-media-controls-mute-button,
+    .ui-video::-webkit-media-controls-volume-slider,
+    .ui-video::-webkit-media-controls-fullscreen-button {
+      cursor: none;
     }
 
     /* Chrome-style address bar for the video browser frame */
@@ -2738,6 +2772,7 @@
 
   <canvas id="mapGrid"></canvas>
   <div class="bg-orb"></div>
+  <div class="cursor-glow" id="cursorGlow"></div>
   <div class="progress-line" id="progressBar"></div>
   <div class="cursor-arrow" id="cursorArrow"></div>
 
@@ -3421,6 +3456,7 @@
 
     // ─── Custom cursor tracking logic ──────────────────────────────────────────
     const cursorArrow = document.getElementById('cursorArrow');
+    const cursorGlow = document.getElementById('cursorGlow');
     let mouseX = window.innerWidth / 2, mouseY = window.innerHeight / 2;
     let cursorStarted = false;
 
@@ -3430,6 +3466,12 @@
       cursorArrow.style.left = (e.clientX - 2) + 'px';
       cursorArrow.style.top = (e.clientY - 2) + 'px';
 
+      if (cursorGlow) {
+        cursorGlow.style.left = e.clientX + 'px';
+        cursorGlow.style.top = e.clientY + 'px';
+        cursorGlow.style.opacity = '1';
+      }
+
       if (!cursorStarted) {
         cursorArrow.classList.add('visible');
         cursorStarted = true;
@@ -3437,7 +3479,7 @@
     });
 
     document.addEventListener('mouseover', e => {
-      const hot = e.target.closest('a, button, input, .switcher-tab, [data-clickable]');
+      const hot = e.target.closest('a, button, input, .switcher-tab, .pipeline-stage, [data-clickable]');
       cursorArrow.classList.toggle('hot', !!hot);
     });
 
@@ -3526,31 +3568,19 @@
       fit();
       window.addEventListener('resize', fit);
 
-      // Keep the site's custom cursor alive over the embedded app. The case study
-      // and the app share an origin (khushali-haji.github.io), so we can mirror the
-      // app's mouse events back onto the parent cursor. Wrapped in try/catch so it
-      // degrades gracefully to the native pointer if ever served cross-origin.
+      // The embedded app is cross-origin, so its own cursor can't be reached or
+      // overridden from here. Rather than fight it, just step our custom cursor
+      // aside the moment the pointer enters the sandbox and hand off cleanly to
+      // whatever cursor the app shows natively, then bring ours back on exit.
       const cursor = document.getElementById('cursorArrow');
-      iframe.addEventListener('load', () => {
-        try {
-          const doc = iframe.contentDocument;
-          if (!doc || !cursor) return;
-          doc.documentElement.style.cursor = 'none';
-          doc.documentElement.style.overflow = 'hidden';
-          doc.addEventListener('mousemove', e => {
-            const rect = iframe.getBoundingClientRect();
-            cursor.style.left = (rect.left + e.clientX * scale - 2) + 'px';
-            cursor.style.top = (rect.top + e.clientY * scale - 2) + 'px';
-            cursor.classList.add('visible');
-          });
-          doc.addEventListener('mouseover', e => {
-            const hot = e.target.closest('a, button, input, select, textarea, [role="button"], [data-clickable]');
-            cursor.classList.toggle('hot', !!hot);
-          });
-        } catch (err) {
-          /* cross-origin — fall back to the app's native cursor */
-        }
-      });
+      if (cursor) {
+        iframe.addEventListener('mouseenter', () => {
+          cursor.classList.remove('visible', 'hot');
+        });
+        iframe.addEventListener('mouseleave', () => {
+          cursor.classList.add('visible');
+        });
+      }
     })();
 
     // ─── MOCKUP 1: Problem "12 Browser Tabs" Switcher logic ─────────────────────
@@ -3731,9 +3761,6 @@
           "lat": 31.34, "lon": 34.30 <span style="color:var(--teal); font-weight:bold;">(Centered at Khan Yunis boundary)</span>
         </p>
         <p class="ai-annot">A raw <b>0,0</b> lands in the ocean. We filter out invalid coordinates and drop the pin on the reported country's <b>capital city</b>, with a fallback notice.</p>
-        <button class="ai-retry-sim" onclick="alert('Simulation: Re-running failed step 4 pipeline')">
-          🔄 Retry Analysis
-        </button>
       </div>
     `;
 

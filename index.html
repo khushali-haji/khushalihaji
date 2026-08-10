@@ -413,6 +413,7 @@
     }
 
     .nav-child {
+      position: relative;
       display: block;
       font-family: 'Caveat', cursive;
       font-size: 20px;
@@ -427,6 +428,35 @@
     .nav-child:hover {
       color: var(--yellow);
       background: rgba(201, 162, 39, 0.1);
+    }
+
+    /* These sub-pages aren't built yet — flag it on hover instead of a dead click */
+    .nav-child::after {
+      content: 'Coming soon';
+      position: absolute;
+      left: 50%;
+      bottom: calc(100% + 0.35rem);
+      transform: translateX(-50%) translateY(4px);
+      font-family: var(--mono);
+      font-size: 9px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      color: var(--paper);
+      background: var(--ink);
+      padding: 4px 8px;
+      border-radius: 3px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      z-index: 5;
+    }
+
+    .nav-child:hover::after,
+    .nav-child:focus-visible::after {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
     }
 
     /* Hamburger — hidden on desktop */
@@ -557,7 +587,7 @@
       flex-direction: column;
       justify-content: center;
       align-items: flex-start;
-      padding: 19vh max(2rem, 4vw) 10vh max(6rem, 13vw);
+      padding: 14vh max(2rem, 4vw) 14vh max(8rem, 16vw);
     }
 
     /* Name — typewriter fills this in */
@@ -1043,19 +1073,22 @@
     }
 
     .contact-heading {
-      font-family: var(--serif);
-      font-style: italic;
-      font-weight: 600;
-      font-size: clamp(26px, 3.6vw, 48px);
+      font-family: 'Caveat', cursive;
+      font-style: normal;
+      font-weight: 400;
+      font-size: clamp(32px, 4.4vw, 58px);
       line-height: 1.25;
       letter-spacing: -0.015em;
       color: var(--ink);
       margin-bottom: 2.6rem;
     }
 
-    /* second line reads lighter than the greeting above it */
+    /* second line reads lighter than the greeting above it, and stays on one line */
     .contact-heading .ch-light {
-      font-weight: 300;
+      display: block;
+      font-weight: 400;
+      font-size: clamp(20px, 3.1vw, 34px);
+      white-space: nowrap;
     }
 
     .social-links {

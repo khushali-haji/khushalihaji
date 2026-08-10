@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About — Khushali Haji</title>
+  <!-- Gate every "hidden until revealed" state on JS being alive, so the page
+       still reads as a finished document if the script never runs. -->
+  <script>document.documentElement.classList.add('js');</script>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300;1,600&family=DM+Mono:wght@400;500&family=Playfair+Display:ital,wght@1,400;1,700&family=Inter:ital,wght@0,200;0,300;0,400;0,600;1,400;1,700&family=Caveat:wght@400;600&display=swap"
+    rel="stylesheet">
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --ink: #181512;
+      --paper: #e7e4d2;
+      --teal: #1a6b6b;
+      --yellow: #c9a227;
+      --serif: 'Cormorant Garamond', Georgia, serif;
+      --mono: 'DM Mono', monospace;
+      --ease: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--serif);
+      overflow-x: hidden;
+    }
+
+    /* Paper grain */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.88' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.032'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.42;
+    }
+
+    /* Map grid canvas — faint lat/long lines, same as the landing page */
+    #mapGrid {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Shared footer (injected by js/include-footer.js) is transparent by default,
+       which lets the fixed map-grid canvas show through. Give it a solid cream so
+       the grid lines stop at the footer edge and it reads as its own surface,
+       distinct from the page's olive-grey. */
+    #footer-placeholder .site-footer {
+      background: #faf8f4;
+    }
+
+    /* Soft cursor glow, tracks the mouse */
+    .cursor-glow {
+      position: fixed;
+      width: 440px;
+      height: 440px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(26, 107, 107, 0.07) 0%, rgba(26, 107, 107, 0.02) 40%, transparent 68%);
+      pointer-events: none;
+      z-index: 2;
+      transform: translate(-50%, -50%);
+      opacity: 0;
+      transition: opacity 0.8s ease;
+      will-change: left, top;
+    }
+
+    /* ─── Motion primitives (same system as the St. Joe's Hoes case study) ── */
+
+    /* Generic fade-up reveal, for text */
+    [data-reveal] {
+      transition: opacity 0.9s ease var(--d, 0s), transform 1s var(--ease) var(--d, 0s);
+    }
+
+    .js [data-reveal] {
+      opacity: 0;
+      transform: translateY(28px);
+    }
+
+    [data-reveal].is-in {
+      opacity: 1;
+      transform: none;
+    }
+
+    /* Media frame: wraps the portrait, wipes open on reveal. The zoom lives on
+       this wrapper (not the <img>) because the portrait's own parallax script
+       already drives the <img>'s transform via inline style on every scroll
+       frame — a class-based transform on the same element would just lose
+       that fight. */
+    .portrait-frame {
+      transition: clip-path 1.2s var(--ease), transform 1.2s var(--ease);
+    }
+
+    .js .portrait-frame {
+      clip-path: inset(0 0 100% 0);
+      transform: scale(1.06);
+    }
+
+    .portrait-frame.is-in {
+      clip-path: inset(0 0 0 0);
+      transform: scale(1);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+
+      [data-reveal],
+      .portrait-frame {
+        opacity: 1 !important;
+        transform: none !important;
+        clip-path: none !important;
+        transition: none !important;
+      }
+    }
+
+    /* ─── Shared primitives ──────────────────────────────────────────────── */
+
+    .wrap {
+      position: relative;
+      z-index: 2;
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 9vh max(2rem, 6vw);
+    }
+
+    .meta {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: rgba(24, 21, 18, 0.45);
+    }
+
+    .section-label {
+      font-family: 'Caveat', cursive;
+      font-size: clamp(16px, 1.6vw, 20px);
+      color: var(--ink);
+      margin-bottom: 2.4rem;
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+    }
+
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(24, 21, 18, 0.18);
+    }
+
+    .prose p {
+      font-size: 17px;
+      line-height: 1.72;
+      color: rgba(24, 21, 18, 0.78);
+      margin-bottom: 1.1rem;
+      /* Fixed px, not ch — the ecotone note sets a Playfair Display "0" as its
+         ch unit, which measures narrower than Cormorant's, so matching ch values
+         don't actually line up. A shared px value keeps both edges flush. */
+      max-width: 660px;
+    }
+
+    .prose strong {
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    /* Marks the work itself, not the employer name — the clauses a civic-tech
+       or AI-product hiring eye is actually scanning for. Stays in the body
+       serif at a heavier weight and teal, so a full clause reads as emphasis
+       rather than a code snippet. */
+    .prose .hl {
+      font-weight: 600;
+      color: var(--teal);
+    }
+
+    /* ─── Nav bar ──────────────────────────────────────────────────────────────── */
+    .nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 60;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem max(1.6rem, 3.4vw);
+      background: rgba(250, 248, 244, 0.78);
+      -webkit-backdrop-filter: blur(10px) saturate(1.1);
+      backdrop-filter: blur(10px) saturate(1.1);
+      border-bottom: 1.5px solid rgba(40, 36, 33, 0.12);
+      opacity: 0;
+      animation: fadeDown 0.9s 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    @keyframes fadeDown {
+      from {
+        opacity: 0;
+        transform: translateY(-14px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Wordmark — handwritten signature (cursive) */
+    .nav-brand {
+      font-family: 'Caveat', cursive;
+      font-size: clamp(22px, 2.2vw, 28px);
+      font-weight: 400;
+      color: var(--ink);
+      text-decoration: none;
+      line-height: 1;
+      transition: color 0.3s ease;
+    }
+
+    .nav-brand:hover {
+      color: var(--yellow);
+    }
+
+    /* Right-side parent links — DM Mono, uppercase */
+    .nav-menu {
+      display: flex;
+      align-items: center;
+      gap: clamp(1.2rem, 2.4vw, 2.6rem);
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .nav-item {
+      position: relative;
+    }
+
+    .nav-parent {
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ink);
+      text-decoration: none;
+      background: none;
+      border: none;
+      padding: 0.4rem 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      white-space: nowrap;
+      transition: color 0.3s ease;
+    }
+
+    .nav-parent:hover,
+    .nav-item:hover .nav-parent,
+    .nav-item:focus-within .nav-parent {
+      color: var(--yellow);
+    }
+
+    /* little caret on items that have a submenu */
+    .nav-caret {
+      width: 7px;
+      height: 7px;
+      border-right: 1.5px solid currentColor;
+      border-bottom: 1.5px solid currentColor;
+      transform: rotate(45deg) translateY(-1px);
+      transition: transform 0.3s ease;
+    }
+
+    .nav-item:hover .nav-caret,
+    .nav-item:focus-within .nav-caret {
+      transform: rotate(225deg) translateY(-1px);
+    }
+
+    /* Dropdown — children in cursive */
+    .nav-drop {
+      position: absolute;
+      top: calc(100% + 0.7rem);
+      right: 0;
+      min-width: 210px;
+      background: rgba(250, 248, 244, 0.97);
+      border: 1.5px solid rgba(40, 36, 33, 0.42);
+      border-radius: 3px;
+      box-shadow: 4px 4px 0 rgba(40, 36, 33, 0.1);
+      padding: 0.6rem 0;
+      list-style: none;
+      margin: 0;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-6px);
+      transition: opacity 0.28s ease, transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), visibility 0.28s;
+    }
+
+    .nav-item:hover .nav-drop,
+    .nav-item:focus-within .nav-drop {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    /* hover bridge so the cursor can cross the gap without the menu closing */
+    .nav-drop::before {
+      content: '';
+      position: absolute;
+      top: -0.7rem;
+      left: 0;
+      right: 0;
+      height: 0.7rem;
+    }
+
+    .nav-child {
+      position: relative;
+      display: block;
+      font-family: 'Caveat', cursive;
+      font-size: 20px;
+      line-height: 1.2;
+      color: var(--ink);
+      text-decoration: none;
+      padding: 0.4rem 1.3rem;
+      white-space: nowrap;
+      transition: color 0.25s ease, background 0.25s ease;
+    }
+
+    .nav-child:hover {
+      color: var(--yellow);
+      background: rgba(201, 162, 39, 0.1);
+    }
+
+    /* These sub-pages aren't built yet — flag it on hover instead of a dead click */
+    .nav-child::after {
+      content: 'Coming soon';
+      position: absolute;
+      left: 50%;
+      bottom: calc(100% + 0.35rem);
+      transform: translateX(-50%) translateY(4px);
+      font-family: var(--mono);
+      font-size: 9px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      color: var(--paper);
+      background: var(--ink);
+      padding: 4px 8px;
+      border-radius: 3px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      z-index: 5;
+    }
+
+    .nav-child:hover::after,
+    .nav-child:focus-visible::after {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Hamburger — hidden on desktop */
+    .nav-toggle {
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      gap: 5px;
+      width: 30px;
+      height: 30px;
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      z-index: 61;
+    }
+
+    .nav-toggle span {
+      display: block;
+      width: 24px;
+      height: 1.8px;
+      background: var(--ink);
+      border-radius: 2px;
+      transition: transform 0.3s ease, opacity 0.3s ease, background 0.3s ease;
+    }
+
+    .nav-toggle:hover span {
+      background: var(--yellow);
+    }
+
+    .nav.open .nav-toggle span:nth-child(1) {
+      transform: translateY(6.8px) rotate(45deg);
+    }
+
+    .nav.open .nav-toggle span:nth-child(2) {
+      opacity: 0;
+    }
+
+    .nav.open .nav-toggle span:nth-child(3) {
+      transform: translateY(-6.8px) rotate(-45deg);
+    }
+
+    @media (max-width: 760px) {
+      .nav-toggle {
+        display: flex;
+        position: absolute;
+        top: 50%;
+        right: max(1.6rem, 3.4vw);
+        transform: translateY(-50%);
+      }
+
+      .nav-menu {
+        position: fixed;
+        top: 0;
+        right: 0;
+        height: 100vh;
+        width: min(80vw, 320px);
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: flex-start;
+        gap: 0.4rem;
+        padding: 5.5rem 2rem 2rem;
+        background: rgba(250, 248, 244, 0.97);
+        -webkit-backdrop-filter: blur(12px);
+        backdrop-filter: blur(12px);
+        border-left: 1.5px solid rgba(40, 36, 33, 0.14);
+        box-shadow: -8px 0 30px rgba(40, 36, 33, 0.08);
+        transform: translateX(100%);
+        transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+        overflow-y: auto;
+      }
+
+      .nav.open .nav-menu {
+        transform: translateX(0);
+      }
+
+      .nav-item {
+        width: 100%;
+      }
+
+      .nav-parent {
+        width: 100%;
+        justify-content: space-between;
+        padding: 0.7rem 0;
+        font-size: 13px;
+      }
+
+      /* mobile: submenu is an inline accordion, not a floating dropdown */
+      .nav-drop {
+        position: static;
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+        min-width: 0;
+        width: 100%;
+        background: none;
+        border: none;
+        box-shadow: none;
+        padding: 0 0 0.4rem 0.8rem;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.35s ease;
+      }
+
+      .nav-item.open>.nav-drop {
+        max-height: 320px;
+      }
+
+      .nav-drop::before {
+        display: none;
+      }
+
+      .nav-child {
+        padding: 0.3rem 0;
+        font-size: 22px;
+      }
+
+      .nav-item.open .nav-caret {
+        transform: rotate(225deg) translateY(-1px);
+      }
+    }
+
+    /* ─── 1 · Thesis hero ────────────────────────────────────────────────── */
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1fr minmax(180px, 250px);
+      gap: clamp(1.6rem, 5vw, 4rem);
+      align-items: start;
+      min-height: 88vh;
+      padding-top: 17vh;
+    }
+
+    .hero-main {
+      grid-column: 1;
+      grid-row: 1;
+    }
+
+    .hero-side {
+      grid-column: 2;
+      grid-row: 1;
+    }
+
+    .hero-rail {
+      margin-bottom: 1.8rem;
+      padding-left: 0.9rem;
+      border-left: 1.5px solid rgba(26, 107, 107, 0.35);
+    }
+
+    /* ── Title: a stack of crossed-out selves ── */
+
+    .hero-title {
+      display: flex;
+      align-items: baseline;
+      gap: 0.34em;
+      font-family: 'Inter', sans-serif;
+      font-weight: 200;
+      font-size: clamp(24px, 3.2vw, 40px);
+      letter-spacing: 0.03em;
+      line-height: 1.7;
+      margin-bottom: 2.6rem;
+    }
+
+    .roles {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .role {
+      position: relative;
+      width: fit-content;
+      white-space: nowrap;
+    }
+
+    /* struck roles recede; the live one holds full ink */
+    .role.struck {
+      color: rgba(24, 21, 18, 0.42);
+    }
+
+    /* hand-drawn strike — same turbulence trick as the yellow swipe */
+    .role.struck::after {
+      content: '';
+      position: absolute;
+      left: -0.06em;
+      right: -0.06em;
+      top: 52%;
+      height: 0.13em;
+      background: rgba(24, 21, 18, 0.62);
+      -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 20' preserveAspectRatio='none'%3E%3Cfilter id='s'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.02 0.5' numOctaves='2' seed='9' result='n'/%3E%3CfeDisplacementMap in='SourceGraphic' in2='n' scale='7'/%3E%3C/filter%3E%3Crect x='2' y='7' width='296' height='5' rx='2.5' fill='white' filter='url(%23s)'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+      mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 20' preserveAspectRatio='none'%3E%3Cfilter id='s'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.02 0.5' numOctaves='2' seed='9' result='n'/%3E%3CfeDisplacementMap in='SourceGraphic' in2='n' scale='7'/%3E%3C/filter%3E%3Crect x='2' y='7' width='296' height='5' rx='2.5' fill='white' filter='url(%23s)'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+      transform: rotate(-0.7deg);
+      pointer-events: none;
+    }
+
+    .role.struck:nth-of-type(2)::after {
+      transform: rotate(0.5deg);
+    }
+
+    .role.struck:nth-of-type(3)::after {
+      transform: rotate(-1deg);
+    }
+
+    .role.struck:nth-of-type(4)::after {
+      transform: rotate(0.8deg);
+    }
+
+    /* marginal annotation, in her own hand */
+    .aside-note {
+      position: absolute;
+      right: calc(100% + 0.5em);
+      top: 50%;
+      transform: translateY(-50%) rotate(-3deg);
+      font-family: 'Caveat', cursive;
+      font-style: normal;
+      font-weight: 400;
+      /* absolute, not em — stays put while the title shrinks */
+      font-size: clamp(17px, 1.85vw, 26px);
+      letter-spacing: 0.01em;
+      color: rgba(26, 107, 107, 0.85);
+      white-space: nowrap;
+    }
+
+    /* ── Ecotone definition — a glossary entry under the title ── */
+
+    .ecotone {
+      max-width: 660px;
+      margin-bottom: 3.8rem;
+      font-family: 'Inter', sans-serif;
+      font-style: italic;
+      font-weight: 400;
+      font-size: 15.5px;
+      line-height: 1.85;
+      letter-spacing: -0.01em;
+      color: rgba(24, 21, 18, 0.72);
+    }
+
+    .ecotone dfn,
+    .ecotone strong {
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    /* ── Right column ── */
+
+    /* Frame crops a taller image so it can drift inside on scroll */
+    .portrait-frame {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 3 / 4;
+      overflow: hidden;
+      border: 1.5px solid rgba(40, 36, 33, 0.42);
+      background: rgba(250, 248, 244, 0.9);
+    }
+
+    .portrait {
+      position: absolute;
+      top: -16%;
+      left: 0;
+      width: 100%;
+      height: 132%;
+      object-fit: cover;
+      object-position: 28% center;
+      display: block;
+      will-change: transform;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .portrait {
+        top: 0;
+        height: 100%;
+        transform: none !important;
+      }
+    }
+
+    .currently {
+      margin-top: 2.2rem;
+      /* nudged off the portrait's left edge so it reads as centered under it,
+         not flush with the frame */
+      padding-left: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.15rem;
+    }
+
+    .currently dt {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--teal);
+      margin-bottom: 0.3rem;
+    }
+
+    .currently dd ul {
+      list-style: none;
+    }
+
+    .currently dd li {
+      position: relative;
+      font-family: var(--serif);
+      font-size: 16px;
+      line-height: 1.5;
+      color: rgba(24, 21, 18, 0.8);
+      padding-left: 0.9rem;
+    }
+
+    .currently dd li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0.62em;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--teal);
+    }
+
+    .currently dd li+li {
+      margin-top: 0.15rem;
+    }
+
+    /* ─── 5 · Toolkit ────────────────────────────────────────────────────── */
+
+    .kit-row {
+      display: grid;
+      grid-template-columns: minmax(110px, 150px) 1fr;
+      gap: 1.4rem;
+      align-items: baseline;
+      padding: 1.1rem 0;
+      border-top: 1px solid rgba(24, 21, 18, 0.14);
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .tag {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--teal);
+      padding: 0.3em 0.7em;
+      border: 1px solid rgba(26, 107, 107, 0.3);
+    }
+
+    /* ─── Responsive ─────────────────────────────────────────────────────── */
+
+    @media (max-width: 860px) {
+      .hero {
+        grid-template-columns: 1fr;
+        padding-top: 14vh;
+      }
+
+      .hero-main {
+        grid-column: 1;
+        grid-row: 1;
+      }
+
+      .hero-side {
+        grid-column: 1;
+        grid-row: 2;
+        max-width: 340px;
+      }
+
+      .hero-title {
+        flex-direction: column;
+        gap: 0.1em;
+      }
+
+      /* the marginal note has no margin to sit in — bring it inline above */
+      .aside-note {
+        position: static;
+        display: block;
+        transform: rotate(-2deg);
+        margin-bottom: -0.15em;
+      }
+
+      .kit-row {
+        grid-template-columns: 1fr;
+        gap: 0.7rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <nav class="nav" id="nav">
+    <a class="nav-brand" href="index.html">Khushali Haji</a>
+    <button class="nav-toggle" id="navToggle" aria-label="Menu" aria-expanded="false" aria-controls="navMenu">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-menu" id="navMenu">
+      <li class="nav-item">
+        <a class="nav-parent" href="about.html">About</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-parent" href="#">Product &amp; Design <i class="nav-caret"></i></a>
+        <ul class="nav-drop">
+          <li><a class="nav-child" href="#">Civic Tech &amp; UX</a></li>
+          <li><a class="nav-child" href="#">Content &amp; Graphic Design</a></li>
+          <li><a class="nav-child" href="#">Urban Design</a></li>
+        </ul>
+      </li>
+      <li class="nav-item">
+        <a class="nav-parent" href="#">Research &amp; Stories <i class="nav-caret"></i></a>
+        <ul class="nav-drop">
+          <li><a class="nav-child" href="#">Journalism &amp; Reporting</a></li>
+          <li><a class="nav-child" href="#">Film &amp; Video</a></li>
+          <li><a class="nav-child" href="#">Essays</a></li>
+        </ul>
+      </li>
+      <li class="nav-item">
+        <a class="nav-parent" href="#contact">Contact</a>
+      </li>
+    </ul>
+  </nav>
+
+  <canvas id="mapGrid"></canvas>
+  <div class="cursor-glow" id="cursorGlow"></div>
+
+  <!-- 1 · THESIS -->
+  <header class="wrap hero">
+    <div class="hero-main">
+      <div class="hero-rail" data-reveal>
+        <span class="meta">New York · 40.71° N, 74.01° W</span>
+      </div>
+
+      <h1 class="hero-title" data-reveal style="--d:.06s">
+        <span class="greet">Hi, I'm an</span>
+        <span class="roles">
+          <span class="role struck">Urban Designer</span>
+          <span class="role struck">Researcher</span>
+          <span class="role struck">Journalist</span>
+          <span class="role struck">Filmmaker</span>
+          <span class="role"><em class="aside-note">(AI native)</em>UX Designer</span>
+        </span>
+      </h1>
+
+      <p class="ecotone" data-reveal style="--d:.12s"><dfn>Ecotone Edge Effect:</dfn> the ecological rule where
+        <strong>the boundary zone between two habitats</strong>, like land and water, supports a <strong>much higher
+          diversity</strong> and <strong>density</strong> of life because it combines the resources, shelter, and
+        species of both environments, <strong>proving</strong> that the most <strong>resilient</strong> and
+        <strong>innovative</strong> outcomes happen <strong>at the intersection of different worlds</strong>.</p>
+
+      <div class="prose">
+        <p data-reveal style="--d:.16s">Perhaps like most people, stories and grandparents shaped how I first made
+          sense of the world. What came after has been a fairly <span class="hl">non-linear</span> trajectory.</p>
+
+        <p data-reveal>Reading fiction was my first love. Studying urban design at CEPT University changed how I read
+          the stories around me. I started seeing how economics governed the social fabric of our lives, and how
+          identity, power, and politics were intertwined. I also saw the <span class="hl">gap between what gets
+            designed</span> on paper and <span class="hl">what actually gets built</span> once corruption, politics,
+          and competing interests enter the picture.</p>
+
+        <p data-reveal>That led me to a fellowship at the <span class="hl">World Resources Institute</span>, where I
+          researched <span class="hl">water and sanitation access</span> for women in low-income Muslim neighborhoods in
+          Ahmedabad. I also co-produced an interactive website so the research could reach people beyond a report.
+          After that, I worked as an editorial assistant at City Observer, <span class="hl">copy-editing and
+            fact-checking</span>, then as a coordinator and scriptwriter with a theater collective.
+          <span class="hl">The research and writing problem stayed the same</span>, but the medium and audience
+          changed. I wanted to work on a bigger platform.</p>
+
+        <p data-reveal>I came to <span class="hl">New York City</span> to study <span class="hl">journalism</span> at
+          the Newmark Graduate School at CUNY, specializing in <span class="hl">international reporting and documentary
+            filmmaking</span>. I covered immigrant communities across New York, including Bangladeshi, Tibetan, Nepali,
+          Afghan, and Indian diasporas. I reported on <span class="hl">asylum policy, caste, domestic violence, and
+            cultural displacement</span>. The work was end to end: finding and interviewing sources,
+          reporting, managing production timelines, filming, editing video and audio, and coordinating across teams. My
+          reporting has appeared in Documented, Brooklyn Paper, and Central Desi. My short documentary about immigrant
+          women artists received a <span class="hl">Special Jury Mention at the 2025 Woodstock Film Festival</span>. I
+          freelanced as a journalist and video editor, cutting sizzles and social content for independent filmmakers
+          and news outlets.</p>
+
+        <p data-reveal>I also reported from <span class="hl">Liberia</span> with New Narratives, where I
+          <span class="hl">investigated</span> South Asian and Lebanese <span class="hl">business influence</span>,
+          using my identity to build trust with sources who were otherwise difficult to reach. I co-reported two
+          <span class="hl">first-reported investigations</span> into <span class="hl">carbon credit markets</span> and
+          <span class="hl">missing public funds</span>, often working on tight deadlines and in politically sensitive
+          conditions.</p>
+
+        <p data-reveal>The urge to do more than create, to also solve, grew. I went back to my design roots. As
+          <span class="hl">Research and Engagement Lead</span> with Urbanizer in Varanasi, I conducted
+          <span class="hl">40+ interviews with government officials and residents</span> for an infrastructure
+          initiative <span class="hl">serving 140 million annual visitors</span>. I managed a small intern team and
+          co-authored the <span class="hl">public report and video</span> that helped support a successful second round
+          of funding.</p>
+
+        <p data-reveal>At On a Map, I moved further into <span class="hl">information</span> and
+          <span class="hl">product design</span>. I designed the <span class="hl">information architecture</span> for a
+          live, <span class="hl">public-facing conflict-monitoring platform</span>, structured 50+ conflict datasets,
+          and <span class="hl">built editorial and visual systems</span> that turned raw <span class="hl">geospatial
+            data</span> into something a general reader could actually follow.</p>
+
+        <p data-reveal>At Seat at the Table, I worked across <span class="hl">brand, content, and product</span>. I
+          built the documentary's <span class="hl">visual identity and designed content</span> across
+          <span class="hl">web, social, and print</span>, creating a path from discovery to registration across 15
+          screenings.</p>
+
+        <p data-reveal>Now, as an <span class="hl">AI Native Fellow</span> at Pursuit, I <span class="hl">research,
+            wireframe, prototype, and ship</span>. I built Conflict Lens, an <span class="hl">AI verification
+            tool</span> that maps conflict actors and cross-references sources in a researcher dashboard. I also
+          designed <span class="hl">interactive maps and visualizations</span> from 50,000+ survey responses spanning
+          15 years, turning hardship data into a financial literacy product for underserved households.</p>
+
+        <p data-reveal>While AI has made building cheaper, <strong>it has not made judgment cheaper</strong>. Someone
+          still has to decide which question is worth asking, whose problem is being solved, what information matters,
+          and how to describe a messy human situation precisely enough that a model produces something useful instead
+          of something merely plausible.</p>
+
+        <p data-reveal>That is the work I have been doing for years. My background lets me move between
+          <span class="hl">research, data, storytelling, and product design</span>. I can sit with people and
+          understand what is being said and what is left unsaid, then turn that understanding into something a team can
+          build. That is the kind of work I want to keep doing, especially where <span class="hl">technology meets
+            public life</span>.</p>
+      </div>
+    </div>
+
+    <aside class="hero-side">
+      <div class="portrait-frame" data-frame>
+        <img class="portrait" id="portrait" src="images/KH_About.jpg" alt="Khushali Haji">
+      </div>
+
+      <dl class="currently" data-reveal style="--d:.2s">
+        <div>
+          <dt>Currently listening</dt>
+          <dd>
+            <ul>
+              <li>Future of UX podcast</li>
+              <li>Old Bollywood remixes</li>
+            </ul>
+          </dd>
+        </div>
+        <div>
+          <dt>Currently reading</dt>
+          <dd>
+            <ul>
+              <li>The Dandelion Dynasty</li>
+              <li>Faiz Ahmad Faiz</li>
+            </ul>
+          </dd>
+        </div>
+        <div>
+          <dt>Currently learning</dt>
+          <dd>
+            <ul>
+              <li>Google Stitch</li>
+              <li>Spanish</li>
+              <li>Egyptian belly-dancing</li>
+            </ul>
+          </dd>
+        </div>
+      </dl>
+    </aside>
+  </header>
+
+  <!-- 5 · TOOLKIT -->
+  <section class="wrap">
+    <p class="section-label" data-reveal>Toolkit</p>
+    <div class="kit-row" data-reveal>
+      <span class="meta">UX Research &amp; Design</span>
+      <div class="chips">
+        <span class="tag">Figma</span><span class="tag">Design systems</span><span class="tag">Prototyping</span><span
+          class="tag">Wireframing</span><span class="tag">Information architecture</span><span class="tag">User
+          flows</span><span class="tag">Journey mapping</span><span class="tag">User research</span><span
+          class="tag">User interviews</span><span class="tag">Stakeholder research</span><span
+          class="tag">Qualitative research</span><span class="tag">Usability testing</span><span
+          class="tag">Competitive analysis</span><span class="tag">Insight synthesis</span><span
+          class="tag">Accessibility / WCAG</span>
+      </div>
+    </div>
+
+    <div class="kit-row" data-reveal style="--d:.05s">
+      <span class="meta">AI &amp; Product</span>
+      <div class="chips">
+        <span class="tag">Claude Design</span><span class="tag">Google Antigravity</span><span class="tag">Google
+          Stitch</span><span class="tag">Cursor</span><span class="tag">Agentic workflows</span><span
+          class="tag">Prompt engineering</span><span class="tag">AI evals</span><span class="tag">AI
+          prototyping</span><span class="tag">GitHub</span><span class="tag">VS Code</span><span class="tag">HTML /
+          CSS</span><span class="tag">Airtable</span><span class="tag">Mapbox</span>
+      </div>
+    </div>
+
+    <div class="kit-row" data-reveal style="--d:.1s">
+      <span class="meta">Visual &amp; Content</span>
+      <div class="chips">
+        <span class="tag">Adobe Creative Suite</span><span class="tag">Brand identity</span><span class="tag">Editorial
+          layout systems</span><span class="tag">UX writing</span><span class="tag">Content design</span><span
+          class="tag">Data visualization</span><span class="tag">Video editing</span>
+      </div>
+    </div>
+
+    <div class="kit-row" data-reveal>
+      <span class="meta">Languages</span>
+      <div class="chips">
+        <span class="tag">English (fluent)</span><span class="tag">Hindi (fluent)</span><span class="tag">Gujarati
+          (fluent)</span><span class="tag">Spanish (beginner)</span>
+      </div>
+    </div>
+
+    <div class="kit-row" data-reveal style="--d:.05s">
+      <span class="meta">Recognition</span>
+      <div class="chips">
+        <span class="tag">NYSCA Grant 2025</span><span class="tag">Woodstock Special Jury Mention 2025</span><span
+          class="tag">Dennis Duggan Journalism Award 2024</span><span class="tag">Walter Lister International Travel
+          Award 2024</span><span class="tag">CEPT Valedictorian 2021</span>
+      </div>
+    </div>
+
+    <div class="kit-row" data-reveal style="--d:.1s">
+      <span class="meta">Education</span>
+      <div class="chips">
+        <span class="tag">MA Journalism, CUNY Newmark</span><span class="tag">B.Des Urban Design, CEPT</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER (shared component, matches Conflict Lens case study) -->
+  <div id="contact" style="scroll-margin-top: 80px;"></div>
+  <div id="footer-placeholder"></div>
+  <script src="js/include-footer.js"></script>
+
+  <script>
+    // ─── Map grid — faint lat/long lines, same drawing as the landing page ────────
+    (function initMapGrid() {
+      const mc = document.getElementById('mapGrid');
+      if (!mc) return;
+      const mx = mc.getContext('2d');
+
+      function draw() {
+        const dpr = window.devicePixelRatio || 1;
+        const w = window.innerWidth, h = window.innerHeight;
+        mc.width = Math.round(w * dpr);
+        mc.height = Math.round(h * dpr);
+        mc.style.width = w + 'px';
+        mc.style.height = h + 'px';
+        mx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+        const hStep = 66;
+        const vStep = 86;
+        const bow = 7;
+
+        const minorLine = 'rgba(26,107,107,0.28)';
+        const majorLine = 'rgba(26,107,107,0.16)';
+        const dotColor = 'rgba(26,107,107,0.38)';
+
+        mx.clearRect(0, 0, w, h);
+
+        let rowIdx = 0;
+        for (let y = 0; y <= h + hStep; y += hStep, rowIdx++) {
+          const major = rowIdx % 5 === 0;
+          mx.setLineDash(major ? [] : [3, 6]);
+          mx.beginPath();
+          mx.moveTo(0, y);
+          mx.quadraticCurveTo(w * 0.5, y + bow, w, y);
+          mx.strokeStyle = major ? majorLine : minorLine;
+          mx.lineWidth = major ? 0.75 : 0.45;
+          mx.stroke();
+        }
+
+        let colIdx = 0;
+        for (let x = 0; x <= w + vStep; x += vStep, colIdx++) {
+          const major = colIdx % 5 === 0;
+          mx.setLineDash(major ? [] : [3, 6]);
+          mx.beginPath();
+          mx.moveTo(x, 0);
+          mx.lineTo(x, h);
+          mx.strokeStyle = major ? majorLine : minorLine;
+          mx.lineWidth = major ? 0.75 : 0.45;
+          mx.stroke();
+        }
+
+        mx.setLineDash([]);
+
+        for (let y = 0; y <= h + hStep * 5; y += hStep * 5) {
+          for (let x = 0; x <= w + vStep * 5; x += vStep * 5) {
+            mx.beginPath();
+            mx.arc(x, y, 1.8, 0, Math.PI * 2);
+            mx.fillStyle = dotColor;
+            mx.fill();
+          }
+        }
+      }
+
+      draw();
+      window.addEventListener('resize', draw);
+    })();
+
+    // ─── Cursor glow — follows the mouse, same as the landing page ────────────────
+    (function initCursorGlow() {
+      const glow = document.getElementById('cursorGlow');
+      if (!glow || window.matchMedia('(pointer: coarse)').matches) return;
+
+      document.addEventListener('mousemove', e => {
+        glow.style.left = e.clientX + 'px';
+        glow.style.top = e.clientY + 'px';
+        glow.style.opacity = '1';
+      });
+    })();
+
+    /* Portrait parallax — the image is 132% of its frame, so it can drift
+       vertically inside the crop as the frame travels through the viewport.
+       Range is kept under the 16% of headroom on each side so it never
+       exposes an edge. */
+    (function portraitParallax() {
+      var img = document.getElementById('portrait');
+      if (!img || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+      var frame = img.parentElement;
+      var ticking = false;
+
+      function update() {
+        var r = frame.getBoundingClientRect();
+        var vh = window.innerHeight || document.documentElement.clientHeight;
+        // -1 when the frame sits a viewport below centre, +1 when a viewport above
+        var p = (r.top + r.height / 2 - vh / 2) / vh;
+        p = Math.max(-1, Math.min(1, p));
+        img.style.transform = 'translateY(' + (-p * 13).toFixed(2) + '%)';
+        ticking = false;
+      }
+
+      function onScroll() {
+        if (!ticking) {
+          ticking = true;
+          requestAnimationFrame(update);
+        }
+      }
+
+      window.addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('resize', onScroll);
+      update();
+    })();
+
+    // ─── Nav: hamburger + mobile submenu accordion ────────────────────────────────
+    (function initNav() {
+      const nav = document.getElementById('nav');
+      const toggle = document.getElementById('navToggle');
+      const menu = document.getElementById('navMenu');
+      if (!nav || !toggle || !menu) return;
+
+      const mobile = () => window.matchMedia('(max-width: 760px)').matches;
+
+      function closeMenu() {
+        nav.classList.remove('open');
+        toggle.setAttribute('aria-expanded', 'false');
+        nav.querySelectorAll('.nav-item.open').forEach(i => i.classList.remove('open'));
+      }
+
+      toggle.addEventListener('click', () => {
+        const open = nav.classList.toggle('open');
+        toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+        if (!open) nav.querySelectorAll('.nav-item.open').forEach(i => i.classList.remove('open'));
+      });
+
+      // On mobile, a parent that owns a submenu toggles its accordion instead of navigating.
+      nav.querySelectorAll('.nav-item').forEach(item => {
+        const parent = item.querySelector('.nav-parent');
+        const drop = item.querySelector('.nav-drop');
+        if (!parent) return;
+        parent.addEventListener('click', e => {
+          if (mobile() && drop) {
+            e.preventDefault();
+            const wasOpen = item.classList.contains('open');
+            nav.querySelectorAll('.nav-item.open').forEach(i => i.classList.remove('open'));
+            if (!wasOpen) item.classList.add('open');
+          } else {
+            closeMenu();
+          }
+        });
+      });
+
+      nav.querySelectorAll('.nav-child').forEach(c => c.addEventListener('click', closeMenu));
+
+      document.addEventListener('click', e => {
+        if (nav.classList.contains('open') && !nav.contains(e.target)) closeMenu();
+      });
+
+      window.addEventListener('resize', () => { if (!mobile()) closeMenu(); });
+    })();
+
+    // ─── Reveal on scroll — fade-up text, clip-path wipe on the portrait ──────────
+    // Same motion system as the St. Joe's Hoes case study: elements start
+    // hidden only once .js confirms script is alive, then cross a scroll
+    // threshold and pick up .is-in, which the CSS transitions into view.
+    (function initReveal() {
+      var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var pending = Array.prototype.slice.call(document.querySelectorAll('[data-reveal], [data-frame]'));
+
+      if (reduced || !pending.length) {
+        pending.forEach(function (el) { el.classList.add('is-in'); });
+        return;
+      }
+
+      function paint() {
+        if (!pending.length) return;
+        var vh = window.innerHeight;
+        pending = pending.filter(function (el) {
+          var r = el.getBoundingClientRect();
+          if (r.top < vh * 0.88 && r.bottom > 0) {
+            el.classList.add('is-in');
+            return false;
+          }
+          return true;
+        });
+      }
+
+      var ticking = false;
+      function onScroll() {
+        if (!ticking) {
+          ticking = true;
+          requestAnimationFrame(function () { paint(); ticking = false; });
+        }
+      }
+
+      paint();
+      window.addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('resize', onScroll);
+    })();
+  </script>
+
+</body>
+
+</html>
