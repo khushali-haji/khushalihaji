@@ -430,6 +430,17 @@
       background: rgba(201, 162, 39, 0.1);
     }
 
+    /* Not-yet-built sub-pages read as inactive instead of just a dead click */
+    .nav-child:not(.nav-live) {
+      color: rgba(24, 21, 18, 0.35);
+      cursor: default;
+    }
+
+    .nav-child:not(.nav-live):hover {
+      color: rgba(24, 21, 18, 0.35);
+      background: none;
+    }
+
     /* These sub-pages aren't built yet — flag it on hover instead of a dead click */
     .nav-child::after {
       content: 'Coming soon';
@@ -457,6 +468,11 @@
     .nav-child:focus-visible::after {
       opacity: 1;
       transform: translateX(-50%) translateY(0);
+    }
+
+    /* Live sub-pages don't need the "coming soon" flag */
+    .nav-child.nav-live::after {
+      content: none;
     }
 
     /* Hamburger — hidden on desktop */
@@ -587,7 +603,7 @@
       flex-direction: column;
       justify-content: center;
       align-items: flex-start;
-      padding: 14vh max(2rem, 4vw) 14vh max(8rem, 16vw);
+      padding: 29vh max(2rem, 4vw) 14vh max(8rem, 16vw);
     }
 
     /* Name — typewriter fills this in */
@@ -814,7 +830,7 @@
       font-weight: 500;
       font-style: normal;
       line-height: 1.82;
-      color: rgba(24, 21, 18, 0.82);
+      color: rgba(24, 21, 18, 0.92);
       margin-bottom: 1.25em;
       letter-spacing: 0.005em;
     }
@@ -1006,7 +1022,7 @@
       font-weight: 500;
       font-size: 15px;
       line-height: 1.6;
-      color: rgba(24, 21, 18, 0.7);
+      color: rgba(24, 21, 18, 0.85);
       margin-bottom: 1.4rem;
       flex: 1;
     }
@@ -1272,7 +1288,7 @@
       font-weight: 500;
       font-size: 15.5px;
       line-height: 1.7;
-      color: rgba(24, 21, 18, 0.78);
+      color: rgba(24, 21, 18, 0.9);
       margin-bottom: 1.9rem;
     }
 
@@ -1367,7 +1383,7 @@
       <li class="nav-item">
         <a class="nav-parent" href="#">Research &amp; Stories <i class="nav-caret"></i></a>
         <ul class="nav-drop">
-          <li><a class="nav-child" href="#">Journalism &amp; Reporting</a></li>
+          <li><a class="nav-child nav-live" href="reporting.html">Journalism &amp; Reporting</a></li>
           <li><a class="nav-child" href="#">Film &amp; Video</a></li>
           <li><a class="nav-child" href="#">Essays</a></li>
         </ul>
