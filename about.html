@@ -515,7 +515,7 @@
     .hero {
       display: grid;
       grid-template-columns: 1fr minmax(180px, 250px);
-      gap: clamp(1.6rem, 5vw, 4rem);
+      gap: clamp(2.4rem, 8vw, 6rem);
       align-items: start;
       min-height: 88vh;
       padding-top: 17vh;
@@ -614,20 +614,50 @@
 
     .ecotone {
       max-width: 660px;
-      margin-bottom: 3.8rem;
+      margin: 1.6rem 0 3.8rem;
+      padding: 1.9rem 2.1rem;
       font-family: 'Inter', sans-serif;
       font-style: italic;
-      font-weight: 400;
+      font-weight: 500;
       font-size: 15.5px;
       line-height: 1.85;
       letter-spacing: -0.01em;
-      color: rgba(24, 21, 18, 0.72);
+      color: rgba(24, 21, 18, 0.85);
+      background: rgba(250, 248, 244, 0.85);
+      border: 1px solid var(--ink);
+      box-shadow: 10px 10px 0 var(--yellow);
+      /* Own entrance, distinct from the plain prose fade: the card pops up
+         into place and the yellow shadow grows out from behind it, like it's
+         being set down on the page. */
+      transition:
+        opacity 0.8s ease var(--d, 0s),
+        transform 0.9s cubic-bezier(0.22, 1, 0.36, 1) var(--d, 0s),
+        box-shadow 0.9s cubic-bezier(0.22, 1, 0.36, 1) var(--d, 0s);
+    }
+
+    .js .ecotone {
+      opacity: 0;
+      transform: translateY(26px) scale(0.96);
+      box-shadow: 0 0 0 var(--yellow);
+    }
+
+    .ecotone.is-in {
+      opacity: 1;
+      transform: none;
+      box-shadow: 10px 10px 0 var(--yellow);
     }
 
     .ecotone dfn,
     .ecotone strong {
       font-weight: 700;
       color: var(--ink);
+    }
+
+    .ecotone-underline {
+      text-decoration: underline;
+      text-decoration-color: rgba(24, 21, 18, 0.55);
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
     }
 
     /* ── Right column ── */
@@ -831,21 +861,23 @@
       </h1>
 
       <p class="ecotone" data-reveal style="--d:.12s"><dfn>Ecotone Edge Effect:</dfn> the ecological rule where
-        <strong>the boundary zone between two habitats</strong>, like land and water, supports a <strong>much higher
-          diversity and density</strong> of life because it combines the resources, shelter, and species of both
-        environments, proving that the <strong>most resilient and innovative outcomes happen at the intersection of
-          different worlds</strong>.
+        the boundary zone between two habitats, like land and water, supports a much higher
+        diversity and density of life because it combines the resources, shelter, and species of both
+        environments, proving that the <span class="ecotone-underline">most resilient and innovative outcomes happen at
+          the intersection of
+          different worlds</span>.
       </p>
 
       <div class="prose">
-        <p data-reveal style="--d:.16s">Perhaps like most people, stories and grandparents shaped how I first made
-          sense of the world. What came after has been a fairly <span class="hl">non-linear</span> trajectory.</p>
+        <p data-reveal style="--d:.16s">Perhaps like most, stories and grandparents shaped how I first made sense of the
+          world. What
+          came after has been a fairly non-linear trajectory.</p>
 
-        <p data-reveal>Reading fiction was my first love. Studying urban design at CEPT University changed how I read
-          the stories around me. I started seeing how economics governed the social fabric of our lives, and how
-          identity, power, and politics were intertwined. I also saw the <span class="hl">gap between what gets
-            designed</span> on paper and <span class="hl">what actually gets built</span> once corruption, politics,
-          and competing interests enter the picture.</p>
+        <p data-reveal>I loved reading fiction. Studying urban design at CEPT University changed how I read the
+          stories around me. I saw how economics governed the social fabric of our lives, and how identity, power,
+          and politics were intertwined, including the <span class="hl">gap between what gets designed</span> on
+          paper and <span class="hl">what actually gets built</span> once corruption, politics, and competing
+          interests enter the picture.</p>
 
         <p data-reveal>That led me to a fellowship at the <span class="hl">World Resources Institute</span>, where I
           researched <span class="hl">water and sanitation access</span> for women in low-income Muslim neighborhoods in
@@ -856,14 +888,15 @@
           changed. I wanted to work on a bigger platform.
         </p>
 
-        <p data-reveal>I came to <span class="hl">New York City</span> to study <span class="hl">journalism</span> at
+        <p data-reveal>I came to <span class="hl">New York City</span> to study journalism at
           the Newmark Graduate School at CUNY, specializing in <span class="hl">international reporting and documentary
             filmmaking</span>. I covered immigrant communities across New York, including Bangladeshi, Tibetan, Nepali,
           Afghan, and Indian diasporas. I reported on <span class="hl">asylum policy, caste, domestic violence, and
             cultural displacement</span>. The work was end to end: finding and interviewing sources,
           reporting, managing production timelines, filming, editing video and audio, and coordinating across teams. My
           reporting has appeared in Documented, Brooklyn Paper, and Central Desi. My short documentary about immigrant
-          women artists received a <span class="hl">Special Jury Mention at the 2025 Woodstock Film Festival</span>. I
+          women artists received a <span class="hl">Special Jury Mention at the 2025 Woodstock Film Festival</span>.
+          Later, I
           freelanced as a journalist and video editor, cutting sizzles and social content for independent filmmakers
           and news outlets.</p>
 
@@ -927,7 +960,7 @@
           <dd>
             <ul>
               <li>Future of UX podcast</li>
-              <li>Old Bollywood remixes</li>
+              <li>The Cognitive Revolution podcast</li>
             </ul>
           </dd>
         </div>
