@@ -32,6 +32,21 @@
       cursor: none;
     }
 
+    /* Touch devices have no hover/cursor to hide — show the real pointer
+       (matters for hybrid devices like touchscreen laptops). */
+    @media (pointer: coarse) {
+
+      html,
+      a,
+      button,
+      .word-trigger,
+      [data-clickable],
+      a *,
+      button * {
+        cursor: auto;
+      }
+    }
+
     :root {
       --ink: #181512;
       --paper: #eff3f1;
@@ -959,6 +974,45 @@
       gap: 0.9rem;
     }
 
+    /* Hero — mobile: the desktop grid (fixed-width gif column + huge left
+       padding) leaves almost no room for the text column on a phone, so it
+       clips. Stack gif → name/words → body in one column instead. */
+    @media (max-width: 760px) {
+      .hero {
+        padding: 16vh 1.5rem 8vh;
+      }
+
+      .hero-content {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto auto;
+        row-gap: 1.6rem;
+        width: 100%;
+      }
+
+      .hero-gif {
+        --gif-size: 112px;
+        grid-column: 1;
+        grid-row: 1;
+        justify-self: center;
+      }
+
+      .hero-words-col {
+        grid-column: 1;
+        grid-row: 2;
+      }
+
+      .hero-body {
+        grid-column: 1;
+        grid-row: 3;
+        max-width: 100%;
+        margin-left: 0;
+      }
+
+      .hero-name {
+        margin-left: 0;
+      }
+    }
+
     .featured {
       position: relative;
       z-index: 2;
@@ -1221,9 +1275,9 @@
       align-items: center;
       justify-content: center;
       padding: 1.5rem;
-      background: rgba(24, 21, 18, 0.42);
-      -webkit-backdrop-filter: blur(6px) saturate(1.1);
-      backdrop-filter: blur(6px) saturate(1.1);
+      background: rgba(24, 21, 18, 0.2);
+      -webkit-backdrop-filter: blur(4px) saturate(1.1);
+      backdrop-filter: blur(4px) saturate(1.1);
       opacity: 0;
       transition: opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1);
     }
@@ -1252,9 +1306,9 @@
       max-width: 420px;
       width: 100%;
       background: rgba(250, 248, 244, 0.98);
-      border: 1.5px solid rgba(40, 36, 33, 0.42);
+      border: 1px solid rgba(40, 36, 33, 0.28);
       border-radius: 3px;
-      box-shadow: 7px 7px 0 rgba(40, 36, 33, 0.14);
+      box-shadow: 5px 5px 0 rgba(40, 36, 33, 0.08);
       padding: 2.4rem 2.2rem 2rem;
       text-align: center;
       transform: translateY(14px) scale(0.98);
@@ -1266,11 +1320,12 @@
     }
 
     .construction-icon {
-      width: 54px;
-      height: 54px;
+      width: 46px;
+      height: 46px;
       display: inline-block;
       margin-bottom: 0.6rem;
-      color: var(--ink);
+      color: var(--teal);
+      opacity: 0.75;
       animation: breathe 3s ease-in-out infinite;
     }
 
@@ -1356,10 +1411,9 @@
         </g>
       </svg>
       <h2 class="construction-title" id="constructionTitle">Pardon the dust!</h2>
-      <p class="construction-body">This site is still very much <strong>under construction</strong>. A few
-        corners are unpainted and some links lead nowhere (yet). Please excuse the mess while I keep tinkering.
-        <br>Best viewed on <strong>desktop</strong> for now.</p>
-      <button class="construction-btn" id="constructionCancel" data-clickable>Cancel &amp; peek anyway</button>
+      <p class="construction-body">Just a few finishing touches left. Some links aren’t live yet.
+        Thanks for your patience as I finish tinkering.</p>
+      <button class="construction-btn" id="constructionCancel" data-clickable>Proceed</button>
     </div>
   </div>
 
@@ -1726,7 +1780,6 @@
     let anchorScrollY = 0; // page scroll captured when a word is hovered
 
     const DURATION = 820;
-    const MAX_WORDS_PER_LINE = 5;
     const LINE_GAP = 1.4;
     const LINE_COL = 'rgba(34,28,20,0.5)'; // sleek dark connector lines
 
@@ -1746,34 +1799,38 @@
     window.addEventListener('resize', () => { resize(); if (activeKey) buildRays(activeKey); });
 
     // ─── Custom cursor (ring lags, dot is instant) ────────────────────────────────
+    // Touch has no cursor to track, so skip this whole system there.
+    const isCoarsePointer = window.matchMedia('(pointer: coarse)').matches;
 
     let mouseX = window.innerWidth / 2, mouseY = window.innerHeight / 2;
     let cursorStarted = false;
 
-    document.addEventListener('mousemove', e => {
-      mouseX = e.clientX;
-      mouseY = e.clientY;
+    if (!isCoarsePointer) {
+      document.addEventListener('mousemove', e => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
 
-      // Doodle arrow snaps to the cursor (offset so the svg tip sits on the pointer)
-      cursorArrow.style.left = (e.clientX - 2) + 'px';
-      cursorArrow.style.top = (e.clientY - 2) + 'px';
+        // Doodle arrow snaps to the cursor (offset so the svg tip sits on the pointer)
+        cursorArrow.style.left = (e.clientX - 2) + 'px';
+        cursorArrow.style.top = (e.clientY - 2) + 'px';
 
-      // Glow follows
-      cursorGlow.style.left = e.clientX + 'px';
-      cursorGlow.style.top = e.clientY + 'px';
-      cursorGlow.style.opacity = '1';
+        // Glow follows
+        cursorGlow.style.left = e.clientX + 'px';
+        cursorGlow.style.top = e.clientY + 'px';
+        cursorGlow.style.opacity = '1';
 
-      if (!cursorStarted) {
-        cursorArrow.classList.add('visible');
-        cursorStarted = true;
-      }
-    });
+        if (!cursorStarted) {
+          cursorArrow.classList.add('visible');
+          cursorStarted = true;
+        }
+      });
 
-    // Radiating lines burst out whenever the pointer is over something interactive
-    document.addEventListener('mouseover', e => {
-      const hot = e.target.closest('a, button, .word-trigger, [data-clickable]');
-      cursorArrow.classList.toggle('hot', !!hot);
-    });
+      // Radiating lines burst out whenever the pointer is over something interactive
+      document.addEventListener('mouseover', e => {
+        const hot = e.target.closest('a, button, .word-trigger, [data-clickable]');
+        cursorArrow.classList.toggle('hot', !!hot);
+      });
+    }
 
     // ─── Typewriter for greeting ──────────────────────────────────────────────────
 
@@ -1862,27 +1919,6 @@
       if (sin > 0.001) t = Math.min(t, hh / sin);
       if (sin < -0.001) t = Math.min(t, -hh / sin);
       return { x: cx + cos * (t + buffer), y: cy + sin * (t + buffer) };
-    }
-
-    function wrapText(text, maxLines = Infinity) {
-      const words = text.split(' ');
-      // Decide a line count, then distribute words evenly so lines are similar
-      // lengths and the last line is never a lonely 2–3 words.
-      let lines = Math.ceil(words.length / MAX_WORDS_PER_LINE);
-      if (maxLines !== Infinity) lines = Math.min(lines, maxLines);
-      lines = Math.max(1, lines);
-
-      const base = Math.floor(words.length / lines);
-      let rem = words.length % lines;
-      const out = [];
-      let idx = 0;
-      for (let i = 0; i < lines; i++) {
-        const take = base + (rem > 0 ? 1 : 0);
-        if (rem > 0) rem--;
-        out.push(words.slice(idx, idx + take).join(' '));
-        idx += take;
-      }
-      return out;
     }
 
     function setFont(fDef) {
@@ -2019,19 +2055,28 @@
       const hh = Math.max(1, Math.min(r.height * 0.5 - padY, fontSize * hhFactor));
       layout = { cx, cy, hw, hh };
 
-      const texts = RAYS[key];
+      // A narrow (mobile) screen only has room for one lopsided column, so the
+      // full 9-18 phrases per word stack far taller than the viewport. Show
+      // only the shortest handful there instead of shrinking everything.
+      // Storyteller's entries are full sentences even at their shortest, so it
+      // gets a tighter cap than the single-word/short-phrase categories.
+      const mobileCap = key === 'storytelling' ? 4 : 6;
+      const texts = isCoarsePointer
+        ? [...RAYS[key]].sort((a, b) => a.length - b.length).slice(0, mobileCap)
+        : RAYS[key];
       const fonts = FONTS[key];
       const N = texts.length;
       const baseR = Math.min(viewW, viewH) * 0.34;
-      const maxLines = key === 'design' ? 2 : Infinity;
 
       // Pixel room for a label on each side of the word (word edge → page margin).
       const rPad = key === 'storytelling' ? 64 : 16;
       const roomR = viewW - (cx + hw) - TEXT_GAP - rPad;
       const roomL = (cx - hw) - TEXT_GAP - 16;
-      // Wrap width: cap the left so lines never get over-long; right uses its room.
-      const budgetR = Math.max(150, roomR);
-      const budgetL = Math.max(150, Math.min(480, roomL));
+      // Wrap width: never exceed the room actually available on that side — on a
+      // narrow (mobile) viewport this can be much less than the old flat 150px
+      // floor allowed, which is what let labels run off the edge of the screen.
+      const budgetR = Math.max(90, Math.min(roomR, 320));
+      const budgetL = Math.max(90, Math.min(roomL, 480));
 
       const items = texts.map((text, i) => {
         // Per-category styling
@@ -2048,25 +2093,32 @@
 
         // Storyteller uses the same clean two-sided layout as designer, but biased
         // toward the left (which has more room): only clearly-right items go right.
+        // On mobile, skip that bias in favor of the plain room-aware routing below —
+        // the word's mobile position doesn't reliably leave the left side roomier.
         let bucket, lines;
-        if (key === 'storytelling') {
+        if (key === 'storytelling' && !isCoarsePointer) {
           // The word sits to the right of the screen, so the left has the room. Keep an
           // item on the right ONLY if it points right and the right side can fit it;
           // otherwise send it left. This stops long sentences running off-screen.
           const fitsRight = roomR >= 240;
           bucket = (cos > 0.15 && fitsRight) ? 'right' : 'left';
-          const maxPx = bucket === 'right' ? budgetR : budgetL;
-          let forced = FORCED_LINES[text];
-          if (forced) {
-            setFont(fDef);
-            const w = Math.max(...forced.map(l => ctx.measureText(l).width));
-            if (w > maxPx) forced = null; // hand-set breaks too wide here — auto-wrap instead
-          }
-          lines = forced || fitLines(displayText, fDef, maxPx);
         } else {
-          bucket = cos >= 0 ? 'right' : 'left';
-          lines = FORCED_LINES[text] || wrapText(displayText, maxLines);
+          // On a narrow (mobile) viewport one side can be too tight for any label —
+          // route away from it rather than letting text run off the screen edge.
+          const fitsRight = roomR >= 90;
+          const fitsLeft = roomL >= 90;
+          bucket = cos >= 0
+            ? (fitsRight ? 'right' : 'left')
+            : (fitsLeft ? 'left' : 'right');
         }
+        const maxPx = bucket === 'right' ? budgetR : budgetL;
+        let forced = FORCED_LINES[text];
+        if (forced) {
+          setFont(fDef);
+          const w = Math.max(...forced.map(l => ctx.measureText(l).width));
+          if (w > maxPx) forced = null; // hand-set breaks too wide here — auto-wrap instead
+        }
+        lines = forced || fitLines(displayText, fDef, maxPx);
         setFont(fDef);
         const maxLineW = Math.max(...lines.map(l => ctx.measureText(l).width));
         const lineH = fDef.size * 1.32;
@@ -2348,45 +2400,66 @@
 
     // ─── Word trigger interactions ────────────────────────────────────────────────
 
-    triggers.forEach((el, idx) => {
-      el.addEventListener('mouseenter', () => {
-        // dismiss the hover invite permanently on first hover
-        const inv = document.getElementById('hoverInvite');
-        if (inv) {
-          inv.style.transition = 'opacity 0.4s ease';
-          inv.style.opacity = '0';
-          setTimeout(() => inv.remove(), 450);
+    function activateWord(el) {
+      // dismiss the hover/tap invite permanently on first activation
+      const inv = document.getElementById('hoverInvite');
+      if (inv) {
+        inv.style.transition = 'opacity 0.4s ease';
+        inv.style.opacity = '0';
+        setTimeout(() => inv.remove(), 450);
+      }
+
+      startExpand(el.dataset.key);
+      fade.classList.add('active');
+      document.body.classList.add('ray-active');
+
+      triggers.forEach((w) => {
+        w.classList.remove('dimmed', 'active');
+        if (w === el) {
+          w.classList.add('active');
+          w.style.transform = 'translateY(-5px)';
+        } else {
+          w.classList.add('dimmed');
+          w.style.transform = 'translateY(5px)';
         }
+      });
+    }
 
-        startExpand(el.dataset.key);
-        fade.classList.add('active');
-        document.body.classList.add('ray-active');
+    if (isCoarsePointer) {
+      // No hover on touch — tap a word to open it, tap it again (or anywhere
+      // else) to close it, since there's no cursor to watch leaving the bounds.
+      const inviteText = document.querySelector('.hover-invite-text');
+      if (inviteText) inviteText.textContent = 'tap';
 
-        triggers.forEach((w, wi) => {
-          w.classList.remove('dimmed', 'active');
-          if (w === el) {
-            w.classList.add('active');
-            w.style.transform = 'translateY(-5px)';
-          } else {
-            w.classList.add('dimmed');
-            w.style.transform = 'translateY(5px)';
-          }
+      triggers.forEach((el) => {
+        el.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (activeKey === el.dataset.key) { collapse(); return; }
+          activateWord(el);
         });
       });
-      // Note: leaving the word no longer retracts — the composition stays up while the
-      // cursor is anywhere inside its bounds so you can move out to read a label. The
-      // bounds watcher below collapses it once the cursor leaves the whole region.
-    });
 
-    // While a composition is open, keep it alive until the cursor leaves its padded box.
-    document.addEventListener('mousemove', e => {
-      if (!activeKey || animDir === -1 || !hoverBounds) return;
-      const offY = anchorScrollY - window.scrollY; // composition is pinned to the document
-      const outside =
-        e.clientX < hoverBounds.left || e.clientX > hoverBounds.right ||
-        e.clientY < hoverBounds.top + offY || e.clientY > hoverBounds.bottom + offY;
-      if (outside) collapse();
-    });
+      document.addEventListener('click', () => {
+        if (activeKey) collapse();
+      });
+    } else {
+      triggers.forEach((el) => {
+        el.addEventListener('mouseenter', () => activateWord(el));
+        // Note: leaving the word no longer retracts — the composition stays up while the
+        // cursor is anywhere inside its bounds so you can move out to read a label. The
+        // bounds watcher below collapses it once the cursor leaves the whole region.
+      });
+
+      // While a composition is open, keep it alive until the cursor leaves its padded box.
+      document.addEventListener('mousemove', e => {
+        if (!activeKey || animDir === -1 || !hoverBounds) return;
+        const offY = anchorScrollY - window.scrollY; // composition is pinned to the document
+        const outside =
+          e.clientX < hoverBounds.left || e.clientX > hoverBounds.right ||
+          e.clientY < hoverBounds.top + offY || e.clientY > hoverBounds.bottom + offY;
+        if (outside) collapse();
+      });
+    }
 
     // ─── Scroll reveal ────────────────────────────────────────────────────────────
     // Fade/rise elements below the hero into view as the user scrolls down to them.
