@@ -979,7 +979,12 @@
        clips. Stack gif → name/words → body in one column instead. */
     @media (max-width: 760px) {
       .hero {
-        padding: 16vh 1.5rem 8vh;
+        /* Desktop centers content inside a full-viewport-tall box, which on
+           mobile's much shorter stacked layout just leaves dead air below the
+           text before Featured Projects starts. Let the section hug its
+           content instead. */
+        min-height: 0;
+        padding: 16vh 1.5rem 4vh;
       }
 
       .hero-content {
@@ -1385,6 +1390,25 @@
         animation: none;
       }
     }
+
+    /* Same compounding-padding problem as the hero→Featured gap: each section's
+       own top/bottom padding was tuned for desktop and stacks up too tall on
+       mobile. Also pad the very bottom for iOS Safari's home-indicator safe area,
+       which can otherwise visually crowd/clip the last row of content. */
+    @media (max-width: 760px) {
+      .featured {
+        padding-bottom: 4vh;
+      }
+
+      .about-cta {
+        margin-top: 2rem;
+      }
+
+      .contact-section {
+        padding-top: 4vh;
+        padding-bottom: calc(6vh + env(safe-area-inset-bottom, 0px));
+      }
+    }
   </style>
 </head>
 
@@ -1716,6 +1740,41 @@
       ]
     };
 
+    // Hand-picked subset shown on mobile — a phone screen only has room for a
+    // lopsided single column, so the full desktop lists (9-18 items) don't fit.
+    const MOBILE_RAYS = {
+      research: [
+        "Is public space actually public if you can't afford to be in it?",
+        "Which words make someone feel like they belong?",
+        "Who gets to tell a community's story?",
+        "What happens when you map power instead of streets?",
+        "Where does a conflict start on a map?",
+        "What gets left off the official record?",
+        "Do carbon credits just license more pollution?"
+      ],
+      design: [
+        "Figma",
+        "VS Code",
+        "Cursor",
+        "Creative Cloud",
+        "Mapbox",
+        "GitHub",
+        "Claude Design"
+      ],
+      storytelling: [
+        "A new heart taught a security guard how to connect.",
+        "On day three in the Darién Gap, a man started running toward me.",
+        "Varanasi's oldest residents watch the city forget them.",
+        '"They call it adventure," he said. "We call it surviving."'
+      ]
+    };
+
+    // Per-text size override for mobile labels whose cycled font wraps to more
+    // lines than fits comfortably.
+    const MOBILE_FONT_SIZE = {
+      "Is public space actually public if you can't afford to be in it?": 15
+    };
+
     const FONTS = {
       research: [
         { f: "'Playfair Display',serif", w: "700", style: "italic", size: 20 },
@@ -1936,7 +1995,9 @@
     // Design: tools render bold + UPPERCASE, decisions in serif italic
     const DESIGN_TOOLS = new Set([
       'Figma', 'Illustrator', 'Photoshop', 'InDesign', 'Premiere Pro',
-      'Claude', 'Antigravity', 'Cursor', 'GitHub', 'Mapbox'
+      'Claude', 'Antigravity', 'Cursor', 'GitHub', 'Mapbox',
+      // Mobile-only tool labels (MOBILE_RAYS.design)
+      'VS Code', 'Creative Cloud', 'Claude Design'
     ]);
     const TOOL_FONT = { f: "'Space Grotesk',sans-serif", w: '700', style: 'normal', size: 20 };
     const DECISION_FONT = { f: "'Cormorant Garamond',serif", w: '600', style: 'italic', size: 19 };
@@ -2056,14 +2117,9 @@
       layout = { cx, cy, hw, hh };
 
       // A narrow (mobile) screen only has room for one lopsided column, so the
-      // full 9-18 phrases per word stack far taller than the viewport. Show
-      // only the shortest handful there instead of shrinking everything.
-      // Storyteller's entries are full sentences even at their shortest, so it
-      // gets a tighter cap than the single-word/short-phrase categories.
-      const mobileCap = key === 'storytelling' ? 4 : 6;
-      const texts = isCoarsePointer
-        ? [...RAYS[key]].sort((a, b) => a.length - b.length).slice(0, mobileCap)
-        : RAYS[key];
+      // full 9-18 phrases per word stack far taller than the viewport. Show a
+      // hand-picked subset there instead.
+      const texts = isCoarsePointer ? MOBILE_RAYS[key] : RAYS[key];
       const fonts = FONTS[key];
       const N = texts.length;
       const baseR = Math.min(viewW, viewH) * 0.34;
@@ -2086,6 +2142,11 @@
           else fDef = DECISION_FONT;
         } else {
           fDef = fonts[i % fonts.length];
+        }
+        // A couple of mobile labels need a smaller size than their cycled font
+        // gives them to wrap into a reasonable number of lines on a narrow screen.
+        if (isCoarsePointer && MOBILE_FONT_SIZE[text]) {
+          fDef = { ...fDef, size: MOBILE_FONT_SIZE[text] };
         }
 
         const ang = -Math.PI / 2 + ((i + 0.5) / N) * Math.PI * 2;
@@ -2474,6 +2535,12 @@
         return;
       }
 
+      // The -8% bottom margin used to keep this from firing too early, but it
+      // also means content can never be revealed if it's the last thing on a
+      // short page — once fully scrolled, there's no more room to carry it
+      // past that shrunk boundary, so it gets stuck invisible forever. A
+      // smaller margin still avoids triggering the instant something peeks
+      // into view, without permanently excluding trailing content.
       const io = new IntersectionObserver((entries, obs) => {
         entries.forEach(entry => {
           if (entry.isIntersecting) {
@@ -2481,7 +2548,7 @@
             obs.unobserve(entry.target); // reveal once, then stop watching
           }
         });
-      }, { threshold: 0.15, rootMargin: '0px 0px -8% 0px' });
+      }, { threshold: 0.15, rootMargin: '0px 0px -2% 0px' });
 
       items.forEach(el => io.observe(el));
     })();
