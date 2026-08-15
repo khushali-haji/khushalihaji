@@ -2155,6 +2155,17 @@
       <h3 class="sub" id="build">What we'd build</h3>
       <p class="note">The product turns the evidence into a path for each user. No generic
         videos, a profile built from real signals.</p>
+
+      <div class="exttag">
+        <div class="exttag-h">How AI powers this</div>
+        <p>Every step above runs on the same model. Quiz answers and later signals, like a new job, a move, a
+          maxed card, become a profile; the model matches that profile against segment patterns to assemble a
+          roadmap and writes it in plain language instead of policy jargon.</p>
+        <p>A rules engine can sort someone into a bucket. It can't read "$400 emergency, no savings, picking up
+          more shifts" and know that means both an emergency-fund lesson and a gig-income tax lesson. That's the
+          personalization a static decision tree can't do, which AI helps with.</p>
+      </div>
+
       <div class="flow-pipeline steps-walkthrough" id="stepsPipeline">
         <div class="pipeline-stages">
           <div class="pipeline-stage-progress" id="stepsBar"></div>
@@ -2189,7 +2200,7 @@
         <ul class="mvp-statement-list">
           <li>Secure user profiles</li>
           <li>Literacy and behavior assessment</li>
-          <li>Personalized learning path</li>
+          <li>AI personalized learning path</li>
           <li>Local context by region</li>
         </ul>
       </div>
@@ -2504,8 +2515,9 @@
         },
         {
           title: 'Profile',
-          html: '<p class="pipeline-output-body">Signals become a living profile, not a one time test. Every answer' +
-            ' adds to it:</p>' +
+          html: '<p class="pipeline-output-body">Signals become a living profile. An AI model turns each answer' +
+            ' into a structured signal. For example, a free-text note like "picking up more shifts to cover rent"' +
+            ' reads the same as ticking the emergency-fund box. Every answer adds to it:</p>' +
             '<div class="pipeline-output-chips">' +
             '<span class="pipeline-output-chip">Income band: Middle</span>' +
             '<span class="pipeline-output-chip">Emergency fund: None</span>' +
@@ -2515,7 +2527,8 @@
         },
         {
           title: 'Roadmap',
-          html: '<p class="pipeline-output-body">A path tuned to income, place, and risks, for example:</p>' +
+          html: '<p class="pipeline-output-body">An LLM matches the profile against segment patterns to assemble' +
+            ' a path tuned to income, place, and risk, then writes it in plain language instead of policy jargon:</p>' +
             '<ul class="pipeline-output-list">' +
             '<li>Build a starter emergency fund</li>' +
             '<li>Learn your state\'s first-time homebuyer assistance programs</li>' +
@@ -2524,8 +2537,9 @@
         },
         {
           title: 'Adaptive lessons',
-          html: '<p class="pipeline-output-body">Content shifts as life changes. With ' +
-            '<strong>started a new job</strong> logged, the roadmap updates to add:</p>' +
+          html: '<p class="pipeline-output-body">Content shifts as life changes. The same model re-reads the' +
+            ' profile whenever a new signal lands and regenerates just the affected part of the roadmap. With ' +
+            '<strong>started a new job</strong> logged, it updates to add:</p>' +
             '<ul class="pipeline-output-list">' +
             '<li>401(k) employer matching</li>' +
             '<li>Adjusting tax withholding</li>' +

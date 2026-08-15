@@ -549,6 +549,7 @@
       letter-spacing: 0.03em;
       line-height: 1.7;
       margin-bottom: 2.6rem;
+      margin-left: clamp(1rem, 6vw, 4rem);
     }
 
     .roles {
@@ -621,7 +622,7 @@
       color: rgba(24, 21, 18, 0.85);
       background: rgba(250, 248, 244, 0.85);
       border: 1px solid var(--ink);
-      box-shadow: 10px 10px 0 var(--yellow);
+      box-shadow: 6px 6px 0 var(--yellow);
       /* Own entrance, distinct from the plain prose fade: the card pops up
          into place and the yellow shadow grows out from behind it, like it's
          being set down on the page. */
@@ -640,7 +641,7 @@
     .ecotone.is-in {
       opacity: 1;
       transform: none;
-      box-shadow: 10px 10px 0 var(--yellow);
+      box-shadow: 6px 6px 0 var(--yellow);
     }
 
     .ecotone dfn,
@@ -762,6 +763,74 @@
       border: 1px solid rgba(26, 107, 107, 0.3);
     }
 
+    /* ─── 6 · Featured Projects (same cards as the landing page) ───────────── */
+
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.6rem;
+    }
+
+    .project-card {
+      display: flex;
+      flex-direction: column;
+      padding: 1.8rem 1.6rem;
+      background: rgba(250, 248, 244, 0.9);
+      border: 1.5px solid rgba(40, 36, 33, 0.42);
+      border-radius: 2px;
+      text-decoration: none;
+      color: inherit;
+      box-shadow: 4px 4px 0 rgba(40, 36, 33, 0.1);
+      transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.4s ease;
+    }
+
+    .project-card:hover {
+      transform: translate(-3px, -3px);
+      box-shadow: 7px 7px 0 rgba(40, 36, 33, 0.14);
+    }
+
+    .project-num {
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      color: var(--yellow);
+      margin-bottom: 1rem;
+    }
+
+    .project-title {
+      font-family: 'Inter', sans-serif;
+      font-style: normal;
+      font-weight: 200;
+      font-size: clamp(22px, 2.4vw, 30px);
+      letter-spacing: -0.02em;
+      margin-bottom: 0.6rem;
+    }
+
+    .project-title .pt-sub {
+      display: block;
+      font-size: 0.58em;
+      font-weight: 300;
+      color: rgba(24, 21, 18, 0.55);
+      letter-spacing: 0;
+      margin-top: 0.5rem;
+    }
+
+    .project-desc {
+      font-family: var(--serif);
+      font-weight: 500;
+      font-size: 15px;
+      line-height: 1.6;
+      color: rgba(24, 21, 18, 0.85);
+      margin-bottom: 1.4rem;
+      flex: 1;
+    }
+
+    .project-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
     /* ─── Responsive ─────────────────────────────────────────────────────── */
 
     @media (max-width: 860px) {
@@ -797,6 +866,10 @@
       .kit-row {
         grid-template-columns: 1fr;
         gap: 0.7rem;
+      }
+
+      .projects-grid {
+        grid-template-columns: 1fr;
       }
     }
   </style>
@@ -1022,6 +1095,53 @@
       <div class="chips">
         <span class="tag">MA Journalism, CUNY Newmark</span><span class="tag">B.Des Urban Design, CEPT</span>
       </div>
+    </div>
+  </section>
+
+  <!-- 6 · FEATURED PROJECTS -->
+  <section class="wrap">
+    <p class="section-label" data-reveal>Featured Projects</p>
+    <div class="projects-grid">
+      <a class="project-card" data-reveal href="case-studies/conflict-lens.html">
+        <span class="project-num">01</span>
+        <h3 class="project-title">Conflict Lens</h3>
+        <p class="project-desc">Turns a single news article into a geo-referenced, bias-aware conflict briefing, in
+          under a minute. A map-first dashboard that synthesizes location, actors, history, and source slant in one
+          view.
+        </p>
+        <div class="project-tags">
+          <span class="tag">Product Design</span>
+          <span class="tag">Geospatial</span>
+          <span class="tag">AI</span>
+        </div>
+      </a>
+      <a class="project-card" data-reveal style="--d:.05s" href="case-studies/fin-lit-ed.html">
+        <span class="project-num">02</span>
+        <h3 class="project-title">Fin-Lit Education<span class="pt-sub">
+            <p>(A Data Analysis)</p>
+          </span></h3>
+        <p class="project-desc">Making the case for a financial literacy education app that personalizes learning by
+          income group, state, immigration status, age and community. Built on National Financial Capability Study and
+          the Survey of Consumer Finances data.</p>
+        <div class="project-tags">
+          <span class="tag">Product Strategy</span>
+          <span class="tag">Data Viz</span>
+          <span class="tag">Research</span>
+        </div>
+      </a>
+      <a class="project-card" data-reveal style="--d:.1s" href="case-studies/st-joes-hoes.html">
+        <span class="project-num">03</span>
+        <h3 class="project-title">St. Joe's Hoes</h3>
+        <p class="project-desc">A character-driven documentary exploring immigration, housing insecurity, and creative
+          ambition in NYC.
+          Edited, filmed, and produced independently. Premiered at Woodstock Film Festival 2026.
+        </p>
+        <div class="project-tags">
+          <span class="tag">Storytelling</span>
+          <span class="tag">Documentary Film-making</span>
+          <span class="tag">Ethnography</span>
+        </div>
+      </a>
     </div>
   </section>
 
