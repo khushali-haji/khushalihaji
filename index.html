@@ -308,6 +308,20 @@
       border-bottom: 1.5px solid rgba(40, 36, 33, 0.12);
       opacity: 0;
       animation: fadeDown 0.9s 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+      transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    /* Hide the navbar while a Researcher/Designer/Storyteller ray composition is
+       open — it otherwise sits on top of (or crowds) the labels near the top
+       of the hero. */
+    body.ray-active .nav {
+      /* The entrance animation's `forwards` fill keeps overriding plain opacity/
+         transform rules (animations beat normal author declarations in the
+         cascade) — cancel it here so the transition below actually takes. */
+      animation: none;
+      opacity: 0;
+      transform: translateY(-110%);
+      pointer-events: none;
     }
 
     @keyframes fadeDown {
@@ -617,8 +631,10 @@
       display: flex;
       flex-direction: column;
       justify-content: center;
-      align-items: flex-start;
-      padding: 29vh max(2rem, 4vw) 14vh max(8rem, 16vw);
+      /* Centers the hero-content block itself on the page; the text inside it
+         stays left-aligned (see .hero-body's own text-align: left). */
+      align-items: center;
+      padding: 18vh max(2rem, 4vw) 14vh;
     }
 
     /* Name — typewriter fills this in */
@@ -825,7 +841,7 @@
     .hero-body {
       grid-column: 2;
       grid-row: 2;
-      max-width: 460px;
+      max-width: 640px;
       opacity: 0;
       position: relative;
       z-index: 2;
@@ -984,7 +1000,7 @@
            text before Featured Projects starts. Let the section hug its
            content instead. */
         min-height: 0;
-        padding: 16vh 1.5rem 4vh;
+        padding: 10vh 1.5rem 4vh;
       }
 
       .hero-content {
@@ -1512,17 +1528,15 @@
       </div>
       <div class="hero-body">
         <p>I am a <strong>researcher</strong> by heart, and a <strong>designer</strong> by consequence of finding ways
-          to
-          fill those gaps. I'm now applying that instinct to <strong>AI-native</strong> tools, building products that
-          make complex systems legible, most recently for communities underserved by existing civic and
-          public-interest tech.</p>
+          to fill those gaps. I design and build <strong>AI-native</strong> products that
+          make complex systems legible, especially for people underserved by existing technology.</p>
         <p>My work has taken me from informal settlements in India to forests marked for carbon credits in Liberia, from
           policy reporting in New York to building AI products for international conflict researchers. I
-          trained as an <strong>urban designer</strong>, retrained as a <strong>journalist</strong>, and now design and
-          <strong>prototype AI-native tools</strong> as the next iteration of that same instinct.
+          trained as an <strong>urban designer</strong>, retrained as a <strong>journalist</strong>, and now bring
+          those same instincts into product design.
         </p>
-        <p>I'm based in <strong>New York</strong>, looking for roles at the intersection of <strong>AI product
-            design</strong>, <strong>UX research</strong>, and <strong>public-interest storytelling</strong>.</p>
+        <p>Based in <strong>New York</strong>, I'm looking for roles in <strong>AI product
+            design</strong>, <strong>UX research</strong>, and <strong>public-interest techonology</strong>.</p>
       </div>
     </div>
   </section>

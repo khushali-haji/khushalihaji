@@ -34,6 +34,17 @@
       scroll-behavior: smooth;
     }
 
+    /* Hide the native cursor only where the custom one can follow it */
+    @media (hover: hover) and (pointer: fine) {
+
+      html,
+      a,
+      button,
+      [data-clickable] {
+        cursor: none;
+      }
+    }
+
     body {
       background: var(--paper);
       color: var(--ink);
@@ -83,6 +94,44 @@
       opacity: 0;
       transition: opacity 0.8s ease;
       will-change: left, top;
+    }
+
+    @media (hover: none) {
+      .cursor-glow {
+        display: none;
+      }
+    }
+
+    /* Custom cursor — hand-drawn outline pointer, same system as the homepage
+       and the St. Joe's Hoes case study. */
+    .cursor-arrow {
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 22px;
+      height: 22px;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0;
+      transform-origin: 2px 2px;
+      mix-blend-mode: difference;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cfilter id='w'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.04' numOctaves='2' seed='4' result='n'/%3E%3CfeDisplacementMap in='SourceGraphic' in2='n' scale='0.9'/%3E%3C/filter%3E%3Cpath filter='url(%23w)' d='M4 3 L26 17 L16 19 L21 31 L17 33 L12 21 L4 24 Z' fill='%23ffffff' stroke='%23ffffff' stroke-width='1.4' stroke-linejoin='round' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat;
+      transition: opacity 0.3s ease, transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .cursor-arrow.visible {
+      opacity: 1;
+    }
+
+    .cursor-arrow.hot {
+      transform: scale(1.18);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cfilter id='wp'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.04' numOctaves='2' seed='4' result='n'/%3E%3CfeDisplacementMap in='SourceGraphic' in2='n' scale='0.9'/%3E%3C/filter%3E%3Cpath filter='url(%23wp)' d='M4 3 L26 17 L16 19 L21 31 L17 33 L12 21 L4 24 Z' fill='%2373b904' stroke='%2373b904' stroke-width='1.4' stroke-linejoin='round' stroke-linecap='round'/%3E%3C/svg%3E");
+    }
+
+    @media (hover: none) {
+      .cursor-arrow {
+        display: none;
+      }
     }
 
     /* ─── Motion primitives (same system as the St. Joe's Hoes case study) ── */
@@ -910,6 +959,7 @@
 
   <canvas id="mapGrid"></canvas>
   <div class="cursor-glow" id="cursorGlow"></div>
+  <div class="cursor-arrow" id="cursorArrow"></div>
 
   <!-- 1 · THESIS -->
   <header class="wrap hero">
@@ -1019,8 +1069,8 @@
           <dt>Currently reading</dt>
           <dd>
             <ul>
+              <li>Recoding America</li>
               <li>The Dandelion Dynasty</li>
-              <li>Faiz Ahmad Faiz</li>
             </ul>
           </dd>
         </div>
@@ -1216,15 +1266,31 @@
       window.addEventListener('resize', draw);
     })();
 
-    // ─── Cursor glow — follows the mouse, same as the landing page ────────────────
-    (function initCursorGlow() {
+    // ─── Custom cursor — same doodle arrow + trailing glow as the homepage ───────
+    (function initCursor() {
       const glow = document.getElementById('cursorGlow');
-      if (!glow || window.matchMedia('(pointer: coarse)').matches) return;
+      const cursor = document.getElementById('cursorArrow');
+      if (!glow || !cursor || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+
+      let shown = false;
 
       document.addEventListener('mousemove', e => {
+        cursor.style.left = (e.clientX - 2) + 'px';
+        cursor.style.top = (e.clientY - 2) + 'px';
+
         glow.style.left = e.clientX + 'px';
         glow.style.top = e.clientY + 'px';
         glow.style.opacity = '1';
+
+        if (!shown) {
+          cursor.classList.add('visible');
+          shown = true;
+        }
+      });
+
+      document.addEventListener('mouseover', e => {
+        const hot = e.target.closest('a, button, [data-clickable]');
+        cursor.classList.toggle('hot', !!hot);
       });
     })();
 
