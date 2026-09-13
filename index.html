@@ -1043,12 +1043,18 @@
       .hero-body {
         grid-column: 1;
         grid-row: 3;
+        width: fit-content;
         max-width: 100%;
-        margin-left: 0;
+        margin-inline: auto;
       }
 
-      .hero-name {
-        margin-left: 0;
+      /* Center each line as its own block, matching the centered gif above;
+         the text inside stays left-aligned (see text-align: left further up). */
+      .hero-name,
+      .words-row {
+        width: fit-content;
+        max-width: 100%;
+        margin-inline: auto;
       }
     }
 
@@ -1171,68 +1177,31 @@
       box-shadow: 5px 5px 0 rgba(201, 162, 39, 0.18);
     }
 
-    .contact-section {
-      position: relative;
-      z-index: 2;
-      padding: 6vh max(3rem, 7vw) 12vh;
-      max-width: 880px;
-      margin: 0 auto;
-      text-align: center;
-      scroll-margin-top: 5rem;
+    /* Shared footer (injected by js/include-footer.js) is transparent by
+       default, which would let the fixed map-grid canvas show through. Give
+       it a solid surface so the grid lines stop at the footer edge. */
+    #footer-placeholder .site-footer {
+      background: #faf8f4;
     }
 
-    .contact-heading {
+    /* Homepage's footer heading keeps its own hand-written Caveat sizing
+       (matching the old contact-heading) instead of the shared footer's
+       default Inter treatment. #sfHeading.home-h beats .sf-h's specificity
+       regardless of stylesheet order, since footer.html's <style> is injected
+       later in the DOM. */
+    #sfHeading.home-h {
       font-family: 'Caveat', cursive;
-      font-style: normal;
       font-weight: 400;
       font-size: clamp(32px, 4.4vw, 58px);
       line-height: 1.25;
       letter-spacing: -0.015em;
-      color: var(--ink);
-      margin-bottom: 2.6rem;
     }
 
-    /* second line reads lighter than the greeting above it, and stays on one line */
-    .contact-heading .ch-light {
+    #sfHeading.home-h .ch-light {
       display: block;
       font-weight: 400;
       font-size: clamp(20px, 3.1vw, 34px);
       white-space: nowrap;
-    }
-
-    .social-links {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 2.2rem;
-    }
-
-    .social-link {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 46px;
-      height: 46px;
-      border-radius: 2px;
-      color: var(--ink);
-      border: 1.5px solid rgba(40, 36, 33, 0.28);
-      box-shadow: 2px 2px 0 rgba(40, 36, 33, 0.08);
-      transition: color 0.35s ease, border-color 0.35s ease,
-        background 0.35s ease, transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s ease;
-    }
-
-    .social-link svg {
-      width: 21px;
-      height: 21px;
-      display: block;
-    }
-
-    .social-link:hover {
-      color: var(--teal);
-      border-color: var(--yellow);
-      background: rgba(201, 162, 39, 0.14);
-      transform: translate(-2px, -2px);
-      box-shadow: 4px 4px 0 rgba(40, 36, 33, 0.12);
     }
 
     /* Hover invite annotation — absolutely positioned above Storyteller */
@@ -1438,10 +1407,6 @@
         margin-top: 2rem;
       }
 
-      .contact-section {
-        padding-top: 4vh;
-        padding-bottom: calc(6vh + env(safe-area-inset-bottom, 0px));
-      }
     }
   </style>
 </head>
@@ -1610,47 +1575,13 @@
     </div>
   </section>
 
-  <!-- CONTACT -->
-  <section class="contact-section" id="contact">
-    <h2 class="contact-heading reveal">Would love to talk!<br><span class="ch-light">What cool projects are you working
-        on?</span></h2>
-    <div class="social-links reveal">
-      <a class="social-link" href="https://www.instagram.com/khushalihaji/" target="_blank" rel="noopener"
-        aria-label="Instagram">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
-          stroke-linejoin="round">
-          <rect x="2.5" y="2.5" width="19" height="19" rx="5.5"></rect>
-          <circle cx="12" cy="12" r="4.2"></circle>
-          <circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"></circle>
-        </svg>
-      </a>
-      <a class="social-link" href="https://www.linkedin.com/in/khushali-haji/" target="_blank" rel="noopener"
-        aria-label="LinkedIn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
-          stroke-linejoin="round">
-          <rect x="2.5" y="2.5" width="19" height="19" rx="3"></rect>
-          <line x1="7" y1="10" x2="7" y2="17"></line>
-          <circle cx="7" cy="6.8" r="1.1" fill="currentColor" stroke="none"></circle>
-          <path d="M11 17v-3.6a2.4 2.4 0 0 1 4.8 0V17M11 10.4V17"></path>
-        </svg>
-      </a>
-      <a class="social-link" href="mailto:khushali.haji@gmail.com" aria-label="Email">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
-          stroke-linejoin="round">
-          <rect x="2.5" y="4.5" width="19" height="15" rx="2.5"></rect>
-          <path d="M3.5 6.5 12 13l8.5-6.5"></path>
-        </svg>
-      </a>
-      <a class="social-link" href="https://github.com/khushali-haji" target="_blank" rel="noopener" aria-label="GitHub">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
-          stroke-linejoin="round">
-          <path
-            d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22">
-          </path>
-        </svg>
-      </a>
-    </div>
-  </section>
+  <!-- FOOTER (shared component, matches About page) -->
+  <div id="contact" style="scroll-margin-top: 80px;"></div>
+  <div id="footer-placeholder" data-heading-class="home-h"
+    data-heading="Would love to talk!<br><span class=&quot;ch-light&quot;>What cool projects are you working on?</span>"
+    data-home-label="About" data-home-href="about.html">
+  </div>
+  <script src="js/include-footer.js?v=7"></script>
 
   <script>
     // ─── Map grid ─────────────────────────────────────────────────────────────────
@@ -2106,6 +2037,9 @@
       ],
       "What inequalities do our institutions quietly encode?": [
         "What inequalities do our", "institutions quietly encode?"
+      ],
+      "When does policy protect people and when does it sort them?": [
+        "When does policy protect people", "and when does it sort them?"
       ]
     };
 

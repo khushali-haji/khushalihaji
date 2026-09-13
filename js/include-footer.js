@@ -4,7 +4,7 @@
 (function () {
   var s = document.currentScript;
   var base = s ? s.src.replace(/js\/[^/]*$/, '') : '/khushalihaji/';
-  fetch(base + 'includes/footer.html?v=4')
+  fetch(base + 'includes/footer.html?v=6')
     .then(function (response) { return response.text(); })
     .then(function (html) {
       var ph = document.getElementById('footer-placeholder');
@@ -12,6 +12,27 @@
       ph.innerHTML = html;
       var footer = ph.querySelector('.site-footer');
       if (!footer) return;
+
+      // Pages can override the default "Let's make something" heading via
+      // data-heading on the placeholder (e.g. the homepage's own greeting).
+      if (ph.dataset.heading) {
+        var heading = footer.querySelector('#sfHeading');
+        if (heading) {
+          heading.innerHTML = ph.dataset.heading;
+          if (ph.dataset.headingClass) heading.classList.add(ph.dataset.headingClass);
+        }
+      }
+
+      // "Home" defaults to the actual homepage, resolved relative to this
+      // script's own location (same trick as `base` above) so it works from
+      // any page depth and any mount point — not just the GitHub Pages path.
+      // The homepage itself points "Home" elsewhere via data-home-label/-href
+      // (e.g. at the About page), since linking home to itself is useless.
+      var homeLink = footer.querySelector('#sfHomeLink');
+      if (homeLink) {
+        homeLink.textContent = ph.dataset.homeLabel || 'Home';
+        homeLink.href = ph.dataset.homeHref || (base + 'index.html');
+      }
 
       // Email button copies the address instead of handing off to a mail client.
       var emailBtn = footer.querySelector('#sf-email-btn');
