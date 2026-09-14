@@ -490,6 +490,117 @@
       border-radius: 2px;
     }
 
+    /* Reflection section highlights in the site's teal instead of the
+       default yellow, so the roadmap items don't compete visually with
+       the highlighted terms used everywhere else */
+    #reflection mark {
+      background: rgba(26, 107, 107, 0.16);
+    }
+
+    /* Plain bullets for the reflection roadmap — no dividers, just a list */
+    .reflection-list {
+      list-style: disc;
+      padding-left: 1.3rem;
+      margin: 1rem 0 1.8rem;
+    }
+
+    .reflection-list li {
+      font-family: var(--serif);
+      font-weight: 500;
+      font-size: clamp(16.5px, 1.4vw, 19px);
+      line-height: 1.76;
+      color: rgba(40, 36, 33, 0.85);
+      margin-bottom: 0.9rem;
+    }
+
+    .reflection-list li::marker {
+      color: var(--ink);
+    }
+
+    .reflection-list li:last-child {
+      margin-bottom: 0;
+    }
+
+    /* Users — three persona snapshots, sitting above the How Might We */
+    .persona-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2.6rem;
+      margin: 3.6rem 0 4.2rem;
+    }
+
+    /* h3.sub already carries its own top margin — the label right above
+       the row only needs a little breathing room below it, not the row's
+       full top margin again */
+    h3.sub+.persona-row {
+      margin-top: 0.6rem;
+    }
+
+    /* No card chrome — sits straight on the page background */
+    .persona-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Persona portrait — watercolor illustration, shown as-is (no circle crop).
+       Fixed height + bottom-aligned so the three portraits (different natural
+       aspect ratios) share one baseline and the labels below all start flush. */
+    .persona-icon {
+      width: 128px;
+      height: 165px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      margin-bottom: 1rem;
+      flex-shrink: 0;
+    }
+
+    .persona-icon img {
+      width: 100%;
+      height: auto;
+    }
+
+    .persona-icon svg {
+      width: 24px;
+      height: 24px;
+      stroke: var(--ink);
+      opacity: 0.5;
+    }
+
+    /* Role wordmark — mono, centered, logo-like */
+    .persona-role {
+      font-family: var(--mono);
+      font-weight: 500;
+      font-size: 14px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--ink);
+      text-align: center;
+      margin-bottom: 0.9rem;
+    }
+
+    .persona-col p.persona-text {
+      font-family: var(--serif);
+      font-weight: 500;
+      font-size: 15.5px;
+      line-height: 1.62;
+      color: rgba(40, 36, 33, 0.85);
+      text-align: left;
+    }
+
+    .persona-col p.persona-text strong {
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    @media (max-width: 760px) {
+      .persona-row {
+        grid-template-columns: 1fr;
+        gap: 3rem;
+      }
+    }
+
     /* 0. Hero Section */
     .hero {
       padding-top: 15vh;
@@ -2765,6 +2876,371 @@
         opacity: 0;
       }
     }
+
+    /* ============================================================
+       SCREENS DECK — a fanned card deck between the meta row and the
+       "Launch Live Sandbox" button: home screen, loading screen, an
+       empty placeholder for the Briefing screen, and an empty mobile
+       frame. Rests fully fanned and readable; hover/click grows the
+       whole hand and lifts it past its own backdrop; hovering one
+       card within that grows just that card further. Deliberately
+       breaks out past the 800px .wrap column (see .o2-breakout) —
+       it's a hero visual moment, not reading copy.
+       ============================================================ */
+    .o2-breakout {
+      width: 100vw;
+      margin-left: calc(50% - 50vw);
+      margin-right: calc(50% - 50vw);
+      padding: 0 1.5rem;
+      margin-top: 0.5rem;
+      margin-bottom: 2.5rem;
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    .o2-stage {
+      position: relative;
+      width: 100%;
+      /* Wider than the 800px .wrap column (see .o2-breakout), but capped
+         here so it doesn't run all the way to the viewport edges on large
+         screens — still centered within that full-bleed strip. */
+      max-width: 1160px;
+      margin: 0 auto;
+      min-height: 480px;
+      padding: 1.5rem 2rem 2rem;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      background: linear-gradient(180deg, #e9e3d4, #ddd6c3);
+      border: 1px solid var(--rule);
+      border-radius: 6px;
+      cursor: none;
+      /* hover lifts cards up and past this box on purpose ("pull out of
+         frame") — let that bleed happen instead of clipping it. */
+      overflow: visible;
+    }
+
+    .o2-hint {
+      position: absolute;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: rgba(40, 36, 33, 0.45);
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+      z-index: 20;
+    }
+
+    .o2-stage.is-fanned .o2-hint,
+    .o2-stage:hover .o2-hint {
+      opacity: 0;
+    }
+
+    .o2-deck {
+      position: relative;
+      width: 100%;
+      max-width: 1040px;
+      height: 380px;
+    }
+
+    /* .o2-card only ever translates (positions the card). Rotation lives on
+       .o2-card-inner / .o2-phone-body instead, so .o2-tag — a sibling that
+       sits outside that rotated box — always reads flat and horizontal,
+       even while the card itself is tilted. */
+    .o2-card {
+      --s: 1;
+      position: absolute;
+      left: 50%;
+      bottom: 0;
+      transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    /* the clipped, bordered, *rotated* face of the card — kept separate from
+       .o2-card so the .o2-tag label below can sit outside, unrotated */
+    .o2-card-inner {
+      border: 1px solid var(--ink);
+      border-radius: 8px;
+      overflow: hidden;
+      background: var(--ink);
+      /* tinted toward --ink (warm near-black) instead of flat rgba(0,0,0,…),
+         and softened/more diffused, so it reads as a cast shadow rather
+         than a generic card-component shadow */
+      box-shadow: 0 16px 30px rgba(40, 36, 33, 0.14);
+      transform-origin: 50% 100%;
+      transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.6s ease;
+    }
+
+    /* desktop-chrome cards (home / loading / empty placeholder) */
+    .o2-card.desktop {
+      width: 360px;
+    }
+
+    .o2-card img {
+      width: 100%;
+      display: block;
+    }
+
+    .o2-mini-chrome {
+      height: 26px;
+      background: #fdfaf2;
+      border-bottom: 1px solid var(--ink);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 0 10px;
+    }
+
+    .o2-mini-chrome span {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      border: 1px solid var(--ink);
+      background: #fff;
+    }
+
+    .o2-mini-body {
+      aspect-ratio: 16/9.4;
+      background: var(--card-paper);
+    }
+
+    /* empty / coming-soon placeholder filling */
+    .o2-empty {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .o2-empty-inner {
+      width: calc(100% - 18px);
+      height: calc(100% - 18px);
+      border: 1.5px dashed rgba(40, 36, 33, 0.32);
+      border-radius: 4px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      text-align: center;
+      padding: 0.6rem;
+    }
+
+    .o2-empty-inner svg {
+      width: 26px;
+      height: 26px;
+      color: rgba(40, 36, 33, 0.3);
+    }
+
+    .o2-empty-label {
+      font-family: var(--mono);
+      font-size: 10.5px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: rgba(40, 36, 33, 0.4);
+      line-height: 1.6;
+    }
+
+    /* mobile phone frame */
+    .o2-card.phone {
+      width: 165px;
+    }
+
+    .o2-phone-body {
+      background: #fdfaf2;
+      border: 1.5px solid var(--ink);
+      border-radius: 18px;
+      padding: 11px 8px 13px;
+      box-shadow: 0 16px 30px rgba(40, 36, 33, 0.14);
+      transform-origin: 50% 100%;
+      transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.6s ease;
+    }
+
+    .o2-phone-notch {
+      width: 44px;
+      height: 7px;
+      background: var(--ink);
+      border-radius: 4px;
+      margin: 0 auto 10px;
+    }
+
+    .o2-phone-screen {
+      /* matches the real phone screenshot's own ratio (and the .android-frame
+         shots in the Mobile Interface section below), so it fills the frame
+         with no cropping and no letterbox bands needed. */
+      aspect-ratio: 986/1346;
+      background: var(--card-paper);
+      border: 1px solid var(--ink);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .o2-phone-screen img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+    }
+
+    /* -------- card identities --------
+       Rest IS the fanned-out view — every card sits well apart and is
+       fully readable with no interaction. Hover/click goes further: bigger
+       (scale), lifted further up out of the frame, and fanned a little
+       more on top of that. Position lives on .o2-card, which also carries
+       a --s custom property for its scale — kept separate from the literal
+       translate values so a *single card's own* hover can bump --s further
+       without having to restate the whole transform. */
+    .o2-card.c-mobile {
+      z-index: 2;
+      transform: translate(calc(-50% - 416px), -66px) scale(var(--s));
+    }
+
+    .o2-card.c-home {
+      z-index: 3;
+      transform: translate(calc(-50% - 191px), -92px) scale(var(--s));
+    }
+
+    .o2-card.c-loading {
+      z-index: 1;
+      transform: translate(calc(-50% + 64px), -92px) scale(var(--s));
+    }
+
+    .o2-card.c-placeholder {
+      z-index: 4;
+      transform: translate(calc(-50% + 319px), -66px) scale(var(--s));
+    }
+
+    .o2-card.c-mobile .o2-phone-body {
+      transform: rotate(-17deg);
+    }
+
+    .o2-card.c-home .o2-card-inner {
+      transform: rotate(-9deg);
+    }
+
+    .o2-card.c-loading .o2-card-inner {
+      transform: rotate(9deg);
+    }
+
+    .o2-card.c-placeholder .o2-card-inner {
+      transform: rotate(20deg);
+    }
+
+    .o2-stage.is-fanned .o2-card,
+    .o2-stage:hover .o2-card {
+      --s: 1.14;
+    }
+
+    .o2-stage.is-fanned .o2-card.c-mobile,
+    .o2-stage:hover .o2-card.c-mobile {
+      transform: translate(calc(-50% - 476px), -110px) scale(var(--s));
+    }
+
+    .o2-stage.is-fanned .o2-card.c-home,
+    .o2-stage:hover .o2-card.c-home {
+      transform: translate(calc(-50% - 226px), -144px) scale(var(--s));
+    }
+
+    .o2-stage.is-fanned .o2-card.c-loading,
+    .o2-stage:hover .o2-card.c-loading {
+      transform: translate(calc(-50% + 84px), -144px) scale(var(--s));
+    }
+
+    .o2-stage.is-fanned .o2-card.c-placeholder,
+    .o2-stage:hover .o2-card.c-placeholder {
+      transform: translate(calc(-50% + 364px), -110px) scale(var(--s));
+    }
+
+    /* Hovering ONE card within the already-fanned/hovered deck grows just
+       that card further and brings it in front of its neighbors. */
+    .o2-stage.is-fanned .o2-card:hover,
+    .o2-stage:hover .o2-card:hover {
+      --s: 1.28;
+      z-index: 50;
+    }
+
+    .o2-stage.is-fanned .o2-card:hover .o2-card-inner,
+    .o2-stage:hover .o2-card:hover .o2-card-inner,
+    .o2-stage.is-fanned .o2-card.phone:hover .o2-phone-body,
+    .o2-stage:hover .o2-card.phone:hover .o2-phone-body {
+      box-shadow: 0 40px 64px rgba(40, 36, 33, 0.26);
+    }
+
+    .o2-stage.is-fanned .o2-card.c-mobile .o2-phone-body,
+    .o2-stage:hover .o2-card.c-mobile .o2-phone-body {
+      transform: rotate(-21deg);
+    }
+
+    .o2-stage.is-fanned .o2-card.c-home .o2-card-inner,
+    .o2-stage:hover .o2-card.c-home .o2-card-inner {
+      transform: rotate(-12deg);
+    }
+
+    .o2-stage.is-fanned .o2-card.c-loading .o2-card-inner,
+    .o2-stage:hover .o2-card.c-loading .o2-card-inner {
+      transform: rotate(12deg);
+    }
+
+    .o2-stage.is-fanned .o2-card.c-placeholder .o2-card-inner,
+    .o2-stage:hover .o2-card.c-placeholder .o2-card-inner {
+      transform: rotate(24deg);
+    }
+
+    .o2-stage.is-fanned .o2-card-inner,
+    .o2-stage:hover .o2-card-inner,
+    .o2-stage.is-fanned .o2-card.phone .o2-phone-body,
+    .o2-stage:hover .o2-card.phone .o2-phone-body {
+      /* bigger, closer, tinted+diffused shadow sells the "lifted out of
+         the frame" feeling without going flat black */
+      box-shadow: 0 30px 50px rgba(40, 36, 33, 0.2);
+    }
+
+    /* Visible at rest too — the fan already reveals every card, so the
+       label can identify it from the first paint, not just on interaction. */
+    .o2-tag {
+      position: absolute;
+      bottom: -40px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: var(--mono);
+      font-size: 9.5px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: rgba(40, 36, 33, 0.55);
+      white-space: nowrap;
+      opacity: 1;
+      transition: opacity 0.3s ease;
+    }
+
+    /* Small screens: the desktop fan needs far more width than a phone has.
+       Rather than let .o2-deck's own fluid width shrink (which would throw
+       off every card's hand-tuned translate math — "left: 50%" would
+       resolve against a much narrower box), pin it back to its full
+       1040×380 layout size and scale the whole rendered result down as one
+       unit instead. Positions stay internally consistent; only the final
+       pixels get smaller. The overflow this creates is intentional and
+       relies on body's site-wide overflow-x: hidden to clip it quietly. */
+    @media (max-width: 760px) {
+      .o2-stage {
+        height: 220px;
+        min-height: 0;
+        padding: 0.75rem 1rem 1rem;
+        overflow: hidden;
+      }
+
+      .o2-deck {
+        width: 1040px;
+        max-width: none;
+        flex-shrink: 0;
+        transform: scale(0.36);
+        transform-origin: 50% 100%;
+      }
+    }
   </style>
 </head>
 
@@ -2817,13 +3293,62 @@
       </div>
     </div>
 
-    <div class="hero-links" id="heroBtnRow" style="animation: fadeUp 0.8s 1.2s forwards;">
+    <!-- Screens deck: home screen, loading screen, and two coming-soon
+         placeholders (Briefing screen, mobile). Fanned at rest; hover/click
+         grows and lifts the whole hand; hovering one card grows just that
+         card further. See .o2-* rules above. -->
+    <div class="o2-breakout" style="animation: fadeUp 0.8s 1.15s forwards;">
+      <div class="o2-stage" id="o2Stage">
+        <span class="o2-hint">Hover or click to lean in</span>
+        <div class="o2-deck">
+
+          <div class="o2-card phone c-mobile">
+            <div class="o2-phone-body">
+              <div class="o2-phone-notch"></div>
+              <div class="o2-phone-screen">
+                <img src="Images/hero-deck-mobile.png"
+                  alt="Conflict Lens on mobile, the lead-up events timeline sheet slid up over the map" loading="lazy">
+              </div>
+            </div>
+            <span class="o2-tag">Mobile</span>
+          </div>
+
+          <div class="o2-card desktop c-home">
+            <div class="o2-card-inner">
+              <div class="o2-mini-chrome"><span></span><span></span><span></span></div>
+              <img src="Images/hero-deck-input.png" alt="Conflict Lens home screen" loading="lazy">
+            </div>
+            <span class="o2-tag">01 &mdash; Input</span>
+          </div>
+
+          <div class="o2-card desktop c-loading">
+            <div class="o2-card-inner">
+              <div class="o2-mini-chrome"><span></span><span></span><span></span></div>
+              <img src="Images/hero-deck-loading.png" alt="Conflict Lens loading screen" loading="lazy">
+            </div>
+            <span class="o2-tag">02 &mdash; Analyzing</span>
+          </div>
+
+          <div class="o2-card desktop c-placeholder">
+            <div class="o2-card-inner">
+              <div class="o2-mini-chrome"><span></span><span></span><span></span></div>
+              <img src="Images/hero-deck-briefing.png"
+                alt="Conflict Lens briefing dashboard, showing the map, key details, incident summary, and lead-up events timeline">
+            </div>
+            <span class="o2-tag">03 &mdash; Briefing</span>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-links" id="heroBtnRow" style="animation: fadeUp 0.8s 1.3s forwards;">
       <a class="btn primary" href="#dashboardMock" id="ctaDemoBtn">Launch Live Sandbox &darr;</a>
     </div>
 
     <!-- Micro Prototype 0: Parchment & Graphite Interactive Dashboard -->
     <div class="media-container" id="dashboardMock"
-      style="opacity: 0; transform: translateY(20px); animation: fadeUp 0.9s 1.4s forwards;">
+      style="opacity: 0; transform: translateY(20px); animation: fadeUp 0.9s 1.5s forwards;">
       <div class="sandbox-frame">
         <div class="dashboard-header">
           <div class="window-dots">
@@ -2841,8 +3366,8 @@
         </div>
       </div>
       <figcaption>
-        <b>Live Sandbox:</b> The actual Conflict Lens app, rendered at desktop size and zoomed to fit the column. Drag
-        the map and click around, or open the full app for a real-size, fully interactive session.
+        <b>Live Sandbox:</b> Paste a link, drag
+        the map and click around. Open the full app for a real-size session.
       </figcaption>
     </div>
   </header>
@@ -2866,6 +3391,40 @@
         Wikipedia to understand the history, and load a media-bias tool to detect the narrative framing. Three tools,
         ten minutes, and most readers give up before starting. Worse, the most rigorous reporting sits behind paywalls.
       </p>
+      <!-- Users: three persona snapshots -->
+      <h3 class="sub">User Stories</h3>
+      <div class="persona-row">
+        <div class="persona-col">
+          <div class="persona-icon">
+            <img src="Conflict%20Lens/User1_Jamila_crop.png" loading="lazy" alt="Illustrated portrait of Jamila">
+          </div>
+          <p class="persona-role">Journalist</p>
+          <p class="persona-text"><strong>Jamila</strong> is a journalist, who wants a <strong>fast synthesis</strong>
+            of an unfolding conflict's timeline, actors, and geography, so that she has a grounded starting point
+            before she starts writing about a connected story.</p>
+        </div>
+        <div class="persona-col">
+          <div class="persona-icon">
+            <img src="Conflict%20Lens/User2_Zaif_crop.png" loading="lazy" alt="Illustrated portrait of Zaif">
+          </div>
+          <p class="persona-role">Researcher &amp; Tutor</p>
+          <p class="persona-text"><strong>Zaif</strong> is a tutor teaching an international affairs
+            class, who wants an interactive, <strong>visual walkthrough</strong> of a conflict's history and media
+            framing, so that they can quickly brief their students live on screen instead of narrating from static
+            notes.</p>
+        </div>
+        <div class="persona-col">
+          <div class="persona-icon">
+            <img src="Conflict%20Lens/User3_Amara_crop.png" loading="lazy" alt="Illustrated portrait of Amara"
+              style="transform: translateY(10px);">
+          </div>
+          <p class="persona-role">Reader</p>
+          <p class="persona-text"><strong>Amara</strong> is a member of a diaspora community, who wants to understand
+            a conflict in her home region beyond the <strong>biased coverage</strong> that reaches her, whose framing
+            she already distrusts, so that she can form her own read on events. </p>
+        </div>
+      </div>
+
       <p class="pullquote no-quote">
         How might we take someone from a single article to a geographically-grounded, bias-aware understanding of an
         event in under a minute?
@@ -2896,7 +3455,7 @@
     <!-- ============ 2. RESEARCH & INSIGHT ============ -->
     <section id="research">
       <p class="eyebrow">02 / Research &amp; Insight</p>
-      <h2 class="section-head">The workflow</h2>
+      <h2 class="section-head">Research Findings</h2>
 
       <h3 class="sub">Who it's for</h3>
       <p class="body">
@@ -2958,6 +3517,10 @@
         <b>Market Whitespace:</b> Conflict Lens targets the unoccupied intersection of geographic data structures and
         media framing analysis.
       </figcaption>
+
+      <h3 class="sub">Value Proposition</h3>
+      <p class="body"><strong>Conflict Lens is the only tool that puts geography, history, and media bias in one
+          view</strong>, turning a single article into a grounded briefing in under a minute.</p>
 
     </section>
 
@@ -3164,6 +3727,10 @@
           screens.</p>
         <p class="line"><b>Decision:</b> Built a PDF upload parser so users can save paywalled pages and process raw
           text directly.</p>
+        <p class="line"><b>Limitation:</b> Some wire services (Reuters, AP, Bloomberg) don't paywall so much as
+          actively block scraping with a 401 or 403. That's bot detection, not a login screen, and no amount of
+          header spoofing gets around it. The UI now says upfront which outlets work as a link versus which need a
+          PDF, and a blocked request shows a plain message instead of a raw error code.</p>
         <p class="why">&#8627; Core Principle: Meet the reader where the content is</p>
       </div>
 
@@ -3187,6 +3754,12 @@
         Language models are probabilistic systems. They can return malformed JSON, hallucinate URLs, or geocode
         coordinates to the middle of the Atlantic Ocean. Designing for AI requires building defensive UI safety nets
         around messy data.
+      </p>
+      <p class="body">
+        Early prompts told the model to never leave a coordinate or a score empty, so under uncertainty it started
+        inventing plausible-looking numbers instead. The fix was to let it say it didn't know. A model that always
+        looks confident is more dangerous than one that visibly isn't, especially in a tool reporting on real
+        conflicts and casualties.
       </p>
 
       <!-- Micro Prototype 4: Torn Paper comparison sandbox -->
@@ -3218,6 +3791,46 @@
           <b>Defensive UX:</b> Toggle to see how Conflict Lens intercepts LLM failures (like constructing
           queries instead of URL paths, and filtering out <code>0,0</code> pins).
         </figcaption>
+      </div>
+
+      <h3 class="sub">Hardening the AI pipeline</h3>
+      <p class="body">
+        Putting an LLM in the request path also opens failure modes a typical app doesn't have to think about: the
+        model can refuse to answer, get tricked, or become the thing an attacker targets. A few of those had to be
+        treated as real states, not edge cases.
+      </p>
+
+      <div class="decision">
+        <h4>Failing safely on safety refusals</h4>
+        <p class="line"><b>Tension:</b> Gemini blocks responses it judges unsafe, but a naive integration assumes a
+          response always contains a usable result.</p>
+        <p class="line"><b>Decision:</b> Added explicit handling for blocked or empty responses, so a refusal shows a
+          clear message instead of crashing on an unhandled error.</p>
+        <p class="why">&#8627; Core Principle: Fail on purpose, not by accident</p>
+      </div>
+
+      <div class="decision">
+        <h4>Closing a live vulnerability</h4>
+        <p class="line"><b>Tension:</b> An early parameter for overriding the system prompt had been built into the
+          API but never connected to the frontend. It was live, unauthenticated, and invisible unless someone read
+          the public source.</p>
+        <p class="line"><b>Decision:</b> Removed it instead of locking it down, since the frontend never needed it.
+          Left in place, anyone who found it could have run their own instructions through the app's API key and
+          quota.</p>
+        <p class="why">&#8627; Core Principle: Don't ship what you don't use</p>
+      </div>
+
+      <div class="decision">
+        <h4>Hardening against prompt injection</h4>
+        <p class="line"><b>Tension:</b> The app reads scraped pages and uploaded PDFs, which makes that content its
+          own attack surface. A page could hide instructions hoping the model follows them as if they came from the
+          app.</p>
+        <p class="line"><b>Decision:</b> Rebuilt the request so the app's real instructions sit in a separate,
+          higher-priority channel from the article text, which is clearly delimited as content to read, not
+          commands to follow.</p>
+        <p class="line"><b>Limitation:</b> This isn't a complete fix. No known technique fully eliminates prompt
+          injection, but it closes the obvious gap of pasting everything into one string.</p>
+        <p class="why">&#8627; Core Principle: Untrusted input is data, not instructions</p>
       </div>
 
     </section>
@@ -3262,6 +3875,31 @@
             pins.</div>
         </div>
       </div>
+
+      <div class="compare-row">
+        <div class="compare-side v1">
+          <div class="compare-label">Initial Assumption</div>
+          <div class="compare-text">A Gemini response always contains a usable result.</div>
+        </div>
+        <div class="compare-side v2">
+          <div class="compare-label">Real-World Friction</div>
+          <div class="compare-text">Safety filters can return an empty or blocked response outright. Had to catch
+            that case explicitly instead of letting it crash on an unhandled error.</div>
+        </div>
+      </div>
+
+      <div class="compare-row">
+        <div class="compare-side v1">
+          <div class="compare-label">Initial Assumption</div>
+          <div class="compare-text">Only the app's own UI could ever call the AI endpoint.</div>
+        </div>
+        <div class="compare-side v2">
+          <div class="compare-label">Real-World Friction</div>
+          <div class="compare-text">A leftover test parameter was still live and unauthenticated in the deployed API,
+            enough for anyone reading the public source to hijack the model with their own instructions. Found it
+            during a security pass and removed it.</div>
+        </div>
+      </div>
     </section>
 
     <!-- ============ 9. THE STACK / ARCHITECTURE ============ -->
@@ -3288,8 +3926,8 @@
         </li>
         <li>
           <b>Deployment</b>
-          <span>The interface is served as static files on GitHub Pages, and the data services run on standard cloud
-            servers.</span>
+          <span>The interface is served as static files on GitHub Pages, and the backend runs on Render's free tier.
+          </span>
         </li>
       </ul>
 
@@ -3368,18 +4006,29 @@
       <p class="eyebrow">10 / Reflection</p>
       <h2 class="section-head">What I learned, and what's next</h2>
       <p class="body">
-        Conflict Lens taught me that designing with AI is really about designing for volatility. We cannot control what
-        the API returns, so the interface has to act as a filter. Keeping the system feeling fast with skeleton loading,
-        setting honest expectations with clear waiting copy, and offering a next step when something fails can turn
-        a fragile AI script into a trustable product.
+        Conflict Lens taught me that designing with AI is really about designing for <mark>volatility</mark>. We
+        cannot control what the API returns, so the interface has to act as a filter. Keeping the system feeling
+        fast with skeleton loading, setting honest expectations with clear waiting copy, and offering a next step
+        when something fails can turn a fragile AI script into a trustable product.
       </p>
-      <p class="body">
-        If I were to expand the scope, I'd bring in a second source for the bias read. Right now the Gemini API handles
-        it alone, and since an AI can hallucinate, a trained agent or an independent check could make that call more
-        reliable. On the interface, I'd build a chronological playback tool that animates the timeline and flies the
-        view to each event pin on the map. I would also add keyboard shortcuts to browse events, and institutional trust
-        scores to help verify citations.
-      </p>
+      <p class="body">If I were to expand the scope, here's what I'd prioritize next:</p>
+      <ul class="reflection-list">
+        <li>A <mark>domain allowlist</mark> to flag unreliable sources before they're ever scraped, no model judgment
+          required.</li>
+        <li>Turning the existing verification links into <mark>real corroboration</mark>, fetching a competing
+          outlet's coverage instead of just pointing to it.</li>
+        <li>A <mark>second, differently-trained model</mark> run in parallel as a divergence check. Useful for
+          catching the model hallucinating, though two models agreeing on a bad source still wouldn't make it
+          true.</li>
+        <li>On the interface: a chronological <mark>playback tool</mark> that animates the timeline and flies the map
+          to each event, plus keyboard shortcuts to browse events.</li>
+        <li>An option to increase or decrease font size for better readability, plus features for increasing
+          accessibility like a
+          <mark>high-contrast mode</mark>, <mark>colorblind-safe pins</mark> so actors aren't identified by color
+          alone, and
+          proper labels for screen readers on the map and timeline.
+        </li>
+      </ul>
     </section>
 
   </main>
@@ -3543,6 +4192,17 @@
         }
       }
       setTimeout(tick, 400);
+    })();
+
+    // ─── "Launch Live Sandbox" scrolls the demo to center, not to the top ─────────
+    (function () {
+      const ctaDemoBtn = document.getElementById('ctaDemoBtn');
+      const dashboardMock = document.getElementById('dashboardMock');
+      if (!ctaDemoBtn || !dashboardMock) return;
+      ctaDemoBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        dashboardMock.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
     })();
 
     // ─── SANDBOX 0: Live embedded app, forced to desktop layout, scaled to fit ────
@@ -3778,6 +4438,17 @@
         }
       });
     });
+
+    // Screens deck: click toggles the fanned/grown state (mirrors :hover,
+    // so it also works on touch/trackpad and can stay open without holding
+    // a hover).
+    (function () {
+      var stage = document.getElementById('o2Stage');
+      if (!stage) return;
+      stage.addEventListener('click', function () {
+        stage.classList.toggle('is-fanned');
+      });
+    })();
 
   </script>
 </body>

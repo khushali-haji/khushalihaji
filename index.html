@@ -1043,9 +1043,12 @@
       .hero-body {
         grid-column: 1;
         grid-row: 3;
-        width: fit-content;
-        max-width: 100%;
-        margin-inline: auto;
+        margin-left: 0;
+        /* Unlike the name/words-row above, the bio paragraphs are long
+           enough that their natural width always exceeds the screen, so
+           fit-content + margin:auto can't center them (no leftover space
+           to distribute). Center the text itself instead. */
+        text-align: center;
       }
 
       /* Center each line as its own block, matching the centered gif above;
