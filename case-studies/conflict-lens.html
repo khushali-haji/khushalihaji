@@ -139,7 +139,7 @@
       transform: translate(-50%, -50%);
       opacity: 0;
       transition: opacity 0.8s ease;
-      will-change: left, top;
+      will-change: translate;
     }
 
     /* Reading progress bar (graphite line style) */
@@ -4114,12 +4114,11 @@
     document.addEventListener('mousemove', e => {
       mouseX = e.clientX;
       mouseY = e.clientY;
-      cursorArrow.style.left = (e.clientX - 2) + 'px';
-      cursorArrow.style.top = (e.clientY - 2) + 'px';
+      // `translate` (not left/top) so the move composites instead of running layout.
+      cursorArrow.style.translate = (e.clientX - 2) + 'px ' + (e.clientY - 2) + 'px';
 
       if (cursorGlow) {
-        cursorGlow.style.left = e.clientX + 'px';
-        cursorGlow.style.top = e.clientY + 'px';
+        cursorGlow.style.translate = e.clientX + 'px ' + e.clientY + 'px';
         cursorGlow.style.opacity = '1';
       }
 

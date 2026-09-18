@@ -206,7 +206,7 @@
       transform: translate(-50%, -50%);
       opacity: 0;
       transition: opacity 0.8s ease;
-      will-change: left, top;
+      will-change: translate;
     }
 
     /* Bottom progress line */
@@ -1834,13 +1834,14 @@
         mouseX = e.clientX;
         mouseY = e.clientY;
 
-        // Doodle arrow snaps to the cursor (offset so the svg tip sits on the pointer)
-        cursorArrow.style.left = (e.clientX - 2) + 'px';
-        cursorArrow.style.top = (e.clientY - 2) + 'px';
+        // Doodle arrow snaps to the cursor (offset so the svg tip sits on the pointer).
+        // Positioned via the standalone `translate` property, not left/top, so the
+        // browser can composite the move instead of running layout on every event —
+        // left/top updates at mousemove frequency were what read as cursor lag.
+        cursorArrow.style.translate = (e.clientX - 2) + 'px ' + (e.clientY - 2) + 'px';
 
         // Glow follows
-        cursorGlow.style.left = e.clientX + 'px';
-        cursorGlow.style.top = e.clientY + 'px';
+        cursorGlow.style.translate = e.clientX + 'px ' + e.clientY + 'px';
         cursorGlow.style.opacity = '1';
 
         if (!cursorStarted) {

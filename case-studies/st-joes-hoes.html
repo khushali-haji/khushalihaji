@@ -156,7 +156,7 @@
       transform: translate(-50%, -50%);
       opacity: 0;
       transition: opacity 0.8s ease;
-      will-change: left, top;
+      will-change: translate;
     }
 
     @media (hover: none) {
@@ -2034,8 +2034,7 @@
         function place(e) {
           cursor.style.translate = (e.clientX - 2) + 'px ' + (e.clientY - 2) + 'px';
           if (glow && !suppressed) {
-            glow.style.left = e.clientX + 'px';
-            glow.style.top = e.clientY + 'px';
+            glow.style.translate = e.clientX + 'px ' + e.clientY + 'px';
             glow.style.opacity = '1';
           }
           if (!shown && !suppressed) { cursor.classList.add('visible'); shown = true; }
