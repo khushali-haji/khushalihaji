@@ -371,7 +371,7 @@
     .meta-row {
       display: flex;
       flex-wrap: wrap;
-      gap: 1.5rem 3rem;
+      gap: 1.5rem 2.6rem;
       padding: 1.2rem 0;
       margin-bottom: 1rem;
     }
@@ -396,6 +396,19 @@
       font-weight: 600;
       font-size: 15.5px;
       color: var(--ink);
+    }
+
+    .meta-val a {
+      color: var(--ink);
+      text-decoration: underline;
+      text-decoration-color: var(--rule);
+      text-underline-offset: 3px;
+      transition: color 0.2s ease, text-decoration-color 0.2s ease;
+    }
+
+    .meta-val a:hover {
+      color: var(--teal);
+      text-decoration-color: var(--teal);
     }
 
     figcaption {
@@ -1113,11 +1126,11 @@
     <div class="meta-row">
       <div class="meta-item">
         <span class="meta-label">Role</span>
-        <span class="meta-val">Product Design &amp; Build, Groupwork</span>
+        <span class="meta-val">Product Design &amp; Build,<br>Groupwork</span>
       </div>
       <div class="meta-item">
         <span class="meta-label">Timeline</span>
-        <span class="meta-val">Sept 2026</span>
+        <span class="meta-val">Sept 2026<br>(2 week sprint)</span>
       </div>
       <div class="meta-item">
         <span class="meta-label">Type</span>
@@ -1125,7 +1138,12 @@
       </div>
       <div class="meta-item">
         <span class="meta-label">Stack</span>
-        <span class="meta-val">React &middot; TypeScript &middot; GitHub</span>
+        <span class="meta-val">React &middot; TypeScript</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Code</span>
+        <span class="meta-val"><a href="https://github.com/vincentmizhquiri/excalidrawCycle2" target="_blank"
+            rel="noopener">GitHub repo &nearr;</a></span>
       </div>
     </div>
 
