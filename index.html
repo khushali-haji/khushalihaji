@@ -1093,6 +1093,73 @@
       box-shadow: 7px 7px 0 rgba(40, 36, 33, 0.14);
     }
 
+    /* Card images: sit above the number and title, bleed to the card edges,
+       and drift inside their frame on scroll (--card-shift, set from JS).
+       Default: the image is taller than the frame and is cropped to fill it.
+       .is-whole: the full image is shown uncropped and slides within a matte
+       of the image's own edge colour (--media-bg). */
+    .project-media {
+      position: relative;
+      margin: -1.8rem -1.6rem 1.4rem;
+      aspect-ratio: 16 / 9;
+      overflow: hidden;
+      border-bottom: 1.5px solid rgba(40, 36, 33, 0.42);
+      background: var(--media-bg, #efe9dc);
+    }
+
+    .project-media img {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 118%;
+      object-fit: cover;
+      display: block;
+      transform: translate3d(0, var(--card-shift, -8%), 0);
+      will-change: transform;
+    }
+
+    /* Whole images sit vertically centred on their matte (equal band above and
+       below) and drift a little around that centre. */
+    .project-media.is-whole img {
+      top: 50%;
+      height: auto;
+      transform: translate3d(0, calc(-50% + var(--card-shift, 0px)), 0);
+    }
+
+    /* Zoomed out: the image is inset on all sides. Its own edges match the
+       matte colour, so the dark band blends in and it can drift fully. */
+    .project-media.is-zoomed img {
+      left: 11%;
+      width: 78%;
+    }
+
+    /* Coming-soon placeholder cards */
+    .project-card.is-soon {
+      background: rgba(250, 248, 244, 0.45);
+      border-style: dashed;
+      box-shadow: none;
+      cursor: default;
+    }
+
+    .project-card.is-soon:hover {
+      transform: none;
+      box-shadow: none;
+    }
+
+    .project-card.is-soon .project-media {
+      border-bottom-style: dashed;
+      background: repeating-linear-gradient(135deg,
+          rgba(40, 36, 33, 0.05) 0 8px,
+          transparent 8px 16px);
+    }
+
+    .project-card.is-soon .project-num,
+    .project-card.is-soon .project-title,
+    .project-card.is-soon .project-desc {
+      opacity: 0.5;
+    }
+
     .project-num {
       font-family: var(--mono);
       font-size: 12px;
@@ -1260,6 +1327,14 @@
     }
 
     .projects-grid .project-card.reveal:nth-child(3) {
+      transition-delay: 0.24s;
+    }
+
+    .projects-grid .project-card.reveal:nth-child(5) {
+      transition-delay: 0.12s;
+    }
+
+    .projects-grid .project-card.reveal:nth-child(6) {
       transition-delay: 0.24s;
     }
 
@@ -1532,6 +1607,7 @@
     <p class="section-label reveal">Featured Projects</p>
     <div class="projects-grid">
       <a class="project-card reveal" href="case-studies/conflict-lens.html">
+        <div class="project-media is-whole is-zoomed" style="--media-bg:#1b1e1a"><img src="images/card-conflict-lens.jpg" alt="Conflict Lens home screen: a dark input page with a paste-a-link field and an Analyze Link button" loading="lazy"></div>
         <span class="project-num">01</span>
         <h3 class="project-title">Conflict Lens</h3>
         <p class="project-desc">Turns a single news article into a geo-referenced, bias-aware conflict briefing, in
@@ -1545,6 +1621,7 @@
         </div>
       </a>
       <a class="project-card reveal" href="case-studies/fin-lit-ed.html">
+        <div class="project-media"><img src="images/card-fin-lit-ed.jpg" alt="The strain index chart from the Fin-Lit case study: satisfaction lines trending down and vulnerability lines trending up across income groups" loading="lazy"></div>
         <span class="project-num">02</span>
         <h3 class="project-title">Fin-Lit Education<span class="pt-sub">
             <p>(A Data Analysis)</p>
@@ -1559,6 +1636,7 @@
         </div>
       </a>
       <a class="project-card reveal" href="case-studies/st-joes-hoes.html">
+        <div class="project-media"><img src="images/card-st-joes-hoes.jpg" alt="The residents of St. Joseph’s gathered around the communal dinner table" loading="lazy"></div>
         <span class="project-num">03</span>
         <h3 class="project-title">St. Joe's Hoes</h3>
         <p class="project-desc">A character-driven documentary exploring immigration, housing insecurity, and creative
@@ -1571,6 +1649,31 @@
           <span class="tag">Ethnography</span>
         </div>
       </a>
+      <a class="project-card reveal" href="case-studies/excalidraw-attribution.html">
+        <div class="project-media is-whole" style="--media-bg:#fff"><img src="images/card-excalidraw.jpg" alt="Annotated before and after of the Excalidraw export dialog, with notes on the added formats, aspect ratios and default attribution mark" loading="lazy"></div>
+        <span class="project-num">04</span>
+        <h3 class="project-title">Made with Excalidraw</h3>
+        <p class="project-desc">Shipped features for Excalidraw, an open source whiteboard, to increase visibility with
+          growing (optional) attribution in exports. Product design and ideation on a QR code, a default credit line,
+          and a short opt-out survey, built in a shared repo with three other contributors.</p>
+        <div class="project-tags">
+          <span class="tag">Product Design</span>
+          <span class="tag">Open Source</span>
+          <span class="tag">Marketing KPI</span>
+        </div>
+      </a>
+      <div class="project-card is-soon reveal" aria-disabled="true">
+        <div class="project-media" aria-hidden="true"></div>
+        <span class="project-num">05</span>
+        <h3 class="project-title">Coming soon</h3>
+        <p class="project-desc">Another case study is in the works.</p>
+      </div>
+      <div class="project-card is-soon reveal" aria-disabled="true">
+        <div class="project-media" aria-hidden="true"></div>
+        <span class="project-num">06</span>
+        <h3 class="project-title">Coming soon</h3>
+        <p class="project-desc">Another case study is in the works.</p>
+      </div>
     </div>
 
     <div class="about-cta reveal">
@@ -1585,6 +1688,47 @@
     data-home-label="About" data-home-href="about.html">
   </div>
   <script src="js/include-footer.js?v=7"></script>
+
+  <script>
+    // Featured project cards: each image drifts inside its frame as the card
+    // crosses the viewport. Cropped images slide from -spare to 0. Whole images
+    // stay centred and drift a little around the centre. Either way the image
+    // moves down relative to the frame as you scroll.
+    (function () {
+      var frames = document.querySelectorAll('.project-media');
+      if (!frames.length) return;
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      var ticking = false;
+      function update() {
+        ticking = false;
+        var vh = window.innerHeight;
+        frames.forEach(function (frame) {
+          var img = frame.firstElementChild;
+          if (!img) return;
+          var r = frame.getBoundingClientRect();
+          if (r.bottom < 0 || r.top > vh) return;
+          var d = frame.clientHeight - img.offsetHeight;
+          var p = (vh - r.top) / ((vh + r.height) * 0.8);
+          p = Math.min(1, Math.max(0, p));
+          var shift;
+          if (frame.classList.contains('is-whole')) {
+            // Centred by CSS; drift up to +/-15% of the spare room around it.
+            shift = (p - 0.5) * (frame.classList.contains('is-zoomed') ? 1 : 0.3) * Math.abs(d);
+          } else {
+            shift = -Math.abs(d) * (1 - p);
+          }
+          img.style.setProperty('--card-shift', shift.toFixed(1) + 'px');
+        });
+      }
+      function onScroll() {
+        if (!ticking) { ticking = true; requestAnimationFrame(update); }
+      }
+      window.addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('resize', onScroll);
+      window.addEventListener('load', update);
+      update();
+    })();
+  </script>
 
   <script>
     // ─── Map grid ─────────────────────────────────────────────────────────────────

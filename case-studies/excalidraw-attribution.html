@@ -1,0 +1,1720 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Excalidraw Attribution Case Study — Khushali Haji</title>
+  <script>document.documentElement.classList.add('js');</script>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300;1,600&family=DM+Mono:wght@400;500&family=Inter:wght@200;300;400;500;600;700&family=Caveat:wght@400;600&display=swap"
+    rel="stylesheet">
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    :root {
+      --ink: #282421;
+      --paper: #e8dcd0;
+      --card-paper: #faf8f4;
+      --teal: #1a6b6b;
+      --yellow: #c69926;
+      --sage: #779483;
+      --coral: #cc5a43;
+      --slate: #4f6472;
+      --rule: rgba(40, 36, 33, 0.14);
+      --serif: 'Cormorant Garamond', Georgia, serif;
+      --mono: 'DM Mono', monospace;
+      --sans: 'Inter', sans-serif;
+      --transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    html,
+    body {
+      width: 100%;
+      min-height: 100vh;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--serif);
+      overflow-x: hidden;
+    }
+
+    #footer-placeholder .site-footer {
+      background: #eff3f1;
+    }
+
+    /* Paper grain backdrop, same texture as the other case studies */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.5;
+    }
+
+    /* Map grid canvas, same faint gridlines as Conflict Lens */
+    #mapGrid {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .progress-line {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 0%;
+      height: 4px;
+      background: linear-gradient(to right, var(--teal), var(--yellow), var(--coral));
+      z-index: 100;
+      pointer-events: none;
+    }
+
+    .topnav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 50;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.9rem max(1.5rem, 5vw);
+      background: rgba(243, 240, 232, 0.9);
+      backdrop-filter: blur(12px);
+      border-bottom: 2px solid var(--ink);
+    }
+
+    .topnav a {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink);
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+
+    .topnav a:hover {
+      color: var(--teal);
+      text-decoration: underline;
+    }
+
+    .topnav a.nav-back {
+      font-family: 'Caveat', cursive;
+      font-size: clamp(16px, 1.6vw, 20px);
+      font-weight: 400;
+      text-transform: none;
+      letter-spacing: 0;
+    }
+
+    .nav-back span {
+      display: inline-block;
+      transition: transform 0.3s ease;
+    }
+
+    .nav-back:hover span {
+      transform: translateX(-4px);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .wrap {
+      position: relative;
+      z-index: 2;
+      max-width: 800px;
+      margin: 0 auto;
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
+
+    section {
+      padding: 9vh 0;
+      border-bottom: 2px dashed var(--rule);
+    }
+
+    /* Reveal on scroll: each block fades up on its own as it enters the
+       screen, the same motion as the St. Joe's page. Uses the individual
+       `translate` property so it stacks with the `transform` that a few
+       full-width blocks already use to break out of the column. Hidden
+       states only apply when JS is running. */
+    [data-reveal] {
+      transition: opacity 0.9s ease var(--d, 0s), translate 1s cubic-bezier(0.22, 1, 0.36, 1) var(--d, 0s);
+    }
+
+    .js [data-reveal] {
+      opacity: 0;
+      translate: 0 28px;
+    }
+
+    .js [data-reveal].is-in {
+      opacity: 1;
+      translate: 0 0;
+    }
+
+    /* Hero title: the line rides up out of a clipped row */
+    .line-mask {
+      display: block;
+      overflow: hidden;
+      padding-bottom: 0.1em;
+      margin-bottom: -0.1em;
+    }
+
+    .line-mask>i {
+      display: block;
+      font-style: inherit;
+      transition: transform 1.05s cubic-bezier(0.22, 1, 0.36, 1) var(--d, 0s);
+    }
+
+    .js .line-mask>i {
+      transform: translateY(110%);
+    }
+
+    .js .line-mask.is-in>i {
+      transform: translateY(0);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+
+      [data-reveal],
+      .line-mask>i {
+        transition: none !important;
+      }
+
+      .js [data-reveal],
+      .js .line-mask>i {
+        opacity: 1;
+        translate: none;
+        transform: none;
+      }
+    }
+
+    section:last-of-type {
+      border-bottom: none;
+    }
+
+    .eyebrow {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--teal);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .eyebrow::before {
+      content: '★';
+      font-size: 8px;
+      color: var(--yellow);
+    }
+
+    h2.section-head {
+      font-family: var(--serif);
+      font-weight: 600;
+      font-size: clamp(28px, 3.8vw, 40px);
+      line-height: 1.18;
+      letter-spacing: -0.015em;
+      margin-bottom: 1.6rem;
+      color: var(--ink);
+    }
+
+    .proto-video {
+      display: block;
+      width: 100%;
+      aspect-ratio: 2880 / 1344;
+      margin: 1.6rem 0;
+      background: #000;
+      border: 2px solid var(--ink);
+      border-radius: 6px;
+      box-shadow: 4px 4px 0 var(--rule);
+    }
+
+    p.body code {
+      font-family: var(--mono);
+      font-size: 0.82em;
+      background: rgba(40, 36, 33, 0.06);
+      padding: 0.1em 0.4em;
+      border-radius: 3px;
+    }
+
+    p.body a {
+      color: var(--teal);
+      font-weight: 600;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    p.body a:hover {
+      color: var(--coral);
+    }
+
+    h3.sub {
+      font-family: var(--serif);
+      font-style: italic;
+      font-weight: 600;
+      font-size: clamp(20px, 2.4vw, 24px);
+      color: var(--teal);
+      margin: 2.2rem 0 0.8rem;
+    }
+
+    p.body {
+      font-family: var(--serif);
+      font-weight: 500;
+      font-size: clamp(16.5px, 1.4vw, 19px);
+      line-height: 1.76;
+      color: rgba(40, 36, 33, 0.85);
+      margin-bottom: 1.35rem;
+    }
+
+    p.body strong {
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    /* Editorial drop cap, same as the Conflict Lens case study */
+    .lede {
+      font-size: clamp(18px, 1.5vw, 21px);
+      line-height: 1.68;
+      color: var(--ink);
+      margin-bottom: 1.8rem;
+    }
+
+    p.lede::first-letter {
+      font-family: var(--serif);
+      font-size: 3.5em;
+      float: left;
+      line-height: 0.8;
+      margin-right: 0.15em;
+      margin-top: 0.05em;
+      color: var(--teal);
+      font-weight: bold;
+    }
+
+    ul.plain {
+      margin: 0 0 1.35rem 1.3rem;
+    }
+
+    ul.plain li {
+      font-family: var(--serif);
+      font-weight: 500;
+      font-size: clamp(16.5px, 1.4vw, 19px);
+      line-height: 1.7;
+      color: rgba(40, 36, 33, 0.85);
+      margin-bottom: 0.4rem;
+    }
+
+    .hero {
+      padding-top: 15vh;
+      padding-bottom: 2.5rem;
+      border-bottom: 2px solid var(--ink);
+    }
+
+    #brief {
+      padding-top: 15vh;
+    }
+
+    .hero-title {
+      font-family: var(--serif);
+      font-weight: 600;
+      font-size: clamp(40px, 6vw, 64px);
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.4rem;
+    }
+
+    .hero-title em {
+      font-style: italic;
+      color: var(--teal);
+      font-weight: normal;
+    }
+
+    .hero-tagline {
+      font-family: var(--sans);
+      font-weight: 200;
+      font-size: clamp(19px, 2.4vw, 26px);
+      line-height: 1.4;
+      letter-spacing: -0.02em;
+      color: rgba(40, 36, 33, 0.8);
+      margin-bottom: 1.4rem;
+    }
+
+    .hero-oneliner {
+      font-family: var(--serif);
+      font-weight: 500;
+      font-size: clamp(18.5px, 1.55vw, 21px);
+      line-height: 1.76;
+      color: rgba(40, 36, 33, 0.85);
+      margin-bottom: 2.2rem;
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem 3rem;
+      padding: 1.2rem 0;
+      margin-bottom: 1rem;
+    }
+
+    .meta-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+
+    .meta-label {
+      font-family: var(--mono);
+      font-size: 9.5px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--teal);
+      font-weight: bold;
+    }
+
+    .meta-val {
+      font-family: var(--serif);
+      font-weight: 600;
+      font-size: 15.5px;
+      color: var(--ink);
+    }
+
+    figcaption {
+      font-family: var(--mono);
+      font-size: 10.5px;
+      line-height: 1.5;
+      color: rgba(40, 36, 33, 0.6);
+      margin-top: 0.6rem;
+      margin-bottom: 1.6rem;
+      padding: 0.4rem 0;
+    }
+
+    figcaption b {
+      color: var(--teal);
+      font-weight: bold;
+    }
+
+    /* Placeholder blocks for screenshots, the Figma prototype, or video that
+       have not been added yet. Kept visually distinct from real content. */
+    .media-placeholder {
+      width: 100%;
+      min-height: 160px;
+      margin: 1.6rem 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      background: repeating-linear-gradient(135deg, rgba(40, 36, 33, 0.03) 0 10px, transparent 10px 20px);
+      border: 2px dashed var(--rule);
+      border-radius: 6px;
+      padding: 1.5rem;
+      text-align: center;
+    }
+
+    .media-placeholder .ph-icon {
+      font-size: 22px;
+      color: var(--yellow);
+    }
+
+    .media-placeholder .ph-label {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.02em;
+      color: rgba(40, 36, 33, 0.55);
+      max-width: 480px;
+      line-height: 1.6;
+    }
+
+    /* User stories: three persona snapshots, same pattern as Conflict Lens */
+    .persona-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2.6rem;
+      margin: 2.4rem 0 3rem;
+    }
+
+    .persona-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .persona-icon {
+      width: 128px;
+      height: 165px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1rem;
+      flex-shrink: 0;
+      background: repeating-linear-gradient(135deg, rgba(40, 36, 33, 0.03) 0 10px, transparent 10px 20px);
+      border: 2px dashed var(--rule);
+      border-radius: 6px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: rgba(40, 36, 33, 0.55);
+    }
+
+    .persona-role {
+      font-family: var(--mono);
+      font-weight: 500;
+      font-size: 14px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--ink);
+      text-align: center;
+      margin-bottom: 0.9rem;
+    }
+
+    .persona-col p.persona-text {
+      font-family: var(--serif);
+      font-weight: 500;
+      font-size: 15.5px;
+      line-height: 1.62;
+      color: rgba(40, 36, 33, 0.85);
+      text-align: left;
+    }
+
+    .persona-col p.persona-text strong {
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    @media (max-width: 760px) {
+      .persona-row {
+        grid-template-columns: 1fr;
+        gap: 3rem;
+      }
+    }
+
+    /* Decision blocks */
+    .decision {
+      padding: 1.5rem;
+      background: var(--card-paper);
+      border: 2px solid var(--ink);
+      border-radius: 4px;
+      margin-bottom: 1.2rem;
+      box-shadow: 3px 3px 0 var(--rule);
+      transition: var(--transition);
+    }
+
+    .decision:hover {
+      background: #fff;
+      transform: translateX(4px);
+      box-shadow: 3px 3px 0 var(--ink);
+    }
+
+    .decision h4 {
+      font-family: var(--serif);
+      font-weight: bold;
+      font-size: 18.5px;
+      margin-bottom: 0.6rem;
+      color: var(--ink);
+    }
+
+    .decision .line {
+      font-family: var(--serif);
+      font-weight: 500;
+      font-size: 15px;
+      line-height: 1.45;
+      color: rgba(40, 36, 33, 0.85);
+      margin-bottom: 0.3rem;
+    }
+
+    .decision .line b {
+      font-family: var(--mono);
+      font-size: 9.5px;
+      text-transform: uppercase;
+      color: var(--teal);
+      margin-right: 0.5rem;
+      font-weight: bold;
+    }
+
+    .decision .why {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--yellow);
+      margin-top: 0.6rem;
+      font-weight: bold;
+    }
+
+    /* Failure / lesson callout, left-rule style */
+    .fail {
+      margin-bottom: 1.5rem;
+      padding-left: 1.2rem;
+      border-left: 2px solid var(--ink);
+    }
+
+    .fail h4 {
+      font-family: var(--serif);
+      font-style: italic;
+      font-weight: bold;
+      font-size: 18px;
+      color: var(--teal);
+      margin-bottom: 0.3rem;
+    }
+
+    .fail p {
+      font-family: var(--serif);
+      font-weight: 500;
+      font-size: 15px;
+      line-height: 1.5;
+      color: rgba(40, 36, 33, 0.85);
+    }
+
+    /* Compare grid, Figma vs built */
+    .compare-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1.2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1.5px dashed var(--rule);
+    }
+
+    .compare-row:last-of-type {
+      border-bottom: none;
+    }
+
+    .compare-side {
+      padding: 0.8rem;
+      border: 1.5px solid var(--ink);
+      border-radius: 4px;
+      box-shadow: 2px 2px 0 var(--rule);
+      transition: var(--transition);
+    }
+
+    .compare-side:hover {
+      background: #fff;
+      transform: translateY(-2px);
+      box-shadow: 4px 4px 0 var(--ink);
+    }
+
+    .compare-side.v1 {
+      background: #faf4f2;
+    }
+
+    .compare-side.v2 {
+      background: #f1f6f4;
+    }
+
+    .compare-label {
+      font-family: var(--mono);
+      font-size: 9px;
+      text-transform: uppercase;
+      margin-bottom: 0.3rem;
+      font-weight: bold;
+    }
+
+    .compare-side.v1 .compare-label {
+      color: var(--coral);
+    }
+
+    .compare-side.v2 .compare-label {
+      color: var(--teal);
+    }
+
+    .compare-text {
+      font-family: var(--serif);
+      font-size: 14.5px;
+      line-height: 1.45;
+      color: var(--ink);
+    }
+
+    table.matrix {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 540px;
+      font-family: var(--serif);
+    }
+
+    .table-scroll {
+      overflow-x: auto;
+      margin: 1.6rem 0;
+    }
+
+    table.matrix th,
+    table.matrix td {
+      padding: 0.8rem 1rem;
+      text-align: left;
+      border: 1.5px solid var(--ink);
+      font-size: 14.5px;
+    }
+
+    table.matrix thead th {
+      font-family: var(--mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      color: var(--ink);
+      font-weight: bold;
+      background: #efebe2;
+    }
+
+    table.matrix td ul {
+      margin: 0;
+      padding-left: 1.1rem;
+    }
+
+    table.matrix td li {
+      margin: 0.3rem 0;
+    }
+
+    table.matrix td.tier {
+      width: 150px;
+      vertical-align: top;
+      background: rgba(26, 107, 107, 0.07);
+      color: var(--teal);
+      font-weight: bold;
+    }
+
+    table.matrix td.tier span {
+      display: block;
+      margin-top: 0.3rem;
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      color: rgba(40, 36, 33, 0.6);
+    }
+
+    table.matrix .ours {
+      background: rgba(26, 107, 107, 0.07);
+      color: var(--teal);
+      font-weight: bold;
+    }
+
+    .stat-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem 2.5rem;
+      margin: 1.8rem 0;
+      padding: 1.4rem 0;
+      border-top: 1.5px dashed var(--rule);
+      border-bottom: 1.5px dashed var(--rule);
+    }
+
+    .stat {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+    }
+
+    .stat .num {
+      font-family: var(--serif);
+      font-weight: 600;
+      font-size: 28px;
+      color: var(--teal);
+    }
+
+    .stat .lbl {
+      font-family: var(--mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: rgba(40, 36, 33, 0.6);
+    }
+
+    ul.decision-list {
+      list-style: disc;
+      padding-left: 1.3rem;
+      margin: 0 0 1.35rem;
+    }
+
+    ul.decision-list li {
+      font-family: var(--serif);
+      font-weight: 500;
+      font-size: clamp(16.5px, 1.4vw, 19px);
+      line-height: 1.7;
+      color: rgba(40, 36, 33, 0.85);
+      margin-bottom: 0.9rem;
+    }
+
+    ul.decision-list li::marker {
+      color: var(--yellow);
+    }
+
+    ul.decision-list li strong {
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    details.log ul.decision-list {
+      margin: 1rem 0 0;
+    }
+
+    details.log {
+      margin: 1.5rem 0;
+      border: 1.5px solid var(--rule);
+      border-radius: 6px;
+      padding: 1rem 1.2rem;
+      background: var(--card-paper);
+    }
+
+    details.log summary {
+      font-family: var(--mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--teal);
+      cursor: pointer;
+    }
+
+    details.log .decision {
+      margin-top: 1rem;
+    }
+
+    /* Export dialog before/after. The two screenshots have different native
+       heights (the redesigned dialog has more rows), so each sits in an
+       equal-height mat with object-fit: contain, like two prints in matching
+       frames rather than two mismatched crops. Breaks out wider than .wrap
+       since a 2026px-wide screenshot needs more than an 800px column to
+       stay legible. */
+    .export-compare {
+      --frame-h: clamp(200px, 27vw, 320px);
+      width: 100vw;
+      max-width: 1040px;
+      margin: 2.4rem 0 1.8rem;
+      margin-left: 50%;
+      transform: translateX(-50%);
+      padding: 0 1.5rem;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 1.4rem;
+    }
+
+    .export-card {
+      border: 1.5px solid var(--ink);
+      border-radius: 8px;
+      background: var(--card-paper);
+      box-shadow: 3px 3px 0 var(--rule);
+      overflow: hidden;
+      transition: var(--transition);
+    }
+
+    .export-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 5px 5px 0 var(--ink);
+    }
+
+    .export-card-chrome {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 0.6rem 0.9rem;
+      border-bottom: 1.5px dashed var(--rule);
+      background: rgba(40, 36, 33, 0.03);
+    }
+
+    .export-card-chrome .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+    }
+
+    .export-card-chrome .dot:nth-child(1) {
+      background: var(--coral);
+    }
+
+    .export-card-chrome .dot:nth-child(2) {
+      background: var(--yellow);
+    }
+
+    .export-card-chrome .dot:nth-child(3) {
+      background: var(--sage);
+    }
+
+    .export-card-chrome .chrome-title {
+      margin-left: 0.55rem;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      font-weight: 500;
+    }
+
+    .export-card.v1 .chrome-title {
+      color: var(--coral);
+    }
+
+    .export-card.v2 .chrome-title {
+      color: var(--teal);
+    }
+
+    .export-card-frame {
+      height: var(--frame-h);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.1rem;
+    }
+
+    .export-card-frame img {
+      max-width: 100%;
+      max-height: 100%;
+      width: auto;
+      height: auto;
+      border: 1px solid var(--rule);
+      border-radius: 3px;
+      box-shadow: 0 1px 3px rgba(40, 36, 33, 0.1);
+    }
+
+    .export-card-caption {
+      padding: 0 0.9rem 0.9rem;
+      font-family: var(--mono);
+      font-size: 10.5px;
+      letter-spacing: 0.01em;
+      line-height: 1.55;
+      color: rgba(40, 36, 33, 0.55);
+    }
+
+    .export-compare--full {
+      --frame-h: auto;
+      align-items: start;
+    }
+
+    .export-col {
+      margin: 0;
+    }
+
+    .export-compare--full .export-card-frame {
+      height: auto;
+      aspect-ratio: 2024 / 1178;
+      align-items: center;
+    }
+
+    .export-compare--full .export-card-frame a {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .export-compare--full .export-card-frame img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      max-height: none;
+      object-fit: contain;
+      border: none;
+      box-shadow: none;
+    }
+
+    .qr-figure {
+      max-width: 340px;
+      margin: 2rem auto 2.2rem;
+    }
+
+    .qr-figure .export-card-frame {
+      height: auto;
+    }
+
+    .qr-figure .export-card-frame a {
+      display: block;
+      width: 100%;
+    }
+
+    .qr-figure .export-card-frame img {
+      display: block;
+      width: 100%;
+      max-height: none;
+      border: none;
+      box-shadow: none;
+    }
+
+    .pr-figure {
+      margin: 2rem 0 0;
+    }
+
+    .pr-frame {
+      display: block;
+      background: #fff;
+      border: 1px solid var(--ink);
+      box-shadow: 3px 3px 0 var(--rule);
+      padding: 1.2rem;
+    }
+
+    .pr-frame img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .export-col-caption {
+      padding: 0.8rem 0.2rem 0;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.01em;
+      line-height: 1.55;
+      color: rgba(40, 36, 33, 0.6);
+    }
+
+    .export-compare--full .export-compare-connector {
+      align-self: start;
+      margin-top: calc(min(100vw, 1040px) * 0.142);
+    }
+
+    .export-compare-connector {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 1.5px dashed var(--rule);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--mono);
+      font-size: 15px;
+      color: var(--ink);
+      background: var(--paper);
+      flex-shrink: 0;
+    }
+
+    /* Hero image: one wide annotated screenshot (before/after already
+       drawn into the file itself), framed like the other figures on the
+       page. Breaks out past .wrap's 800px column so the annotations stay
+       readable. */
+    .hero-wide-image {
+      width: 100vw;
+      max-width: 1040px;
+      margin: 2.4rem 0 1.8rem;
+      margin-left: 50%;
+      transform: translateX(-50%);
+      padding: 0 1.5rem;
+      box-sizing: border-box;
+    }
+
+    /* Parallax: the frame stays put with the text around it. Only the image
+       drifts up and down inside it (--hero-shift, set from JS). The frame has
+       matching white padding top and bottom, so the drift never crops the
+       annotations. */
+    .hero-wide-frame {
+      --hero-travel: 80px;
+      overflow: hidden;
+      padding: var(--hero-travel) 0;
+      background: #fff;
+      border: 1px solid var(--ink);
+      box-shadow: 3px 3px 0 var(--rule);
+    }
+
+    .hero-wide-image img {
+      display: block;
+      width: 100%;
+      height: auto;
+      transform: translate3d(0, var(--hero-shift, 0px), 0);
+      will-change: transform;
+    }
+
+    .hero-wide-image figcaption {
+      margin-top: 1rem;
+      margin-bottom: 0;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .hero-wide-image img {
+        transform: none;
+        will-change: auto;
+      }
+    }
+
+    @media (max-width: 640px) {
+
+      .compare-row,
+      .stat-row {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-wide-image {
+        margin-left: 0;
+        transform: none;
+        width: 100%;
+        padding: 0;
+      }
+
+      .export-compare {
+        grid-template-columns: 1fr;
+        margin-left: 0;
+        transform: none;
+        width: 100%;
+        padding: 0;
+      }
+
+      .export-compare-connector {
+        transform: rotate(90deg);
+        margin: -0.2rem auto;
+      }
+
+      .export-compare--full .export-compare-connector {
+        align-self: center;
+        margin: -0.2rem auto;
+      }
+
+      .nav-links {
+        display: none;
+      }
+
+      table.matrix {
+        min-width: 480px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <canvas id="mapGrid"></canvas>
+
+  <div class="progress-line" id="progressBar" aria-hidden="true"></div>
+
+  <nav class="topnav" id="topNav">
+    <a class="nav-back" href="../index.html"><span>&larr;</span>&nbsp; Back to home</a>
+    <div class="nav-links">
+      <a href="#brief">Brief</a>
+      <a href="#research">Research</a>
+      <a href="#design">Design</a>
+      <a href="#ai">AI + Build</a>
+      <a href="#team">Team</a>
+      <a href="#reflections">Reflections</a>
+    </div>
+  </nav>
+
+  <!-- ============ 0. HERO ============ -->
+  <header class="hero wrap" id="top">
+    <p class="eyebrow">Case Study 04 &middot; Product Strategy, Design &amp; Build</p>
+    <h1 class="hero-title"><span class="line-mask"><i>Made with Excalidraw</i></span></h1>
+    <p class="hero-tagline">Increasing marketing visibility for an open source platform</p>
+    <p class="hero-oneliner">
+      Shipped features for Excalidraw, an open source whiteboard tool. The marketing KPI: grow the share of
+      exports that carry visible attribution, to increase the platform's visibility and support growth. Worked
+      as UX researcher and product designer inside a shared GitHub repo with three other contributors. Led
+      product design and ideation on subtle UX changes including QR codes, default credit line, and a short opt-out
+      survey. Also contributed UX edits to the export-tracking dashboard built by team to measure the KPI.
+    </p>
+
+    <div class="meta-row">
+      <div class="meta-item">
+        <span class="meta-label">Role</span>
+        <span class="meta-val">Product Design &amp; Build, Groupwork</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Timeline</span>
+        <span class="meta-val">Sept 2026</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Type</span>
+        <span class="meta-val">Open Source Feature</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Stack</span>
+        <span class="meta-val">React &middot; TypeScript &middot; GitHub</span>
+      </div>
+    </div>
+
+    <figure class="hero-wide-image">
+      <div class="hero-wide-frame">
+        <img src="Excalidraw/With_notes.png"
+          alt="Annotated before/after of the export dialog. Before: a plain scale picker and PNG/SVG/copy actions, with open questions noted on which formats to add and whether to use a watermark or attribution, while keeping the existing look for current users. After: a tooltip added on Embed scene, an attribution mark added by default with an opt-out (kept for open-source transparency), more export formats (WebP, JPEG, .excalidraw), and aspect-ratio presets, aimed at also making export easy for non-technical users.">
+      </div>
+      <figcaption>
+        <b>Export dialog, before and after:</b> The notes mark what changed and why. The credit line is on by
+        default and easy to turn off, with a quick survey.
+      </figcaption>
+    </figure>
+  </header>
+
+  <!-- ============ 1. THE BRIEF ============ -->
+  <section id="brief" class="wrap">
+    <p class="eyebrow">01 &middot; The Brief</p>
+    <h2 class="section-head">A marketing KPI that the existing analytics could not measure</h2>
+    <p class="body lede">
+      The stakeholder was Excalidraw's Head of Marketing, played by a Pursuit staff member. Their KPI was
+      <strong>brand visibility rate</strong>: the share of exported or shared drawings that carry visible
+      Excalidraw attribution.
+    </p>
+    <p class="body">
+      Two constraints shaped the work. First, Excalidraw is <strong>local-first</strong>. There are no accounts,
+      and no server ever sees a drawing. Any idea that needed a login, a database or a tracked user was ruled out.
+      That is why the plan relies on small, transparent, optional UX changes.
+    </p>
+    <p class="body">
+      Second, there was <strong>no baseline</strong>. Existing analytics couldn't tell whether an export carried
+      attribution, so there was no clean export rate. Rebuilding the export dashboard around this KPI became part
+      of the deliverables.
+    </p>
+  </section>
+
+  <!-- ============ 2. RESEARCH ============ -->
+  <section id="research" class="wrap">
+    <p class="eyebrow">02 &middot; Research</p>
+    <h2 class="section-head">Where exports go, and what competitors do</h2>
+    <p class="body">
+      Most Excalidraw drawings do not leave through a "File &gt; Export" menu. They leave as a copy-pasted PNG,
+      dropped straight into a GitHub pull request, a README, a blog post, or a slide. Any attribution that only
+      lived inside an export dialog, or behind an opt-in toggle, would miss most of the real usage.
+    </p>
+
+    <h3 class="sub">A quick competitive scan</h3>
+    <div class="table-scroll">
+      <table class="matrix">
+        <thead>
+          <tr>
+            <th>Tool</th>
+            <th>Free-tier export attribution</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Miro, Whimsical, Napkin.ai</td>
+            <td class="ours">Attribute on the free tier</td>
+          </tr>
+          <tr>
+            <td>tldraw.com, FigJam, draw.io</td>
+            <td>No watermark on export</td>
+          </tr>
+          <tr>
+            <td>Canva</td>
+            <td>Watermarks only when premium elements are used</td>
+          </tr>
+          <tr>
+            <td>Loom</td>
+            <td class="ours">Badge on nearly every free video</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="body" style="margin-top: 1.2rem;">
+      Loom puts its badge on nearly every free video automatically, which is why it works. But Loom is a private,
+      commercial product, and it later charged people to remove the badge. Users called that a "tax." Excalidraw is
+      open source and free, so that would go down even worse here. My rule for this project: the credit is on by
+      default, but turning it off always stays free.
+    </p>
+
+    <h3 class="sub">User Stories</h3>
+    <div class="persona-row">
+      <div class="persona-col">
+        <div class="persona-icon">portrait</div>
+        <p class="persona-role">Developer</p>
+        <p class="persona-text"><strong>Lola</strong> is a developer, who wants to drop a <strong>clean diagram</strong>
+          into a pull request or README in seconds, so that reviewers get context without a screenshot tool or extra
+          editing. She has used Excalidraw for years and likes its no-pressure, local-first approach. If that
+          changed, she would switch quickly.</p>
+      </div>
+      <div class="persona-col">
+        <div class="persona-icon">portrait</div>
+        <p class="persona-role">Teacher</p>
+        <p class="persona-text"><strong>Mr. Smith</strong> is a teacher with no tech background, who wants to
+          <strong>export a drawing</strong> for a class slide in one step, and turn off anything he doesn't understand
+          without getting stuck. He doesn't use Excalidraw yet and hears about FigJam and Miro instead. He would try
+          it if it were easy for non-technical people to navigate, and if he could export in different formats and
+          aspect ratios for slides.
+        </p>
+      </div>
+      <div class="persona-col">
+        <div class="persona-icon">portrait</div>
+        <p class="persona-role">Student</p>
+        <p class="persona-text"><strong>Camila</strong> is a student preparing for system design interviews, who wants
+          to <strong>share diagrams</strong> with her study group and on LinkedIn, so that others see her thinking.
+          She is happy to credit Excalidraw, and her friends would rather back an open source tool than a private
+          one. But she can't tell how to export at a set aspect ratio, and her homework needs to look consistent.</p>
+      </div>
+    </div>
+
+    <h3 class="sub">Strategy: grow the base you already have</h3>
+    <p class="body">
+      The direction we chose was to capture more visibility from Excalidraw's existing, engaged developer base,
+      rather than build new features to chase a new segment like classrooms. Formal use in education was ruled out
+      early. It needs procurement approval, stricter privacy handling, and classroom features Excalidraw does not
+      have. Putting the same effort into the audience already producing shareable drawings every day was the
+      higher-leverage bet.
+    </p>
+    <p class="body">
+      Teachers and students who do find their way here still matter, whether they are tech students or non-technical
+      tutors. So we made exporting easier for them, with more formats and aspect ratios. That gives them more ways
+      to export and more reasons to keep using the tool.
+    </p>
+  </section>
+
+  <!-- ============ 3. DESIGN: SCOPE ============ -->
+  <section id="design" class="wrap">
+    <p class="eyebrow">03 &middot; Design</p>
+    <h2 class="section-head">Scoping the Work</h2>
+    <p class="body">
+      The plan favored small, quiet signals that add up, rather than one loud watermark, like a credit line in the
+      export margin by default, a QR code on shared collaboration links, and a survey that only appears if someone
+      turns attribution off. Below is how they were ranked.
+    </p>
+
+    <div class="table-scroll">
+      <table class="matrix">
+        <thead>
+          <tr>
+            <th>Priority</th>
+            <th>Features</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="tier">P0<span>Core to the KPI</span></td>
+            <td>
+              <ul>
+                <li>Default export credit, in the margin</li>
+                <li>Opt-out toggle and 4-question survey</li>
+                <li>Export tracking dashboard, the baseline the KPI needs</li>
+              </ul>
+            </td>
+          </tr>
+          <tr>
+            <td class="tier">P1<span>Supports the KPI</span></td>
+            <td>
+              <ul>
+                <li>More export formats and social aspect ratios</li>
+                <li>QR code on collaboration links</li>
+                <li>Embed frame branding</li>
+                <li>File-type icon</li>
+              </ul>
+            </td>
+          </tr>
+          <tr>
+            <td class="tier">P2<span>Next iteration</span></td>
+            <td>
+              <ul>
+                <li><strong>Share straight to Pinterest.</strong> Pinterest's pin flow needs a public image URL, and
+                  Excalidraw has no image hosting, on principle, because it is local-first. Building it honestly would
+                  have meant adding a hosting backend and new privacy decisions.</li>
+                <li>Downstream usage tracking</li>
+                <li>Metadata-based tracking</li>
+                <li>Video casting</li>
+              </ul>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 class="section-head" id="figma" style="margin-top: 3.5rem;">Building it in Figma</h2>
+
+    <video class="proto-video" controls preload="metadata" playsinline>
+      <source src="Excalidraw/Figma_recording.mp4" type="video/mp4" />
+      <source src="Excalidraw/Figma_recording.mov" type="video/quicktime" />
+      Your browser cannot play this video.
+    </video>
+
+    <p class="body">
+      <a href="https://crown-prize-58874771.figma.site/" target="_blank" rel="noopener">Open the Figma prototype
+        &rarr;</a>
+    </p>
+
+    <h2 class="section-head" id="decisions" style="margin-top: 3.5rem;">Design Decisions</h2>
+
+    <ul class="decision-list">
+      <li><strong>The mark sits in the margin, not over the drawing.</strong> An overlay could cover what the user
+        drew, and the brief rules that out. The cost is a thin strip of whitespace on exports.</li>
+      <li><strong>It is an attribution mark, not a watermark.</strong> "Watermark" implies covering the drawing, so
+        the toggle reads "Hide attribution mark."</li>
+      <li><strong>Removal is free, but gated by a short survey.</strong> Paid removal is Loom's model, and users
+        called it a tax. A four-question survey, under 30 seconds, turns every opt-out into design feedback.</li>
+    </ul>
+
+    <div class="export-compare export-compare--full">
+      <figure class="export-col">
+        <div class="export-card v1">
+          <div class="export-card-chrome">
+            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+            <span class="chrome-title">Attribution on</span>
+          </div>
+          <div class="export-card-frame">
+            <a href="Excalidraw/Export_1.png" target="_blank" rel="noopener">
+              <img src="Excalidraw/Export_1.png" loading="lazy"
+                alt="The new export dialog with the attribution mark on: the Hide attribution mark toggle is off, the preview shows the mark in the bottom-right margin, and format and aspect ratio pills sit below.">
+            </a>
+          </div>
+        </div>
+        <figcaption class="export-col-caption">The default. The mark sits in the export margin, and the format and
+          aspect ratio pills are below.</figcaption>
+      </figure>
+
+      <div class="export-compare-connector" aria-hidden="true">&#8594;</div>
+
+      <figure class="export-col">
+        <div class="export-card v2">
+          <div class="export-card-chrome">
+            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+            <span class="chrome-title">Attribution off</span>
+          </div>
+          <div class="export-card-frame">
+            <a href="Excalidraw/Export_2.png" target="_blank" rel="noopener">
+              <img src="Excalidraw/Export_2.png" loading="lazy"
+                alt="The export dialog after the survey: Hide attribution mark is on, the four survey questions each show a done mark with the chosen answer, and the preview no longer shows the mark.">
+            </a>
+          </div>
+        </div>
+        <figcaption class="export-col-caption">After the four-question survey. The mark is hidden, and each answer stays
+          visible.</figcaption>
+      </figure>
+    </div>
+
+    <ul class="decision-list">
+      <li><strong>Opt-out lasts 30 days, then lapses.</strong> A permanent opt-out loses that visibility for good,
+        and a reset every session repeats the Loom complaint. Thirty days wins some visibility back without
+        nagging.</li>
+      <li><strong>The QR code stays a quiet, secondary signal.</strong> The logo goes on the existing collaboration
+        QR code instead of a new branding surface, so it reaches a real touchpoint without a new element to
+        dislike.</li>
+    </ul>
+
+    <figure class="export-col qr-figure">
+      <div class="export-card v2">
+        <div class="export-card-chrome">
+          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        </div>
+        <div class="export-card-frame">
+          <a href="Excalidraw/QR%20Code.png" target="_blank" rel="noopener">
+            <img src="Excalidraw/QR%20Code.png" loading="lazy"
+              alt="The Live collaboration dialog with a name field, a link with a Copy link button, and a QR code with the Excalidraw logo in its center.">
+          </a>
+        </div>
+      </div>
+      <figcaption class="export-col-caption">The Excalidraw logo, added to the existing live collaboration QR code.
+      </figcaption>
+    </figure>
+
+    <ul class="decision-list">
+      <li><strong>One survey question at a time.</strong> All four at once feels longer, and the target is 30
+        seconds.</li>
+      <li><strong>Ask once per opt-out, not per export.</strong> Someone exporting 20 times is one data point, not
+        twenty.</li>
+      <li><strong>Aspect ratio grows the canvas, never crops.</strong> Cropping could cut off the user's own
+        content.</li>
+    </ul>
+  </section>
+
+  <!-- ============ 6. AI + BUILD ============ -->
+  <section id="ai" class="wrap">
+    <p class="eyebrow">04 &middot; Building It</p>
+    <h2 class="section-head">Building with an AI coding pair</h2>
+    <p class="body">
+      The implementation was coded with Claude Code, while the team directed and oversaw the product decisions, the
+      design review, and the QA. Each result was checked on a local dev server before it was committed.
+    </p>
+    <p class="body">
+      The scope and the trade-offs were fixed before any code was written.
+    </p>
+
+    <h3 class="sub">Bugs found in review</h3>
+    <div class="compare-row">
+      <div class="compare-side v1">
+        <p class="compare-label">Bug</p>
+        <p class="compare-text">The mark rendered in the middle of the image, and too small, instead of the
+          bottom-right corner.</p>
+      </div>
+      <div class="compare-side v2">
+        <p class="compare-label">Cause and fix</p>
+        <p class="compare-text">The canvas was already scaled by the renderer, and the new mark code scaled it a
+          second time. Fixed by drawing inside the context that was already scaled.</p>
+      </div>
+    </div>
+    <div class="compare-row">
+      <div class="compare-side v1">
+        <p class="compare-label">Bug</p>
+        <p class="compare-text">The mark got cropped off on small or tightly zoomed exports.</p>
+      </div>
+      <div class="compare-side v2">
+        <p class="compare-label">Cause and fix</p>
+        <p class="compare-text">The margin reserved for the mark was a guessed fixed size, too small for the mark
+          it needed to hold. Fixed by computing the margin from the mark's real size, with a clamp so it can never
+          land off-canvas.</p>
+      </div>
+    </div>
+
+    <p class="body">
+      Testing has a real limit since the test environment cannot rasterize a canvas, so pixel position bugs like these
+      cannot be caught by an automated test alone. They were verified visually myself, using the SVG output, which can
+      be inspected directly
+    </p>
+  </section>
+
+  <!-- ============ 7. TEAM / REPO ============ -->
+  <section id="team" class="wrap">
+    <p class="eyebrow">05 &middot; Teamwork</p>
+    <h2 class="section-head">Version Control in a Shared Repo</h2>
+    <p class="body">
+      The work landed as three commits on one branch, in one pull request. Three teammates worked on their own
+      branches in the same repository, so we kept each unit small and checked what others were building before
+      starting the next one.
+    </p>
+    <p class="body">
+      The commits are ordered by dependency: mark and opt-out first, then export formats, then survey reporting.
+      Each one was typechecked, linted and tested when it was made, so any commit can be reviewed alone or undone
+      with <code>git revert</code> without breaking the others.
+    </p>
+
+    <div class="table-scroll">
+      <table class="matrix">
+        <thead>
+          <tr>
+            <th>Contributor</th>
+            <th>Work</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="ours">Khushali H.</td>
+            <td class="ours">Export attribution mark, opt-out survey, export formats, aspect ratios</td>
+          </tr>
+          <tr>
+            <td>Bo M.</td>
+            <td>QR code logo, branded export filenames, file-type icon branding</td>
+          </tr>
+          <tr>
+            <td>Richard T.</td>
+            <td>Export analytics dashboard</td>
+          </tr>
+          <tr>
+            <td>Vincent M.</td>
+            <td>Live-sync embed with attribution, deployment configuration</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <figure class="pr-figure">
+      <a class="pr-frame" href="Excalidraw/PR.png" target="_blank" rel="noopener">
+        <img src="Excalidraw/PR.png" loading="lazy"
+          alt="The GitHub pull request page for Export view, number 12190, open, with four commits: the export attribution mark with opt-out survey, WebP, JPEG and .excalidraw export with aspect ratios, survey answers reported as anonymous events, and a merge of master into the branch.">
+      </a>
+      <figcaption class="export-col-caption">The pull request on GitHub. The fourth commit is a merge of master into
+        the branch, to keep it current.</figcaption>
+    </figure>
+  </section>
+
+  <!-- ============ 8 & 9. REFLECTIONS ============ -->
+  <section id="reflections" class="wrap">
+    <p class="eyebrow">06 &middot; Results</p>
+    <h2 class="section-head">What Shipped</h2>
+    <p class="body">
+      What's built: a default attribution credit on PNG, JPEG, WebP, and SVG exports and on copy-paste, a
+      hide-attribution toggle gated by the survey with a 30-day expiry, a redesigned export dialog with more
+      formats, and an aspect ratio picker. Survey answers are reported as anonymous analytics events.
+    </p>
+
+    <div class="stat-row">
+      <div class="stat">
+        <span class="num">3</span>
+        <span class="lbl">Commits, one PR</span>
+      </div>
+      <div class="stat">
+        <span class="num">18</span>
+        <span class="lbl">Files changed</span>
+      </div>
+      <div class="stat">
+        <span class="num">28</span>
+        <span class="lbl">New tests</span>
+      </div>
+      <div class="stat">
+        <span class="num">0</span>
+        <span class="lbl">Existing tests broken</span>
+      </div>
+    </div>
+
+    <p class="body">
+      What is not proven yet: there was no attribution baseline before this work, so I cannot say the KPI moved, only
+      that it
+      can now be measured. The analytics dashboard built by team still runs on mock data, and is not yet connected.
+      Cross-browser testing is yet to be reviewed, since the mark uses canvas features that can vary between browsers.
+    </p>
+
+    <h2 class="section-head" style="margin-top: 2rem;">What we'd do differently</h2>
+    <ul class="plain">
+      <li>Set up cross-browser testing earlier. Unit tests cannot catch canvas rendering bugs at the pixel level.
+      </li>
+      <li>Agree on the measurement plan with the dashboard owner from day one, so the events and the dashboard get
+        designed together instead of connected after the fact.</li>
+      <li>Ship the KPI baseline before the feature. The brief itself said instrumentation was a prerequisite, and the
+        feature was built before there was anything to measure it against.</li>
+    </ul>
+  </section>
+
+  <div id="footer-placeholder" data-heading="Let's make <span class=&quot;sf-hl&quot;>something</span>"></div>
+  <script src="../js/include-footer.js?v=7"></script>
+
+  <script>
+    // Map grid background, same drawing logic as Conflict Lens.
+    (function initMapGrid() {
+      const mc = document.getElementById('mapGrid');
+      const mx = mc.getContext('2d');
+
+      function draw() {
+        const dpr = window.devicePixelRatio || 1;
+        const w = window.innerWidth, h = window.innerHeight;
+        mc.width = Math.round(w * dpr);
+        mc.height = Math.round(h * dpr);
+        mc.style.width = w + 'px';
+        mc.style.height = h + 'px';
+        mx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+        const hStep = 66;
+        const vStep = 86;
+        const bow = 7;
+
+        const minorLine = 'rgba(40,36,33,0.1)';
+        const majorLine = 'rgba(40,36,33,0.06)';
+        const dotColor = 'rgba(40,36,33,0.18)';
+
+        mx.clearRect(0, 0, w, h);
+
+        // Latitude lines
+        let rowIdx = 0;
+        for (let y = 0; y <= h + hStep; y += hStep, rowIdx++) {
+          const major = rowIdx % 5 === 0;
+          mx.setLineDash(major ? [] : [3, 6]);
+          mx.beginPath();
+          mx.moveTo(0, y);
+          mx.quadraticCurveTo(w * 0.5, y + bow, w, y);
+          mx.strokeStyle = major ? majorLine : minorLine;
+          mx.lineWidth = major ? 0.75 : 0.45;
+          mx.stroke();
+        }
+
+        // Longitude lines
+        let colIdx = 0;
+        for (let x = 0; x <= w + vStep; x += vStep, colIdx++) {
+          const major = colIdx % 5 === 0;
+          mx.setLineDash(major ? [] : [3, 6]);
+          mx.beginPath();
+          mx.moveTo(x, 0);
+          mx.lineTo(x, h);
+          mx.strokeStyle = major ? majorLine : minorLine;
+          mx.lineWidth = major ? 0.75 : 0.45;
+          mx.stroke();
+        }
+
+        mx.setLineDash([]);
+
+        // Intersection dots
+        for (let y = 0; y <= h + hStep * 5; y += hStep * 5) {
+          for (let x = 0; x <= w + vStep * 5; x += vStep * 5) {
+            mx.beginPath();
+            mx.arc(x, y, 1.8, 0, Math.PI * 2);
+            mx.fillStyle = dotColor;
+            mx.fill();
+          }
+        }
+      }
+
+      draw();
+      window.addEventListener('resize', draw);
+    })();
+
+    // Reading progress bar, same behavior as the other case study pages.
+    (function () {
+      var progressBar = document.getElementById('progressBar');
+      document.addEventListener('scroll', function () {
+        var h = document.documentElement;
+        var scrolled = h.scrollTop / (h.scrollHeight - h.clientHeight);
+        progressBar.style.width = (scrolled * 100) + '%';
+      }, { passive: true });
+    })();
+
+    // Hero image parallax: the frame stays fixed in the layout. As it crosses
+    // the viewport, the image inside slides from -travel to +travel, so it
+    // appears to lag behind the scroll.
+    (function () {
+      var frame = document.querySelector('.hero-wide-frame');
+      var img = frame && frame.querySelector('img');
+      if (!img) return;
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      var ticking = false;
+      function update() {
+        ticking = false;
+        var travel = parseFloat(getComputedStyle(frame).paddingTop) || 0;
+        var r = frame.getBoundingClientRect();
+        var vh = window.innerHeight;
+        // Compressed range: the image reaches its extremes before the frame
+        // has fully entered or left, so the drift feels faster.
+        var p = (vh - r.top) / ((vh + r.height) * 0.7);
+        p = Math.min(1, Math.max(0, p));
+        img.style.setProperty('--hero-shift', ((p - 0.5) * 2 * travel).toFixed(1) + 'px');
+      }
+      function onScroll() {
+        if (!ticking) { ticking = true; requestAnimationFrame(update); }
+      }
+      window.addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('resize', onScroll);
+      update();
+    })();
+
+    // Reveal on scroll. Each block fades up as its top crosses 88% of the
+    // screen height. Blocks that arrive together (page load, fast scroll)
+    // trail each other by a short delay. Measured from the scroll position
+    // rather than an IntersectionObserver, like the St. Joe's page.
+    (function () {
+      var targets = document.querySelectorAll([
+        '.hero > *:not(h1)',
+        'section > *:not(ul.decision-list):not(ul.plain):not(.persona-row):not(.stat-row)',
+        '.decision-list > li',
+        'ul.plain > li',
+        '.persona-col',
+        '.stat'
+      ].join(','));
+      var pending = Array.prototype.slice.call(targets);
+      pending.forEach(function (el) { el.setAttribute('data-reveal', ''); });
+      pending = pending.concat(Array.prototype.slice.call(document.querySelectorAll('.line-mask')));
+
+      var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (reduced) {
+        pending.forEach(function (el) { el.classList.add('is-in'); });
+        return;
+      }
+
+      var ticking = false;
+      function paint() {
+        ticking = false;
+        var vh = window.innerHeight;
+        var n = 0;
+        pending = pending.filter(function (el) {
+          var r = el.getBoundingClientRect();
+          if (r.top < vh * 0.88 && r.bottom > 0) {
+            el.style.setProperty('--d', Math.min(n * 0.07, 0.35).toFixed(2) + 's');
+            n++;
+            el.classList.add('is-in');
+            return false;
+          }
+          return true;
+        });
+        if (!pending.length) {
+          window.removeEventListener('scroll', onScroll);
+          window.removeEventListener('resize', onScroll);
+        }
+      }
+      function onScroll() {
+        if (!ticking) { ticking = true; requestAnimationFrame(paint); }
+      }
+      window.addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('resize', onScroll);
+      window.addEventListener('load', paint);
+      paint();
+    })();
+  </script>
+
+</body>
+
+</html>
