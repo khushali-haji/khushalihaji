@@ -39,6 +39,19 @@
       cursor: none;
     }
 
+    /* Body copy keeps the native I-beam so text stays visibly selectable. Placed
+       before the link rule below so copy inside a link/card still gets the custom
+       pointer. */
+    p,
+    li,
+    blockquote,
+    h1,
+    h2,
+    h3,
+    h4 {
+      cursor: text;
+    }
+
     /* Links, buttons and triggers get a native pointer cursor from the UA
        stylesheet — force it off so only the custom doodle arrow shows. */
     a,
@@ -65,11 +78,24 @@
       }
     }
 
+    /* ?touch=1 forces touch behaviour on a desktop browser (used by the device preview) */
+    html.force-touch,
+    html.force-touch a,
+    html.force-touch button,
+    html.force-touch .word-trigger,
+    html.force-touch [data-clickable],
+    html.force-touch a *,
+    html.force-touch button * {
+      cursor: auto;
+    }
+
     :root {
       --ink: #181512;
-      --paper: #eff3f1;
+      --paper: #fbfaf6;
       --teal: #1a6b6b;
       --yellow: #c9a227;
+      /* darker gold for small text on paper (the bright yellow is ~2.3:1) */
+      --yellow-text: #735900;
       --serif: 'Cormorant Garamond', Georgia, serif;
       --mono: 'DM Mono', monospace;
     }
@@ -96,7 +122,7 @@
       background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.88' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.032'/%3E%3C/svg%3E");
       pointer-events: none;
       z-index: 0;
-      opacity: 0.42;
+      opacity: 0.55;
     }
 
     /* Teal depth gradient */
@@ -158,6 +184,11 @@
       opacity: 1;
     }
 
+    /* Over selectable text the native I-beam takes over, so hide the doodle arrow */
+    .cursor-arrow.visible.on-text {
+      opacity: 0;
+    }
+
     /* Hover (.hot) cursor: no sparkle — the arrow just grows and turns purple.
        The cursor keeps mix-blend-mode: difference (set on .cursor-arrow), so it
        still shows the inverse of whatever is underneath. To read as purple over
@@ -200,7 +231,7 @@
       width: 440px;
       height: 440px;
       border-radius: 50%;
-      background: radial-gradient(circle, rgba(26, 107, 107, 0.07) 0%, rgba(26, 107, 107, 0.02) 40%, transparent 68%);
+      background: radial-gradient(circle, rgba(26, 107, 107, 0.11) 0%, rgba(26, 107, 107, 0.035) 40%, transparent 68%);
       pointer-events: none;
       z-index: 2;
       transform: translate(-50%, -50%);
@@ -247,7 +278,7 @@
       font-size: 9px;
       letter-spacing: 0.2em;
       text-transform: uppercase;
-      color: rgba(24, 21, 18, 0.38);
+      color: rgba(24, 21, 18, 0.64);
     }
 
     .loc-row {
@@ -275,7 +306,7 @@
     .loc-coords {
       font-size: 9.5px;
       letter-spacing: 0.1em;
-      color: rgba(24, 21, 18, 0.4);
+      color: rgba(24, 21, 18, 0.64);
     }
 
     @keyframes locPulse {
@@ -292,7 +323,34 @@
       }
     }
 
+    /* City readout inside the nav bar — phones only (see the 560px query below).
+       It's a flex child, so it centres vertically with the brand and keeps a fixed
+       gap from the hamburger, which is absolutely positioned at the right edge. */
+    .nav-loc {
+      display: none;
+      align-items: center;
+      gap: 0.45rem;
+      margin-left: auto;
+      margin-right: calc(30px + 1.1rem);
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      line-height: 1;
+      color: var(--teal);
+      white-space: nowrap;
+    }
+
     @media (max-width: 560px) {
+      /* Phones: the floating readout gives way to a compact one inside the nav bar */
+      .location-tag {
+        display: none;
+      }
+
+      .nav-loc {
+        display: flex;
+      }
+
       .loc-coords {
         display: none;
       }
@@ -320,7 +378,7 @@
       align-items: center;
       justify-content: space-between;
       padding: 1rem max(1.6rem, 3.4vw);
-      background: rgba(239, 243, 241, 0.78);
+      background: rgba(251, 250, 246, 0.78);
       -webkit-backdrop-filter: blur(10px) saturate(1.1);
       backdrop-filter: blur(10px) saturate(1.1);
       border-bottom: 1.5px solid rgba(40, 36, 33, 0.12);
@@ -405,7 +463,7 @@
     .nav-parent:hover,
     .nav-item:hover .nav-parent,
     .nav-item:focus-within .nav-parent {
-      color: var(--yellow);
+      color: var(--yellow-text);
     }
 
     /* little caret on items that have a submenu */
@@ -473,18 +531,18 @@
     }
 
     .nav-child:hover {
-      color: var(--yellow);
+      color: var(--yellow-text);
       background: rgba(201, 162, 39, 0.1);
     }
 
     /* Not-yet-built sub-pages read as inactive instead of just a dead click */
     .nav-child:not(.nav-live) {
-      color: rgba(24, 21, 18, 0.35);
+      color: rgba(24, 21, 18, 0.55);
       cursor: default;
     }
 
     .nav-child:not(.nav-live):hover {
-      color: rgba(24, 21, 18, 0.35);
+      color: rgba(24, 21, 18, 0.55);
       background: none;
     }
 
@@ -582,7 +640,7 @@
         justify-content: flex-start;
         gap: 0.4rem;
         padding: 5.5rem 2rem 2rem;
-        background: rgba(239, 243, 241, 0.97);
+        background: rgba(251, 250, 246, 0.97);
         -webkit-backdrop-filter: blur(12px);
         backdrop-filter: blur(12px);
         border-left: 1.5px solid rgba(40, 36, 33, 0.14);
@@ -652,7 +710,7 @@
       /* Centers the hero-content block itself on the page; the text inside it
          stays left-aligned (see .hero-body's own text-align: left). */
       align-items: center;
-      padding: 18vh max(2rem, 4vw) 14vh;
+      padding: 12vh max(2rem, 4vw) 6vh;
     }
 
     /* Name — typewriter fills this in */
@@ -664,7 +722,8 @@
       line-height: 1.0;
       letter-spacing: -0.02em;
       color: var(--ink);
-      margin-bottom: 1.6rem;
+      margin-bottom: 0.6rem;
+      padding-top: 1rem;
       /* Align the heading's left edge with where the subheading text begins:
          the first word's left padding (0.3em of its clamped size) minus the
          words-row's -0.3em (≈ 4.8px at the 16px root). */
@@ -691,7 +750,7 @@
       grid-template-columns: auto 1fr;
       grid-template-rows: auto auto;
       column-gap: 3.5rem;
-      row-gap: 2.6rem;
+      row-gap: 1.8rem;
       align-items: center;
     }
 
@@ -711,7 +770,45 @@
       transition: opacity 0.5s ease;
     }
 
-    .hero-gif img {
+    /* Hand-drawn double outline around the portrait, echoing the CTA button
+       borders. A sibling (not a child) because .hero-gif clips its contents. */
+    .gif-ring {
+      --gif-size: 170px;
+      grid-column: 1;
+      grid-row: 1;
+      align-self: center;
+      justify-self: center;
+      position: relative;
+      width: var(--gif-size);
+      height: var(--gif-size);
+      pointer-events: none;
+      opacity: 0;
+      animation: fadeUp 1s 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+      transition: opacity 0.5s ease;
+    }
+
+    .gif-ring::before,
+    .gif-ring::after {
+      content: '';
+      position: absolute;
+      border: 1.2px solid rgba(26, 107, 107, 0.5);
+    }
+
+    .gif-ring::before {
+      inset: -7px -5px -6px -8px;
+      border-radius: 52% 48% 55% 45% / 47% 54% 46% 53%;
+      transform: rotate(-4deg);
+    }
+
+    .gif-ring::after {
+      inset: -5px -8px -8px -4px;
+      border-radius: 46% 54% 48% 52% / 54% 46% 53% 47%;
+      transform: rotate(5deg);
+      border-color: rgba(26, 107, 107, 0.32);
+    }
+
+    .hero-gif img,
+    .hero-gif canvas {
       width: 100%;
       height: 100%;
       object-fit: cover;
@@ -720,6 +817,21 @@
          circle hugs the drawing. raise this if the frame still looks too big. */
       transform: scale(1.18);
       display: block;
+    }
+
+    /* paused state: a still frame is drawn over the running gif */
+    .hero-gif canvas {
+      position: absolute;
+      inset: 0;
+    }
+
+    .hero-gif {
+      cursor: none;
+    }
+
+    .hero-gif:focus-visible {
+      outline: 2px solid var(--teal);
+      outline-offset: 6px;
     }
 
     /* yellow wash on hover — matches the buttons' tint */
@@ -777,7 +889,7 @@
       /* padding enlarges the hover target; the column gap keeps the three
          hit-boxes from touching/overlapping each other */
       padding: 0.4em 0.3em;
-      color: rgba(24, 21, 18, 0.6);
+      color: rgba(24, 21, 18, 0.7);
       user-select: none;
       transform-origin: center center;
       transition:
@@ -869,6 +981,59 @@
       margin-left: calc(clamp(6.6px, 0.87vw, 12.3px) - 4.8px);
     }
 
+    /* Buttons mirror the footer's Email me / LinkedIn buttons */
+    .hero-cta {
+      /* centred in the text column, so they sit clearly centred under the copy and
+         never land almost-but-not-quite on the copy's left edge */
+      grid-column: 2;
+      grid-row: 3;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.9rem;
+      margin-top: 0.4rem;
+      opacity: 0;
+      transition: opacity 0.6s ease 0.5s;
+    }
+
+    .hero-body.shown + .hero-cta {
+      opacity: 1;
+    }
+
+    .hero-btn {
+      font-family: var(--mono);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      text-decoration: none;
+      padding: 0.8rem 1.6rem;
+      border: 1.5px solid var(--ink);
+      border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
+      color: var(--ink);
+      background: transparent;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s, border-color 0.2s, color 0.2s;
+    }
+
+    .hero-btn:hover {
+      transform: translateY(-2px) rotate(-1deg);
+      box-shadow: 4px 4px 0 rgba(40, 36, 33, 0.14);
+    }
+
+    .hero-btn.on {
+      background: var(--yellow);
+    }
+
+    .hero-btn.on:hover {
+      background: var(--teal);
+      border-color: var(--teal);
+      color: #fff;
+    }
+
+    .hero-btn:focus-visible {
+      outline: 2px solid var(--teal);
+      outline-offset: 3px;
+    }
+
     .hero-body.shown {
       animation: fadeUp 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
     }
@@ -878,7 +1043,7 @@
       font-size: clamp(15.5px, 1.3vw, 18px);
       font-weight: 500;
       font-style: normal;
-      line-height: 1.82;
+      line-height: 1.7;
       color: rgba(24, 21, 18, 0.92);
       margin-bottom: 1.25em;
       letter-spacing: 0.005em;
@@ -901,6 +1066,8 @@
     /* Fade non-interactive content when rays are active */
     body.ray-active .hero-name,
     body.ray-active .hero-body,
+    body.ray-active .hero-cta,
+    body.ray-active .gif-ring,
     body.ray-active .hero-gif {
       opacity: 0 !important;
     }
@@ -917,34 +1084,6 @@
       }
     }
 
-    @keyframes underlinePulse {
-      0% {
-        clip-path: inset(0 100% 0 0);
-      }
-
-      /* hidden */
-      12% {
-        clip-path: inset(0 0% 0 0);
-      }
-
-      /* fully drawn */
-      42% {
-        clip-path: inset(0 0% 0 0);
-      }
-
-      /* hold */
-      54% {
-        clip-path: inset(0 100% 0 0);
-      }
-
-      /* retracted */
-      100% {
-        clip-path: inset(0 100% 0 0);
-      }
-
-      /* pause before next cycle */
-    }
-
     @keyframes fadeUp {
       from {
         opacity: 0;
@@ -954,16 +1093,6 @@
       to {
         opacity: 1;
         transform: translateY(0);
-      }
-    }
-
-    @keyframes charIn {
-      0% {
-        opacity: 0;
-      }
-
-      100% {
-        opacity: 1;
       }
     }
 
@@ -1018,7 +1147,7 @@
            text before Featured Projects starts. Let the section hug its
            content instead. */
         min-height: 0;
-        padding: 10vh 1.5rem 4vh;
+        padding: 10vh 2rem 4vh;
       }
 
       .hero-content {
@@ -1026,9 +1155,13 @@
         grid-template-rows: auto auto auto;
         row-gap: 1.6rem;
         width: 100%;
+        /* Size container: the tagline below is sized in cqi (1% of this box's
+           width) so the three words always share one line on any phone. */
+        container-type: inline-size;
       }
 
-      .hero-gif {
+      .hero-gif,
+      .gif-ring {
         --gif-size: 112px;
         grid-column: 1;
         grid-row: 1;
@@ -1040,15 +1173,50 @@
         grid-row: 2;
       }
 
+      .hero-cta {
+        grid-column: 1;
+        grid-row: 4;
+      }
+
       .hero-body {
         grid-column: 1;
         grid-row: 3;
         margin-left: 0;
-        /* Unlike the name/words-row above, the bio paragraphs are long
-           enough that their natural width always exceeds the screen, so
-           fit-content + margin:auto can't center them (no leftover space
-           to distribute). Center the text itself instead. */
-        text-align: center;
+        text-align: left;
+      }
+
+      /* Tagline: three words on one line at any width. Combined, the words are
+         ~13.3em of text; with the tighter padding and gaps below the row is ~14.3em,
+         so 6.6cqi fills the container with a little slack. vw line is the fallback
+         for browsers without container query units. */
+      .words-row {
+        flex-wrap: nowrap;
+        white-space: nowrap;
+      }
+
+      .word-trigger {
+        font-size: clamp(16px, 5.9vw, 30px);
+        font-size: clamp(16px, 6.6cqi, 30px);
+        padding: 0.4em 0.12em;
+      }
+
+      .word-trigger::after {
+        inset: calc(0.4em - 3px) calc(0.12em - 4px);
+      }
+
+      /* Compact buttons: all three fit on one centered row on most phones, and
+         on the narrowest the third drops to a centered second row. */
+      /* Sized from the container (cqi) so the three always share one row, down to the
+         narrowest phones; padding and gap are in em so they scale with the type. */
+      .hero-cta {
+        gap: 0.5em;
+        font-size: clamp(9.5px, 3.2cqi, 12px);
+      }
+
+      .hero-btn {
+        font-size: 1em;
+        letter-spacing: 0.04em;
+        padding: 0.85em 1em;
       }
 
       /* Center each line as its own block, matching the centered gif above;
@@ -1156,15 +1324,37 @@
 
     .project-card.is-soon .project-num,
     .project-card.is-soon .project-title,
-    .project-card.is-soon .project-desc {
+    .project-card.is-soon .project-desc,
+    .project-card.is-soon .project-tags {
       opacity: 0.5;
+    }
+
+    /* Teaser card (Ghar Se): the card stays greyed out, but its copy is readable */
+    .project-card.is-soon.is-teaser .project-num,
+    .project-card.is-soon.is-teaser .project-title,
+    .project-card.is-soon.is-teaser .project-desc,
+    .project-card.is-soon.is-teaser .project-tags {
+      opacity: 1;
+    }
+
+    /* "Coming soon" sits on the striped thumbnail area */
+    .soon-label {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(40, 36, 33, 0.7);
     }
 
     .project-num {
       font-family: var(--mono);
       font-size: 12px;
       letter-spacing: 0.1em;
-      color: var(--yellow);
+      color: var(--yellow-text);
       margin-bottom: 1rem;
     }
 
@@ -1181,7 +1371,7 @@
       display: block;
       font-size: 0.58em;
       font-weight: 300;
-      color: rgba(24, 21, 18, 0.55);
+      color: rgba(24, 21, 18, 0.66);
       letter-spacing: 0;
       margin-top: 0.5rem;
     }
@@ -1204,7 +1394,7 @@
 
     .tag {
       font-family: var(--mono);
-      font-size: 10px;
+      font-size: 11px;
       letter-spacing: 0.08em;
       text-transform: uppercase;
       color: var(--teal);
@@ -1293,10 +1483,15 @@
       opacity: 1;
     }
 
+    /* hide the invite while a word is being hovered; it returns afterwards */
+    body.ray-active .hover-invite.visible {
+      opacity: 0;
+    }
+
     .hover-invite-text {
       font-family: 'Caveat', cursive;
       font-size: clamp(14px, 1.5vw, 19px);
-      color: rgba(24, 21, 18, 0.48);
+      color: rgba(24, 21, 18, 0.66);
       font-weight: 400;
       letter-spacing: 0.01em;
     }
@@ -1306,6 +1501,198 @@
       height: 38px;
       color: rgba(24, 21, 18, 0.38);
       flex-shrink: 0;
+    }
+
+    /* Touch: a shorter invite arrow so it doesn't loom over the tagline */
+    @media (pointer: coarse) {
+      .invite-arrow {
+        width: 18px;
+        height: 24px;
+      }
+    }
+
+    html.force-touch .invite-arrow {
+      width: 18px;
+      height: 24px;
+    }
+
+    /* Touch: the invite belongs to Storyteller, not the whole tagline. Sit it up and
+       to the right of that word so the arrow points diagonally at it, hanging a
+       little past the tagline edge (the hero's side padding leaves room). */
+    @media (pointer: coarse), (max-width: 760px) {
+      .hover-invite {
+        right: -1.5rem;
+        bottom: calc(100% - 0.3rem);
+      }
+    }
+
+    html.force-touch .hover-invite {
+      right: -1.5rem;
+      bottom: calc(100% - 0.3rem);
+    }
+
+    /* Touch: shrink the tagline row to its words so the invite hangs off Storyteller itself,
+       not off the far edge of a wide column (tablet landscape). */
+    @media (pointer: coarse), (max-width: 760px) {
+      .words-row {
+        width: fit-content;
+      }
+    }
+
+    html.force-touch .words-row {
+      width: fit-content;
+    }
+
+    /* Tablet landscape: same left edge, more room on the right of the copy.
+       (The force-touch copies mirror the touch queries for the desktop device preview.) */
+    @media (pointer: coarse) and (orientation: landscape) and (min-width: 1000px) and (min-height: 600px) {
+      .hero-body {
+        padding-right: 4rem;
+      }
+    }
+
+    @media (orientation: landscape) and (min-width: 1000px) and (min-height: 600px) {
+      html.force-touch .hero-body {
+        padding-right: 4rem;
+      }
+    }
+
+    /* Any screen wide enough for the portrait and headline to sit side by side (desktop
+       included): buttons start on the copy's left edge, with the copy's small offset. */
+    @media (min-width: 761px) {
+      .hero-cta {
+        justify-content: flex-start;
+        margin-left: calc(clamp(6.6px, 0.87vw, 12.3px) - 4.8px);
+      }
+    }
+
+    /* Landscape touch screens (phones and tablets) in the side-by-side layout: the buttons
+       start on the copy's left edge. The copy carries a small left offset that lines it up
+       with the headline, so the buttons take the same offset. */
+    @media (pointer: coarse) and (orientation: landscape) and (min-width: 761px) {
+      .hero-cta {
+        justify-content: flex-start;
+        margin-left: calc(clamp(6.6px, 0.87vw, 12.3px) - 4.8px);
+      }
+    }
+
+    @media (orientation: landscape) and (min-width: 761px) {
+      html.force-touch .hero-cta {
+        justify-content: flex-start;
+        margin-left: calc(clamp(6.6px, 0.87vw, 12.3px) - 4.8px);
+      }
+    }
+
+    /* Tablet portrait in the side-by-side layout (iPad Air, Pro 11", Pro 12.9"): the buttons
+       start on exactly the same left edge as the copy above them (same small offset). */
+    @media (min-width: 761px) and (max-width: 1100px) and (orientation: portrait) {
+      .hero-cta {
+        justify-content: flex-start;
+        margin-left: calc(clamp(6.6px, 0.87vw, 12.3px) - 4.8px);
+      }
+    }
+
+    /* iPhone 15 / Pro Max portrait: a slightly larger portrait, sitting closer to the
+       headline, with a bit more room above it */
+    @media (min-width: 393px) and (max-width: 560px) and (orientation: portrait) {
+      .hero {
+        padding-top: 12vh;
+      }
+
+      .hero-content {
+        row-gap: 1.1rem;
+      }
+
+      .hero-gif,
+      .gif-ring {
+        --gif-size: 132px;
+      }
+    }
+
+    /* Larger phones in portrait (Pro Max and up): a little more margin either side */
+    @media (min-width: 414px) and (max-width: 560px) {
+      .hero {
+        padding-left: 2.6rem;
+        padding-right: 2.6rem;
+      }
+    }
+
+    /* Phone landscape: featured cards always two to a row (not one, not three) */
+    @media (orientation: landscape) and (max-height: 500px) and (max-width: 1000px) {
+      .featured .projects-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .projects-grid .project-card.reveal:nth-child(odd) {
+        transition-delay: 0s;
+      }
+
+      .projects-grid .project-card.reveal:nth-child(even) {
+        transition-delay: 0.12s;
+      }
+    }
+
+    /* Phone landscape: a short screen, so a smaller portrait, clear of the nav, and no
+       floating location readout sitting on top of the copy. */
+    @media (pointer: coarse) and (orientation: landscape) and (max-height: 500px) {
+      .hero {
+        padding-top: 6.5rem;
+      }
+
+      .hero-gif,
+      .gif-ring {
+        --gif-size: 84px;
+      }
+
+      /* location readout: compact, top right just under the nav, scrolling away with the page */
+      .location-tag {
+        position: absolute;
+        top: 4.4rem;
+        bottom: auto;
+        right: 1.6rem;
+      }
+
+      .loc-coords {
+        display: none;
+      }
+
+      .loc-label {
+        font-size: 9px;
+      }
+
+      .loc-name {
+        font-size: 11px;
+      }
+    }
+
+    @media (orientation: landscape) and (max-height: 500px) {
+      html.force-touch .hero {
+        padding-top: 6.5rem;
+      }
+
+      html.force-touch .hero-gif,
+      html.force-touch .gif-ring {
+        --gif-size: 84px;
+      }
+
+      html.force-touch .location-tag {
+        position: absolute;
+        top: 4.4rem;
+        bottom: auto;
+        right: 1.6rem;
+      }
+
+      html.force-touch .loc-coords {
+        display: none;
+      }
+
+      html.force-touch .loc-label {
+        font-size: 9px;
+      }
+
+      html.force-touch .loc-name {
+        font-size: 11px;
+      }
     }
 
     /* Scroll-reveal: everything below the hero fades/rises in as it enters the viewport */
@@ -1339,6 +1726,30 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
+      .nav,
+      .hero-gif,
+      .gif-ring,
+      .hero-body.shown,
+      .bg-orb,
+      .word-trigger {
+        animation: none;
+      }
+
+      .nav,
+      .hero-gif,
+      .gif-ring,
+      .hero-body.shown {
+        opacity: 1;
+      }
+
+      .projects-grid .project-card.reveal {
+        transition-delay: 0s;
+      }
+
+      html {
+        scroll-behavior: auto;
+      }
+
       .reveal {
         opacity: 1;
         transform: none;
@@ -1351,6 +1762,294 @@
         grid-template-columns: 1fr;
       }
     }
+
+    /* Tablet portrait: cards two to a row, and the hero copy gets wider side margins */
+    @media (min-width: 600px) and (max-width: 1100px) and (orientation: portrait) {
+      .projects-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      /* two columns: stagger by column, not by the three-column pattern */
+      .projects-grid .project-card.reveal:nth-child(odd) {
+        transition-delay: 0s;
+      }
+
+      .projects-grid .project-card.reveal:nth-child(even) {
+        transition-delay: 0.12s;
+      }
+
+      .hero {
+        padding-left: 4rem;
+        padding-right: 4rem;
+      }
+
+      /* location readout moves from the bottom corner to just under the nav, top right;
+         absolute (not fixed) so it stays at the top and scrolls away with the page */
+      .location-tag {
+        position: absolute;
+        top: 4.6rem;
+        bottom: auto;
+      }
+    }
+
+    /* ─── Per-device tuning (exported from the tuning panel) ───────────────────────────
+       Each block is a width band around the tuned device. Touch-only bands are mirrored
+       for html.force-touch so the desktop device preview matches. */
+
+    /* iPhone 15 portrait */
+    @media (min-width: 393px) and (max-width: 413px) and (orientation: portrait) {
+      .hero-cta {
+        margin-top: 0.65rem;
+      }
+
+      .hero-btn {
+        padding-top: 0.98em;
+        padding-bottom: 0.98em;
+      }
+    }
+
+    /* iPhone Pro Max portrait */
+    @media (min-width: 414px) and (max-width: 560px) and (orientation: portrait) {
+      .hero-body p {
+        line-height: 1.88;
+      }
+
+      .hero-body {
+        padding-right: 0.8rem;
+      }
+
+      .hero-cta {
+        margin-top: 1.05rem;
+        font-size: 11.5px;
+      }
+
+      .hero-btn {
+        font-size: 11.5px;
+        padding-top: 0.98em;
+        padding-bottom: 0.98em;
+      }
+    }
+
+    /* iPhone SE landscape (and 640-wide phones) */
+    @media (pointer: coarse) and (orientation: landscape) and (max-height: 500px) and (min-width: 640px) and (max-width: 759px) {
+      .hero-gif,
+      .gif-ring {
+        --gif-size: 84px;
+      }
+
+      .hover-invite {
+        right: -0.8rem;
+        bottom: 3.1rem;
+      }
+
+      .location-tag {
+        top: 4.6rem;
+        bottom: auto;
+        right: 1.1rem;
+      }
+    }
+
+    @media (orientation: landscape) and (max-height: 500px) and (min-width: 640px) and (max-width: 759px) {
+      html.force-touch .hero-gif,
+      .gif-ring {
+        --gif-size: 84px;
+      }
+
+      html.force-touch .hover-invite {
+        right: -0.8rem;
+        bottom: 3.1rem;
+      }
+
+      html.force-touch .location-tag {
+        top: 4.6rem;
+        bottom: auto;
+        right: 1.1rem;
+      }
+    }
+
+    /* iPhone 15 landscape */
+    @media (pointer: coarse) and (orientation: landscape) and (max-height: 500px) and (min-width: 760px) and (max-width: 889px) {
+      .hero-gif,
+      .gif-ring {
+        --gif-size: 96px;
+      }
+
+      .hover-invite {
+        right: -0.95rem;
+        bottom: 2.55rem;
+      }
+
+      .location-tag {
+        top: 4.9rem;
+        bottom: auto;
+        right: 1rem;
+      }
+    }
+
+    @media (orientation: landscape) and (max-height: 500px) and (min-width: 760px) and (max-width: 889px) {
+      html.force-touch .hero-gif,
+      .gif-ring {
+        --gif-size: 96px;
+      }
+
+      html.force-touch .hover-invite {
+        right: -0.95rem;
+        bottom: 2.55rem;
+      }
+
+      html.force-touch .location-tag {
+        top: 4.9rem;
+        bottom: auto;
+        right: 1rem;
+      }
+    }
+
+    /* iPhone Pro Max landscape */
+    @media (pointer: coarse) and (orientation: landscape) and (max-height: 500px) and (min-width: 890px) and (max-width: 1000px) {
+      .hero-gif,
+      .gif-ring {
+        --gif-size: 106px;
+      }
+
+      .hover-invite {
+        right: -1.2rem;
+      }
+
+      .location-tag {
+        top: 4.8rem;
+        bottom: auto;
+        right: 1.1rem;
+      }
+    }
+
+    @media (orientation: landscape) and (max-height: 500px) and (min-width: 890px) and (max-width: 1000px) {
+      html.force-touch .hero-gif,
+      .gif-ring {
+        --gif-size: 106px;
+      }
+
+      html.force-touch .hover-invite {
+        right: -1.2rem;
+      }
+
+      html.force-touch .location-tag {
+        top: 4.8rem;
+        bottom: auto;
+        right: 1.1rem;
+      }
+    }
+
+    /* iPad mini landscape */
+    @media (pointer: coarse) and (orientation: landscape) and (min-height: 600px) and (min-width: 1000px) and (max-width: 1150px) {
+      .hero-gif,
+      .gif-ring {
+        --gif-size: 126px;
+      }
+
+      .hover-invite {
+        right: -0.85rem;
+      }
+    }
+
+    @media (orientation: landscape) and (min-height: 600px) and (min-width: 1000px) and (max-width: 1150px) {
+      html.force-touch .hero-gif,
+      .gif-ring {
+        --gif-size: 126px;
+      }
+
+      html.force-touch .hover-invite {
+        right: -0.85rem;
+      }
+    }
+
+    /* iPad Air landscape */
+    @media (pointer: coarse) and (orientation: landscape) and (min-height: 600px) and (min-width: 1151px) and (max-width: 1187px) {
+      .hero-gif,
+      .gif-ring {
+        --gif-size: 138px;
+      }
+
+      .hover-invite {
+        right: -0.85rem;
+      }
+    }
+
+    @media (orientation: landscape) and (min-height: 600px) and (min-width: 1151px) and (max-width: 1187px) {
+      html.force-touch .hero-gif,
+      .gif-ring {
+        --gif-size: 138px;
+      }
+
+      html.force-touch .hover-invite {
+        right: -0.85rem;
+      }
+    }
+
+    /* iPad Pro 11" landscape */
+    @media (pointer: coarse) and (orientation: landscape) and (min-height: 600px) and (min-width: 1188px) and (max-width: 1280px) {
+      .hover-invite {
+        right: -0.75rem;
+      }
+    }
+
+    @media (orientation: landscape) and (min-height: 600px) and (min-width: 1188px) and (max-width: 1280px) {
+      html.force-touch .hover-invite {
+        right: -0.75rem;
+      }
+    }
+
+    /* iPad Pro 12.9" landscape */
+    @media (pointer: coarse) and (orientation: landscape) and (min-height: 600px) and (min-width: 1281px) and (max-width: 1500px) {
+      .hover-invite {
+        right: -0.95rem;
+      }
+    }
+
+    @media (orientation: landscape) and (min-height: 600px) and (min-width: 1281px) and (max-width: 1500px) {
+      html.force-touch .hover-invite {
+        right: -0.95rem;
+      }
+    }
+
+    /* iPad Air portrait */
+    @media (orientation: portrait) and (min-width: 761px) and (max-width: 827px) {
+      .hover-invite {
+        right: -0.9rem;
+      }
+
+      .location-tag {
+        top: 6.5rem;
+        bottom: auto;
+        right: 2.6rem;
+      }
+    }
+
+    /* iPad Pro 11" portrait */
+    @media (orientation: portrait) and (min-width: 828px) and (max-width: 900px) {
+      .hover-invite {
+        right: -0.7rem;
+      }
+
+      .location-tag {
+        top: 6.2rem;
+        bottom: auto;
+        right: 2.7rem;
+      }
+    }
+
+    /* iPad Pro 12.9" portrait */
+    @media (orientation: portrait) and (min-width: 901px) and (max-width: 1100px) {
+      .hover-invite {
+        right: -0.7rem;
+      }
+
+      .location-tag {
+        top: 6.7rem;
+        bottom: auto;
+        right: 2.7rem;
+      }
+    }
+
 
     /* ─── Construction notice modal ────────────────────────────────────────── */
     .construction-overlay {
@@ -1486,10 +2185,114 @@
       }
 
     }
+
+    /* ─── Accessibility ────────────────────────────────────────────────────────── */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      margin: -1px;
+      padding: 0;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .skip-link {
+      position: fixed;
+      top: 0.6rem;
+      left: 0.6rem;
+      z-index: 200;
+      padding: 0.7rem 1.1rem;
+      background: var(--ink);
+      color: var(--paper);
+      font-family: var(--mono);
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      text-decoration: none;
+      border-radius: 3px;
+      transform: translateY(-200%);
+    }
+
+    .skip-link:focus {
+      transform: none;
+      outline: 2px solid var(--yellow);
+      outline-offset: 2px;
+    }
+
+    /* One visible keyboard focus ring everywhere (the custom cursor only affects
+       the mouse, so keyboard users always need this). */
+    a:focus-visible,
+    button:focus-visible,
+    [tabindex]:focus-visible {
+      outline: 2px solid var(--teal);
+      outline-offset: 3px;
+    }
+
+    .word-trigger:focus-visible {
+      outline-offset: 0;
+      border-radius: 4px;
+    }
+
+    .project-card:focus-visible {
+      outline-offset: 4px;
+    }
+
+    /* 44px touch/click target for the hamburger without changing its look */
+    .nav-toggle {
+      position: relative;
+    }
+
+    .nav-toggle::before {
+      content: '';
+      position: absolute;
+      inset: -7px;
+    }
+
+    /* Reduced motion: no looping or decorative movement, content simply appears */
+    @media (prefers-reduced-motion: reduce) {
+
+      html {
+        scroll-behavior: auto;
+      }
+
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+        transition-delay: 0s !important;
+      }
+
+      .site-footer {
+        transform: none;
+        opacity: 1;
+      }
+    }
+
+    /* Windows high-contrast / forced colours: keep boundaries and focus visible */
+    @media (forced-colors: active) {
+
+      .hero-btn,
+      .about-btn,
+      .project-card {
+        border: 1px solid CanvasText;
+      }
+
+      a:focus-visible,
+      button:focus-visible,
+      [tabindex]:focus-visible {
+        outline-color: Highlight;
+      }
+    }
   </style>
 </head>
 
 <body>
+
+  <a class="skip-link" href="#featured">Skip to featured work</a>
 
   <div class="construction-overlay" id="constructionOverlay" role="dialog" aria-modal="true"
     aria-labelledby="constructionTitle">
@@ -1518,8 +2321,9 @@
     </div>
   </div>
 
-  <nav class="nav" id="nav">
+  <nav class="nav" id="nav" aria-label="Primary">
     <a class="nav-brand" href="index.html">Khushali Haji</a>
+    <span class="nav-loc"><span class="loc-dot" aria-hidden="true"></span><span class="sr-only">Currently in </span>New York</span>
     <button class="nav-toggle" id="navToggle" aria-label="Menu" aria-expanded="false" aria-controls="navMenu">
       <span></span><span></span><span></span>
     </button>
@@ -1528,7 +2332,7 @@
         <a class="nav-parent" href="about.html">About</a>
       </li>
       <li class="nav-item">
-        <a class="nav-parent" href="#">Product &amp; Design <i class="nav-caret"></i></a>
+        <a class="nav-parent" href="#">Product &amp; Design <i class="nav-caret" aria-hidden="true"></i></a>
         <ul class="nav-drop">
           <li><a class="nav-child" href="#">Civic Tech &amp; UX</a></li>
           <li><a class="nav-child" href="#">Content &amp; Graphic Design</a></li>
@@ -1536,7 +2340,7 @@
         </ul>
       </li>
       <li class="nav-item">
-        <a class="nav-parent" href="#">Research &amp; Stories <i class="nav-caret"></i></a>
+        <a class="nav-parent" href="#">Research &amp; Stories <i class="nav-caret" aria-hidden="true"></i></a>
         <ul class="nav-drop">
           <li><a class="nav-child nav-live" href="reporting.html">Journalism &amp; Reporting</a></li>
           <li><a class="nav-child" href="#">Film &amp; Video</a></li>
@@ -1549,35 +2353,38 @@
     </ul>
   </nav>
 
-  <canvas id="mapGrid"></canvas>
-  <div class="bg-orb"></div>
-  <div class="hero-fade" id="heroFade"></div>
-  <div class="cursor-glow" id="cursorGlow"></div>
-  <div class="cursor-arrow" id="cursorArrow"></div>
-  <div class="progress-line"></div>
-  <canvas id="ray-canvas"></canvas>
+  <canvas id="mapGrid" aria-hidden="true"></canvas>
+  <div class="bg-orb" aria-hidden="true"></div>
+  <div class="hero-fade" id="heroFade" aria-hidden="true"></div>
+  <div class="cursor-glow" id="cursorGlow" aria-hidden="true"></div>
+  <div class="cursor-arrow" id="cursorArrow" aria-hidden="true"></div>
+  <div class="progress-line" aria-hidden="true"></div>
+  <canvas id="ray-canvas" aria-hidden="true"></canvas>
 
-  <div class="location-tag" aria-label="Current location: New York">
+  <main id="main">
+  <div class="location-tag">
     <span class="loc-text">
       <span class="loc-label">Current Location</span>
       <span class="loc-row">
-        <span class="loc-dot"></span>
+        <span class="loc-dot" aria-hidden="true"></span>
         <span class="loc-name">New York</span>
       </span>
       <span class="loc-coords">40.71&deg; N, 74.01&deg; W</span>
     </span>
   </div>
 
-  <section class="hero">
+  <section class="hero" aria-label="Introduction">
     <div class="hero-content">
-      <span class="hero-gif"><img src="pics.gif" alt=""></span>
+      <span class="hero-gif" data-clickable role="button" tabindex="0" aria-pressed="false"
+        aria-label="Pause animation"><img src="pics.gif" alt=""></span>
+      <span class="gif-ring" aria-hidden="true"></span>
       <div class="hero-words-col">
-        <p class="hero-name" id="heroName"></p>
+        <p class="hero-name" id="heroName" role="heading" aria-level="1" aria-label="Hi, I'm Khushali"></p>
         <div class="words-row">
-          <span class="word-trigger" data-key="research">Researcher.</span>
-          <span class="word-trigger" data-key="design">Designer.</span>
-          <span class="word-trigger" data-key="storytelling">Storyteller.</span>
-          <span class="hover-invite" id="hoverInvite">
+          <span class="word-trigger" data-key="research" role="button" tabindex="0" aria-expanded="false" aria-label="Researcher: show what this means to me">Researcher.</span>
+          <span class="word-trigger" data-key="design" role="button" tabindex="0" aria-expanded="false" aria-label="Designer: show what this means to me">Designer.</span>
+          <span class="word-trigger" data-key="storytelling" role="button" tabindex="0" aria-expanded="false" aria-label="Storyteller: show what this means to me">Storyteller.</span>
+          <span class="hover-invite" id="hoverInvite" aria-hidden="true">
             <span class="hover-invite-text">hover</span>
             <svg class="invite-arrow" viewBox="0 0 26 40" fill="none" stroke="currentColor" stroke-linecap="round"
               stroke-linejoin="round">
@@ -1589,22 +2396,26 @@
       </div>
       <div class="hero-body">
         <p>I am a <strong>researcher</strong> by heart, and a <strong>designer</strong> by consequence of finding ways
-          to fill those gaps. I design and build <strong>AI-native</strong> products that
-          make complex systems legible, especially for people underserved by existing technology.</p>
-        <p>My work has taken me from informal settlements in India to forests marked for carbon credits in Liberia, from
-          policy reporting in New York to building AI products for international conflict researchers. I
-          trained as an <strong>urban designer</strong>, retrained as a <strong>journalist</strong>, and now bring
-          those same instincts into product design.
+          to fill those gaps. Based in <strong>New York City</strong>, I research, design, and build
+          <strong>AI-native</strong> products that make complex systems legible, especially for people underserved by
+          existing technology.</p>
+        <p>My work has taken me from informal settlements in India to forests marked for carbon credits in Liberia, and
+          from policy reporting in New York to AI products for conflict researchers. Trained as an <strong>urban
+            designer</strong> and retrained as a <strong>journalist</strong>, I now bring those instincts into
+          <strong>UX, product design, and public-interest technology</strong>.
         </p>
-        <p>Based in <strong>New York</strong>, I'm looking for roles in <strong>AI product
-            design</strong>, <strong>UX research</strong>, and <strong>public-interest techonology</strong>.</p>
+      </div>
+      <div class="hero-cta">
+        <a class="hero-btn on" href="#featured">See work</a>
+        <a class="hero-btn" href="resume.pdf" target="_blank" rel="noopener">Resume<span class="sr-only"> (opens in a new tab)</span></a>
+        <a class="hero-btn" href="#footer-placeholder">Contact me</a>
       </div>
     </div>
   </section>
 
   <!-- FEATURED PROJECTS -->
-  <section class="featured">
-    <p class="section-label reveal">Featured Projects</p>
+  <section class="featured" id="featured" aria-labelledby="featuredLabel">
+    <p class="section-label reveal" id="featuredLabel" role="heading" aria-level="2">Featured Projects</p>
     <div class="projects-grid">
       <a class="project-card reveal" href="case-studies/conflict-lens.html">
         <div class="project-media is-whole is-zoomed" style="--media-bg:#1b1e1a"><img src="images/card-conflict-lens.jpg" alt="Conflict Lens home screen: a dark input page with a paste-a-link field and an Analyze Link button" loading="lazy"></div>
@@ -1662,17 +2473,31 @@
           <span class="tag">Marketing KPI</span>
         </div>
       </a>
-      <div class="project-card is-soon reveal" aria-disabled="true">
-        <div class="project-media" aria-hidden="true"></div>
+      <div class="project-card is-soon is-teaser reveal">
+        <div class="project-media" aria-hidden="true"><span class="soon-label">Coming soon</span></div>
         <span class="project-num">05</span>
-        <h3 class="project-title">Coming soon</h3>
-        <p class="project-desc">Another case study is in the works.</p>
+        <h3 class="project-title">Ghar Se<span class="sr-only"> (coming soon)</span></h3>
+        <p class="project-desc">A chat assistant for women in Ahmedabad who sell homemade food. It turns a phone photo and
+          a short description, in their own language, into designed marketing assets and copy in English or other
+          languages, supporting economic mobility and financial literacy.</p>
+        <div class="project-tags">
+          <span class="tag">Product Design &amp; Strategy</span>
+          <span class="tag">Multilingual AI</span>
+          <span class="tag">Image Gen</span>
+        </div>
       </div>
-      <div class="project-card is-soon reveal" aria-disabled="true">
-        <div class="project-media" aria-hidden="true"></div>
+      <div class="project-card is-soon is-teaser reveal">
+        <div class="project-media" aria-hidden="true"><span class="soon-label">Coming soon</span></div>
         <span class="project-num">06</span>
-        <h3 class="project-title">Coming soon</h3>
-        <p class="project-desc">Another case study is in the works.</p>
+        <h3 class="project-title">SlideVault<span class="sr-only"> (coming soon)</span></h3>
+        <p class="project-desc">A platform for M Moser Associates' proposal team to search through 45 years of
+          presentations and slideshows. Surfaces slides through natural-language and AI-powered smart searches, and
+          suggests outlines to guide assembly and export of ready-to-edit PowerPoint decks.</p>
+        <div class="project-tags">
+          <span class="tag">Product Building</span>
+          <span class="tag">UX Design</span>
+          <span class="tag">Agentic Search &amp; Workflows</span>
+        </div>
       </div>
     </div>
 
@@ -1683,6 +2508,7 @@
 
   <!-- FOOTER (shared component, matches About page) -->
   <div id="contact" style="scroll-margin-top: 80px;"></div>
+  </main>
   <div id="footer-placeholder" data-heading-class="home-h"
     data-heading="Would love to talk!<br><span class=&quot;ch-light&quot;>What cool projects are you working on?</span>"
     data-home-label="About" data-home-href="about.html">
@@ -1908,18 +2734,6 @@
       ]
     };
 
-    const ANGLE_SEEDS = {
-      research: [25, 55, 88, 115, 145, 170, 200, 228, 258, 292, 325],
-      design: [20, 48, 72, 100, 128, 155, 180, 205, 232, 260, 288, 315, 338, 35, 62, 95, 140, 175],
-      storytelling: [30, 68, 105, 140, 172, 208, 245, 280, 315]
-    };
-
-    const LEN_SEEDS = {
-      research: [1.05, 0.82, 0.98, 1.12, 0.76, 1.08, 0.88, 1.18, 0.92, 0.74, 1.1],
-      design: [0.9, 1.02, 0.74, 1.12, 0.84, 1.06, 0.79, 0.96, 1.16, 0.7, 1.0, 0.87, 1.1, 0.77, 0.94, 1.04, 0.81, 0.91],
-      storytelling: [1.02, 0.84, 1.12, 0.76, 1.06, 0.88, 1.18, 0.8, 0.96]
-    };
-
     // Each category gets its own colour signature
     const RAY_COLORS = {
       research: { fill: '#1a6b6b', rgb: '26,107,107' },
@@ -1940,6 +2754,35 @@
     const heroNameEl = document.getElementById('heroName');
     const triggers = [...document.querySelectorAll('.word-trigger')];
 
+    // ─── Click the portrait to pause / resume its animation ──────────────────────
+    (function () {
+      const holder = document.querySelector('.hero-gif');
+      const img = holder && holder.querySelector('img');
+      if (!img) return;
+      let still = null;
+
+      function toggle() {
+        if (still) {
+          still.remove();
+          still = null;
+        } else {
+          // freeze the current frame on a canvas laid over the running gif
+          still = document.createElement('canvas');
+          still.width = img.naturalWidth;
+          still.height = img.naturalHeight;
+          still.getContext('2d').drawImage(img, 0, 0);
+          holder.appendChild(still);
+        }
+        holder.setAttribute('aria-pressed', String(!!still));
+        holder.setAttribute('aria-label', still ? 'Play animation' : 'Pause animation');
+      }
+
+      holder.addEventListener('click', toggle);
+      holder.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+      });
+    })();
+
     let animFrame, activeKey = null, rayProgress = 0, animDir = 0, rays = [], lastTime = null;
     let hoverBounds = null; // viewport-space box around the active composition
     let activeColors = RAY_COLORS.research;
@@ -1948,7 +2791,6 @@
     let anchorScrollY = 0; // page scroll captured when a word is hovered
 
     const DURATION = 820;
-    const LINE_GAP = 1.4;
     const LINE_COL = 'rgba(34,28,20,0.5)'; // sleek dark connector lines
 
     // ─── Canvas resize ────────────────────────────────────────────────────────────
@@ -1968,7 +2810,9 @@
 
     // ─── Custom cursor (ring lags, dot is instant) ────────────────────────────────
     // Touch has no cursor to track, so skip this whole system there.
-    const isCoarsePointer = window.matchMedia('(pointer: coarse)').matches;
+    const forceTouch = /[?&]touch=1\b/.test(location.search);
+    if (forceTouch) document.documentElement.classList.add('force-touch');
+    const isCoarsePointer = forceTouch || window.matchMedia('(pointer: coarse)').matches;
 
     let mouseX = window.innerWidth / 2, mouseY = window.innerHeight / 2;
     let cursorStarted = false;
@@ -1998,6 +2842,17 @@
       document.addEventListener('mouseover', e => {
         const hot = e.target.closest('a, button, .word-trigger, [data-clickable]');
         cursorArrow.classList.toggle('hot', !!hot);
+        const onText = !hot && !!e.target.closest('p, li, blockquote, h1, h2, h3, h4');
+        cursorArrow.classList.toggle('on-text', onText);
+      });
+
+      // Keep the native cursor for the whole drag so a selection never loses its pointer
+      document.addEventListener('mousedown', () => {
+        if (!cursorArrow.classList.contains('on-text')) return;
+        document.documentElement.style.cursor = 'text';
+      });
+      document.addEventListener('mouseup', () => {
+        document.documentElement.style.cursor = '';
       });
     }
 
@@ -2080,16 +2935,6 @@
       return t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
     }
 
-    function rectEdgePoint(cx, cy, hw, hh, angle, buffer = 3) {
-      const cos = Math.cos(angle), sin = Math.sin(angle);
-      let t = Infinity;
-      if (cos > 0.001) t = Math.min(t, hw / cos);
-      if (cos < -0.001) t = Math.min(t, -hw / cos);
-      if (sin > 0.001) t = Math.min(t, hh / sin);
-      if (sin < -0.001) t = Math.min(t, -hh / sin);
-      return { x: cx + cos * (t + buffer), y: cy + sin * (t + buffer) };
-    }
-
     function setFont(fDef) {
       ctx.font = `${fDef.style} ${fDef.w} ${fDef.size}px ${fDef.f}`;
     }
@@ -2101,6 +2946,9 @@
     const ROW_GAP = 14;  // min vertical space between stacked labels
     const STUB = 15;      // length the leader exits the box perpendicular
     const TUCK = 6;       // how far the hidden end sits inside the box
+    const EDGE = 28;      // min distance from a label's text to the viewport edge (clears its 5px chip)
+    const TOP_SAFE = 76;  // keep labels clear of the fixed nav
+    const BOTTOM_SAFE = 24;
 
     // Design: tools render bold + UPPERCASE, decisions in serif italic
     const DESIGN_TOOLS = new Set([
@@ -2123,18 +2971,6 @@
       if (d < W) return { x: cx + hw - d, y: cy + hh, nx: 0, ny: 1 };
       d -= W;
       return { x: cx - hw, y: cy + hh - d, nx: -1, ny: 0 };
-    }
-
-    // Point where a ray from the word centre at `ang` meets the box edge, + normal
-    function edgePointByAngle(cx, cy, hw, hh, ang) {
-      const cos = Math.cos(ang), sin = Math.sin(ang);
-      let tx = Infinity, ty = Infinity;
-      if (Math.abs(cos) > 1e-6) tx = hw / Math.abs(cos);
-      if (Math.abs(sin) > 1e-6) ty = hh / Math.abs(sin);
-      let nx = 0, ny = 0, t;
-      if (tx <= ty) { t = tx; nx = cos > 0 ? 1 : -1; }
-      else { t = ty; ny = sin > 0 ? 1 : -1; }
-      return { x: cx + cos * t, y: cy + sin * t, nx, ny };
     }
 
     // Even word distribution into a fixed line count
@@ -2241,16 +3077,21 @@
       const baseR = Math.min(viewW, viewH) * 0.34;
 
       // Pixel room for a label on each side of the word (word edge → page margin).
-      const rPad = key === 'storytelling' ? 64 : 16;
-      const roomR = viewW - (cx + hw) - TEXT_GAP - rPad;
-      const roomL = (cx - hw) - TEXT_GAP - 16;
+      // A label sits TEXT_GAP past its dot, and the dot sits TEXT_GAP + 10 clear of the
+      // word, so both gaps come off the room (the old math counted only one, which
+      // let wrapped lines run past the screen edge).
+      const rPad = key === 'storytelling' ? 64 : EDGE;
+      const roomR = viewW - (cx + hw) - 2 * TEXT_GAP - 10 - rPad;
+      const roomL = (cx - hw) - 2 * TEXT_GAP - 10 - EDGE;
       // Wrap width: never exceed the room actually available on that side — on a
       // narrow (mobile) viewport this can be much less than the old flat 150px
       // floor allowed, which is what let labels run off the edge of the screen.
-      const budgetR = Math.max(90, Math.min(roomR, 320));
-      const budgetL = Math.max(90, Math.min(roomL, 480));
+      const budgetR = Math.max(40, Math.min(roomR, 320));
+      const budgetL = Math.max(40, Math.min(roomL, 480));
+      // When neither side has room for a label, use whichever has more.
+      const roomierRight = roomR >= roomL;
 
-      const items = texts.map((text, i) => {
+      const buildItems = (scale) => texts.map((text, i) => {
         // Per-category styling
         let fDef, displayText = text, color = null;
         if (key === 'design') {
@@ -2264,6 +3105,9 @@
         if (isCoarsePointer && MOBILE_FONT_SIZE[text]) {
           fDef = { ...fDef, size: MOBILE_FONT_SIZE[text] };
         }
+        // Shrunk by the fit loop below when the labels are too tall for the viewport
+        // (short landscape screens)
+        if (scale < 1) fDef = { ...fDef, size: fDef.size * scale };
 
         const ang = -Math.PI / 2 + ((i + 0.5) / N) * Math.PI * 2;
         const cos = Math.cos(ang), sin = Math.sin(ang);
@@ -2282,9 +3126,14 @@
         } else {
           // On a narrow (mobile) viewport one side can be too tight for any label —
           // route away from it rather than letting text run off the screen edge.
-          const fitsRight = roomR >= 90;
-          const fitsLeft = roomL >= 90;
-          bucket = cos >= 0
+          // A side fits if it has room for the label's longest word (it can wrap
+          // everything else), not an arbitrary fixed width.
+          setFont(fDef);
+          const minW = Math.max(...displayText.split(' ').map(w => ctx.measureText(w).width));
+          const fitsRight = roomR >= minW;
+          const fitsLeft = roomL >= minW;
+          if (!fitsRight && !fitsLeft) bucket = roomierRight ? 'right' : 'left';
+          else bucket = cos >= 0
             ? (fitsRight ? 'right' : 'left')
             : (fitsLeft ? 'left' : 'right');
         }
@@ -2317,14 +3166,27 @@
         };
       });
 
-      const right = items.filter(it => it.bucket === 'right').sort((a, b) => a.sin - b.sin);
-      const left = items.filter(it => it.bucket === 'left').sort((a, b) => a.sin - b.sin);
-
       // Storyteller: wider right margin + roomier rows since it carries fewer, taller labels.
-      const rMargin = key === 'storytelling' ? 64 : 16;
+      const rMargin = key === 'storytelling' ? 64 : EDGE;
       const rowGap = key === 'storytelling' ? 28 : ROW_GAP;
+
+      // Shrink the type a notch at a time until each column's stack fits between the
+      // nav and the bottom of the viewport (short landscape phones), floor at 60%.
+      const { top: winTop, bottom: winBot } = columnWindow(cy);
+      let items, right, left;
+      // Tool names are big display caps; on a narrow phone start a little smaller so
+      // they can sit on both sides of the word instead of all piling up on one.
+      const startScale = (key === 'design' && isCoarsePointer && viewW < 520) ? 0.78 : 1;
+      for (let scale = startScale; ; scale -= 0.08) {
+        items = buildItems(scale);
+        right = items.filter(it => it.bucket === 'right').sort((a, b) => a.sin - b.sin);
+        left = items.filter(it => it.bucket === 'left').sort((a, b) => a.sin - b.sin);
+        const stackH = col => col.reduce((sum, it) => sum + it.h, 0) + 6 * Math.max(0, col.length - 1);
+        if (scale <= 0.6 || (stackH(right) <= winBot - winTop && stackH(left) <= winBot - winTop)) break;
+      }
+
       packColumn(right, 1, cx, cy, rMargin, rowGap);
-      packColumn(left, -1, cx, cy, 16, rowGap);
+      packColumn(left, -1, cx, cy, EDGE, rowGap);
 
       rays = [...right, ...left];
 
@@ -2366,6 +3228,15 @@
       hoverBounds = { left: bL - padB, right: bR + padB, top: bT - padB, bottom: bB + padB };
     }
 
+    // Vertical band the labels may occupy: centred on the word, but never under the
+    // nav or past the bottom of the viewport.
+    function columnWindow(cy) {
+      return {
+        top: Math.max(cy - (viewH / 2 - 60), TOP_SAFE),
+        bottom: Math.min(cy + (viewH / 2 - 60), viewH - BOTTOM_SAFE)
+      };
+    }
+
     // Radial x, pack y so nothing overlaps or leaves the screen
     function packColumn(list, dir, cx, cy, pageMargin = 16, rowGap = ROW_GAP) {
       const n = list.length;
@@ -2373,8 +3244,7 @@
 
       // Window centred on the word — gives the full-view arrangement regardless
       // of where the word currently sits in the viewport (no scroll re-packing).
-      const availTop = cy - (viewH / 2 - 60);
-      const availBot = cy + (viewH / 2 - 60);
+      const { top: availTop, bottom: availBot } = columnWindow(cy);
       const availH = availBot - availTop;
 
       const sumH = list.reduce((s, it) => s + it.h, 0);
@@ -2477,7 +3347,6 @@
 
         const lineH = fDef.size * 1.32;
         const totalH = lineH * (lines.length - 1);
-        const align = dir > 0 ? 'left' : dir < 0 ? 'right' : 'center';
         const tx = dir > 0 ? ax + TEXT_GAP : dir < 0 ? ax - TEXT_GAP : ax;
         const baseY = ay - totalH / 2;
 
@@ -2509,7 +3378,7 @@
 
           ctx.save();
           ctx.globalAlpha = tAlpha;
-          ctx.fillStyle = 'rgba(239,243,241,0.92)';
+          ctx.fillStyle = 'rgba(251,250,246,0.92)';
           ctx.fillRect(startX - bp, ly - bh / 2, tw + bp * 2, bh);
           ctx.fillStyle = fill;
           ctx.textAlign = 'left';
@@ -2571,6 +3440,7 @@
 
     // Collapse the composition (word visuals reset once it has fully retracted, in animate)
     function collapse() {
+      triggers.forEach((w) => w.setAttribute('aria-expanded', 'false'));
       startRetract();
       fade.classList.remove('active');
     }
@@ -2578,15 +3448,9 @@
     // ─── Word trigger interactions ────────────────────────────────────────────────
 
     function activateWord(el) {
-      // dismiss the hover/tap invite permanently on first activation
-      const inv = document.getElementById('hoverInvite');
-      if (inv) {
-        inv.style.transition = 'opacity 0.4s ease';
-        inv.style.opacity = '0';
-        setTimeout(() => inv.remove(), 450);
-      }
-
       startExpand(el.dataset.key);
+      triggers.forEach((w) => w.setAttribute('aria-expanded', String(w === el)));
+      announceWord(el.dataset.key);
       fade.classList.add('active');
       document.body.classList.add('ray-active');
 
@@ -2601,6 +3465,35 @@
         }
       });
     }
+
+    // Screen readers can't see the canvas labels, so mirror them into a hidden list
+    // and place it right after the word row (read when a word is opened).
+    const rayLive = document.createElement('div');
+    rayLive.className = 'sr-only';
+    rayLive.setAttribute('aria-live', 'polite');
+    document.querySelector('.words-row').after(rayLive);
+    function announceWord(key) {
+      const intro = { research: 'Questions I ask: ', design: 'Tools and decisions: ', storytelling: 'Story openings: ' }[key] || '';
+      rayLive.textContent = intro + ((isCoarsePointer ? MOBILE_RAYS[key] : RAYS[key]) || []).join(' ');
+    }
+
+    // Keyboard: Enter / Space opens or closes the focused word, Escape closes.
+    // Closing on blur keeps the dimmed words from getting stuck when tabbing away.
+    triggers.forEach((el) => {
+      el.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          if (activeKey === el.dataset.key) collapse(); else activateWord(el);
+        } else if (e.key === 'Escape' && activeKey) {
+          collapse();
+        }
+      });
+      el.addEventListener('blur', () => {
+        if (activeKey === el.dataset.key && !el.matches(':hover')) {
+          setTimeout(() => { if (!triggers.includes(document.activeElement)) collapse(); }, 0);
+        }
+      });
+    });
 
     if (isCoarsePointer) {
       // No hover on touch — tap a word to open it, tap it again (or anywhere
@@ -2695,6 +3588,18 @@
         const parent = item.querySelector('.nav-parent');
         const drop = item.querySelector('.nav-drop');
         if (!parent) return;
+        if (drop) {
+          parent.setAttribute('aria-haspopup', 'true');
+          parent.setAttribute('aria-expanded', 'false');
+          // Keyboard/desktop: reflect the dropdown opening on hover or focus
+          const sync = () => parent.setAttribute('aria-expanded',
+            String(item.classList.contains('open') || item.matches(':hover, :focus-within')));
+          item.addEventListener('mouseenter', sync);
+          item.addEventListener('mouseleave', sync);
+          item.addEventListener('focusin', sync);
+          item.addEventListener('focusout', () => setTimeout(sync, 0));
+          item.addEventListener('click', () => setTimeout(sync, 0));
+        }
         parent.addEventListener('click', e => {
           if (mobile() && drop) {
             e.preventDefault();
@@ -2710,6 +3615,11 @@
 
       // Tapping a child link closes the whole drawer
       nav.querySelectorAll('.nav-child').forEach(c => c.addEventListener('click', closeMenu));
+
+      // Escape closes the drawer and returns focus to the menu button
+      document.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && nav.classList.contains('open')) { closeMenu(); toggle.focus(); }
+      });
 
       // Close the drawer when tapping outside it
       document.addEventListener('click', e => {
@@ -2739,6 +3649,12 @@
       document.body.classList.add('modal-open');
       requestAnimationFrame(() => overlay.classList.add('visible'));
 
+      // Treat it as a real modal: park the page behind it and move focus in.
+      const page = [...document.body.children].filter(el => el !== overlay && el.tagName !== 'SCRIPT');
+      page.forEach(el => el.setAttribute('inert', ''));
+      const opener = document.activeElement;
+      cancelBtn.focus({ preventScroll: true });
+
       let dismissed = false;
       function dismiss() {
         if (dismissed) return;
@@ -2746,6 +3662,8 @@
         overlay.classList.add('closing');
         overlay.classList.remove('visible');
         document.body.classList.remove('modal-open');
+        page.forEach(el => el.removeAttribute('inert'));
+        if (opener && opener !== document.body && opener.focus) opener.focus({ preventScroll: true });
         overlay.addEventListener('transitionend', () => overlay.remove(), { once: true });
         sessionStorage.setItem(SEEN_KEY, '1');
         typewriter(); // hold the hero's entrance sequence until the notice is dismissed
@@ -2753,7 +3671,7 @@
 
       cancelBtn.addEventListener('click', dismiss);
       overlay.addEventListener('click', e => { if (e.target === overlay) dismiss(); });
-      document.addEventListener('keydown', e => { if (e.key === 'Escape') dismiss(); }, { once: true });
+      document.addEventListener('keydown', e => { if (e.key === 'Escape') dismiss(); });
     })();
   </script>
 </body>
