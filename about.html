@@ -34,14 +34,50 @@
       scroll-behavior: smooth;
     }
 
-    /* Hide the native cursor only where the custom one can follow it */
+    /* Skip link: first thing a keyboard user reaches */
+    .skip-link {
+      position: fixed;
+      top: 0.6rem;
+      left: 0.6rem;
+      z-index: 100000;
+      padding: 0.7rem 1.1rem;
+      background: var(--ink);
+      color: var(--paper);
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-decoration: none;
+      transform: translateY(-200%);
+    }
+
+    .skip-link:focus {
+      transform: none;
+    }
+
+    /* One clear focus ring for everything that can be tabbed to */
+    a:focus-visible,
+    button:focus-visible,
+    [role="button"]:focus-visible {
+      outline: 2px solid #0a3d3d;
+      outline-offset: 3px;
+    }
+
+    #main {
+      display: block;
+      outline: none;   /* focus lands here after the skip link; it is a target, not a control */
+    }
+
+    /* Hide the native cursor only where the custom one can follow it, and only once it
+       is live (first mouse move). !important on every element, because anything with its
+       own `cursor` rule (dead nav items, form fields, svg) would otherwise show the
+       native pointer under the custom one. The class is dropped again when the pointer
+       leaves the window, so the real cursor is never missing. */
     @media (hover: hover) and (pointer: fine) {
 
-      html,
-      a,
-      button,
-      [data-clickable] {
-        cursor: none;
+      html.cc-live,
+      html.cc-live * {
+        cursor: none !important;
       }
     }
 
@@ -115,6 +151,7 @@
       opacity: 0;
       transform-origin: 2px 2px;
       mix-blend-mode: difference;
+      will-change: translate, transform;
       background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cfilter id='w'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.04' numOctaves='2' seed='4' result='n'/%3E%3CfeDisplacementMap in='SourceGraphic' in2='n' scale='0.9'/%3E%3C/filter%3E%3Cpath filter='url(%23w)' d='M4 3 L26 17 L16 19 L21 31 L17 33 L12 21 L4 24 Z' fill='%23ffffff' stroke='%23ffffff' stroke-width='1.4' stroke-linejoin='round' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat;
       transition: opacity 0.3s ease, transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
     }
@@ -171,6 +208,30 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      .cursor-glow {
+        transition: none;
+      }
+    }
+
+    /* Keep the real cursor for people who ask for more contrast or use forced colours */
+    @media (prefers-contrast: more), (forced-colors: active) {
+
+      html.cc-live,
+      html.cc-live * {
+        cursor: auto !important;
+      }
+
+      .cursor-arrow,
+      .cursor-glow {
+        display: none;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
 
       [data-reveal],
       .portrait-frame {
@@ -196,10 +257,11 @@
       font-size: 10px;
       letter-spacing: 0.16em;
       text-transform: uppercase;
-      color: rgba(24, 21, 18, 0.45);
+      color: rgba(24, 21, 18, 0.72);
     }
 
     .section-label {
+      font-weight: 400;
       font-family: 'Caveat', cursive;
       font-size: clamp(16px, 1.6vw, 20px);
       color: var(--ink);
@@ -236,9 +298,25 @@
        or AI-product hiring eye is actually scanning for. Stays in the body
        serif at a heavier weight and teal, so a full clause reads as emphasis
        rather than a code snippet. */
+    /* In-text links to the case studies: underlined, and a yellow wash on hover like the buttons */
+    .prose a {
+      color: inherit;
+      text-decoration: underline;
+      text-decoration-color: rgba(10, 61, 61, 0.55);
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
+      transition: background 0.25s ease, text-decoration-color 0.25s ease;
+    }
+
+    .prose a:hover,
+    .prose a:focus-visible {
+      background: rgba(245, 220, 80, 0.55);
+      text-decoration-color: #0a3d3d;
+    }
+
     .prose .hl {
       font-weight: 600;
-      color: var(--teal);
+      color: #0a3d3d;
     }
 
     /* ─── Nav bar ──────────────────────────────────────────────────────────────── */
@@ -274,6 +352,8 @@
 
     /* Wordmark — handwritten signature (cursive) */
     .nav-brand {
+      padding: 0.6rem 0;
+      margin: -0.6rem 0;
       font-family: 'Caveat', cursive;
       font-size: clamp(22px, 2.2vw, 28px);
       font-weight: 400;
@@ -396,12 +476,11 @@
 
     /* Not-yet-built sub-pages read as inactive instead of just a dead click */
     .nav-child:not(.nav-live) {
-      color: rgba(24, 21, 18, 0.35);
-      cursor: default;
+      color: rgba(24, 21, 18, 0.55);
     }
 
     .nav-child:not(.nav-live):hover {
-      color: rgba(24, 21, 18, 0.35);
+      color: rgba(24, 21, 18, 0.55);
       background: none;
     }
 
@@ -483,8 +562,8 @@
       .nav-toggle {
         display: flex;
         position: absolute;
-        top: 50%;
-        right: max(1.6rem, 3.4vw);
+        top: calc(50% + 2px);   /* optically centred on the handwritten logo, which sits low in its box */
+        right: var(--gutter, 1.6rem);
         transform: translateY(-50%);
       }
 
@@ -505,12 +584,15 @@
         border-left: 1.5px solid rgba(40, 36, 33, 0.14);
         box-shadow: -8px 0 30px rgba(40, 36, 33, 0.08);
         transform: translateX(100%);
-        transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+        visibility: hidden;   /* off-screen links must not be reachable by keyboard or screen reader */
+        transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), visibility 0s 0.4s;
         overflow-y: auto;
       }
 
       .nav.open .nav-menu {
         transform: translateX(0);
+        visibility: visible;
+        transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), visibility 0s;
       }
 
       .nav-item {
@@ -538,11 +620,14 @@
         padding: 0 0 0.4rem 0.8rem;
         max-height: 0;
         overflow: hidden;
-        transition: max-height 0.35s ease;
+        visibility: hidden;
+        transition: max-height 0.35s ease, visibility 0s 0.35s;
       }
 
       .nav-item.open>.nav-drop {
         max-height: 320px;
+        visibility: visible;
+        transition: max-height 0.35s ease, visibility 0s;
       }
 
       .nav-drop::before {
@@ -564,95 +649,232 @@
     .hero {
       display: grid;
       grid-template-columns: 1fr minmax(180px, 250px);
-      gap: clamp(2.4rem, 8vw, 6rem);
+      column-gap: clamp(2.4rem, 8vw, 6rem);
+      row-gap: 1.2rem;
       align-items: start;
       min-height: 88vh;
-      padding-top: 17vh;
+      /* from width, not height, so the heading sits in the same place on any window height */
+      padding-top: clamp(6.5rem, 14.5vw, 13rem);
+    }
+
+    /* wrapper only matters on portrait tablets (sticky photo column); elsewhere it dissolves */
+    .hero-side-inner {
+      display: contents;
+    }
+
+    .hero-head {
+      grid-column: 1 / -1;
+      grid-row: 1;
     }
 
     .hero-main {
       grid-column: 1;
-      grid-row: 1;
+      grid-row: 2;
     }
 
     .hero-side {
       grid-column: 2;
-      grid-row: 1;
+      grid-row: 2;
     }
 
-    .hero-rail {
-      margin-bottom: 1.8rem;
-      padding-left: 0.9rem;
-      border-left: 1.5px solid rgba(26, 107, 107, 0.35);
-    }
-
-    /* ── Title: a stack of crossed-out selves ── */
+    /* ── Title: three roles on one line, each opens a fan of skill tags ── */
 
     .hero-title {
+      position: relative;
       display: flex;
+      flex-wrap: wrap;
       align-items: baseline;
-      gap: 0.34em;
       font-family: 'Inter', sans-serif;
       font-weight: 200;
-      font-size: clamp(24px, 3.2vw, 40px);
-      letter-spacing: 0.03em;
-      line-height: 1.7;
-      margin-bottom: 2.6rem;
-      margin-left: clamp(1rem, 6vw, 4rem);
+      font-size: clamp(24px, var(--title-vw, 3.3vw), var(--title-max, 42px));
+      /* fine-tune board offsets, in ems of the heading size */
+      translate: calc(var(--title-dx, 0) * 1em) calc(var(--title-dy, 0) * 1em);
+      column-gap: calc(var(--title-gap, 0) * 1em);
+      letter-spacing: -0.04em;
+      line-height: 1.2;
+      /* cancel the first word's left padding so the text sits on the same axis as the body */
+      margin: 0 0 4.5rem -0.3em;
     }
 
-    .roles {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .role {
+    /* A word and the arrow after it never split across lines */
+    .role-group {
       position: relative;
-      width: fit-content;
+      display: inline-flex;
+      align-items: baseline;
       white-space: nowrap;
     }
 
-    /* struck roles recede; the live one holds full ink */
-    .role.struck {
-      color: rgba(24, 21, 18, 0.42);
+    .role-arrow {
+      color: rgba(24, 21, 18, 0.55);
+      font-weight: 200;
+      letter-spacing: 0;
+      transition: opacity 0.5s var(--ease);
     }
 
-    /* hand-drawn strike — same turbulence trick as the yellow swipe */
-    .role.struck::after {
+    .word-trigger {
+      display: inline-block;
+      position: relative;
+      /* padding enlarges the hover target */
+      padding: 0.4em 0.3em;
+      color: rgba(24, 21, 18, 0.78);
+      user-select: none;
+      transition:
+        color 0.5s var(--ease),
+        opacity 0.5s var(--ease),
+        transform 0.5s var(--ease);
+    }
+
+    .word-trigger:focus-visible {
+      outline: 2px solid var(--teal);
+      outline-offset: 2px;
+    }
+
+    /* Brush-stroke highlighter swipe behind each role: a rounded rect roughened by an
+       SVG turbulence/displacement filter, used as a mask so CSS sets the colour. */
+    .word-trigger::after {
       content: '';
       position: absolute;
-      left: -0.06em;
-      right: -0.06em;
-      top: 52%;
-      height: 0.13em;
-      background: rgba(24, 21, 18, 0.62);
-      -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 20' preserveAspectRatio='none'%3E%3Cfilter id='s'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.02 0.5' numOctaves='2' seed='9' result='n'/%3E%3CfeDisplacementMap in='SourceGraphic' in2='n' scale='7'/%3E%3C/filter%3E%3Crect x='2' y='7' width='296' height='5' rx='2.5' fill='white' filter='url(%23s)'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
-      mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 20' preserveAspectRatio='none'%3E%3Cfilter id='s'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.02 0.5' numOctaves='2' seed='9' result='n'/%3E%3CfeDisplacementMap in='SourceGraphic' in2='n' scale='7'/%3E%3C/filter%3E%3Crect x='2' y='7' width='296' height='5' rx='2.5' fill='white' filter='url(%23s)'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
-      transform: rotate(-0.7deg);
+      inset: calc(0.4em - 3px) calc(0.3em - 8px);
+      background: transparent;
+      -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 70' preserveAspectRatio='none'%3E%3Cfilter id='b'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.014 0.16' numOctaves='3' seed='6' result='n'/%3E%3CfeDisplacementMap in='SourceGraphic' in2='n' scale='12'/%3E%3C/filter%3E%3Crect x='22' y='24' width='256' height='22' rx='11' fill='white' filter='url(%23b)'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+      mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 70' preserveAspectRatio='none'%3E%3Cfilter id='b'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.014 0.16' numOctaves='3' seed='6' result='n'/%3E%3CfeDisplacementMap in='SourceGraphic' in2='n' scale='12'/%3E%3C/filter%3E%3Crect x='22' y='24' width='256' height='22' rx='11' fill='white' filter='url(%23b)'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+      transform: rotate(-0.9deg);
+      z-index: -1;
+      transition:
+        background 0.45s var(--ease),
+        inset 0.4s var(--ease);
+    }
+
+    /* Resting yellow swipe, added once the title has settled in */
+    .word-trigger.lit::after {
+      background: rgba(245, 220, 80, 0.55);
+    }
+
+    .word-trigger.active {
+      color: var(--teal);
+    }
+
+    /* the other roles step back while one is open */
+    .word-trigger.dimmed {
+      opacity: 0.18;
+    }
+
+    body.ray-active .role-arrow {
+      opacity: 0.18;
+    }
+
+    .word-trigger.active::after {
+      inset: -0.22em -0.55em;
+      background: linear-gradient(rgba(246, 212, 66, 0.92), rgba(246, 212, 66, 0.92)), var(--paper);
+    }
+
+    /* "hover" / "tap" note, off the end of the last role, arrow pointing back at it */
+    .hover-invite {
+      position: absolute;
+      bottom: calc(100% - 1.6rem);
+      left: calc(100% - 0.2rem);
+      display: inline-flex;
+      align-items: flex-end;
+      gap: 0.3rem;
+      opacity: 0;
+      transition: opacity 0.9s ease;
+      pointer-events: none;
+      white-space: nowrap;
+      z-index: 10;
+    }
+
+    .hover-invite.visible {
+      opacity: 1;
+    }
+
+    /* Tuck the note in, so its arrow ends right beside the last letter (everything above phones) */
+    @media (min-width: 561px) {
+      .hover-invite {
+        left: calc(100% - 1.5rem);
+        bottom: calc(100% - 1.9rem);
+      }
+    }
+
+    /* the note steps aside while a role is open */
+    body.ray-active .hover-invite.visible {
+      opacity: 0;
+    }
+
+    .hover-invite-text {
+      font-family: 'Caveat', cursive;
+      font-size: clamp(16px, 1.5vw, 19px);
+      color: rgba(24, 21, 18, 0.66);
+      letter-spacing: 0.01em;
+    }
+
+    .invite-arrow {
+      width: 22px;
+      height: 32px;
+      color: rgba(24, 21, 18, 0.38);
+      flex-shrink: 0;
+    }
+
+    /* Touch: a shorter arrow */
+    @media (pointer: coarse) {
+      .invite-arrow {
+        width: 18px;
+        height: 24px;
+      }
+    }
+
+    html.force-touch .invite-arrow {
+      width: 18px;
+      height: 24px;
+    }
+
+    /* Connectors: under the page content (the .wrap sections sit at z-index 2), so they
+       come out from behind the words and their highlights. Cards stay on #rayCanvas above. */
+    #rayLines {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    #rayCanvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 4;
+    }
+
+    /* While a role is open the rest of the page steps back, like the homepage tagline,
+       so the tags have the whole screen. !important wins over the reveal animations. */
+    body.ray-active .nav {
+      animation: none;
+      opacity: 0 !important;
+      transform: translateY(-110%);
       pointer-events: none;
     }
 
-    .role.struck:nth-of-type(2)::after {
-      transform: rotate(0.5deg);
+    body.ray-active .ecotone,
+    body.ray-active .hero-cta,
+    body.ray-active .prose p,
+    body.ray-active .hero-side,
+    body.ray-active .currently,
+    body.ray-active .portrait-frame,
+    body.ray-active section.wrap,
+    body.ray-active #footer-placeholder,
+    body.ray-active .hover-invite {
+      opacity: 0 !important;
+      transition: opacity 0.4s ease !important;
     }
 
-    .role.struck:nth-of-type(3)::after {
-      transform: rotate(-1deg);
-    }
-
-    /* marginal annotation, in her own hand */
-    .aside-note {
+    .sr-only {
       position: absolute;
-      right: calc(100% + 0.5em);
-      top: 50%;
-      transform: translateY(-50%) rotate(-3deg);
-      font-family: 'Caveat', cursive;
-      font-style: normal;
-      font-weight: 400;
-      /* absolute, not em — stays put while the title shrinks */
-      font-size: clamp(17px, 1.85vw, 26px);
-      letter-spacing: 0.01em;
-      color: rgba(26, 107, 107, 0.85);
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
       white-space: nowrap;
     }
 
@@ -660,50 +882,20 @@
 
     .ecotone {
       max-width: 660px;
-      margin: 1.6rem 0 3.8rem;
-      padding: 1.9rem 2.1rem;
+      margin: 0 0 3rem;
       font-family: 'Inter', sans-serif;
       font-style: italic;
-      font-weight: 500;
-      font-size: 15.5px;
+      font-weight: 400;
+      font-size: clamp(15px, 1.3vw, 18px);
       line-height: 1.85;
       letter-spacing: -0.01em;
       color: rgba(24, 21, 18, 0.85);
-      background: rgba(250, 248, 244, 0.85);
-      border: 1px solid var(--ink);
-      box-shadow: 6px 6px 0 var(--yellow);
-      /* Own entrance, distinct from the plain prose fade: the card pops up
-         into place and the yellow shadow grows out from behind it, like it's
-         being set down on the page. */
-      transition:
-        opacity 0.8s ease var(--d, 0s),
-        transform 0.9s cubic-bezier(0.22, 1, 0.36, 1) var(--d, 0s),
-        box-shadow 0.9s cubic-bezier(0.22, 1, 0.36, 1) var(--d, 0s);
-    }
-
-    .js .ecotone {
-      opacity: 0;
-      transform: translateY(26px) scale(0.96);
-      box-shadow: 0 0 0 var(--yellow);
-    }
-
-    .ecotone.is-in {
-      opacity: 1;
-      transform: none;
-      box-shadow: 6px 6px 0 var(--yellow);
     }
 
     .ecotone dfn,
     .ecotone strong {
       font-weight: 700;
       color: var(--ink);
-    }
-
-    .ecotone-underline {
-      text-decoration: underline;
-      text-decoration-color: rgba(24, 21, 18, 0.55);
-      text-decoration-thickness: 1px;
-      text-underline-offset: 3px;
     }
 
     /* ── Right column ── */
@@ -785,6 +977,55 @@
       margin-top: 0.15rem;
     }
 
+    /* ─── CTA buttons (same as the homepage hero) ───────────────────────── */
+
+    .hero-cta {
+      max-width: 660px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+      gap: 0.9rem;
+      margin-top: 2.2rem;
+    }
+
+    .hero-btn {
+      font-family: var(--mono);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      text-decoration: none;
+      padding: 0.8rem 1.6rem;
+      border: 1.5px solid var(--ink);
+      border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
+      color: var(--ink);
+      background: transparent;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s, border-color 0.2s, color 0.2s;
+    }
+
+    .hero-btn:hover {
+      transform: translateY(-2px) rotate(-1deg);
+      box-shadow: 4px 4px 0 rgba(40, 36, 33, 0.14);
+    }
+
+    .hero-btn.on {
+      background: var(--yellow);
+    }
+
+    .hero-btn.on:hover {
+      background: var(--teal);
+      border-color: var(--teal);
+      color: #fff;
+    }
+
+    #featured {
+      scroll-margin-top: 60px;
+    }
+
+    .hero-btn:focus-visible {
+      outline: 2px solid var(--teal);
+      outline-offset: 3px;
+    }
+
     /* ─── 5 · Toolkit ────────────────────────────────────────────────────── */
 
     .kit-row {
@@ -800,6 +1041,24 @@
       display: flex;
       flex-wrap: wrap;
       gap: 0.5rem;
+    }
+
+    .kit-text {
+      font-size: 17px;
+      line-height: 1.7;
+      color: rgba(24, 21, 18, 0.85);
+      max-width: 720px;
+    }
+
+    /* Core skills: the few things to remember, so they get the weight */
+    .tag.tag-core {
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      color: var(--paper);
+      background: #0a3d3d;
+      border-color: #0a3d3d;
+      padding: 0.5em 0.9em;
     }
 
     .tag {
@@ -838,11 +1097,49 @@
       box-shadow: 7px 7px 0 rgba(40, 36, 33, 0.14);
     }
 
+    /* Thumbnail on top of each card (same as the homepage): bleeds to the card's edges */
+    .project-media {
+      position: relative;
+      margin: -1.8rem -1.6rem 1.4rem;
+      aspect-ratio: 16 / 9;
+      overflow: hidden;
+      border-bottom: 1.5px solid rgba(40, 36, 33, 0.42);
+      background: var(--media-bg, #efe9dc);
+    }
+
+    .project-media img {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 118%;
+      object-fit: cover;
+      display: block;
+      transform: translate3d(0, -8%, 0);
+    }
+
+    /* Whole images sit centred on their matte */
+    .project-media.is-whole img {
+      top: 50%;
+      height: auto;
+      transform: translate3d(0, -50%, 0);
+    }
+
+    /* Zoomed out: inset on all sides, its own edges match the matte */
+    .project-media.is-zoomed img {
+      left: 11%;
+      width: 78%;
+    }
+
+    .project-card.is-tablet-only {
+      display: none;
+    }
+
     .project-num {
       font-family: var(--mono);
       font-size: 12px;
       letter-spacing: 0.1em;
-      color: var(--yellow);
+      color: #7a5f00;   /* darker gold: the site yellow is too pale for text on the cream card */
       margin-bottom: 1rem;
     }
 
@@ -859,7 +1156,7 @@
       display: block;
       font-size: 0.58em;
       font-weight: 300;
-      color: rgba(24, 21, 18, 0.55);
+      color: rgba(24, 21, 18, 0.74);
       letter-spacing: 0;
       margin-top: 0.5rem;
     }
@@ -875,6 +1172,7 @@
     }
 
     .project-tags {
+      margin-top: auto;
       display: flex;
       flex-wrap: wrap;
       gap: 0.5rem;
@@ -882,34 +1180,82 @@
 
     /* ─── Responsive ─────────────────────────────────────────────────────── */
 
+    /* One gutter for the nav and the page, so the logo and the text share a left edge */
     @media (max-width: 860px) {
+      :root {
+        --gutter: 2.25rem;
+      }
+
+      .nav {
+        padding-inline: var(--gutter);
+      }
+
+      .wrap {
+        padding: 3.5rem var(--gutter);
+      }
+
+      /* Reading order: heading → photo beside the note and what I'm up to → story → buttons.
+         The aside and the main column dissolve into the grid so each piece can be placed. */
       .hero {
-        grid-template-columns: 1fr;
-        padding-top: 14vh;
+        grid-template-columns: minmax(150px, 230px) 1fr;
+        grid-template-areas:
+          "head  head"
+          "photo note"
+          "photo now"
+          "prose prose"
+          "cta   cta";
+        column-gap: 2rem;
+        row-gap: 1.5rem;
+        min-height: 0;
+        padding-top: 6.5rem;
       }
 
-      .hero-main {
-        grid-column: 1;
-        grid-row: 1;
-      }
-
+      .hero-main,
       .hero-side {
-        grid-column: 1;
-        grid-row: 2;
-        max-width: 340px;
+        display: contents;
       }
 
+      .hero-head {
+        grid-area: head;
+      }
+
+      .portrait-frame {
+        grid-area: photo;
+        align-self: start;
+      }
+
+      .ecotone {
+        grid-area: note;
+        margin: 0;
+        align-self: start;
+      }
+
+      .currently {
+        grid-area: now;
+        margin: 0;
+        padding-left: 0;
+        align-self: start;
+      }
+
+      .prose {
+        grid-area: prose;
+        margin-top: 1rem;
+      }
+
+      .prose p {
+        font-size: 18px;
+        max-width: 38rem;
+      }
+
+      .hero-cta {
+        grid-area: cta;
+        margin-top: 0.5rem;
+      }
+
+      /* the heading can run bigger than the one-line desktop size; roles wrap whole */
       .hero-title {
-        flex-direction: column;
-        gap: 0.1em;
-      }
-
-      /* the marginal note has no margin to sit in — bring it inline above */
-      .aside-note {
-        position: static;
-        display: block;
-        transform: rotate(-2deg);
-        margin-bottom: -0.15em;
+        font-size: clamp(24px, 3.4vw, 30px);
+        margin-bottom: 0;
       }
 
       .kit-row {
@@ -918,7 +1264,237 @@
       }
 
       .projects-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .projects-grid .project-card:last-child:nth-child(odd) {
+        grid-column: 1 / -1;
+      }
+    }
+
+    /* iPad mini to iPad Pro 11" in portrait: roomier left edge, a wide text column on the left
+       (note, story, buttons) and the photo with its bullets stacked under it on the right */
+    @media (min-width: 700px) and (max-width: 860px) and (orientation: portrait) {
+      :root {
+        --gutter: 3.5rem;
+      }
+
+      .hero {
+        grid-template-columns: minmax(0, 1fr) minmax(148px, 170px);
+        grid-template-areas: none;
+        column-gap: 2rem;
+        row-gap: 1.5rem;
+      }
+
+      /* Rows: heading / note / story / buttons. The photo column spans the note and the story
+         rows only, so it stops scrolling where the body text ends, not at the buttons. */
+      .hero-side {
+        display: block;
+        grid-area: 2 / 2 / 4 / 3;
+      }
+
+      .hero-head {
+        grid-area: 1 / 1 / 2 / -1;
+      }
+
+      .ecotone {
+        grid-area: 2 / 1;
+      }
+
+      .prose {
+        grid-area: 3 / 1;
+      }
+
+      .hero-cta {
+        grid-area: 4 / 1;
+      }
+
+      /* One spacing scale: 28px between heading, note, story and between photo and bullets;
+         20px between paragraphs */
+      .hero {
+        row-gap: 1.75rem;
+      }
+
+      /* bigger heading: roles wrap whole, so "UX & Product Designer" gets its own line.
+         Extra left padding gives the hover labels room on the left of the first word. */
+      .hero-title {
+        padding-left: 4.25rem;
+        font-size: clamp(32px, 4.5vw, 36px);
+        line-height: 1.25;
+      }
+
+      /* the roles' tap padding stacks on two lines; pull the lines together */
+      .hero-title .role-group {
+        margin-block: -0.15em;
+      }
+
+      /* the note's text box is a character or two narrower than the story's column */
+      .ecotone {
+        margin: 0;
+        padding-right: 1.5ch;
+      }
+
+      .prose {
+        margin-top: 0;
+      }
+
+      .prose p {
+        margin-bottom: 1.25rem;
+      }
+
+      .prose p:last-child {
+        margin-bottom: 0;
+      }
+
+      .hero-cta {
+        margin-top: 0;
+      }
+
+      /* photo + bullets travel with the story, so the right column is never an empty strip.
+         The aside stretches over the note and story rows; the wrapper sticks inside it and
+         stops where the story ends. */
+      .hero-side {
+        align-self: stretch;
+      }
+
+      .hero-side-inner {
+        display: block;
+        position: sticky;
+        top: 5rem;
+      }
+
+      /* bullets line up with the photo's left edge and stay on one line where they can */
+      .currently {
+        margin-top: 1.75rem;
+        padding-left: 0;
+      }
+
+      .currently dd li {
+        font-size: 15px;
+        padding-left: 0.8rem;
+      }
+
+      /* "tap" note: to the right of the last word, a little below its middle, with the arrow
+         coming in from the east-south-east and its tip landing on the end of "Designer" */
+      .hover-invite {
+        left: calc(100% - 0.5rem);
+        bottom: auto;
+        top: 48%;
+        flex-direction: row-reverse;
+        align-items: flex-start;
+        gap: 0.25rem;
+      }
+
+      .hover-invite .invite-arrow {
+        width: 30px;
+        height: 18px;
+        margin-top: -0.35rem;
+        transform: scaleY(-1) rotate(32deg);
+        transform-origin: 0% 100%;
+      }
+
+      .hover-invite-text {
+        margin-top: 0.45rem;
+      }
+
+      /* Featured projects: two columns, Conflict Lens + Fin-Lit, then St. Joe's + Excalidraw */
+      .projects-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .project-card.is-tablet-only {
+        display: flex;
+      }
+    }
+
+    /* iPad Pro 12.9" in portrait (desktop layout, but 1366px tall): the 9vh section padding and
+       88vh hero minimum made the gaps between sections huge, so use a fixed, tighter rhythm */
+    @media (min-width: 861px) and (max-width: 1100px) and (orientation: portrait) {
+      /* a little bigger heading; it wraps to two lines, so the note stays inside the frame */
+      .hero-title {
+        font-size: clamp(34px, 3.9vw, 40px);
+        line-height: 1.25;
+      }
+
+      .hero-title .role-group {
+        margin-block: -0.15em;
+      }
+
+      /* note: same spot as desktop (up and to the right of the last letter), nudged further up */
+      .hover-invite {
+        left: calc(100% - 1.2rem);
+        bottom: calc(100% - 1.15rem);
+      }
+
+      .wrap {
+        padding-block: 4rem;
+      }
+
+      .hero {
+        min-height: 0;
+        padding-top: clamp(6.5rem, 14.5vw, 13rem);
+      }
+    }
+
+    /* Phones: small photo beside the note, then the story, buttons and the aside last */
+    @media (max-width: 560px) {
+      :root {
+        --gutter: 1.5rem;
+      }
+
+      .wrap {
+        padding-block: 3rem;
+      }
+
+      .hero {
+        grid-template-columns: 104px 1fr;
+        grid-template-areas:
+          "head  head"
+          "photo note"
+          "prose prose"
+          "cta   cta"
+          "now   now";
+        column-gap: 1.1rem;
+        padding-top: 6rem;
+      }
+
+      .ecotone {
+        font-size: 14.5px;
+        line-height: 1.6;
+      }
+
+      .hero-cta {
+        gap: 0.6rem;
+      }
+
+      /* three buttons share one row at any phone width */
+      .hero-btn {
+        flex: 1 1 auto;
+        text-align: center;
+        padding: 0.85rem 0.5rem;
+        font-size: 11px;
+        letter-spacing: 0.04em;
+      }
+
+      .currently {
+        margin-top: 0.5rem;
+        padding-top: 1.4rem;
+        border-top: 1px solid rgba(24, 21, 18, 0.14);
+      }
+
+      .projects-grid {
         grid-template-columns: 1fr;
+      }
+    }
+
+    /* Short landscape screens (phones on their side): less empty space above and between */
+    @media (max-width: 860px) and (max-height: 500px) {
+      .wrap {
+        padding-block: 2.5rem;
+      }
+
+      .hero {
+        padding-top: 5.5rem;
       }
     }
   </style>
@@ -926,7 +1502,9 @@
 
 <body>
 
-  <nav class="nav" id="nav">
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <nav class="nav" id="nav" aria-label="Primary">
     <a class="nav-brand" href="index.html">Khushali Haji</a>
     <button class="nav-toggle" id="navToggle" aria-label="Menu" aria-expanded="false" aria-controls="navMenu">
       <span></span><span></span><span></span>
@@ -936,19 +1514,19 @@
         <a class="nav-parent" href="about.html">About</a>
       </li>
       <li class="nav-item">
-        <a class="nav-parent" href="#">Product &amp; Design <i class="nav-caret"></i></a>
+        <a class="nav-parent" href="#" aria-haspopup="true" aria-expanded="false">Product &amp; Design <i class="nav-caret" aria-hidden="true"></i></a>
         <ul class="nav-drop">
-          <li><a class="nav-child" href="#">Civic Tech &amp; UX</a></li>
-          <li><a class="nav-child" href="#">Content &amp; Graphic Design</a></li>
-          <li><a class="nav-child" href="#">Urban Design</a></li>
+          <li><a class="nav-child" aria-disabled="true">Civic Tech &amp; UX<span class="sr-only"> (coming soon)</span></a></li>
+          <li><a class="nav-child" aria-disabled="true">Content &amp; Graphic Design<span class="sr-only"> (coming soon)</span></a></li>
+          <li><a class="nav-child" aria-disabled="true">Urban Design<span class="sr-only"> (coming soon)</span></a></li>
         </ul>
       </li>
       <li class="nav-item">
-        <a class="nav-parent" href="#">Research &amp; Stories <i class="nav-caret"></i></a>
+        <a class="nav-parent" href="#" aria-haspopup="true" aria-expanded="false">Research &amp; Stories <i class="nav-caret" aria-hidden="true"></i></a>
         <ul class="nav-drop">
           <li><a class="nav-child nav-live" href="reporting.html">Journalism &amp; Reporting</a></li>
-          <li><a class="nav-child" href="#">Film &amp; Video</a></li>
-          <li><a class="nav-child" href="#">Essays</a></li>
+          <li><a class="nav-child" aria-disabled="true">Film &amp; Video<span class="sr-only"> (coming soon)</span></a></li>
+          <li><a class="nav-child" aria-disabled="true">Essays<span class="sr-only"> (coming soon)</span></a></li>
         </ul>
       </li>
       <li class="nav-item">
@@ -958,101 +1536,113 @@
   </nav>
 
   <canvas id="mapGrid"></canvas>
+  <canvas id="rayLines" aria-hidden="true"></canvas>
+  <canvas id="rayCanvas" aria-hidden="true"></canvas>
   <div class="cursor-glow" id="cursorGlow"></div>
   <div class="cursor-arrow" id="cursorArrow"></div>
 
-  <!-- 1 · THESIS -->
-  <header class="wrap hero">
-    <div class="hero-main">
-      <div class="hero-rail" data-reveal>
-        <span class="meta">New York · 40.71° N, 74.01° W</span>
-      </div>
+  <main id="main" tabindex="-1">
 
-      <h1 class="hero-title" data-reveal style="--d:.06s">
-        <span class="greet">Hi, I'm an</span>
-        <span class="roles">
-          <span class="role struck">Urban Designer</span>
-          <span class="role struck">Researcher</span>
-          <span class="role struck">Journalist</span>
-          <span class="role"><em class="aside-note">(AI native)</em>UX Designer</span>
+  <!-- 1 · THESIS -->
+  <div class="wrap hero">
+    <div class="hero-head">
+
+      <h1 class="hero-title" data-reveal style="--d:.06s"
+       >
+        <span class="role-group"><span class="word-trigger" data-key="urban" role="button" tabindex="0"
+            aria-expanded="false" aria-label="Urban Designer: show related skills">Urban Designer</span><span
+            class="role-arrow" aria-hidden="true">&rarr;</span></span>
+        <span class="role-group"><span class="word-trigger" data-key="journalist" role="button" tabindex="0"
+            aria-expanded="false" aria-label="Journalist: show related skills">Journalist</span><span
+            class="role-arrow" aria-hidden="true">&rarr;</span></span>
+        <span class="role-group"><span class="word-trigger" data-key="ux" role="button" tabindex="0"
+            aria-expanded="false" aria-label="UX and Product Designer: show related skills">UX &amp; Product
+            Designer</span>
+          <span class="hover-invite" id="hoverInvite" aria-hidden="true">
+            <span class="hover-invite-text">hover</span>
+            <svg class="invite-arrow" viewBox="0 0 26 40" fill="none" stroke="currentColor" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path d="M 22 4 C 18 14, 10 26, 4 38" stroke-width="1.7" />
+              <path d="M 4 38 L 11 33 M 4 38 L 9 29" stroke-width="1.7" />
+            </svg>
+          </span>
         </span>
       </h1>
+    </div>
 
-      <p class="ecotone" data-reveal style="--d:.12s"><dfn>Ecotone Edge Effect:</dfn> the ecological rule where
-        the boundary zone between two habitats, like land and water, supports a much higher
-        density of life because it combines resources from both environments, proving that the
-        <span class="ecotone-underline">most resilient and innovative outcomes happen at
-          the intersection of
-          different worlds</span>.
-      </p>
+    <div class="hero-main">
+
+      <p class="ecotone" data-reveal style="--d:.12s"><dfn>Ecotone Edge Effect:</dfn> the boundary between two habitats
+        supports more species than either habitat alone. People between worlds are no different.</p>
 
       <div class="prose">
-        <p data-reveal style="--d:.16s">Reading fiction was my first love. Studying urban design in undergrad changed
-          how I read the stories around me. I saw how economics governed the social fabric of our lives, and how
-          identity, power, and politics were intertwined. I also saw the <span class="hl">gap between what gets
-            designed</span> on paper and <span class="hl">what actually gets built</span> once corruption and
-          competing interests enter the picture.</p>
+        <p data-reveal style="--d:.16s">While reading fiction was my first love, studying urban design in undergrad
+          changed how I read the
+          stories around me. I saw how economics governed the social fabric of our lives, and how identity, power, and
+          politics were intertwined. I also saw the gap between what gets designed on paper and what actually gets built
+          once corruption and competing interests enter the picture. That led me to a fellowship at the World Resources
+          Institute,
+          researching water and sanitation access for women in low-income Muslim neighborhoods in Ahmedabad. From
+          there I moved through editorial fact-checking at a local magazine and scriptwriting with a theater collective.
+          Despite the change in medium, <span class="hl">the need to research and build a public-facing narrative to
+            convey it stayed the same</span>.</p>
 
-        <p data-reveal>That led me to a fellowship at the <span class="hl">World Resources Institute</span>, where I
-          researched <span class="hl">water and sanitation access</span> for women in low-income Muslim neighborhoods in
-          Ahmedabad, co-producing a website to show our findings. From there I moved through editorial fact-checking at
-          City Observer and scriptwriting with a theater collective. Despite the change in medium,
-          <span class="hl">the research and writing problem stayed the same</span>. I wanted a bigger platform.
-        </p>
+        <p data-reveal>Seeking a bigger platform, I came to New York City to study journalism at the Newmark Graduate
+          School at CUNY. I specialized in <span class="hl">international reporting and documentary filmmaking</span>,
+          covering immigrant
+          communities across the city. I reported on asylum policy, caste, domestic violence, and cultural displacement
+          for Documented, Brooklyn Paper, and Central Desi. My <a href="case-studies/st-joes-hoes.html">short
+            documentary</a> about immigrant women artists received a
+          Special Jury Mention at the 2025 Woodstock Film Festival. I later reported from Liberia with New Narratives,
+          co-reporting two <span class="hl">first-reported investigations</span> into carbon credit markets and foreign
+          business influence,
+          using my outsider identity to build trust with sources who were otherwise hard to reach.</p>
 
-        <p data-reveal>I came to <span class="hl">New York City</span> to study journalism at the Newmark Graduate
-          School at CUNY, specializing in <span class="hl">international reporting and documentary filmmaking</span>.
-          I covered immigrant communities across New York, including Bangladeshi, Tibetan, Nepali, Afghan, and Indian
-          diasporas, reporting on <span class="hl">asylum policy, caste, domestic violence, and cultural
-            displacement</span> for Documented, Brooklyn Paper, and Central Desi. My short documentary about immigrant
-          women artists received a <span class="hl">Special Jury Mention at the 2025 Woodstock Film Festival</span>. I
-          later reported from <span class="hl">Liberia</span> with New Narratives, co-reporting two
-          <span class="hl">first-reported investigations</span> into <span class="hl">carbon credit markets</span> and
-          <span class="hl">foreign business influence</span>, using my outsider identity to build trust with sources
-          who were otherwise hard to reach.
-        </p>
-
-        <p data-reveal>Wanting to solve, not just document, I went back to my design roots. As
-          <span class="hl">Research and Engagement Lead</span> with Urbanizer in Varanasi, I conducted
+        <p data-reveal>I wanted now to solve, and not just document. I went back to my design roots. As
+          Research and Engagement Lead with Urbanizer in Varanasi, I conducted
           <span class="hl">40+ interviews with government officials and residents</span> for an infrastructure
-          initiative <span class="hl">serving 140 million annual visitors</span>. I managed a small intern team and
-          co-authored the <span class="hl">public report and video</span> that helped support a successful second round
-          of funding.
+          initiative serving 140
+          million annual visitors, and co-authored the public report and video that helped support a second round of
+          funding. At On a Map, I designed the <span class="hl">information architecture</span> for a live,
+          public-facing
+          conflict-monitoring platform and structured 50+ conflict datasets. At Seat at the Table, I built the
+          documentary campaign's visual identity and designed content across web, social, and print, creating a path
+          from discovery to registration across 15 screenings.
         </p>
 
-        <p data-reveal>At On a Map, I moved further into <span class="hl">information</span> and
-          <span class="hl">product design</span>. I designed the <span class="hl">information architecture</span> for a
-          live, <span class="hl">public-facing conflict-monitoring platform</span>, structured 50+ conflict datasets,
-          and <span class="hl">built editorial and visual systems</span> that turned raw <span class="hl">geospatial
-            data</span> into something a general reader could actually follow.
+        <p data-reveal>Now, as an AI Native Fellow at Pursuit, I <span class="hl">research, wireframe, prototype, and
+            ship</span>. I built
+          <a href="case-studies/conflict-lens.html">Conflict Lens</a>, an AI verification tool that maps conflicts and
+          cross-references sources in a researcher
+          dashboard; <a href="case-studies/fin-lit-ed.html">interactive maps and visualizations</a> from 50,000+ survey
+          responses for a financial literacy product;
+          and a multilingual chat assistant that helps lower-income women in India market homemade food in their own
+          language with designed marketing assets. My capstone project, SlideVault, a search platform for M Moser
+          Associates, helps the proposal team surface slides from a 45-year archive and suggests outlines for assembling
+          new decks.
         </p>
-
-        <p data-reveal>At Seat at the Table, I worked across <span class="hl">brand, content, and product</span>. I
-          built the documentary's <span class="hl">visual identity and designed content</span> across
-          <span class="hl">web, social, and print</span>, creating a path from discovery to registration across 15
-          screenings.
-        </p>
-
-        <p data-reveal>Now, as an <span class="hl">AI Native Fellow</span> at Pursuit, I <span class="hl">research,
-            wireframe, prototype, and ship</span>. I built Conflict Lens, an <span class="hl">AI verification
-            tool</span> that maps conflict actors and cross-references sources in a researcher dashboard. I also
-          designed <span class="hl">interactive maps and visualizations</span> from 50,000+ survey responses spanning
-          15 years, turning hardship data into a case for a financial literacy product for underserved households.</p>
 
         <p data-reveal>While AI has made building cheaper, <strong>it has not made judgment cheaper</strong>. Someone
-          still has to decide which question is worth asking, whose problem is being solved, and how to describe a
-          messy human situation precisely enough that a model produces something useful instead of merely plausible.
-          That has been my work for years: moving between <span class="hl">research, data, storytelling, and product
-            design</span>, sitting with people to understand what's said and what's left unsaid, then turning that
-          into something a team can build. That is the kind of work I want to keep doing, especially where
-          <span class="hl">technology meets public life</span>.
-        </p>
+          still has to decide which question is worth asking, whose problem is being solved, which design fits the
+          context, and how to describe a messy, "wicked" situation precisely enough that a model produces something
+          useful. That is where my work lies. I move between research, data, storytelling, and product design, sit with
+          people to understand what's said and what's left unsaid, and turn that into something <span
+            class="hl">tangible and buildable</span>,
+          especially for <span class="hl">emerging markets</span> and where technology meets public life.</p>
+      </div>
+
+      <div class="hero-cta" data-reveal>
+        <a class="hero-btn on" href="#featured">See work</a>
+        <a class="hero-btn" href="resume.pdf" target="_blank" rel="noopener">Resume<span class="sr-only"> (opens in a
+            new tab)</span></a>
+        <a class="hero-btn" href="#footer-placeholder">Contact me</a>
       </div>
     </div>
 
     <aside class="hero-side">
+      <div class="hero-side-inner">
       <div class="portrait-frame" data-frame>
-        <img class="portrait" id="portrait" src="images/KH_About.jpg" alt="Khushali Haji">
+        <img class="portrait" id="portrait" src="images/KH_About.jpg" alt="Portrait of Khushali Haji">
       </div>
 
       <dl class="currently" data-reveal style="--d:.2s">
@@ -1086,80 +1676,64 @@
           </dd>
         </div>
       </dl>
+      </div>
     </aside>
-  </header>
+  </div>
 
   <!-- 5 · TOOLKIT -->
   <section class="wrap">
-    <p class="section-label" data-reveal>Toolkit</p>
+    <h2 class="section-label" data-reveal>Toolkit</h2>
     <div class="kit-row" data-reveal>
-      <span class="meta">UX Research &amp; Design</span>
+      <span class="meta">Core skills</span>
       <div class="chips">
-        <span class="tag">Figma</span><span class="tag">Design systems</span><span class="tag">Prototyping</span><span
-          class="tag">Wireframing</span><span class="tag">Information architecture</span><span class="tag">User
-          flows</span><span class="tag">Journey mapping</span><span class="tag">User research</span><span
-          class="tag">User interviews</span><span class="tag">Stakeholder research</span><span class="tag">Qualitative
-          research</span><span class="tag">Usability testing</span><span class="tag">Competitive analysis</span><span
-          class="tag">Insight synthesis</span><span class="tag">Accessibility / WCAG</span>
+        <span class="tag tag-core">UX design</span><span class="tag tag-core">UI design</span><span
+          class="tag tag-core">UX research</span><span class="tag tag-core">Information architecture</span><span
+          class="tag tag-core">Prototyping</span><span class="tag tag-core">Agentic UX</span><span
+          class="tag tag-core">AI evals</span><span class="tag tag-core">AI-assisted design engineering</span><span
+          class="tag tag-core">Documentary storytelling</span>
       </div>
     </div>
 
     <div class="kit-row" data-reveal style="--d:.05s">
-      <span class="meta">AI &amp; Product</span>
-      <div class="chips">
-        <span class="tag">Claude Design</span><span class="tag">Google Antigravity</span><span class="tag">Google
-          Stitch</span><span class="tag">Cursor</span><span class="tag">Agentic workflows</span><span class="tag">Prompt
-          engineering</span><span class="tag">AI evals</span><span class="tag">AI
-          prototyping</span><span class="tag">GitHub</span><span class="tag">VS Code</span><span class="tag">HTML /
-          CSS</span><span class="tag">Airtable</span><span class="tag">Mapbox</span>
-      </div>
+      <span class="meta">Also</span>
+      <p class="kit-text">Data visualization, design systems, user flows, journey mapping, usability testing,
+        competitive analysis,
+        accessibility (WCAG), brand identity, editorial layout, UX writing, video editing</p>
     </div>
 
-    <div class="kit-row" data-reveal style="--d:.1s">
-      <span class="meta">Visual &amp; Content</span>
-      <div class="chips">
-        <span class="tag">Adobe Creative Suite</span><span class="tag">Brand identity</span><span class="tag">Editorial
-          layout systems</span><span class="tag">UX writing</span><span class="tag">Content design</span><span
-          class="tag">Data visualization</span><span class="tag">Video editing</span>
-      </div>
+    <div class="kit-row" data-reveal style="--d:.05s">
+      <span class="meta">Tools</span>
+      <p class="kit-text">Figma, Claude Design, Cursor, Google Antigravity, Google Stitch, GitHub, VS Code, Mapbox,
+        Airtable, Adobe Creative Suite</p>
+    </div>
+
+    <div class="kit-row" data-reveal>
+      <span class="meta">Recognition</span>
+      <p class="kit-text">NYSCA Grant (2025) &middot; Woodstock Film Festival Special Jury Mention (2025) &middot;
+        Dennis
+        Duggan Journalism Award (2024) &middot; Walter Lister International Travel Award (2024) &middot; CEPT
+        Valedictorian (2021)</p>
+    </div>
+
+    <div class="kit-row" data-reveal>
+      <span class="meta">Education</span>
+      <p class="kit-text">MA Journalism, CUNY Newmark &middot; B.Des Urban Design, CEPT University</p>
     </div>
 
     <div class="kit-row" data-reveal>
       <span class="meta">Languages</span>
-      <div class="chips">
-        <span class="tag">English (fluent)</span><span class="tag">Hindi (fluent)</span><span class="tag">Gujarati
-          (fluent)</span><span class="tag">Spanish (beginner)</span>
-      </div>
-    </div>
-
-    <div class="kit-row" data-reveal style="--d:.05s">
-      <span class="meta">Recognition</span>
-      <div class="chips">
-        <span class="tag">NYSCA Grant 2025</span><span class="tag">Woodstock Special Jury Mention 2025</span><span
-          class="tag">Dennis Duggan Journalism Award 2024</span><span class="tag">Walter Lister International Travel
-          Award 2024</span><span class="tag">CEPT Valedictorian 2021</span>
-      </div>
-    </div>
-
-    <div class="kit-row" data-reveal style="--d:.1s">
-      <span class="meta">Education</span>
-      <div class="chips">
-        <span class="tag">MA Journalism, CUNY Newmark</span><span class="tag">B.Des Urban Design, CEPT</span>
-      </div>
+      <p class="kit-text">English, Hindi, Gujarati (fluent) &middot; Spanish (beginner)</p>
     </div>
   </section>
 
   <!-- 6 · FEATURED PROJECTS -->
-  <section class="wrap">
-    <p class="section-label" data-reveal>Featured Projects</p>
+  <section class="wrap" id="featured">
+    <h2 class="section-label" data-reveal>Featured Projects</h2>
     <div class="projects-grid">
       <a class="project-card" data-reveal href="case-studies/conflict-lens.html">
+        <div class="project-media is-whole is-zoomed" style="--media-bg:#1b1e1a"><img src="images/card-conflict-lens.jpg" alt="Conflict Lens home screen: a dark input page with a paste-a-link field and an Analyze Link button" loading="lazy"></div>
         <span class="project-num">01</span>
         <h3 class="project-title">Conflict Lens</h3>
-        <p class="project-desc">Turns a single news article into a geo-referenced, bias-aware conflict briefing, in
-          under a minute. A map-first dashboard that synthesizes location, actors, history, and source slant in one
-          view.
-        </p>
         <div class="project-tags">
           <span class="tag">Product Design</span>
           <span class="tag">Geospatial</span>
@@ -1167,13 +1741,9 @@
         </div>
       </a>
       <a class="project-card" data-reveal style="--d:.05s" href="case-studies/fin-lit-ed.html">
+        <div class="project-media"><img src="images/card-fin-lit-ed.jpg" alt="The strain index chart from the Fin-Lit case study: satisfaction lines trending down and vulnerability lines trending up across income groups" loading="lazy"></div>
         <span class="project-num">02</span>
-        <h3 class="project-title">Fin-Lit Education<span class="pt-sub">
-            <p>(A Data Analysis)</p>
-          </span></h3>
-        <p class="project-desc">Making the case for a financial literacy education app that personalizes learning by
-          income group, state, immigration status, age and community. Built on National Financial Capability Study and
-          the Survey of Consumer Finances data.</p>
+        <h3 class="project-title">Fin-Lit Education<span class="pt-sub">(A Data Analysis)</span></h3>
         <div class="project-tags">
           <span class="tag">Product Strategy</span>
           <span class="tag">Data Viz</span>
@@ -1181,25 +1751,38 @@
         </div>
       </a>
       <a class="project-card" data-reveal style="--d:.1s" href="case-studies/st-joes-hoes.html">
+        <div class="project-media"><img src="images/card-st-joes-hoes.jpg" alt="The residents of St. Joseph’s gathered around the communal dinner table" loading="lazy"></div>
         <span class="project-num">03</span>
         <h3 class="project-title">St. Joe's Hoes</h3>
-        <p class="project-desc">A character-driven documentary exploring immigration, housing insecurity, and creative
-          ambition in NYC.
-          Edited, filmed, and produced independently. Premiered at Woodstock Film Festival 2026.
-        </p>
         <div class="project-tags">
           <span class="tag">Storytelling</span>
           <span class="tag">Documentary Film-making</span>
           <span class="tag">Ethnography</span>
         </div>
       </a>
+
+      <!-- Only shown on iPad mini to iPad Pro 11" portrait, to complete the 2 × 2 grid -->
+      <a class="project-card is-tablet-only" data-reveal style="--d:.15s" href="case-studies/excalidraw-attribution.html">
+        <div class="project-media is-whole" style="--media-bg:#fff"><img src="images/card-excalidraw.jpg" alt="Annotated before and after of the Excalidraw export dialog, with notes on the added formats, aspect ratios and default attribution mark" loading="lazy"></div>
+        <span class="project-num">04</span>
+        <h3 class="project-title">Made with Excalidraw</h3>
+        <div class="project-tags">
+          <span class="tag">Product Design</span>
+          <span class="tag">Open Source</span>
+          <span class="tag">Marketing KPI</span>
+        </div>
+      </a>
     </div>
   </section>
+
+  </main>
 
   <!-- FOOTER (shared component, matches Conflict Lens case study) -->
   <div id="contact" style="scroll-margin-top: 80px;"></div>
   <div id="footer-placeholder"></div>
   <script src="js/include-footer.js?v=7"></script>
+  <script src="js/role-layout.js"></script>
+  <script src="js/word-rays.js"></script>
 
   <script>
     // ─── Map grid — faint lat/long lines, same drawing as the landing page ────────
@@ -1273,25 +1856,55 @@
       const cursor = document.getElementById('cursorArrow');
       if (!glow || !cursor || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
 
+      const root = document.documentElement;
       let shown = false;
+      let tx = 0, ty = 0;   // where the pointer is
+      let gx = 0, gy = 0;   // where the glow has got to; it eases after the pointer
+      let raf = 0;
+
+      // The arrow is written straight from the event so it never lags the pointer. Only
+      // the soft glow trails, and it eases in on its own frame loop instead of snapping.
+      function glowFrame() {
+        raf = 0;
+        gx += (tx - gx) * 0.2;
+        gy += (ty - gy) * 0.2;
+        glow.style.translate = gx + 'px ' + gy + 'px';
+        if (Math.abs(tx - gx) > 0.2 || Math.abs(ty - gy) > 0.2) raf = requestAnimationFrame(glowFrame);
+      }
+
+      function hide() {
+        shown = false;
+        cursor.classList.remove('visible', 'hot');
+        glow.style.opacity = '0';
+        root.classList.remove('cc-live');   // hand the real cursor back
+      }
 
       document.addEventListener('mousemove', e => {
+        tx = e.clientX;
+        ty = e.clientY;
         // `translate` (not left/top) so the move composites instead of running layout.
-        cursor.style.translate = (e.clientX - 2) + 'px ' + (e.clientY - 2) + 'px';
-
-        glow.style.translate = e.clientX + 'px ' + e.clientY + 'px';
-        glow.style.opacity = '1';
+        cursor.style.translate = (tx - 2) + 'px ' + (ty - 2) + 'px';
 
         if (!shown) {
+          gx = tx; gy = ty;                // appear in place, don't swoop in from the corner
+          glow.style.translate = gx + 'px ' + gy + 'px';
+          glow.style.opacity = '1';
           cursor.classList.add('visible');
+          root.classList.add('cc-live');
           shown = true;
+        } else if (!raf) {
+          raf = requestAnimationFrame(glowFrame);
         }
-      });
+      }, { passive: true });
 
       document.addEventListener('mouseover', e => {
-        const hot = e.target.closest('a, button, [data-clickable]');
+        const hot = e.target.closest('a, button, .word-trigger, [data-clickable]');
         cursor.classList.toggle('hot', !!hot);
       });
+
+      // Pointer left the page (or the tab lost focus): no stuck arrow beside the real one
+      root.addEventListener('mouseleave', hide);
+      window.addEventListener('blur', hide);
     })();
 
     /* Portrait parallax — the image is 132% of its frame, so it can drift
@@ -1327,6 +1940,123 @@
       update();
     })();
 
+    // ─── Role tags — hover (tap on touch) a role and its skills fan out ───────────
+    (function initRoleRays() {
+      var forceTouch = /[?&]touch=1\b/.test(location.search);
+      if (forceTouch) document.documentElement.classList.add('force-touch');
+      // Touchscreens say "tap" and open on tap; mouse and trackpad say "hover" and open on hover.
+      // Decided at load from the device, then followed live: whichever you used last wins
+      // (a finger on an iPad with a keyboard, the mouse again, or flipping the browser's
+      // touch emulation on and off).
+      var mq = function (q) { return window.matchMedia(q).matches; };
+      // Phones and portrait tablets (incl. iPad Pro 12.9") are always tap: that is how they are used, and it
+      // keeps a narrowed desktop window or touch emulation consistent with what the note says.
+      var narrow = function () {
+        var w = window.innerWidth;
+        return w <= 860 || (w <= 1100 && window.innerHeight > w);   // incl. iPad Pro 12.9" portrait
+      };
+      var tapMode = forceTouch || narrow() || mq('(pointer: coarse)') || mq('(hover: none)') ||
+        (navigator.maxTouchPoints > 0 && !mq('(any-pointer: fine)'));
+      var coarse = function () { return tapMode || narrow(); };
+      var triggers = document.querySelectorAll('.word-trigger');
+
+      var SERIF = "'Cormorant Garamond',serif", PLAYFAIR = "'Playfair Display',serif",
+        MONO = "'DM Mono',monospace", SANS = "'Inter',sans-serif", HAND = "'Caveat',cursive";
+      var fonts = [
+        { f: PLAYFAIR, w: '700', style: 'italic', size: 23 },
+        { f: SANS, w: '600', style: 'normal', size: 18 },
+        { f: SERIF, w: '600', style: 'italic', size: 27 },
+        { f: MONO, w: '500', style: 'normal', size: 14, upper: true },
+        { f: HAND, w: '600', style: 'normal', size: 29 },
+        { f: SANS, w: '600', style: 'normal', size: 18 }
+      ];
+
+      var roleData = {
+          urban: {
+            color: '#1a6b6b', shadow: 'rgba(26,107,107,0.55)', fonts: fonts,
+            labels: ['Urban policy', 'City planning', 'Urban economics', 'Governance', 'Graphic design', 'Field research']
+          },
+          journalist: {
+            color: '#2a2218', shadow: 'rgba(42,34,24,0.45)', fonts: fonts,
+            labels: ['Investigative reporting', 'International reporting', 'Documentary filmmaking',
+              'Immigration & policy', 'Data visualization', 'Videography']
+          },
+          ux: {
+            color: '#8a6a0a', shadow: '#c9a227', fonts: fonts,
+            labels: ['Agentic UX', 'AI evals', 'UX research', 'UX design', 'UI design', 'Design engineering']
+          }
+      };
+
+      // Saved positions come from js/role-layout.js. With ?tune=1 the fine-tune board's
+      // live edits take over so they can be seen straight away.
+      var layout = function () { return window.ROLE_LAYOUT_LIVE || window.ROLE_LAYOUT || null; };
+
+      // Heading size/offset from the saved layout, as CSS variables (see .hero-title)
+      window.applyRoleTitle = function (t) {
+        if (!t) return;
+        const r = document.documentElement.style;
+        r.setProperty('--title-vw', t.vw + 'vw');
+        r.setProperty('--title-max', t.max + 'px');
+        r.setProperty('--title-dx', t.dx);
+        r.setProperty('--title-dy', t.dy);
+        r.setProperty('--title-gap', t.gap);
+      };
+      window.applyRoleTitle((layout() || {}).title);
+
+      var rays = WordRays.init({
+        canvas: document.getElementById('rayCanvas'),
+        linesCanvas: document.getElementById('rayLines'),
+        triggers: triggers,
+        coarse: coarse,
+        introFor: { urban: 'Urban design: ', journalist: 'Journalism: ', ux: 'UX and product: ' },
+        layout: layout,
+        data: roleData
+      });
+
+      // Fine-tune board: open this page with ?tune=1
+      if (/[?&]tune\b/.test(location.search)) {
+        var tuner = document.createElement('script');
+        tuner.src = 'js/role-tuner.js';
+        tuner.onload = function () {
+          window.__tuner = RoleTuner.init({
+            api: rays, data: roleData, keys: ['urban', 'journalist', 'ux'],
+            base: window.ROLE_LAYOUT, titleEl: document.querySelector('.hero-title')
+          });
+        };
+        document.body.appendChild(tuner);
+      }
+
+      // Light up the swipes once the title has settled, then show the hover/tap note
+      triggers.forEach(function (w, k) {
+        setTimeout(function () { w.classList.add('lit'); }, 1200 + k * 220);
+      });
+      var invite = document.getElementById('hoverInvite');
+      var inviteText = invite && invite.querySelector('.hover-invite-text');
+      function setTapMode(on) {
+        if (narrow()) on = true;
+        if (tapMode === on && inviteText && inviteText.textContent === (on ? 'tap' : 'hover')) return;
+        tapMode = on;
+        if (inviteText) inviteText.textContent = on ? 'tap' : 'hover';
+        document.documentElement.classList.toggle('tap-mode', on);
+      }
+      setTapMode(tapMode);
+      ['(pointer: coarse)', '(hover: none)'].forEach(function (q) {
+        var m = window.matchMedia(q);
+        (m.addEventListener ? m.addEventListener.bind(m, 'change') : m.addListener.bind(m))(function () {
+          setTapMode(mq('(pointer: coarse)') || mq('(hover: none)'));
+        });
+      });
+      function byPointer(e) {
+        if (e.pointerType === 'touch' || e.pointerType === 'pen') setTapMode(true);
+        else if (e.pointerType === 'mouse') setTapMode(false);
+      }
+      window.addEventListener('pointerdown', byPointer, { passive: true });
+      window.addEventListener('pointermove', byPointer, { passive: true });
+      window.addEventListener('touchstart', function () { setTapMode(true); }, { passive: true });
+      window.addEventListener('resize', function () { setTapMode(mq('(pointer: coarse)') || mq('(hover: none)')); });
+      setTimeout(function () { if (invite) invite.classList.add('visible'); }, 2600);
+    })();
+
     // ─── Nav: hamburger + mobile submenu accordion ────────────────────────────────
     (function initNav() {
       const nav = document.getElementById('nav');
@@ -1340,6 +2070,7 @@
         nav.classList.remove('open');
         toggle.setAttribute('aria-expanded', 'false');
         nav.querySelectorAll('.nav-item.open').forEach(i => i.classList.remove('open'));
+        nav.querySelectorAll('.nav-parent[aria-haspopup]').forEach(a => a.setAttribute('aria-expanded', 'false'));
       }
 
       toggle.addEventListener('click', () => {
@@ -1359,6 +2090,7 @@
             const wasOpen = item.classList.contains('open');
             nav.querySelectorAll('.nav-item.open').forEach(i => i.classList.remove('open'));
             if (!wasOpen) item.classList.add('open');
+            nav.querySelectorAll('.nav-parent[aria-haspopup]').forEach(a => a.setAttribute('aria-expanded', String(a.closest('.nav-item').classList.contains('open'))));
           } else {
             closeMenu();
           }
@@ -1372,6 +2104,11 @@
       });
 
       window.addEventListener('resize', () => { if (!mobile()) closeMenu(); });
+
+      // Escape closes the open menu and puts focus back on the button
+      document.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && nav.classList.contains('open')) { closeMenu(); toggle.focus(); }
+      });
     })();
 
     // ─── Reveal on scroll — fade-up text, clip-path wipe on the portrait ──────────

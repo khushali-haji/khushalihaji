@@ -332,6 +332,8 @@
       gap: 0.45rem;
       margin-left: auto;
       margin-right: calc(30px + 1.1rem);
+      position: relative;
+      top: 1px;   /* the logo's ink sits ~1px below its box centre; keep New York on the same axis */
       font-family: var(--mono);
       font-size: 11px;
       letter-spacing: 0.14em;
@@ -624,7 +626,7 @@
       .nav-toggle {
         display: flex;
         position: absolute;
-        top: 50%;
+        top: calc(50% + 2px);   /* optically centred on the handwritten logo, which sits low in its box */
         right: max(1.6rem, 3.4vw);
         transform: translateY(-50%);
       }
@@ -2239,11 +2241,9 @@
       outline-offset: 4px;
     }
 
-    /* 44px touch/click target for the hamburger without changing its look */
-    .nav-toggle {
-      position: relative;
-    }
-
+    /* 44px touch/click target for the hamburger without changing its look. The button itself is
+       positioned by the nav rules (absolute on phones); it must not be reset to `relative` here,
+       which dropped it out of the nav's centring and left it floating above the logo. */
     .nav-toggle::before {
       content: '';
       position: absolute;
@@ -3121,7 +3121,7 @@
           // The word sits to the right of the screen, so the left has the room. Keep an
           // item on the right ONLY if it points right and the right side can fit it;
           // otherwise send it left. This stops long sentences running off-screen.
-          const fitsRight = roomR >= 240;
+          const fitsRight = roomR >= 170;
           bucket = (cos > 0.15 && fitsRight) ? 'right' : 'left';
         } else {
           // On a narrow (mobile) viewport one side can be too tight for any label —
