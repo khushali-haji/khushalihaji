@@ -1,10 +1,9 @@
-/* Saved positions for the About page heading and its hover labels. Written by the
-   fine-tune board (open about.html?tune=1, then "Copy config"). See js/word-rays.js. */
+/* Saved positions for the About page heading and its hover labels. Offsets from the centre
+   of each role word, in ems of its font size. See js/word-rays.js. */
 window.ROLE_LAYOUT = {
   designPx: 42,
   minWidth: 700,
   cardScale: 1,
-  title: {"vw":3.3,"max":42,"dx":-0.006,"dy":0,"gap":0},
   roles: {
     urban: { items: [
       {"label":"Urban policy","ax":-1.357,"ay":-0.167,"tx":-1.929,"ty":-2.738,"dir":-1,"route":"v"},

@@ -16,7 +16,7 @@
      layout             // optional () => saved layout (see below), or null for automatic
    });
 
-   Saved layout (js/role-layout.js, written by the fine-tune board):
+   Saved layout (js/role-layout.js):
      { designPx, minWidth, cardScale, roles: { [key]: { items: [{ ax, ay, tx, ty, dir, route }] } } }
    Every position is an offset from the CENTRE OF ITS WORD, in ems of that word's font
    size (ax/ay = where the connector leaves the word, tx/ty = where it meets the card).
@@ -25,7 +25,7 @@
    heading across desktop and landscape tablets. Below `minWidth` wide or `minHeight` tall (phones,
    including on their side), or when a role has no saved layout, the automatic layout is used.
 
-   Returns { collapse, open, setSticky, refresh, autoLayout, items, metrics }.
+   Returns { collapse }.
 */
 (function () {
   'use strict';
@@ -44,7 +44,6 @@
 
   function easeOutExpo(t) { return t === 1 ? 1 : 1 - Math.pow(2, -10 * t); }
   function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
-  function round3(v) { return Math.round(v * 1000) / 1000; }
 
   function init(opts) {
     var canvas = opts.canvas;
@@ -61,8 +60,6 @@
 
     var animFrame, activeKey = null, rayProgress = 0, animDir = 0, rays = [], lastTime = null;
     var hoverBounds = null;
-    var metrics = null;
-    var sticky = false;   // fine-tune board: keep the composition open, ignore hover
     var viewW = window.innerWidth, viewH = window.innerHeight;
     var anchorScrollY = 0;
 
@@ -338,17 +335,14 @@
 
     // ─── Build ────────────────────────────────────────────────────────────────
 
-    function buildRays(key, forceAuto) {
+    function buildRays(key) {
       var m = measureWord(key);
       if (!m) return [];
-      metrics = { key: key, F: m.F, cx: m.cx, cy: m.cy, hw: m.hw, hh: m.hh };
-
       var all = savedLayout();
       var role = all && all.roles && all.roles[key];
-      var useSaved = !forceAuto && role && role.items && role.items.length === data[key].labels.length &&
+      var useSaved = role && role.items && role.items.length === data[key].labels.length &&
         viewW >= (all.minWidth || 700) && viewH >= (all.minHeight || 520);
       var items = useSaved ? configItems(key, m, all, role) : autoItems(key, m);
-      metrics.saved = !!useSaved;
 
       // Box around the word and every label, padded so the cursor can travel out to
       // read a label; the composition only collapses once it leaves this region.
@@ -481,7 +475,6 @@
     window.addEventListener('scroll', function () { if (activeKey) drawRays(rayProgress); }, { passive: true });
 
     function collapse() {
-      if (sticky) return;
       triggers.forEach(function (w) { w.setAttribute('aria-expanded', 'false'); });
       startRetract();
     }
@@ -508,7 +501,6 @@
 
     triggers.forEach(function (el) {
       el.addEventListener('keydown', function (e) {
-        if (sticky) return;
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
           if (activeKey === el.dataset.key) collapse(); else activateWord(el);
@@ -528,18 +520,18 @@
     // Both are wired up and each checks which one is in use when the event fires.
     triggers.forEach(function (el) {
       el.addEventListener('click', function (e) {
-        if (sticky || !isTap()) return;
+        if (!isTap()) return;
         e.stopPropagation();
         if (activeKey === el.dataset.key) { collapse(); return; }
         activateWord(el);
       });
-      el.addEventListener('mouseenter', function () { if (!sticky && !isTap()) activateWord(el); });
+      el.addEventListener('mouseenter', function () { if (!isTap()) activateWord(el); });
     });
     document.addEventListener('click', function () { if (isTap() && activeKey) collapse(); });
 
     // Stay open while the cursor is anywhere inside the composition's padded box
     document.addEventListener('mousemove', function (e) {
-      if (isTap() || sticky || !activeKey || animDir === -1 || !hoverBounds) return;
+      if (isTap() || !activeKey || animDir === -1 || !hoverBounds) return;
       var offY = anchorScrollY - window.scrollY;
       var outside =
         e.clientX < hoverBounds.left || e.clientX > hoverBounds.right ||
@@ -547,53 +539,7 @@
       if (outside) collapse();
     });
 
-    // ─── API (used by the fine-tune board) ────────────────────────────────────
-
-    return {
-      collapse: collapse,
-      refresh: refresh,
-      setSticky: function (v) { sticky = !!v; },
-
-      // open a role's composition as if it were hovered
-      open: function (key) {
-        var el = triggers.filter(function (t) { return t.dataset.key === key; })[0];
-        if (el) activateWord(el);
-      },
-
-      // The automatic layout for a role, in saved-layout form, to seed a starting point
-      autoLayout: function (key) {
-        var m = measureWord(key);
-        var items = autoItems(key, m).sort(function (a, b) { return a.idx - b.idx; });
-        return items.map(function (it) {
-          return {
-            label: data[key].labels[it.idx],
-            ax: round3((it.anchor.x - m.cx) / m.F), ay: round3((it.anchor.y - m.cy) / m.F),
-            tx: round3((it.attach.x - m.cx) / m.F), ty: round3((it.attach.y - m.cy) / m.F),
-            dir: it.dir, route: it.route
-          };
-        });
-      },
-
-      // What is on screen right now, in viewport coordinates (follows page scroll)
-      items: function () {
-        if (!activeKey) return [];
-        var offY = anchorScrollY - window.scrollY;
-        return rays.map(function (it) {
-          return {
-            idx: it.idx, label: data[activeKey].labels[it.idx], dir: it.dir, route: it.route,
-            anchor: { x: it.anchor.x, y: it.anchor.y + offY },
-            attach: { x: it.attach.x, y: it.attach.y + offY },
-            card: { x: it.bx, y: it.attach.y - it.h / 2 + offY, w: it.w, h: it.h }
-          };
-        });
-      },
-
-      metrics: function () {
-        if (!metrics) return null;
-        var offY = anchorScrollY - window.scrollY;
-        return Object.assign({}, metrics, { cy: metrics.cy + offY, viewW: viewW, viewH: viewH, active: activeKey });
-      }
-    };
+    return { collapse: collapse };
   }
 
   window.WordRays = { init: init };

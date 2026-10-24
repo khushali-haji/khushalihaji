@@ -686,10 +686,7 @@
       align-items: baseline;
       font-family: 'Inter', sans-serif;
       font-weight: 200;
-      font-size: clamp(24px, var(--title-vw, 3.3vw), var(--title-max, 42px));
-      /* fine-tune board offsets, in ems of the heading size */
-      translate: calc(var(--title-dx, 0) * 1em) calc(var(--title-dy, 0) * 1em);
-      column-gap: calc(var(--title-gap, 0) * 1em);
+      font-size: clamp(24px, 3.3vw, 42px);
       letter-spacing: -0.04em;
       line-height: 1.2;
       /* cancel the first word's left padding so the text sits on the same axis as the body */
@@ -1159,16 +1156,6 @@
       color: rgba(24, 21, 18, 0.74);
       letter-spacing: 0;
       margin-top: 0.5rem;
-    }
-
-    .project-desc {
-      font-family: var(--serif);
-      font-weight: 500;
-      font-size: 15px;
-      line-height: 1.6;
-      color: rgba(24, 21, 18, 0.85);
-      margin-bottom: 1.4rem;
-      flex: 1;
     }
 
     .project-tags {
@@ -1987,23 +1974,10 @@
           }
       };
 
-      // Saved positions come from js/role-layout.js. With ?tune=1 the fine-tune board's
-      // live edits take over so they can be seen straight away.
-      var layout = function () { return window.ROLE_LAYOUT_LIVE || window.ROLE_LAYOUT || null; };
+      // Saved positions for the hover labels come from js/role-layout.js
+      var layout = function () { return window.ROLE_LAYOUT || null; };
 
-      // Heading size/offset from the saved layout, as CSS variables (see .hero-title)
-      window.applyRoleTitle = function (t) {
-        if (!t) return;
-        const r = document.documentElement.style;
-        r.setProperty('--title-vw', t.vw + 'vw');
-        r.setProperty('--title-max', t.max + 'px');
-        r.setProperty('--title-dx', t.dx);
-        r.setProperty('--title-dy', t.dy);
-        r.setProperty('--title-gap', t.gap);
-      };
-      window.applyRoleTitle((layout() || {}).title);
-
-      var rays = WordRays.init({
+      WordRays.init({
         canvas: document.getElementById('rayCanvas'),
         linesCanvas: document.getElementById('rayLines'),
         triggers: triggers,
@@ -2012,19 +1986,6 @@
         layout: layout,
         data: roleData
       });
-
-      // Fine-tune board: open this page with ?tune=1
-      if (/[?&]tune\b/.test(location.search)) {
-        var tuner = document.createElement('script');
-        tuner.src = 'js/role-tuner.js';
-        tuner.onload = function () {
-          window.__tuner = RoleTuner.init({
-            api: rays, data: roleData, keys: ['urban', 'journalist', 'ux'],
-            base: window.ROLE_LAYOUT, titleEl: document.querySelector('.hero-title')
-          });
-        };
-        document.body.appendChild(tuner);
-      }
 
       // Light up the swipes once the title has settled, then show the hover/tap note
       triggers.forEach(function (w, k) {
@@ -2037,7 +1998,6 @@
         if (tapMode === on && inviteText && inviteText.textContent === (on ? 'tap' : 'hover')) return;
         tapMode = on;
         if (inviteText) inviteText.textContent = on ? 'tap' : 'hover';
-        document.documentElement.classList.toggle('tap-mode', on);
       }
       setTapMode(tapMode);
       ['(pointer: coarse)', '(hover: none)'].forEach(function (q) {
