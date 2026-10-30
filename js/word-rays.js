@@ -221,25 +221,26 @@
 
       var N = data[key].labels.length;
       var narrow = viewW < 600;                 // phones: tighter, smaller stickers
-      var g0 = narrow ? 22 : G0;
+      var tight = narrow || viewH < 520;        // also phones on their side, where there is little height
+      var g0 = tight ? 22 : G0;
       var topEdge = cy - hh, botEdge = cy + hh;
 
       // Try to place everything at this scale; null if it can't fit the viewport
       function place(scale) {
         var items = measureItems(key, scale);
         var maxH = Math.max.apply(null, items.map(function (it) { return it.h; }));
-        var step = maxH + (narrow ? 8 : 24);
+        var step = maxH + (tight ? 8 : 24);
 
         // Side slots first (one label each), only where there is clear room
         var rightRoom = viewW - (cx + hw) - EDGE - SIDE_LEN;
         var leftRoom = (cx - hw) - EDGE - SIDE_LEN;
         var order = items.slice();
         var rightItem = null, leftItem = null;
-        if (rightOpen && N > 4) {
+        if (rightOpen && N > 4 && !narrow) {
           var ri = order.findIndex(function (it) { return it.w + 8 <= rightRoom; });
           if (ri >= 0) rightItem = order.splice(ri, 1)[0];
         }
-        if (leftOpen && N > 4) {
+        if (leftOpen && N > 4 && !narrow) {
           var li = order.findIndex(function (it) { return it.w + 8 <= leftRoom; });
           if (li >= 0) leftItem = order.splice(li, 1)[0];
         }
@@ -326,7 +327,7 @@
       }
 
       var placed = null;
-      for (var scale = narrow ? 0.8 : 1; scale >= 0.5; scale -= 0.06) {
+      for (var scale = tight ? 0.8 : 1; scale >= (tight ? 0.4 : 0.5); scale -= 0.06) {
         placed = place(scale);
         if (placed) break;
       }

@@ -4,7 +4,7 @@
 (function () {
   var s = document.currentScript;
   var base = s ? s.src.replace(/js\/[^/]*$/, '') : '/khushalihaji/';
-  fetch(base + 'includes/footer.html?v=6')
+  fetch(base + 'includes/footer.html?v=7')
     .then(function (response) { return response.text(); })
     .then(function (html) {
       var ph = document.getElementById('footer-placeholder');

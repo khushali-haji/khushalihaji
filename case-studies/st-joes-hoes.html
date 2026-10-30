@@ -242,6 +242,49 @@
     }
 
     /* =========================================================
+       ACCESSIBILITY — skip link, focus ring, nav reach
+       ========================================================= */
+    .skip-link {
+      position: fixed;
+      top: 0.75rem;
+      left: 0.75rem;
+      z-index: 200;
+      padding: 0.7rem 1.1rem;
+      background: var(--yellow);
+      color: #0b0b0c;
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-decoration: none;
+      transform: translateY(-200%);
+    }
+
+    .skip-link:focus {
+      transform: none;
+    }
+
+    :focus-visible {
+      outline: 2px solid var(--yellow);
+      outline-offset: 4px;
+    }
+
+    main:focus {
+      outline: none;
+    }
+
+    /* The nav slides away on the way down; keyboard focus must bring it back */
+    .topnav:focus-within {
+      transform: none;
+    }
+
+    /* Roomier hit area for the 11px chapter links without moving the layout */
+    .nav-links a {
+      padding: 0.6rem 0.25rem;
+      margin: -0.6rem -0.25rem;
+    }
+
+    /* =========================================================
        MOTION PRIMITIVES
        ========================================================= */
 
@@ -902,45 +945,11 @@
 
     .figcap {
       font-family: var(--mono);
-      font-size: 10px;
+      font-size: 11px;
       letter-spacing: 0.14em;
       text-transform: uppercase;
-      color: rgba(242, 239, 233, 0.42);
+      color: rgba(242, 239, 233, 0.66);
       margin-top: 0.7rem;
-    }
-
-    /* =========================================================
-       ORIGIN MAP VIDEO
-       ========================================================= */
-    .map-section {
-      /* headroom for the parallax drift, which moves the frame rather than
-         cropping inside it */
-      overflow: hidden;
-    }
-
-    /* Full bleed, so no rounded corners or drop shadow to give it an edge */
-    .map-frame {
-      position: relative;
-      width: 100%;
-      overflow: hidden;
-      background: #f4efd8;
-    }
-
-    .map-frame video {
-      display: block;
-      width: 100%;
-      height: auto;
-    }
-
-    .map-figcap {
-      text-align: right;
-      margin-top: 1.1rem;
-    }
-
-    @media (max-width: 720px) {
-      .map-figcap {
-        text-align: left;
-      }
     }
 
     /* =========================================================
@@ -1369,24 +1378,26 @@
     .cta__link {
       font-family: var(--mono);
       font-size: 12px;
-      letter-spacing: 0.16em;
+      letter-spacing: 0.06em;
       text-transform: uppercase;
       color: var(--ink);
       text-decoration: none;
-      border: 1px solid var(--rule);
-      border-radius: 999px;
-      padding: 1.05rem 2.2rem;
+      background: transparent;
+      border: 1.5px solid var(--ink);
+      border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
+      padding: 0.8rem 1.6rem;
       display: inline-flex;
       align-items: center;
       gap: 0.7rem;
-      transition: background 0.4s var(--ease), color 0.4s ease, border-color 0.4s ease, transform 0.4s var(--ease);
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s, border-color 0.2s, color 0.2s;
     }
 
     .cta__link:hover {
       background: var(--yellow);
       border-color: var(--yellow);
       color: #0b0b0c;
-      transform: translateY(-3px);
+      transform: translateY(-2px) rotate(-1deg);
+      box-shadow: 4px 4px 0 var(--rule);
     }
 
     .cta__link span {
@@ -1397,11 +1408,21 @@
       transform: translateX(5px);
     }
 
+    .more-label {
+      font-family: var(--mono);
+      font-size: 14px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--dim);
+      text-align: left;
+      margin-top: clamp(2.5rem, 6vh, 4rem);
+    }
+
     .more {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
       gap: clamp(1rem, 2vw, 2rem);
-      margin-top: clamp(2.5rem, 6vh, 4rem);
+      margin-top: 1rem;
     }
 
     .more-card {
@@ -1428,7 +1449,7 @@
       color: var(--teal);
     }
 
-    .more-card h4 {
+    .more-card h3 {
       font-family: var(--serif);
       font-weight: 600;
       font-size: clamp(26px, 2.6vw, 36px);
@@ -1442,7 +1463,25 @@
       font-size: 15px;
       line-height: 1.65;
       color: var(--dim);
+      margin-bottom: 1rem;
+    }
+
+    .more-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
       margin-bottom: 1.4rem;
+    }
+
+    .more-tags span {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--teal);
+      padding: 0.3em 0.7em;
+      border: 1px solid var(--rule);
+      border-radius: 2px;
     }
 
     .more-card__cta {
@@ -1490,13 +1529,14 @@
 
 <body>
 
-  <div class="grain-overlay"></div>
-  <div class="cursor-glow" id="cursorGlow"></div>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div class="grain-overlay" aria-hidden="true"></div>
+  <div class="cursor-glow" id="cursorGlow" aria-hidden="true"></div>
   <div class="progress-line" id="progressBar" aria-hidden="true"></div>
-  <div class="cursor-arrow" id="cursorArrow"></div>
+  <div class="cursor-arrow" id="cursorArrow" aria-hidden="true"></div>
 
-  <nav class="topnav" id="topNav">
-    <a class="nav-back" href="../index.html"><span>&larr;</span> Back to Work</a>
+  <nav class="topnav" id="topNav" aria-label="Case study">
+    <a class="nav-back" href="../index.html"><span aria-hidden="true">&larr;</span> Back to Work</a>
     <div class="nav-links">
       <a href="#premise">Premise</a>
       <a href="#cast">Cast</a>
@@ -1506,7 +1546,7 @@
     </div>
   </nav>
 
-  <main>
+  <main id="main" tabindex="-1">
 
     <!-- ============================ HERO ============================ -->
     <header class="hero" id="top">
@@ -1622,21 +1662,6 @@
         </span>
       </button>
     </section>
-
-    <!-- ORIGIN MAP (video) — pulled for now. To restore, drop this block back in:
-    <section class="section map-section" aria-label="Where each of them travelled from">
-      <figure class="map-frame" data-parallax="0.04" data-reveal>
-        <video id="mapVideo" muted playsinline preload="none" poster="Images/map-poster.jpg"
-          aria-label="Animated map tracing each woman's route from her home city to New York.">
-          <source src="Images/map.mp4" type="video/mp4">
-        </video>
-      </figure>
-      <div class="wrap">
-        <p class="figcap map-figcap" data-reveal style="--d:.1s">Fig. 02 — Los Angeles, Paris, Mumbai, Delhi. Every
-          line ends at the same door.</p>
-      </div>
-    </section>
-    -->
 
     <!-- =========================== CAST =========================== -->
     <section class="cast" id="cast">
@@ -1980,23 +2005,33 @@
     <!-- ===================== CTA + MORE WORK ===================== -->
     <section class="cta wrap">
       <h2 class="display">
-        <span class="line-mask"><i>Have a story to tell?</i></span>
+        <span class="line-mask"><i>Working on something similar?</i></span>
       </h2>
       <a class="cta__link" href="mailto:khushali.haji@gmail.com" data-reveal style="--d:.15s">Get in touch
-        <span>&rarr;</span></a>
+        <span aria-hidden="true">&rarr;</span></a>
 
+      <p class="more-label" data-reveal>View more work</p>
       <div class="more" style="text-align:left">
         <a class="more-card" href="conflict-lens.html" data-reveal>
           <span class="more-card__num">01</span>
-          <h4>Conflict Lens</h4>
+          <h3>Conflict Lens</h3>
           <p>Turns a single news article into a geo-referenced, bias-aware conflict briefing in under a minute.</p>
-          <span class="more-card__cta">View case <span>&rarr;</span></span>
+          <div class="more-tags"><span>Product Design</span><span>Geospatial</span><span>AI</span></div>
+          <span class="more-card__cta">View case <span aria-hidden="true">&rarr;</span></span>
         </a>
         <a class="more-card" href="fin-lit-ed.html" data-reveal style="--d:.08s">
           <span class="more-card__num">02</span>
-          <h4>Fin-Lit Education</h4>
+          <h3>Fin-Lit Education</h3>
           <p>Making the case for a financial literacy app that personalizes learning by income, state, and status.</p>
-          <span class="more-card__cta">View case <span>&rarr;</span></span>
+          <div class="more-tags"><span>Product Strategy</span><span>Data Viz</span><span>Research</span></div>
+          <span class="more-card__cta">View case <span aria-hidden="true">&rarr;</span></span>
+        </a>
+        <a class="more-card" href="excalidraw-attribution.html" data-reveal style="--d:.16s">
+          <span class="more-card__num">04</span>
+          <h3>Made with Excalidraw</h3>
+          <p>Shipped export and attribution features for Excalidraw, an open source whiteboard, with three other contributors.</p>
+          <div class="more-tags"><span>Product Design</span><span>Open Source</span><span>Marketing KPI</span></div>
+          <span class="more-card__cta">View case <span aria-hidden="true">&rarr;</span></span>
         </a>
       </div>
     </section>
@@ -2101,37 +2136,6 @@
         revealPending = [];
       }
 
-      /* ---------- Origin map: plays itself once, on first sight ----------
-         Muted + playsinline so autoplay isn't refused, and it runs a single
-         time, holding its last frame (the completed map) instead of looping.
-         Driven off the scroll pass below rather than its own observer: the
-         <video> box depends on the poster having loaded, which makes it an
-         unreliable observer target. */
-      var mapVideo = document.getElementById('mapVideo');
-      var mapPlayed = !mapVideo;
-
-      if (mapVideo && reduced) {
-        // Don't start motion unasked — hand over the controls instead.
-        mapVideo.setAttribute('controls', '');
-        mapVideo.setAttribute('preload', 'metadata');
-        mapPlayed = true;
-      }
-
-      function maybePlayMap() {
-        if (mapPlayed) return;
-        var r = mapVideo.getBoundingClientRect();
-        var vh = window.innerHeight;
-        if (r.top > vh * 0.8 || r.bottom < vh * 0.25) return;
-        mapPlayed = true;
-        mapVideo.load();
-        var p = mapVideo.play();
-        // Autoplay can still be refused; leave something clickable, not a
-        // dead frame.
-        if (p && p.catch) {
-          p.catch(function () { mapVideo.setAttribute('controls', ''); });
-        }
-      }
-
       /* ---------- Protagonists: picture first, copy second ----------
          Two stages driven off one scroll position. The picture fades up as
          soon as its pinned frame is on screen; the scrim and copy wait until
@@ -2187,7 +2191,6 @@
         paintReveals();
         paintProgress();
         paintProtagonists();
-        maybePlayMap();
 
         if (nav) {
           nav.classList.toggle('is-solid', y > window.innerHeight * 0.6);
@@ -2236,6 +2239,9 @@
           var stage = facade.parentElement;
           facade.replaceWith(iframe);
           stage.classList.add('is-playing');
+          // The button we just removed held focus; hand it to the player so
+          // keyboard and screen reader users land on the video, not <body>.
+          iframe.focus();
 
           // The parent gets no mousemove over a cross-origin iframe, so our
           // arrow would freeze mid-screen while YouTube drew its own pointer.

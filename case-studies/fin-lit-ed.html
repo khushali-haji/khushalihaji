@@ -1826,6 +1826,223 @@
       flex-shrink: 0;
     }
   </style>
+
+  <style>
+    /* =========================================================
+       CTA + MORE WORK (end of case study)
+       ========================================================= */
+    .more-work {
+      --mw-dim: rgba(40, 36, 33, 0.75);
+      position: relative;
+      z-index: 2;
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 12vh 1.5rem 9vh;
+      border-top: 2px dashed var(--rule);
+      font-family: var(--serif);
+      color: var(--ink);
+    }
+
+    .more-work__title {
+      font-family: var(--serif);
+      font-weight: 600;
+      font-size: clamp(28px, 3.8vw, 40px);
+      line-height: 1.18;
+      letter-spacing: -0.015em;
+      text-align: center;
+      text-wrap: balance;
+      margin-bottom: 1.8rem;
+    }
+
+    .more-work__cta {
+      text-align: center;
+    }
+
+    .mw-btn {
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--ink);
+      text-decoration: none;
+      background: transparent;
+      border: 1.5px solid var(--ink);
+      border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
+      padding: 0.8rem 1.6rem;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.7rem;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s, border-color 0.2s, color 0.2s;
+    }
+
+    .mw-btn:hover {
+      background: var(--yellow);
+      border-color: var(--yellow);
+      color: #0b0b0c;
+      transform: translateY(-2px) rotate(-1deg);
+      box-shadow: 4px 4px 0 var(--rule);
+    }
+
+    .mw-btn span {
+      transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .mw-btn:hover span {
+      transform: translateX(5px);
+    }
+
+    .mw-label {
+      font-family: var(--mono);
+      font-size: 14px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--mw-dim);
+      text-align: left;
+      margin: clamp(3rem, 8vh, 4.5rem) 0 1rem;
+    }
+
+    .mw-list {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .mw-card {
+      display: flex;
+      flex-direction: column;
+      gap: 0.9rem;
+      padding: 1.5rem;
+      text-decoration: none;
+      color: inherit;
+      text-align: left;
+      border: 1px solid var(--rule);
+      border-radius: 3px;
+      transition: border-color 0.4s ease, background 0.4s ease, transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .mw-card:hover {
+      border-color: rgba(198, 153, 38, 0.7);
+      background: rgba(198, 153, 38, 0.08);
+      transform: translateY(-4px);
+    }
+
+    .mw-body {
+      flex: 1;
+    }
+
+    .mw-num {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      color: var(--teal);
+    }
+
+    .mw-card h3 {
+      font-family: var(--serif);
+      font-weight: 600;
+      font-size: clamp(24px, 3vw, 30px);
+      line-height: 1.1;
+      margin-bottom: 0.5rem;
+    }
+
+    .mw-card p {
+      font-family: var(--sans);
+      font-weight: 300;
+      font-size: 15px;
+      line-height: 1.6;
+      color: var(--mw-dim);
+      margin-bottom: 0.9rem;
+    }
+
+    .mw-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .mw-tags span {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--teal);
+      padding: 0.3em 0.7em;
+      border: 1px solid rgba(26, 107, 107, 0.3);
+      border-radius: 2px;
+    }
+
+    .mw-go {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--teal);
+      display: inline-flex;
+      gap: 0.5rem;
+      white-space: nowrap;
+    }
+
+    .mw-go span {
+      transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .mw-card:hover .mw-go span {
+      transform: translateX(5px);
+    }
+
+    /* One row of three once there is room, like St. Joe's Hoes; stacked below that */
+    @media (min-width: 820px) {
+      .mw-list {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.4rem;
+      }
+
+      .mw-card {
+        padding: 1.8rem;
+      }
+    }
+
+    /* The page draws its own arrow, so hide the browser's link pointer to avoid two cursors */
+    .more-work a {
+      cursor: none;
+    }
+
+    .more-work a:focus-visible {
+      outline: 2px solid var(--yellow);
+      outline-offset: 4px;
+    }
+
+    /* Fade up as it scrolls in; only hidden while the script is alive */
+    .mw-js .more-work [data-mw] {
+      opacity: 0;
+      translate: 0 24px;
+      transition: opacity 0.8s ease var(--d, 0s), translate 0.9s cubic-bezier(0.22, 1, 0.36, 1) var(--d, 0s);
+    }
+
+    .mw-js .more-work [data-mw].is-in {
+      opacity: 1;
+      translate: 0 0;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+
+      .mw-js .more-work [data-mw] {
+        opacity: 1;
+        translate: none;
+        transition: none;
+      }
+
+      .mw-card,
+      .mw-btn {
+        transition: none;
+      }
+
+      .mw-card:hover,
+      .mw-btn:hover {
+        transform: none;
+      }
+    }
+  </style>
 </head>
 
 <body>
@@ -2691,6 +2908,58 @@
         else nav.classList.remove('nav-hidden');
         lastY = y;
       }, { passive: true });
+    })();
+  </script>
+
+  <!-- ===================== CTA + MORE WORK ===================== -->
+  <aside class="more-work" aria-labelledby="mwTitle">
+    <h2 class="more-work__title" id="mwTitle" data-mw>Working on something similar?</h2>
+    <p class="more-work__cta" data-mw style="--d:.1s">
+      <a class="mw-btn" href="mailto:khushali.haji@gmail.com">Get in touch <span aria-hidden="true">&rarr;</span></a>
+    </p>
+
+    <p class="mw-label" data-mw>View more work</p>
+    <div class="mw-list">
+      <a class="mw-card" href="conflict-lens.html" data-mw style="--d:0.00s">
+        <span class="mw-num">01</span>
+        <div class="mw-body">
+          <h3>Conflict Lens</h3>
+          <p>Turns a single news article into a geo-referenced, bias-aware conflict briefing in under a minute.</p>
+          <div class="mw-tags"><span>Product Design</span><span>Geospatial</span><span>AI</span></div>
+        </div>
+        <span class="mw-go">View case <span aria-hidden="true">&rarr;</span></span>
+      </a>
+      <a class="mw-card" href="st-joes-hoes.html" data-mw style="--d:0.08s">
+        <span class="mw-num">03</span>
+        <div class="mw-body">
+          <h3>St. Joe's Hoes</h3>
+          <p>A character-driven documentary on immigration, housing insecurity, and creative ambition in NYC.</p>
+          <div class="mw-tags"><span>Storytelling</span><span>Documentary Film-making</span><span>Ethnography</span></div>
+        </div>
+        <span class="mw-go">View case <span aria-hidden="true">&rarr;</span></span>
+      </a>
+      <a class="mw-card" href="excalidraw-attribution.html" data-mw style="--d:0.16s">
+        <span class="mw-num">04</span>
+        <div class="mw-body">
+          <h3>Made with Excalidraw</h3>
+          <p>Shipped export and attribution features for Excalidraw, an open source whiteboard, with three other contributors.</p>
+          <div class="mw-tags"><span>Product Design</span><span>Open Source</span><span>Marketing KPI</span></div>
+        </div>
+        <span class="mw-go">View case <span aria-hidden="true">&rarr;</span></span>
+      </a>
+    </div>
+  </aside>
+  <script>
+    (function () {
+      var els = document.querySelectorAll('.more-work [data-mw]');
+      if (!('IntersectionObserver' in window)) return;
+      document.documentElement.classList.add('mw-js');
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); }
+        });
+      }, { threshold: 0.12, rootMargin: '0px 0px -5% 0px' });
+      els.forEach(function (el) { io.observe(el); });
     })();
   </script>
 

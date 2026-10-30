@@ -1,0 +1,212 @@
+{
+  "version": 1,
+  "page": "about.html",
+  "device": {
+    "id": "p129",
+    "width": 1024,
+    "height": 1366,
+    "orientation": "portrait"
+  },
+  "note": "translate/rotate/scale are CSS individual transform properties; x and y are px at the device width, vw.x/vw.y are the same offsets as % of page width",
+  "items": [
+    {
+      "x": 0.3,
+      "y": -62.1,
+      "rotate": 0,
+      "scale": 1,
+      "hidden": false,
+      "vw": {
+        "x": 0.03,
+        "y": -6.06
+      },
+      "id": "e6",
+      "selector": "span.hover-invite-text",
+      "label": "Tap note text"
+    },
+    {
+      "x": 4,
+      "y": -17,
+      "rotate": 253.5,
+      "scale": 1,
+      "hidden": false,
+      "vw": {
+        "x": 0.39,
+        "y": -1.66
+      },
+      "id": "e7",
+      "selector": "svg.invite-arrow",
+      "label": "Tap arrow"
+    },
+    {
+      "x": 0,
+      "y": 22.6,
+      "rotate": 0,
+      "scale": 1,
+      "hidden": false,
+      "vw": {
+        "x": 0,
+        "y": 2.21
+      },
+      "id": "e8",
+      "selector": "svg.title-scribble",
+      "label": "Line under heading"
+    },
+    {
+      "x": 0,
+      "y": 8,
+      "rotate": 0,
+      "scale": 1,
+      "hidden": false,
+      "vw": {
+        "x": 0,
+        "y": 0.78
+      },
+      "id": "e9",
+      "selector": "p.ecotone",
+      "label": "Ecotone note"
+    },
+    {
+      "x": 0,
+      "y": 18,
+      "rotate": 0,
+      "scale": 1,
+      "hidden": false,
+      "vw": {
+        "x": 0,
+        "y": 1.76
+      },
+      "id": "e17",
+      "selector": "a.hero-btn.on:nth-of-type(1)",
+      "label": "Button · See work"
+    },
+    {
+      "x": 0,
+      "y": 18,
+      "rotate": 0,
+      "scale": 1,
+      "hidden": false,
+      "vw": {
+        "x": 0,
+        "y": 1.76
+      },
+      "id": "e18",
+      "selector": "a.hero-btn:nth-of-type(2)",
+      "label": "Button · Resume (opens in a new tab)"
+    },
+    {
+      "x": 0,
+      "y": 18,
+      "rotate": 0,
+      "scale": 1,
+      "hidden": false,
+      "vw": {
+        "x": 0,
+        "y": 1.76
+      },
+      "id": "e19",
+      "selector": "a.hero-btn:nth-of-type(3)",
+      "label": "Button · Contact me"
+    },
+    {
+      "x": 0,
+      "y": 10,
+      "rotate": 0,
+      "scale": 1,
+      "hidden": false,
+      "vw": {
+        "x": 0,
+        "y": 0.98
+      },
+      "id": "e20",
+      "selector": "div.portrait-frame",
+      "label": "Photo"
+    },
+    {
+      "x": 0,
+      "y": -80.1,
+      "rotate": 0,
+      "scale": 1,
+      "hidden": false,
+      "vw": {
+        "x": 0,
+        "y": -7.82
+      },
+      "id": "e28",
+      "selector": "section.wrap:nth-of-type(2) > h2.section-label",
+      "label": "Heading · Featured Projects"
+    },
+    {
+      "x": 0,
+      "y": -80,
+      "rotate": 0,
+      "scale": 1,
+      "hidden": false,
+      "vw": {
+        "x": 0,
+        "y": -7.81
+      },
+      "id": "e29",
+      "selector": "a.project-card:nth-of-type(1)",
+      "label": "Card · Conflict Lens"
+    },
+    {
+      "x": 0,
+      "y": -80,
+      "rotate": 0,
+      "scale": 1,
+      "hidden": false,
+      "vw": {
+        "x": 0,
+        "y": -7.81
+      },
+      "id": "e30",
+      "selector": "a.project-card:nth-of-type(2)",
+      "label": "Card · Fin-Lit Education(A Data A"
+    },
+    {
+      "x": 0,
+      "y": -80,
+      "rotate": 0,
+      "scale": 1,
+      "hidden": false,
+      "vw": {
+        "x": 0,
+        "y": -7.81
+      },
+      "id": "e31",
+      "selector": "a.project-card:nth-of-type(3)",
+      "label": "Card · St. Joe's Hoes"
+    },
+    {
+      "x": 0,
+      "y": -80,
+      "rotate": 0,
+      "scale": 1,
+      "hidden": false,
+      "vw": {
+        "x": 0,
+        "y": -7.81
+      },
+      "id": "e32",
+      "selector": "a.project-card:nth-of-type(4)",
+      "label": "Card · Made with Excalidraw"
+    }
+  ],
+  "clones": [
+    {
+      "x": 19.9,
+      "y": 257.3,
+      "rotate": 0,
+      "scale": 1,
+      "hidden": false,
+      "vw": {
+        "x": 1.94,
+        "y": 25.13
+      },
+      "id": "c1",
+      "label": "Line under heading (copy)",
+      "of": "svg.title-scribble",
+      "after": "svg.title-scribble"
+    }
+  ]
+}

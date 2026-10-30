@@ -1,0 +1,594 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>iPad layout editor</title>
+<!--
+  Dev tool, not part of the site. Open it from the local server at /tools/ipad-editor.html.
+  It shows the real About page in an iPad frame. Click an element to select it, then drag to move,
+  drag a corner to scale, drag the round handle to rotate. Cmd/Ctrl+C / V / D copy, paste, duplicate.
+  Changes are stored in the browser; "Save for Claude" writes tools/ipad-layout.json (needs the
+  local server), "Export" shows the same data and a CSS version to copy.
+-->
+<style>
+  :root { --bg:#1b1d1f; --bar:#25282b; --panel:#222528; --line:#34383c; --ink:#e8e6df; --mute:#9a978d; --on:#f2d64b; --sel:#2d8cff; }
+  * { box-sizing: border-box; }
+  html, body { margin:0; height:100%; background:var(--bg); color:var(--ink); font:12px/1.35 ui-monospace, Menlo, monospace; overflow:hidden; }
+  button, select, input { font:inherit; color:var(--ink); background:#33373b; border:1px solid #444; border-radius:6px; padding:5px 9px; }
+  button { cursor:pointer; } button:hover { background:#3d4247; } button:disabled { opacity:.4; cursor:default; }
+  button.on { background:var(--on); color:#1a1a1a; border-color:var(--on); }
+  input[type=number] { width:68px; padding:4px 6px; }
+  .bar { position:fixed; inset:0 0 auto 0; z-index:10; height:46px; display:flex; gap:14px; align-items:center; padding:0 12px; background:var(--bar); border-bottom:1px solid #000; overflow-x:auto; white-space:nowrap; }
+  .grp { display:flex; gap:5px; align-items:center; }
+  .grp > label { color:var(--mute); }
+  .meta { margin-left:auto; color:var(--mute); }
+  #layers, #props { position:fixed; top:46px; bottom:0; width:230px; background:var(--panel); overflow:auto; padding:10px; }
+  #layers { left:0; border-right:1px solid #000; }
+  #props { right:0; border-left:1px solid #000; }
+  h3 { margin:12px 0 6px; font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--mute); font-weight:400; }
+  h3:first-child { margin-top:0; }
+  .layer { display:flex; align-items:center; gap:6px; padding:4px 6px; border-radius:5px; cursor:pointer; }
+  .layer:hover { background:#2b2f33; } .layer.sel { background:#1f3f6a; }
+  .layer .nm { flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .layer.hid .nm { opacity:.4; text-decoration:line-through; }
+  .layer .ic { padding:0 5px; background:none; border:0; color:var(--mute); }
+  .layer .cl { color:var(--on); }
+  .row { display:flex; align-items:center; justify-content:space-between; gap:8px; margin:5px 0; }
+  .row label { color:var(--mute); }
+  .btns { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+  .tip { color:var(--mute); margin-top:14px; line-height:1.5; }
+  #stage { position:fixed; top:46px; bottom:0; left:230px; right:230px; overflow:auto; background:#141618; }
+  #holder { position:relative; margin:40px auto; flex:none; }
+  #screen { position:absolute; left:0; top:0; background:#fff; overflow:hidden; border-radius:6px; box-shadow:0 0 0 14px #0b0b0c, 0 20px 60px rgba(0,0,0,.6); }
+  #f { position:absolute; left:0; top:0; border:0; background:#fff; transform-origin:0 0; pointer-events:none; }
+  #ov { position:absolute; left:0; top:0; touch-action:none; cursor:default; user-select:none; }
+  #hov { position:absolute; border:1px solid var(--sel); opacity:.55; pointer-events:none; display:none; }
+  #sel { position:absolute; left:0; top:0; width:0; height:0; pointer-events:none; display:none; }
+  #sel svg { position:absolute; left:0; top:0; overflow:visible; pointer-events:none; }
+  #sel polygon { fill:rgba(45,140,255,.07); stroke:var(--sel); stroke-width:1.5; }
+  .hd { position:absolute; width:11px; height:11px; margin:-5.5px 0 0 -5.5px; background:#fff; border:1.5px solid var(--sel); border-radius:2px; pointer-events:auto; }
+  .hd[data-h="rot"] { border-radius:50%; width:13px; height:13px; margin:-6.5px 0 0 -6.5px; cursor:grab; }
+  .hd[data-h="c0"], .hd[data-h="c2"] { cursor:nwse-resize; } .hd[data-h="c1"], .hd[data-h="c3"] { cursor:nesw-resize; }
+  #gv { position:absolute; top:0; bottom:0; width:0; border-left:1px dashed #ff4d8d; display:none; pointer-events:none; }
+  #toast { position:fixed; bottom:16px; left:50%; transform:translateX(-50%); background:#000; color:var(--ink); padding:8px 14px; border-radius:8px; opacity:0; transition:opacity .25s; pointer-events:none; z-index:30; }
+  dialog { background:var(--panel); color:var(--ink); border:1px solid #000; border-radius:10px; width:min(820px, 92vw); padding:14px; }
+  dialog::backdrop { background:rgba(0,0,0,.6); }
+  dialog textarea { width:100%; height:300px; background:#141618; color:var(--ink); border:1px solid var(--line); border-radius:6px; padding:8px; font:11px/1.4 ui-monospace, Menlo, monospace; }
+  dialog .tabs { display:flex; gap:6px; margin-bottom:8px; }
+</style>
+</head>
+<body>
+<header class="bar">
+  <div class="grp"><label>Device</label><select id="dev"></select></div>
+  <div class="grp"><button id="undo" title="Undo (Cmd/Ctrl+Z)">Undo</button><button id="redo" title="Redo (Cmd/Ctrl+Shift+Z)">Redo</button></div>
+  <div class="grp"><button id="zout">&minus;</button><span id="zlabel" style="min-width:42px;text-align:center"></span><button id="zin">+</button><button id="zfit" class="on">Fit</button></div>
+  <div class="grp"><label><input type="checkbox" id="nav"> Hide nav</label><label><input type="checkbox" id="snap" checked> Snap to centre</label></div>
+  <div class="grp"><button id="reload">Reload page</button><button id="resetAll">Reset all</button><button id="export">Export&hellip;</button><button id="save" class="on">Save for Claude</button></div>
+  <div class="meta" id="meta"></div>
+</header>
+
+<aside id="layers"></aside>
+
+<main id="stage">
+  <div id="holder">
+    <div id="screen"><iframe id="f" title="About page"></iframe></div>
+    <div id="ov">
+      <div id="hov"></div>
+      <div id="gv"></div>
+      <div id="sel">
+        <svg><polygon id="poly"></polygon><line id="rotline" stroke="#2d8cff" stroke-width="1.5"></line></svg>
+        <div class="hd" data-h="c0"></div><div class="hd" data-h="c1"></div><div class="hd" data-h="c2"></div><div class="hd" data-h="c3"></div>
+        <div class="hd" data-h="rot"></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<aside id="props">
+  <h3>Selected</h3>
+  <div id="pname" style="margin-bottom:6px;color:var(--on)">Nothing selected</div>
+  <div class="row"><label for="px">X (px)</label><input type="number" id="px" step="1"></div>
+  <div class="row"><label for="py">Y (px)</label><input type="number" id="py" step="1"></div>
+  <div class="row"><label for="ps">Size (%)</label><input type="number" id="ps" step="1" min="10" max="500"></div>
+  <div class="row"><label for="pr">Rotation (&deg;)</label><input type="number" id="pr" step="1"></div>
+  <div class="btns">
+    <button id="bdup">Duplicate</button><button id="bcopy">Copy</button><button id="bpaste">Paste</button>
+    <button id="bhide">Hide</button><button id="breset">Reset</button><button id="bdel">Delete</button>
+  </div>
+  <div class="tip">
+    <b>Click</b> to select, <b>double-click</b> to select the parent.<br>
+    <b>Drag</b> to move. <b>Corners</b> scale. The <b>round handle</b> rotates (hold Shift for 15&deg; steps).<br>
+    <b>Arrow keys</b> nudge 1px (Shift: 10px). <b>Alt-drag</b> duplicates.<br>
+    <b>Scroll</b> the page with the wheel or by dragging empty space. <b>Cmd/Ctrl + wheel</b> zooms.
+  </div>
+</aside>
+
+<dialog id="exp">
+  <div class="tabs"><button id="tjson" class="on">JSON</button><button id="tcss">CSS</button><span style="flex:1"></span><button id="ecopy">Copy</button><button id="edl">Download .json</button><button id="eclose">Close</button></div>
+  <textarea id="etext" readonly></textarea>
+</dialog>
+<div id="toast"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  var DEVICES = [
+    { id: 'mini', n: 'iPad mini (744 × 1133)',      w: 744,  h: 1133 },
+    { id: 'air',  n: 'iPad Air (820 × 1180)',       w: 820,  h: 1180 },
+    { id: 'p11',  n: 'iPad Pro 11" (834 × 1194)',  w: 834,  h: 1194 },
+    { id: 'p129', n: 'iPad Pro 12.9" (1024 × 1366)', w: 1024, h: 1366 }
+  ];
+  // everything on the page that can be picked, in document order
+  var WL = ['.hero-title', '.hero-title .word-trigger', '.hero-title .role-arrow', '.hero-title .title-scribble',
+            '.hover-invite .invite-arrow', '.hover-invite .hover-invite-text', '.ecotone', '.portrait-frame',
+            '.prose', '.prose p', '.hero-cta', '.hero-btn', '.section-label', '.kit-row', '.project-card'].join(',');
+  var KEY = 'ipadEditor.v1';
+
+  var $ = function (id) { return document.getElementById(id); };
+  var f = $('f'), holder = $('holder'), screenEl = $('screen'), ov = $('ov'), stage = $('stage');
+  var doc = null, win = null;
+
+  var st = { dev: 'p11', zoom: 0.6, fit: true, nav: false, snap: true, items: {}, clones: [] };
+  var meta = {};            // edId -> { sel, label, group }  (taken before any clone is added)
+  var order = [];           // edIds in document order of the original page
+  var selId = null, clipId = null, cloneSeq = 0;
+  var hist = [], hpos = -1, dirty = true;
+
+  // ---------- storage ----------
+  try { var saved = JSON.parse(localStorage.getItem(KEY) || 'null'); if (saved) { Object.keys(saved).forEach(function (k) { st[k] = saved[k]; }); } } catch (e) {}
+  function persist() { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) {} }
+
+  // ---------- device + zoom ----------
+  DEVICES.forEach(function (d) { var o = document.createElement('option'); o.value = d.id; o.textContent = d.n; $('dev').appendChild(o); });
+  function dev() { return DEVICES.filter(function (d) { return d.id === st.dev; })[0] || DEVICES[2]; }
+  function zoom() { return st.zoom; }
+
+  function layoutStage() {
+    var d = dev();
+    if (st.fit) {
+      var aw = stage.clientWidth - 120, ah = stage.clientHeight - 100;
+      st.zoom = Math.max(0.2, Math.min(1.5, Math.min(aw / d.w, ah / d.h)));
+    }
+    var z = st.zoom, W = d.w * z, H = d.h * z;
+    holder.style.width = W + 'px'; holder.style.height = H + 'px';
+    screenEl.style.width = W + 'px'; screenEl.style.height = H + 'px';
+    f.style.width = d.w + 'px'; f.style.height = d.h + 'px'; f.style.transform = 'scale(' + z + ')';
+    ov.style.width = W + 'px'; ov.style.height = H + 'px';
+    $('zlabel').textContent = Math.round(z * 100) + '%';
+    $('zfit').classList.toggle('on', st.fit);
+    $('meta').textContent = d.w + ' × ' + d.h + ' · portrait';
+    dirty = true;
+  }
+
+  // ---------- iframe ----------
+  function loadPage() {
+    f.src = '/about.html?touch=1&_=' + Date.now();
+  }
+  f.addEventListener('load', function () {
+    doc = f.contentDocument; win = f.contentWindow;
+    var s = doc.createElement('style'); s.id = 'ed-base';
+    s.textContent = 'html{scroll-behavior:auto!important;scrollbar-width:none}::-webkit-scrollbar{display:none}' +
+                    '[data-ed-hidden]{display:none!important}';
+    doc.head.appendChild(s);
+    var n = doc.createElement('style'); n.id = 'ed-nav'; doc.head.appendChild(n); setNav();
+    setTimeout(function () {
+      // show everything that normally fades in on scroll
+      Array.prototype.forEach.call(doc.querySelectorAll('[data-reveal],[data-frame]'), function (e) { e.classList.add('is-in'); });
+      scan(); rebuildClones(); applyAll(); selId = null; renderAll();
+      if (hpos < 0) { commit(true); }
+    }, 900);
+  });
+  function setNav() { if (doc) doc.getElementById('ed-nav').textContent = st.nav ? '.nav,nav{display:none!important}' : ''; $('nav').checked = st.nav; }
+
+  // ---------- scan: give every pickable element a stable id ----------
+  function cssPath(el) {
+    if (el.id) return '#' + CSS.escape(el.id);
+    var parts = [], n = el;
+    while (n && n !== doc.body) {
+      var p = n.tagName.toLowerCase();
+      var cls = Array.prototype.filter.call(n.classList, function (c) { return !/^(is-|js$|cc-|visible$|open$|active$|dimmed$|lit$|force-)/.test(c); });
+      if (cls.length) p += '.' + cls.map(function (c) { return CSS.escape(c); }).join('.');
+      var sib = Array.prototype.filter.call(n.parentNode.children, function (x) { return x.tagName === n.tagName; });
+      if (sib.length > 1) p += ':nth-of-type(' + (sib.indexOf(n) + 1) + ')';
+      parts.unshift(p);
+      var sel = parts.join(' > ');
+      try { if (doc.querySelectorAll(sel).length === 1) return sel; } catch (e) {}
+      n = n.parentNode;
+    }
+    return parts.join(' > ');
+  }
+  function txt(el) { return (el.textContent || '').replace(/\s+/g, ' ').trim(); }
+  function labelOf(el, counters) {
+    var c = el.classList, k;
+    function nth(key) { counters[key] = (counters[key] || 0) + 1; return counters[key]; }
+    if (c.contains('hero-title')) return ['Heading (all three roles)', 'Heading'];
+    if (c.contains('word-trigger')) return ['Role · ' + txt(el), 'Heading'];
+    if (c.contains('role-arrow')) return ['Down arrow ' + nth('arrow'), 'Heading'];
+    if (c.contains('title-scribble')) return ['Line under heading', 'Heading'];
+    if (c.contains('invite-arrow')) return ['Tap arrow', 'Heading'];
+    if (c.contains('hover-invite-text')) return ['Tap note text', 'Heading'];
+    if (c.contains('ecotone')) return ['Ecotone note', 'Intro'];
+    if (c.contains('portrait-frame')) return ['Photo', 'Intro'];
+    if (c.contains('prose')) return ['Story (all paragraphs)', 'Story'];
+    if (el.matches('.prose p')) return ['Paragraph ' + nth('para'), 'Story'];
+    if (c.contains('hero-cta')) return ['Buttons (row)', 'Buttons'];
+    if (c.contains('hero-btn')) return ['Button · ' + txt(el), 'Buttons'];
+    if (c.contains('section-label')) return ['Heading · ' + txt(el), 'Sections'];
+    if (c.contains('kit-row')) return ['Toolkit row · ' + (txt(el.querySelector('.meta') || el).slice(0, 24)), 'Sections'];
+    if (c.contains('project-card')) return ['Card · ' + (txt(el.querySelector('h3,h4,.project-title') || el).slice(0, 26)), 'Sections'];
+    return [el.tagName.toLowerCase(), 'Other'];
+  }
+  function scan() {
+    meta = {}; order = [];
+    var counters = {};
+    Array.prototype.forEach.call(doc.querySelectorAll(WL), function (el, i) {
+      var id = 'e' + i; el.setAttribute('data-ed', id);
+      var l = labelOf(el, counters);
+      meta[id] = { sel: cssPath(el), label: l[0], group: l[1] };
+      order.push(id);
+    });
+  }
+  function byId(id) { return doc ? doc.querySelector('[data-ed="' + id + '"]') : null; }
+
+  // ---------- state -> page ----------
+  function item(id) { if (!st.items[id]) st.items[id] = { x: 0, y: 0, rot: 0, s: 1, hidden: false }; return st.items[id]; }
+  function applyEl(id) {
+    var el = byId(id); if (!el) return;
+    var it = st.items[id] || {};
+    var x = it.x || 0, y = it.y || 0, r = it.rot || 0, s = it.s == null ? 1 : it.s;
+    el.style.translate = (x || y) ? x + 'px ' + y + 'px' : '';
+    el.style.rotate = r ? r + 'deg' : '';
+    el.style.scale = s !== 1 ? String(s) : '';
+    if (it.hidden) el.setAttribute('data-ed-hidden', ''); else el.removeAttribute('data-ed-hidden');
+  }
+  function applyAll() { Object.keys(st.items).forEach(applyEl); dirty = true; }
+  function rebuildClones() {
+    Array.prototype.forEach.call(doc.querySelectorAll('[data-ed-clone]'), function (n) { n.remove(); });
+    st.clones.forEach(function (c) { insertClone(c); });
+  }
+  function insertClone(c) {
+    var src = byId(c.of); if (!src) return null;
+    var n = src.cloneNode(true);
+    Array.prototype.forEach.call(n.querySelectorAll('[data-ed]'), function (x) { x.removeAttribute('data-ed'); });
+    Array.prototype.forEach.call(n.querySelectorAll('[id]'), function (x) { x.removeAttribute('id'); });
+    n.removeAttribute('id'); n.setAttribute('data-ed', c.id); n.setAttribute('data-ed-clone', '1');
+    n.style.translate = ''; n.style.rotate = ''; n.style.scale = '';
+    n.removeAttribute('data-ed-hidden');
+    (byId(c.after) || src).after(n);
+    var m = /^c(\d+)$/.exec(c.id); if (m) cloneSeq = Math.max(cloneSeq, +m[1]);
+    return n;
+  }
+  function metaOf(id) {
+    if (meta[id]) return meta[id];
+    var c = st.clones.filter(function (x) { return x.id === id; })[0];
+    if (c) { var b = metaOf(c.of); return { sel: b.sel, label: b.label + ' (copy)', group: b.group, clone: true }; }
+    return { sel: '', label: id, group: 'Other' };
+  }
+
+  // ---------- history ----------
+  function snapshot() { return JSON.stringify({ items: st.items, clones: st.clones }); }
+  function commit(initial) {
+    var s = snapshot();
+    if (hist[hpos] === s) { persist(); return; }
+    hist = hist.slice(0, hpos + 1); hist.push(s); if (hist.length > 120) hist.shift(); hpos = hist.length - 1;
+    persist(); updateButtons();
+  }
+  function restore(s) {
+    var o = JSON.parse(s); st.items = o.items; st.clones = o.clones;
+    if (doc) { Array.prototype.forEach.call(doc.querySelectorAll('[data-ed]'), function (e) { e.style.translate = ''; e.style.rotate = ''; e.style.scale = ''; e.removeAttribute('data-ed-hidden'); });
+      rebuildClones(); applyAll(); }
+    if (selId && !byId(selId)) selId = null;
+    persist(); renderAll(); updateButtons();
+  }
+  function undo() { if (hpos > 0) { hpos--; restore(hist[hpos]); } }
+  function redo() { if (hpos < hist.length - 1) { hpos++; restore(hist[hpos]); } }
+  function updateButtons() { $('undo').disabled = hpos <= 0; $('redo').disabled = hpos >= hist.length - 1; }
+
+  // ---------- geometry ----------
+  function baseRect(el) {
+    var s = el.style, a = s.translate, b = s.rotate, c = s.scale;
+    s.translate = 'none'; s.rotate = 'none'; s.scale = 'none';
+    var r = el.getBoundingClientRect();
+    var to = win.getComputedStyle(el).transformOrigin.split(' ').map(parseFloat);
+    s.translate = a; s.rotate = b; s.scale = c;
+    var ox = isFinite(to[0]) ? to[0] : r.width / 2, oy = isFinite(to[1]) ? to[1] : r.height / 2;
+    return { x: r.left, y: r.top, w: r.width, h: r.height, ox: r.left + ox, oy: r.top + oy };
+  }
+  // corners of the element's current box (after its own move / rotate / scale), in page-viewport px
+  function geom(id) {
+    var el = byId(id); if (!el || el.hasAttribute('data-ed-hidden')) return null;
+    var b = baseRect(el), it = st.items[id] || {};
+    var s = it.s == null ? 1 : it.s, rot = (it.rot || 0) * Math.PI / 180, cs = Math.cos(rot), sn = Math.sin(rot);
+    var ox = b.ox + (it.x || 0), oy = b.oy + (it.y || 0);
+    function tf(px, py) { var dx = (px - b.ox) * s, dy = (py - b.oy) * s; return [ox + dx * cs - dy * sn, oy + dx * sn + dy * cs]; }
+    var pts = [tf(b.x, b.y), tf(b.x + b.w, b.y), tf(b.x + b.w, b.y + b.h), tf(b.x, b.y + b.h)];
+    return { pts: pts, ox: ox, oy: oy, b: b };
+  }
+
+  // ---------- selection overlay ----------
+  function renderSel() {
+    var g = selId && geom(selId), z = zoom(), box = $('sel');
+    if (!g) { box.style.display = 'none'; return; }
+    box.style.display = 'block';
+    var P = g.pts.map(function (p) { return [p[0] * z, p[1] * z]; });
+    $('poly').setAttribute('points', P.map(function (p) { return p.join(','); }).join(' '));
+    ['c0', 'c1', 'c2', 'c3'].forEach(function (k, i) { var h = box.querySelector('[data-h="' + k + '"]'); h.style.left = P[i][0] + 'px'; h.style.top = P[i][1] + 'px'; });
+    var mx = (P[0][0] + P[1][0]) / 2, my = (P[0][1] + P[1][1]) / 2;
+    var vx = P[1][0] - P[0][0], vy = P[1][1] - P[0][1], len = Math.hypot(vx, vy) || 1;
+    var nx = vy / len, ny = -vx / len;               // outward normal of the top edge
+    var rx = mx + nx * 28, ry = my + ny * 28;
+    var rh = box.querySelector('[data-h="rot"]'); rh.style.left = rx + 'px'; rh.style.top = ry + 'px';
+    var ln = $('rotline'); ln.setAttribute('x1', mx); ln.setAttribute('y1', my); ln.setAttribute('x2', rx); ln.setAttribute('y2', ry);
+  }
+  function renderProps() {
+    var has = !!selId;
+    ['px', 'py', 'ps', 'pr', 'bdup', 'bcopy', 'bhide', 'breset'].forEach(function (i) { $(i).disabled = !has; });
+    $('bpaste').disabled = !clipId;
+    var isClone = has && st.clones.some(function (c) { return c.id === selId; });
+    $('bdel').disabled = !isClone;
+    if (!has) { $('pname').textContent = 'Nothing selected'; ['px', 'py', 'ps', 'pr'].forEach(function (i) { $(i).value = ''; }); return; }
+    var it = st.items[selId] || {};
+    $('pname').textContent = metaOf(selId).label;
+    $('px').value = round(it.x || 0); $('py').value = round(it.y || 0);
+    $('ps').value = Math.round((it.s == null ? 1 : it.s) * 100); $('pr').value = round(it.rot || 0);
+    $('bhide').textContent = it.hidden ? 'Show' : 'Hide';
+  }
+  function round(n) { return Math.round(n * 10) / 10; }
+  function renderLayers() {
+    var box = $('layers'); box.innerHTML = '';
+    // grouped in a fixed order (the page lists the photo after the buttons, which would split "Intro")
+    var rank = { Heading: 0, Intro: 1, Story: 2, Buttons: 3, Sections: 4, Other: 5 };
+    var ids = order.slice().sort(function (a, b) { return (rank[meta[a].group] - rank[meta[b].group]) || (order.indexOf(a) - order.indexOf(b)); });
+    // clones sit right after the element they were made from
+    st.clones.forEach(function (c) { var at = ids.indexOf(c.after); if (at < 0) at = ids.indexOf(c.of); if (at < 0) at = ids.length - 1; ids.splice(at + 1, 0, c.id); });
+    var last = '';
+    ids.forEach(function (id) {
+      var m = metaOf(id);
+      if (m.group !== last) { var h = document.createElement('h3'); h.textContent = m.group; box.appendChild(h); last = m.group; }
+      var it = st.items[id] || {};
+      var row = document.createElement('div'); row.className = 'layer' + (id === selId ? ' sel' : '') + (it.hidden ? ' hid' : '');
+      var nm = document.createElement('span'); nm.className = 'nm'; nm.textContent = (m.clone ? '⧉ ' : '') + m.label; row.appendChild(nm);
+      if (st.items[id] && (it.x || it.y || it.rot || (it.s != null && it.s !== 1))) { var d = document.createElement('span'); d.textContent = '●'; d.className = 'cl'; d.title = 'changed'; row.appendChild(d); }
+      var eye = document.createElement('button'); eye.className = 'ic'; eye.textContent = it.hidden ? '○' : '●'; eye.title = 'Show / hide';
+      eye.addEventListener('click', function (e) { e.stopPropagation(); item(id).hidden = !item(id).hidden; applyEl(id); commit(); renderAll(); });
+      row.appendChild(eye);
+      row.addEventListener('click', function () { releaseFocus(); select(id, true); });
+      box.appendChild(row);
+    });
+  }
+  function renderAll() { renderLayers(); renderProps(); renderSel(); dirty = true; }
+  function select(id, scrollTo) {
+    selId = id;
+    if (id && scrollTo && win) { var g = geom(id); if (g) { var top = Math.min.apply(null, g.pts.map(function (p) { return p[1]; })); if (top < 70 || top > dev().h - 120) win.scrollBy(0, top - 160); } }
+    renderAll();
+  }
+
+  // ---------- pointer interaction ----------
+  var drag = null;
+  function toPage(e) { var r = ov.getBoundingClientRect(); return [(e.clientX - r.left) / zoom(), (e.clientY - r.top) / zoom()]; }
+  function pickAt(x, y) {
+    var els = doc.elementsFromPoint(x, y);
+    for (var i = 0; i < els.length; i++) { var t = els[i].closest && els[i].closest('[data-ed]'); if (t) return t.getAttribute('data-ed'); }
+    return null;
+  }
+  function inPoly(pt, poly) {
+    var c = false;
+    for (var i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+      if (((poly[i][1] > pt[1]) !== (poly[j][1] > pt[1])) && (pt[0] < (poly[j][0] - poly[i][0]) * (pt[1] - poly[i][1]) / (poly[j][1] - poly[i][1]) + poly[i][0])) c = !c;
+    }
+    return c;
+  }
+  function releaseFocus() { var a = document.activeElement; if (a && a !== document.body && a.blur) a.blur(); }
+  ov.addEventListener('pointerdown', function (e) {
+    if (!doc) return;
+    releaseFocus();
+    ov.setPointerCapture(e.pointerId);
+    var p = toPage(e), h = e.target.getAttribute && e.target.getAttribute('data-h');
+    if (h && selId) {
+      var g = geom(selId), it = item(selId);
+      drag = { mode: h === 'rot' ? 'rot' : 'scale', id: selId, ox: g.ox, oy: g.oy, a0: Math.atan2(p[1] - g.oy, p[0] - g.ox), d0: Math.hypot(p[0] - g.ox, p[1] - g.oy) || 1, rot0: it.rot || 0, s0: it.s == null ? 1 : it.s };
+      return;
+    }
+    var g2 = selId && geom(selId);
+    var hit = (g2 && inPoly(p, g2.pts)) ? selId : pickAt(p[0], p[1]);
+    if (!hit) { select(null); drag = { mode: 'pan', y: e.clientY, x: e.clientX }; return; }
+    if (hit !== selId) select(hit);
+    if (e.altKey) { var nid = duplicate(hit, true); if (nid) { hit = nid; select(nid); } }
+    var it2 = item(hit);
+    drag = { mode: 'move', id: hit, x0: p[0], y0: p[1], ix: it2.x || 0, iy: it2.y || 0, moved: false };
+  });
+  ov.addEventListener('pointermove', function (e) {
+    if (!doc) return;
+    var p = toPage(e);
+    if (!drag) { hover(p); return; }
+    $('hov').style.display = 'none';
+    if (drag.mode === 'pan') { win.scrollBy((drag.x - e.clientX) / zoom(), (drag.y - e.clientY) / zoom()); drag.x = e.clientX; drag.y = e.clientY; dirty = true; return; }
+    var it = item(drag.id);
+    if (drag.mode === 'move') {
+      var dx = p[0] - drag.x0, dy = p[1] - drag.y0;
+      if (!drag.moved && Math.hypot(dx, dy) * zoom() < 3) return;
+      drag.moved = true;
+      var nx = drag.ix + dx, ny = drag.iy + dy;
+      $('gv').style.display = 'none';
+      if ($('snap').checked) {
+        // snap the element's centre to the page centre
+        var old = { x: it.x, y: it.y }; it.x = nx; it.y = ny; applyEl(drag.id);
+        var g = geom(drag.id), cx = (g.pts[0][0] + g.pts[2][0]) / 2, mid = dev().w / 2;
+        if (Math.abs(cx - mid) < 6 / zoom()) { nx += mid - cx; $('gv').style.left = mid * zoom() + 'px'; $('gv').style.display = 'block'; }
+        it.x = old.x; it.y = old.y;
+      }
+      it.x = round(nx); it.y = round(ny);
+    } else if (drag.mode === 'scale') {
+      var k = (Math.hypot(p[0] - drag.ox, p[1] - drag.oy) || 1) / drag.d0;
+      it.s = Math.max(0.1, Math.min(5, Math.round(drag.s0 * k * 1000) / 1000));
+    } else if (drag.mode === 'rot') {
+      var a = Math.atan2(p[1] - drag.oy, p[0] - drag.ox);
+      var r = drag.rot0 + (a - drag.a0) * 180 / Math.PI;
+      if (e.shiftKey) r = Math.round(r / 15) * 15;
+      it.rot = round(r);
+    }
+    applyEl(drag.id); renderSel(); renderProps();
+  });
+  function endDrag() {
+    if (!drag) return;
+    var was = drag; drag = null; $('gv').style.display = 'none';
+    if (was.mode !== 'pan' && !(was.mode === 'move' && !was.moved)) { commit(); renderLayers(); }
+  }
+  ov.addEventListener('pointerup', endDrag);
+  ov.addEventListener('pointercancel', endDrag);
+  ov.addEventListener('dblclick', function (e) {
+    if (!doc || !selId) return;
+    var el = byId(selId), par = el && el.parentElement && el.parentElement.closest('[data-ed]');
+    if (par) select(par.getAttribute('data-ed'), true);
+  });
+  function hover(p) {
+    var id = pickAt(p[0], p[1]), hv = $('hov');
+    if (!id || id === selId) { hv.style.display = 'none'; return; }
+    var el = byId(id), r = el.getBoundingClientRect(), z = zoom();
+    hv.style.display = 'block'; hv.style.left = r.left * z + 'px'; hv.style.top = r.top * z + 'px'; hv.style.width = r.width * z + 'px'; hv.style.height = r.height * z + 'px';
+  }
+  ov.addEventListener('pointerleave', function () { if (!drag) $('hov').style.display = 'none'; });
+  ov.addEventListener('wheel', function (e) {
+    e.preventDefault();
+    if (e.ctrlKey || e.metaKey) { st.fit = false; st.zoom = Math.max(0.2, Math.min(2, st.zoom * (e.deltaY < 0 ? 1.08 : 1 / 1.08))); layoutStage(); persist(); return; }
+    if (win) win.scrollBy(e.deltaX / zoom(), e.deltaY / zoom());
+    dirty = true;
+  }, { passive: false });
+
+  // ---------- copy / duplicate / delete ----------
+  function duplicate(id, silent) {
+    var base = st.clones.filter(function (c) { return c.id === id; })[0];
+    var after = id, c = { id: 'c' + (++cloneSeq), of: id, after: after };
+    st.clones.push(c);
+    var n = insertClone(c); if (!n) { st.clones.pop(); return null; }
+    var it = st.items[id] || {};
+    st.items[c.id] = { x: (it.x || 0) + (silent ? 0 : 24), y: (it.y || 0) + (silent ? 0 : 24), rot: it.rot || 0, s: it.s == null ? 1 : it.s, hidden: false };
+    applyEl(c.id);
+    if (!silent) { commit(); select(c.id, true); }
+    return c.id;
+  }
+  function paste() { if (clipId && byId(clipId)) duplicate(clipId); }
+  function del() {
+    var c = st.clones.filter(function (x) { return x.id === selId; })[0]; if (!c) return;
+    var kids = st.clones.filter(function (x) { return x.of === c.id || x.after === c.id; });
+    st.clones = st.clones.filter(function (x) { return x !== c && kids.indexOf(x) < 0; });
+    [c].concat(kids).forEach(function (x) { delete st.items[x.id]; var n = byId(x.id); if (n) n.remove(); });
+    selId = null; commit(); renderAll();
+  }
+  function resetOne() { if (!selId) return; delete st.items[selId]; var el = byId(selId); if (el) { el.style.translate = ''; el.style.rotate = ''; el.style.scale = ''; el.removeAttribute('data-ed-hidden'); } commit(); renderAll(); }
+
+  // ---------- toolbar / panel wiring ----------
+  $('dev').value = st.dev;
+  $('dev').addEventListener('change', function () { st.dev = this.value; layoutStage(); persist(); setTimeout(function () { renderAll(); }, 400); });
+  $('zin').addEventListener('click', function () { st.fit = false; st.zoom = Math.min(2, st.zoom * 1.15); layoutStage(); persist(); });
+  $('zout').addEventListener('click', function () { st.fit = false; st.zoom = Math.max(0.2, st.zoom / 1.15); layoutStage(); persist(); });
+  $('zfit').addEventListener('click', function () { st.fit = true; layoutStage(); persist(); });
+  $('nav').addEventListener('change', function () { st.nav = this.checked; setNav(); persist(); setTimeout(renderAll, 50); });
+  $('snap').checked = st.snap !== false;
+  $('snap').addEventListener('change', function () { st.snap = this.checked; persist(); });
+  $('undo').addEventListener('click', undo); $('redo').addEventListener('click', redo);
+  $('reload').addEventListener('click', function () { loadPage(); });
+  $('resetAll').addEventListener('click', function () { if (confirm('Reset every change on this page?')) { st.items = {}; st.clones = []; restore(snapshot()); commit(); toast('Reset'); } });
+  $('bdup').addEventListener('click', function () { if (selId) duplicate(selId); });
+  $('bcopy').addEventListener('click', function () { if (selId) { clipId = selId; renderProps(); toast('Copied — press Paste'); } });
+  $('bpaste').addEventListener('click', paste);
+  $('bhide').addEventListener('click', function () { if (!selId) return; item(selId).hidden = !item(selId).hidden; applyEl(selId); commit(); renderAll(); });
+  $('breset').addEventListener('click', resetOne);
+  $('bdel').addEventListener('click', del);
+  function numField(id, fn) { $(id).addEventListener('keydown', function (e) { if (e.key === 'Enter') this.blur(); }); $(id).addEventListener('change', function () { if (!selId) return; var v = parseFloat(this.value); if (!isFinite(v)) return; fn(item(selId), v); applyEl(selId); commit(); renderAll(); }); }
+  numField('px', function (it, v) { it.x = v; }); numField('py', function (it, v) { it.y = v; });
+  numField('ps', function (it, v) { it.s = Math.max(0.1, v / 100); }); numField('pr', function (it, v) { it.rot = v; });
+
+  document.addEventListener('keydown', function (e) {
+    var tag = (e.target.tagName || '').toLowerCase();
+    if (tag === 'input' || tag === 'select' || tag === 'textarea') return;
+    var mod = e.metaKey || e.ctrlKey, k = e.key.toLowerCase();
+    if (mod && k === 'z') { e.preventDefault(); e.shiftKey ? redo() : undo(); }
+    else if (mod && k === 'y') { e.preventDefault(); redo(); }
+    else if (mod && k === 'c' && selId) { e.preventDefault(); clipId = selId; renderProps(); toast('Copied'); }
+    else if (mod && k === 'v') { e.preventDefault(); paste(); }
+    else if (mod && k === 'd' && selId) { e.preventDefault(); duplicate(selId); }
+    else if ((k === 'delete' || k === 'backspace') && selId) { e.preventDefault(); del(); }
+    else if (k === 'escape') { select(null); }
+    else if (selId && k.indexOf('arrow') === 0) {
+      e.preventDefault(); var n = e.shiftKey ? 10 : 1, it = item(selId);
+      if (k === 'arrowleft') it.x = (it.x || 0) - n; if (k === 'arrowright') it.x = (it.x || 0) + n;
+      if (k === 'arrowup') it.y = (it.y || 0) - n; if (k === 'arrowdown') it.y = (it.y || 0) + n;
+      applyEl(selId); commit(); renderAll();
+    }
+  });
+
+  // ---------- export ----------
+  function changed(id) { var it = st.items[id]; return it && (it.x || it.y || it.rot || (it.s != null && it.s !== 1) || it.hidden); }
+  function buildExport() {
+    var d = dev();
+    function pack(id) {
+      var it = st.items[id] || {};
+      return { x: it.x || 0, y: it.y || 0, rotate: it.rot || 0, scale: it.s == null ? 1 : it.s, hidden: !!it.hidden,
+               vw: { x: Math.round((it.x || 0) / d.w * 10000) / 100, y: Math.round((it.y || 0) / d.w * 10000) / 100 } };
+    }
+    var items = order.filter(changed).map(function (id) { var o = pack(id); o.id = id; o.selector = meta[id].sel; o.label = meta[id].label; return o; });
+    var clones = st.clones.map(function (c) {
+      var o = pack(c.id); o.id = c.id; o.label = metaOf(c.id).label;
+      o.of = meta[c.of] ? meta[c.of].sel : c.of; o.after = meta[c.after] ? meta[c.after].sel : c.after; return o;
+    });
+    return { version: 1, page: 'about.html', device: { id: d.id, width: d.w, height: d.h, orientation: 'portrait' },
+             note: 'translate/rotate/scale are CSS individual transform properties; x and y are px at the device width, vw.x/vw.y are the same offsets as % of page width',
+             items: items, clones: clones };
+  }
+  function buildCss(o) {
+    var out = ['/* iPad portrait layout from tools/ipad-editor.html (' + o.device.width + ' x ' + o.device.height + ') */',
+               '@media (min-width: 561px) and (max-width: 1100px) and (orientation: portrait) {'];
+    o.items.forEach(function (i) {
+      var props = [];
+      if (i.x || i.y) props.push('translate: ' + i.vw.x + 'vw ' + i.vw.y + 'vw;');
+      if (i.rotate) props.push('rotate: ' + i.rotate + 'deg;');
+      if (i.scale !== 1) props.push('scale: ' + i.scale + ';');
+      if (i.hidden) props.push('display: none;');
+      out.push('  /* ' + i.label + ' */', '  ' + i.selector + ' {', props.map(function (p) { return '    ' + p; }).join('\n'), '  }');
+    });
+    o.clones.forEach(function (c) { out.push('  /* copy of "' + c.of + '" placed after "' + c.after + '": translate ' + c.vw.x + 'vw ' + c.vw.y + 'vw, rotate ' + c.rotate + 'deg, scale ' + c.scale + ' */'); });
+    out.push('}');
+    return out.join('\n');
+  }
+  var tab = 'json', lastExport = null;
+  function showExport() {
+    lastExport = buildExport();
+    $('etext').value = tab === 'json' ? JSON.stringify(lastExport, null, 2) : buildCss(lastExport);
+    $('tjson').classList.toggle('on', tab === 'json'); $('tcss').classList.toggle('on', tab === 'css');
+  }
+  $('export').addEventListener('click', function () { showExport(); $('exp').showModal(); });
+  $('tjson').addEventListener('click', function () { tab = 'json'; showExport(); });
+  $('tcss').addEventListener('click', function () { tab = 'css'; showExport(); });
+  $('eclose').addEventListener('click', function () { $('exp').close(); });
+  $('ecopy').addEventListener('click', function () { var t = $('etext'); t.select(); try { document.execCommand('copy'); toast('Copied'); } catch (e) {} });
+  $('edl').addEventListener('click', function () {
+    var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(buildExport(), null, 2)], { type: 'application/json' }));
+    a.download = 'ipad-layout.json'; a.click();
+  });
+  $('save').addEventListener('click', function () {
+    var body = JSON.stringify(buildExport(), null, 2);
+    fetch('/__save-ipad-layout', { method: 'POST', body: body }).then(function (r) {
+      if (!r.ok) throw new Error('save failed'); toast('Saved to tools/ipad-layout.json — tell Claude it is ready');
+    }).catch(function () { tab = 'json'; showExport(); $('exp').showModal(); toast('Could not save to the project — copy the JSON instead'); });
+  });
+  var tt;
+  function toast(m) { var t = $('toast'); t.textContent = m; t.style.opacity = 1; clearTimeout(tt); tt = setTimeout(function () { t.style.opacity = 0; }, 2400); }
+
+  // ---------- render loop: keep the overlay on the page while it scrolls ----------
+  var lastScroll = -1;
+  (function loop() {
+    if (win) { var sy = win.scrollY; if (sy !== lastScroll) { lastScroll = sy; dirty = true; } }
+    if (dirty && doc) { dirty = false; renderSel(); }
+    requestAnimationFrame(loop);
+  })();
+  window.addEventListener('resize', function () { layoutStage(); });
+
+  layoutStage(); loadPage();
+  window.__editor = { st: st, geom: geom, select: select, duplicate: duplicate, getId: function () { return selId; }, hist: function () { return hist.length; } };
+})();
+</script>
+</body>
+</html>

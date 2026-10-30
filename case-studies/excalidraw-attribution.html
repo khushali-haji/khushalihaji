@@ -24,7 +24,7 @@
 
     :root {
       --ink: #282421;
-      --paper: #e8dcd0;
+      --paper: #faf9fd;
       --card-paper: #faf8f4;
       --teal: #1a6b6b;
       --yellow: #c69926;
@@ -71,6 +71,71 @@
       height: 100%;
       pointer-events: none;
       z-index: 0;
+    }
+
+    /* Custom cursor — graphite arrow pointer */
+    .cursor-arrow {
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 22px;
+      height: 22px;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0;
+      transform-origin: 2px 2px;
+      /* White fill + difference blend = the inverse of whatever colour is underneath */
+      mix-blend-mode: difference;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cfilter id='w'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.04' numOctaves='2' seed='4' result='n'/%3E%3CfeDisplacementMap in='SourceGraphic' in2='n' scale='0.9'/%3E%3C/filter%3E%3Cpath filter='url(%23w)' d='M4 3 L26 17 L16 19 L21 31 L17 33 L12 21 L4 24 Z' fill='%23ffffff' stroke='%23ffffff' stroke-width='1.4' stroke-linejoin='round' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat;
+      transition: opacity 0.3s ease, transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .cursor-arrow.visible {
+      opacity: 1;
+    }
+
+    /* Hover (.hot) cursor: the arrow grows and turns purple. It keeps
+       mix-blend-mode: difference, so filling the arrow with the complementary
+       green flips it to violet over the light paper. */
+    .cursor-arrow.hot {
+      transform: scale(1.18);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cfilter id='wp'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.04' numOctaves='2' seed='4' result='n'/%3E%3CfeDisplacementMap in='SourceGraphic' in2='n' scale='0.9'/%3E%3C/filter%3E%3Cpath filter='url(%23wp)' d='M4 3 L26 17 L16 19 L21 31 L17 33 L12 21 L4 24 Z' fill='%2373b904' stroke='%2373b904' stroke-width='1.4' stroke-linejoin='round' stroke-linecap='round'/%3E%3C/svg%3E");
+    }
+
+    /* Hide the browser's cursor everywhere once the custom arrow is live (mouse only) */
+    html.custom-cursor,
+    html.custom-cursor * {
+      cursor: none;
+    }
+
+    @media (hover: none) {
+      .cursor-arrow {
+        display: none;
+      }
+    }
+
+    /* Soft violet glow that trails the pointer, the same idea as the homepage's
+       cursor glow, tinted with Excalidraw's own purple. Mouse only. */
+    .cursor-glow {
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 760px;
+      height: 760px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(105, 101, 219, 0.11) 0%, rgba(105, 101, 219, 0.06) 28%, rgba(105, 101, 219, 0.02) 52%, transparent 72%);
+      pointer-events: none;
+      z-index: 1;
+      transform: translate(-50%, -50%);
+      opacity: 0;
+      transition: opacity 0.8s ease;
+      will-change: translate;
+    }
+
+    @media (hover: none), (prefers-reduced-motion: reduce) {
+      .cursor-glow {
+        display: none;
+      }
     }
 
     .progress-line {
@@ -1090,11 +1155,225 @@
       }
     }
   </style>
+
+  <style>
+    /* =========================================================
+       CTA + MORE WORK (end of case study)
+       ========================================================= */
+    .more-work {
+      --mw-dim: rgba(40, 36, 33, 0.75);
+      position: relative;
+      z-index: 2;
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 12vh 1.5rem 9vh;
+      border-top: 2px dashed var(--rule);
+      font-family: var(--serif);
+      color: var(--ink);
+    }
+
+    .more-work__title {
+      font-family: var(--serif);
+      font-weight: 600;
+      font-size: clamp(28px, 3.8vw, 40px);
+      line-height: 1.18;
+      letter-spacing: -0.015em;
+      text-align: center;
+      text-wrap: balance;
+      margin-bottom: 1.8rem;
+    }
+
+    .more-work__cta {
+      text-align: center;
+    }
+
+    .mw-btn {
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--ink);
+      text-decoration: none;
+      background: transparent;
+      border: 1.5px solid var(--ink);
+      border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
+      padding: 0.8rem 1.6rem;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.7rem;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s, border-color 0.2s, color 0.2s;
+    }
+
+    .mw-btn:hover {
+      background: var(--yellow);
+      border-color: var(--yellow);
+      color: #0b0b0c;
+      transform: translateY(-2px) rotate(-1deg);
+      box-shadow: 4px 4px 0 var(--rule);
+    }
+
+    .mw-btn span {
+      transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .mw-btn:hover span {
+      transform: translateX(5px);
+    }
+
+    .mw-label {
+      font-family: var(--mono);
+      font-size: 14px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--mw-dim);
+      text-align: left;
+      margin: clamp(3rem, 8vh, 4.5rem) 0 1rem;
+    }
+
+    .mw-list {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .mw-card {
+      display: flex;
+      flex-direction: column;
+      gap: 0.9rem;
+      padding: 1.5rem;
+      text-decoration: none;
+      color: inherit;
+      text-align: left;
+      border: 1px solid var(--rule);
+      border-radius: 3px;
+      transition: border-color 0.4s ease, background 0.4s ease, transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .mw-card:hover {
+      border-color: rgba(198, 153, 38, 0.7);
+      background: rgba(198, 153, 38, 0.08);
+      transform: translateY(-4px);
+    }
+
+    .mw-body {
+      flex: 1;
+    }
+
+    .mw-num {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      color: var(--teal);
+    }
+
+    .mw-card h3 {
+      font-family: var(--serif);
+      font-weight: 600;
+      font-size: clamp(24px, 3vw, 30px);
+      line-height: 1.1;
+      margin-bottom: 0.5rem;
+    }
+
+    .mw-card p {
+      font-family: var(--sans);
+      font-weight: 300;
+      font-size: 15px;
+      line-height: 1.6;
+      color: var(--mw-dim);
+      margin-bottom: 0.9rem;
+    }
+
+    .mw-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .mw-tags span {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--teal);
+      padding: 0.3em 0.7em;
+      border: 1px solid rgba(26, 107, 107, 0.3);
+      border-radius: 2px;
+    }
+
+    .mw-go {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--teal);
+      display: inline-flex;
+      gap: 0.5rem;
+      white-space: nowrap;
+    }
+
+    .mw-go span {
+      transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .mw-card:hover .mw-go span {
+      transform: translateX(5px);
+    }
+
+    /* One row of three once there is room, like St. Joe's Hoes; stacked below that */
+    @media (min-width: 820px) {
+      .mw-list {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.4rem;
+      }
+
+      .mw-card {
+        padding: 1.8rem;
+      }
+    }
+
+    .more-work a:focus-visible {
+      outline: 2px solid var(--yellow);
+      outline-offset: 4px;
+    }
+
+    /* Fade up as it scrolls in; only hidden while the script is alive */
+    .mw-js .more-work [data-mw] {
+      opacity: 0;
+      translate: 0 24px;
+      transition: opacity 0.8s ease var(--d, 0s), translate 0.9s cubic-bezier(0.22, 1, 0.36, 1) var(--d, 0s);
+    }
+
+    .mw-js .more-work [data-mw].is-in {
+      opacity: 1;
+      translate: 0 0;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+
+      .mw-js .more-work [data-mw] {
+        opacity: 1;
+        translate: none;
+        transition: none;
+      }
+
+      .mw-card,
+      .mw-btn {
+        transition: none;
+      }
+
+      .mw-card:hover,
+      .mw-btn:hover {
+        transform: none;
+      }
+    }
+  </style>
 </head>
 
 <body>
 
   <canvas id="mapGrid"></canvas>
+  <div class="cursor-arrow" id="cursorArrow" aria-hidden="true"></div>
+  <div class="cursor-glow" id="cursorGlow" aria-hidden="true"></div>
 
   <div class="progress-line" id="progressBar" aria-hidden="true"></div>
 
@@ -1571,10 +1850,93 @@
     </ul>
   </section>
 
+  <!-- ===================== CTA + MORE WORK ===================== -->
+  <aside class="more-work" aria-labelledby="mwTitle">
+    <h2 class="more-work__title" id="mwTitle" data-mw>Working on something similar?</h2>
+    <p class="more-work__cta" data-mw style="--d:.1s">
+      <a class="mw-btn" href="mailto:khushali.haji@gmail.com">Get in touch <span aria-hidden="true">&rarr;</span></a>
+    </p>
+
+    <p class="mw-label" data-mw>View more work</p>
+    <div class="mw-list">
+      <a class="mw-card" href="conflict-lens.html" data-mw style="--d:0.00s">
+        <span class="mw-num">01</span>
+        <div class="mw-body">
+          <h3>Conflict Lens</h3>
+          <p>Turns a single news article into a geo-referenced, bias-aware conflict briefing in under a minute.</p>
+          <div class="mw-tags"><span>Product Design</span><span>Geospatial</span><span>AI</span></div>
+        </div>
+        <span class="mw-go">View case <span aria-hidden="true">&rarr;</span></span>
+      </a>
+      <a class="mw-card" href="fin-lit-ed.html" data-mw style="--d:0.08s">
+        <span class="mw-num">02</span>
+        <div class="mw-body">
+          <h3>Fin-Lit Education</h3>
+          <p>Making the case for a financial literacy app that personalizes learning by income, state, and status.</p>
+          <div class="mw-tags"><span>Product Strategy</span><span>Data Viz</span><span>Research</span></div>
+        </div>
+        <span class="mw-go">View case <span aria-hidden="true">&rarr;</span></span>
+      </a>
+      <a class="mw-card" href="st-joes-hoes.html" data-mw style="--d:0.16s">
+        <span class="mw-num">03</span>
+        <div class="mw-body">
+          <h3>St. Joe's Hoes</h3>
+          <p>A character-driven documentary on immigration, housing insecurity, and creative ambition in NYC.</p>
+          <div class="mw-tags"><span>Storytelling</span><span>Documentary Film-making</span><span>Ethnography</span></div>
+        </div>
+        <span class="mw-go">View case <span aria-hidden="true">&rarr;</span></span>
+      </a>
+    </div>
+  </aside>
+  <script>
+    (function () {
+      var els = document.querySelectorAll('.more-work [data-mw]');
+      if (!('IntersectionObserver' in window)) return;
+      document.documentElement.classList.add('mw-js');
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); }
+        });
+      }, { threshold: 0.12, rootMargin: '0px 0px -5% 0px' });
+      els.forEach(function (el) { io.observe(el); });
+    })();
+  </script>
+
   <div id="footer-placeholder" data-heading="Let's make <span class=&quot;sf-hl&quot;>something</span>"></div>
   <script src="../js/include-footer.js?v=7"></script>
 
   <script>
+    // Custom arrow cursor plus violet glow, the same cursor as the other case
+    // studies. The browser cursor is only hidden once the first mouse move lands,
+    // so it never disappears if this script doesn't run. Mouse only.
+    (function () {
+      const arrow = document.getElementById('cursorArrow');
+      const glow = document.getElementById('cursorGlow');
+      if (!arrow || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+      let started = false;
+      document.addEventListener('mousemove', e => {
+        // `translate` (not left/top) so the move composites instead of running layout.
+        arrow.style.translate = (e.clientX - 2) + 'px ' + (e.clientY - 2) + 'px';
+        if (glow) {
+          glow.style.translate = e.clientX + 'px ' + e.clientY + 'px';
+          glow.style.opacity = '1';
+        }
+        if (!started) {
+          started = true;
+          arrow.classList.add('visible');
+          document.documentElement.classList.add('custom-cursor');
+        }
+      }, { passive: true });
+      document.addEventListener('mouseover', e => {
+        arrow.classList.toggle('hot', !!e.target.closest('a, button, summary, input, [data-clickable]'));
+      });
+      document.documentElement.addEventListener('mouseleave', () => {
+        arrow.classList.remove('visible');
+        if (glow) glow.style.opacity = '0';
+      });
+      document.documentElement.addEventListener('mouseenter', () => { if (started) arrow.classList.add('visible'); });
+    })();
+
     // Map grid background, same drawing logic as Conflict Lens.
     (function initMapGrid() {
       const mc = document.getElementById('mapGrid');

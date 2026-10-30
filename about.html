@@ -28,6 +28,9 @@
       --serif: 'Cormorant Garamond', Georgia, serif;
       --mono: 'DM Mono', monospace;
       --ease: cubic-bezier(0.22, 1, 0.36, 1);
+      /* half the space between two sections (each section pads its top and bottom by this); grows
+         with the page width instead of the window height, so tall windows do not get huge gaps */
+      --sec: clamp(44px, 3.75vw, 68px);
     }
 
     html {
@@ -249,7 +252,8 @@
       z-index: 2;
       max-width: 1180px;
       margin: 0 auto;
-      padding: 9vh max(2rem, 6vw);
+      /* side padding stops growing at 1440px, so the content column keeps its width on big screens */
+      padding: var(--sec) max(2rem, min(6vw, 5.4rem));
     }
 
     .meta {
@@ -258,6 +262,11 @@
       letter-spacing: 0.16em;
       text-transform: uppercase;
       color: rgba(24, 21, 18, 0.72);
+    }
+
+    /* last section: a full section gap (not half) before the footer's dashed rule */
+    #featured {
+      padding-bottom: calc(var(--sec) * 2);
     }
 
     .section-label {
@@ -287,6 +296,11 @@
          ch unit, which measures narrower than Cormorant's, so matching ch values
          don't actually line up. A shared px value keeps both edges flush. */
       max-width: 660px;
+    }
+
+    /* only phones in portrait fold the last three paragraphs; elsewhere the toggle is hidden */
+    .read-more {
+      display: none;
     }
 
     .prose strong {
@@ -524,11 +538,14 @@
       flex-direction: column;
       justify-content: center;
       gap: 5px;
-      width: 30px;
-      height: 30px;
+      /* a 44px tap target; the padding keeps the bars at their 30px size and the negative margin
+         keeps them where they were against the page gutter */
+      width: 44px;
+      height: 44px;
+      padding: 7px;
+      margin-right: -7px;
       background: none;
       border: none;
-      padding: 0;
       cursor: pointer;
       z-index: 61;
     }
@@ -657,11 +674,6 @@
       padding-top: clamp(6.5rem, 14.5vw, 13rem);
     }
 
-    /* wrapper only matters on portrait tablets (sticky photo column); elsewhere it dissolves */
-    .hero-side-inner {
-      display: contents;
-    }
-
     .hero-head {
       grid-column: 1 / -1;
       grid-row: 1;
@@ -685,12 +697,44 @@
       flex-wrap: wrap;
       align-items: baseline;
       font-family: 'Inter', sans-serif;
-      font-weight: 200;
-      font-size: clamp(24px, 3.3vw, 42px);
-      letter-spacing: -0.04em;
+      font-weight: 400;
+      font-size: clamp(24px, 3.1vw, 41px);
+      letter-spacing: -0.05em;
       line-height: 1.2;
       /* cancel the first word's left padding so the text sits on the same axis as the body */
-      margin: 0 0 4.5rem -0.3em;
+      margin: 0 0 4rem -0.3em;
+    }
+
+    /* Hand-drawn underline: its own row beneath the roles */
+    .title-scribble {
+      flex: 0 0 100%;
+      display: block;
+      width: 100%;
+      max-width: 640px;
+      height: 16px;
+      margin: -0.2rem 0 0 0.3em;
+      overflow: visible;
+    }
+
+    .title-scribble path {
+      fill: none;
+      stroke: var(--teal);
+      stroke-width: 2;
+      stroke-linecap: round;
+      vector-effect: non-scaling-stroke;
+    }
+
+    .title-scribble {
+      transition: opacity 0.4s ease;
+    }
+
+    body.ray-active .title-scribble {
+      opacity: 0;
+    }
+
+    .title-scribble path + path {
+      stroke-width: 1.2;
+      opacity: 0.55;
     }
 
     /* A word and the arrow after it never split across lines */
@@ -713,10 +757,13 @@
       position: relative;
       /* padding enlarges the hover target */
       padding: 0.4em 0.3em;
-      color: rgba(24, 21, 18, 0.78);
+      color: #55534b;
+      /* hard offset shadow, same language as the hover cards; em so it scales with the heading */
+      text-shadow: 0.06em 0.06em 0 #e8cf6a;
       user-select: none;
       transition:
         color 0.5s var(--ease),
+        text-shadow 0.4s var(--ease),
         opacity 0.5s var(--ease),
         transform 0.5s var(--ease);
     }
@@ -742,13 +789,9 @@
         inset 0.4s var(--ease);
     }
 
-    /* Resting yellow swipe, added once the title has settled in */
-    .word-trigger.lit::after {
-      background: rgba(245, 220, 80, 0.55);
-    }
-
     .word-trigger.active {
       color: var(--teal);
+      text-shadow: none;
     }
 
     /* the other roles step back while one is open */
@@ -765,14 +808,18 @@
       background: linear-gradient(rgba(246, 212, 66, 0.92), rgba(246, 212, 66, 0.92)), var(--paper);
     }
 
-    /* "hover" / "tap" note, off the end of the last role, arrow pointing back at it */
+    /* "hover" / "tap" note. .hover-invite is a zero-size anchor sitting just up-right of the last
+       letter; the arrow is hung from it so its tip is exactly on that point, and the note sits
+       at the arrow's tail. Everything is in em, so it follows the heading size on any screen.
+       --aw/--ah are the arrow's size; its tip is at 15.4% / 95% of that box. */
     .hover-invite {
+      --aw: 22px;
+      --ah: 32px;
       position: absolute;
-      bottom: calc(100% - 1.6rem);
-      left: calc(100% - 0.2rem);
-      display: inline-flex;
-      align-items: flex-end;
-      gap: 0.3rem;
+      left: calc(100% + 0.02em);
+      top: 0.6em;
+      width: 0;
+      height: 0;
       opacity: 0;
       transition: opacity 0.9s ease;
       pointer-events: none;
@@ -784,44 +831,42 @@
       opacity: 1;
     }
 
-    /* Tuck the note in, so its arrow ends right beside the last letter (everything above phones) */
-    @media (min-width: 561px) {
+    /* Touch: a shorter arrow */
+    @media (pointer: coarse) {
       .hover-invite {
-        left: calc(100% - 1.5rem);
-        bottom: calc(100% - 1.9rem);
+        --aw: 18px;
+        --ah: 24px;
       }
     }
 
-    /* the note steps aside while a role is open */
-    body.ray-active .hover-invite.visible {
-      opacity: 0;
+    html.force-touch .hover-invite {
+      --aw: 18px;
+      --ah: 24px;
     }
 
     .hover-invite-text {
+      position: absolute;
+      right: calc(var(--aw) * -0.692 + 0.4rem);
+      bottom: calc(var(--ah) * 0.85 - 0.55em);
       font-family: 'Caveat', cursive;
       font-size: clamp(16px, 1.5vw, 19px);
+      line-height: 1;
       color: rgba(24, 21, 18, 0.66);
       letter-spacing: 0.01em;
     }
 
     .invite-arrow {
-      width: 22px;
-      height: 32px;
+      position: absolute;
+      left: calc(var(--aw) * -0.154);
+      top: calc(var(--ah) * -0.95);
+      width: var(--aw);
+      height: var(--ah);
       color: rgba(24, 21, 18, 0.38);
-      flex-shrink: 0;
     }
 
-    /* Touch: a shorter arrow */
-    @media (pointer: coarse) {
-      .invite-arrow {
-        width: 18px;
-        height: 24px;
-      }
-    }
-
-    html.force-touch .invite-arrow {
-      width: 18px;
-      height: 24px;
+    /* the note steps aside while a role is open */
+    body.ray-active .hover-invite.visible {
+      opacity: 0;
     }
 
     /* Connectors: under the page content (the .wrap sections sit at z-index 2), so they
@@ -879,7 +924,7 @@
 
     .ecotone {
       max-width: 660px;
-      margin: 0 0 3rem;
+      margin: 0 0 1.75rem;
       font-family: 'Inter', sans-serif;
       font-style: italic;
       font-weight: 400;
@@ -887,6 +932,16 @@
       line-height: 1.85;
       letter-spacing: -0.01em;
       color: rgba(24, 21, 18, 0.85);
+    }
+
+    /* Three small dots centred under the note; stays on one axis */
+    .ecotone::after {
+      content: '';
+      display: block;
+      width: 30px;
+      height: 6px;
+      margin: 1.6rem auto 0;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 6' fill='%231a6b6b'%3E%3Ccircle cx='4' cy='3' r='2.1'/%3E%3Ccircle cx='15' cy='3' r='2.1'/%3E%3Ccircle cx='26' cy='3' r='2.1'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
     }
 
     .ecotone dfn,
@@ -1171,6 +1226,7 @@
     @media (max-width: 860px) {
       :root {
         --gutter: 2.25rem;
+        --sec: 2rem;
       }
 
       .nav {
@@ -1178,7 +1234,7 @@
       }
 
       .wrap {
-        padding: 3.5rem var(--gutter);
+        padding: var(--sec) var(--gutter);
       }
 
       /* Reading order: heading → photo beside the note and what I'm up to → story → buttons.
@@ -1253,76 +1309,23 @@
       .projects-grid {
         grid-template-columns: 1fr 1fr;
       }
-
-      .projects-grid .project-card:last-child:nth-child(odd) {
-        grid-column: 1 / -1;
-      }
     }
 
-    /* iPad mini to iPad Pro 11" in portrait: roomier left edge, a wide text column on the left
-       (note, story, buttons) and the photo with its bullets stacked under it on the right */
+    /* iPad mini to iPad Pro 11" in portrait: roomier left edge, a bigger heading and the "tap"
+       note coming in from the side. The layout itself is in the iPad blocks further down. */
     @media (min-width: 700px) and (max-width: 860px) and (orientation: portrait) {
       :root {
         --gutter: 3.5rem;
       }
 
-      .hero {
-        grid-template-columns: minmax(0, 1fr) minmax(148px, 170px);
-        grid-template-areas: none;
-        column-gap: 2rem;
-        row-gap: 1.5rem;
-      }
-
-      /* Rows: heading / note / story / buttons. The photo column spans the note and the story
-         rows only, so it stops scrolling where the body text ends, not at the buttons. */
-      .hero-side {
-        display: block;
-        grid-area: 2 / 2 / 4 / 3;
-      }
-
-      .hero-head {
-        grid-area: 1 / 1 / 2 / -1;
-      }
-
-      .ecotone {
-        grid-area: 2 / 1;
-      }
-
-      .prose {
-        grid-area: 3 / 1;
-      }
-
-      .hero-cta {
-        grid-area: 4 / 1;
-      }
-
-      /* One spacing scale: 28px between heading, note, story and between photo and bullets;
-         20px between paragraphs */
-      .hero {
-        row-gap: 1.75rem;
-      }
-
-      /* bigger heading: roles wrap whole, so "UX & Product Designer" gets its own line.
-         Extra left padding gives the hover labels room on the left of the first word. */
+      /* the roles stack; their tap padding doubles up, so pull the lines together */
       .hero-title {
-        padding-left: 4.25rem;
         font-size: clamp(32px, 4.5vw, 36px);
         line-height: 1.25;
       }
 
-      /* the roles' tap padding stacks on two lines; pull the lines together */
       .hero-title .role-group {
         margin-block: -0.15em;
-      }
-
-      /* the note's text box is a character or two narrower than the story's column */
-      .ecotone {
-        margin: 0;
-        padding-right: 1.5ch;
-      }
-
-      .prose {
-        margin-top: 0;
       }
 
       .prose p {
@@ -1333,55 +1336,25 @@
         margin-bottom: 0;
       }
 
-      .hero-cta {
-        margin-top: 0;
-      }
-
-      /* photo + bullets travel with the story, so the right column is never an empty strip.
-         The aside stretches over the note and story rows; the wrapper sticks inside it and
-         stops where the story ends. */
-      .hero-side {
-        align-self: stretch;
-      }
-
-      .hero-side-inner {
-        display: block;
-        position: sticky;
-        top: 5rem;
-      }
-
-      /* bullets line up with the photo's left edge and stay on one line where they can */
-      .currently {
-        margin-top: 1.75rem;
-        padding-left: 0;
-      }
-
-      .currently dd li {
-        font-size: 15px;
-        padding-left: 0.8rem;
-      }
-
-      /* "tap" note: to the right of the last word, a little below its middle, with the arrow
-         coming in from the east-south-east and its tip landing on the end of "Designer" */
+      /* "tap" note: the arrow comes in from the east-south-east and its tip lands on the end of
+         "Designer"; the note sits to the right of the arrow's tail */
       .hover-invite {
-        left: calc(100% - 0.5rem);
-        bottom: auto;
-        top: 48%;
-        flex-direction: row-reverse;
-        align-items: flex-start;
-        gap: 0.25rem;
+        --aw: 38px;
+        --ah: 17px;
+        left: calc(100% - 0.2em);
+        top: 1.05em;
       }
 
       .hover-invite .invite-arrow {
-        width: 30px;
-        height: 18px;
-        margin-top: -0.35rem;
-        transform: scaleY(-1) rotate(32deg);
-        transform-origin: 0% 100%;
+        transform-origin: 15.4% 95%;
+        transform: scaleY(-1);
       }
 
       .hover-invite-text {
-        margin-top: 0.45rem;
+        right: auto;
+        bottom: auto;
+        left: calc(var(--aw) * 0.692 + 0.3rem);
+        top: calc(var(--ah) * 0.85 - 0.5em);
       }
 
       /* Featured projects: two columns, Conflict Lens + Fin-Lit, then St. Joe's + Excalidraw */
@@ -1394,79 +1367,144 @@
       }
     }
 
-    /* iPad Pro 12.9" in portrait (desktop layout, but 1366px tall): the 9vh section padding and
-       88vh hero minimum made the gaps between sections huge, so use a fixed, tighter rhythm */
+    /* iPad Pro 12.9" in portrait keeps the landscape layout (one-line heading, photo in the right
+       column); only the hero's height is tightened, because 88vh of a 1366px screen is huge */
     @media (min-width: 861px) and (max-width: 1100px) and (orientation: portrait) {
-      /* a little bigger heading; it wraps to two lines, so the note stays inside the frame */
-      .hero-title {
-        font-size: clamp(34px, 3.9vw, 40px);
-        line-height: 1.25;
-      }
-
-      .hero-title .role-group {
-        margin-block: -0.15em;
-      }
-
-      /* note: same spot as desktop (up and to the right of the last letter), nudged further up */
-      .hover-invite {
-        left: calc(100% - 1.2rem);
-        bottom: calc(100% - 1.15rem);
-      }
-
-      .wrap {
-        padding-block: 4rem;
-      }
-
       .hero {
         min-height: 0;
         padding-top: clamp(6.5rem, 14.5vw, 13rem);
       }
     }
 
-    /* Phones: small photo beside the note, then the story, buttons and the aside last */
-    @media (max-width: 560px) {
+    /* Tablets in landscape up to iPad Pro 11": the line under the heading runs a little longer */
+    @media (min-width: 861px) and (max-width: 1200px) and (orientation: landscape) {
+      .hero-title .title-scribble {
+        max-width: none;
+        flex-basis: min(80%, 25em);
+      }
+    }
+
+    /* Tablets in portrait follow the phone-landscape layout: heading centred, the note with the
+       wider cropped portrait right beside it as one centred pair, a section line under them, the
+       story full width below, no "currently" list. The small translate / rotate offsets come from
+       the layout placed in tools/ipad-editor.html; they are in vw (a share of the page width), so
+       they scale from iPad mini to iPad Pro 11". */
+    @media (min-width: 561px) and (max-width: 900px) and (orientation: portrait) {
       :root {
-        --gutter: 1.5rem;
+        --sec: 2rem;
       }
 
-      .wrap {
-        padding-block: 3rem;
+      .hero-main,
+      .hero-side {
+        display: contents;
       }
 
       .hero {
-        grid-template-columns: 104px 1fr;
+        grid-template-columns: 1fr minmax(0, 24rem) clamp(170px, 30vw, 250px) 1fr;
         grid-template-areas:
-          "head  head"
-          "photo note"
-          "prose prose"
-          "cta   cta"
-          "now   now";
-        column-gap: 1.1rem;
-        padding-top: 6rem;
+          "head  head  head  head"
+          ".     note  photo ."
+          "prose prose prose prose"
+          "cta   cta   cta   cta";
+        column-gap: 0;
+        row-gap: 1.5rem;
+      }
+
+      .hero-head {
+        grid-area: head;
+      }
+
+      .hero-title {
+        justify-content: center;
+        margin: 0;
+      }
+
+      .hero-title .title-scribble {
+        margin: -0.2rem auto 0;
+        translate: 0 2.21vw;
+      }
+
+      .hover-invite-text {
+        translate: 0.03vw -7.3vw;
+      }
+
+      .hover-invite .invite-arrow {
+        translate: 0.39vw -1.66vw;
+        rotate: 253.5deg;
       }
 
       .ecotone {
-        font-size: 14.5px;
-        line-height: 1.6;
+        grid-area: note;
+        align-self: center;
+        translate: 0 0.78vw;
+        margin: 0;
+        font-size: 17px;
+        line-height: 1.7;
+        max-width: 26rem;
+        padding: 0 clamp(1.75rem, 6vw, 3rem) 0 0;
+      }
+
+      .ecotone::after {
+        display: none;
+      }
+
+      .portrait-frame {
+        grid-area: photo;
+        align-self: start;
+        aspect-ratio: 4 / 3;
+        translate: 0 0.98vw;
+      }
+
+      .portrait {
+        object-position: 30% 22%;
+      }
+
+      .prose {
+        grid-area: prose;
+        margin-top: 0;
+      }
+
+      /* the dots are replaced by the section line, turned upside down so it mirrors the one under the
+         heading; its gap to the photo equals that line's gap to the photo (24px row gap, less the
+         small offsets given to the photo and the top line, which are in vw) */
+      .prose::before {
+        content: '';
+        display: block;
+        width: min(100%, 640px);
+        height: 16px;
+        margin: -0.25vw auto 1.9rem;
+        transform: scaleY(-1);
+        background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 16' preserveAspectRatio='none' fill='none' stroke='%231a6b6b' stroke-linecap='round'%3E%3Cpath d='M2 9 C40 3 78 13 128 7 S222 12 282 6 S384 12 442 7 S542 11 598 5' stroke-width='2' vector-effect='non-scaling-stroke'/%3E%3Cpath d='M30 13 C90 9 150 14 230 11 S380 14 470 11' stroke-width='1.2' opacity='.55' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+      }
+
+      .prose p {
+        max-width: none;
       }
 
       .hero-cta {
-        gap: 0.6rem;
+        grid-area: cta;
+        margin-top: 0;
       }
 
-      /* three buttons share one row at any phone width */
       .hero-btn {
-        flex: 1 1 auto;
-        text-align: center;
-        padding: 0.85rem 0.5rem;
-        font-size: 11px;
-        letter-spacing: 0.04em;
+        translate: 0 1.76vw;
       }
 
       .currently {
-        margin-top: 0.5rem;
-        padding-top: 1.4rem;
-        border-top: 1px solid rgba(24, 21, 18, 0.14);
+        display: none;
+      }
+    }
+
+    /* Phones: tighter page gutter and section spacing, one column of project cards. The layout
+       is in the phone portrait and phone landscape blocks further down. */
+    @media (max-width: 560px) {
+      :root {
+        --gutter: 1.5rem;
+        --sec: 1.75rem;
+      }
+
+      .hero {
+        padding-top: 6rem;
       }
 
       .projects-grid {
@@ -1474,14 +1512,319 @@
       }
     }
 
-    /* Short landscape screens (phones on their side): less empty space above and between */
-    @media (max-width: 860px) and (max-height: 500px) {
-      .wrap {
-        padding-block: 2.5rem;
+    /* Phones and portrait tablets up to iPad Pro 11": the three roles stack, a down arrow
+       between each, instead of running along one line */
+    @media (max-width: 860px) and (orientation: portrait) {
+      .hero-title {
+        flex-direction: column;
+        flex-wrap: nowrap;
       }
 
+      .hero-title .role-group {
+        flex-direction: column;
+      }
+
+      /* the arrow glyph turned to point down, centred under the role above */
+      .hero-title .role-arrow {
+        display: block;
+        align-self: center;
+        margin: -0.3em 0 -0.15em;
+        line-height: 1;
+        transform: rotate(90deg);
+        transform-origin: 50% 50%;
+      }
+
+      .hero-title .title-scribble {
+        flex: none;
+        margin-top: 0.3rem;
+      }
+    }
+
+    /* up to iPad Pro 11" the roles stack, so the stack is centred too */
+    @media (min-width: 561px) and (max-width: 860px) and (orientation: portrait) {
+      .hero-title {
+        align-items: center;
+      }
+
+      .hero-title .role-group {
+        align-items: center;
+      }
+
+      .hero-title .title-scribble {
+        align-self: center;
+        margin-inline: 0;
+      }
+    }
+
+    /* Phones in portrait: roles left-aligned with the down arrows on one shared axis, the portrait
+       stretched beside them to the screen edge, then the note and story full width. The
+       "currently" list is left out here. */
+    @media (max-width: 560px) and (orientation: portrait) {
       .hero {
+        grid-template-columns: max-content minmax(0, 1fr);
+        grid-template-areas:
+          "head  photo"
+          "line  line"
+          "note  note"
+          "prose prose"
+          "cta   cta";
+        column-gap: 1.1rem;
+        row-gap: 0;
+      }
+
+      /* the section line runs under the heading and the photo together (the one inside the
+         heading is hidden here); spacing between rows is set by margins instead of a row gap */
+      .hero::after {
+        content: '';
+        grid-area: line;
+        height: 14px;
+        margin-top: 1.25rem;
+        background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 16' preserveAspectRatio='none' fill='none' stroke='%231a6b6b' stroke-linecap='round'%3E%3Cpath d='M2 9 C40 3 78 13 128 7 S222 12 282 6 S384 12 442 7 S542 11 598 5' stroke-width='2' vector-effect='non-scaling-stroke'/%3E%3Cpath d='M30 13 C90 9 150 14 230 11 S380 14 470 11' stroke-width='1.2' opacity='.55' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+      }
+
+      .hero::after {
+        transition: opacity 0.4s ease;
+      }
+
+      body.ray-active .hero::after {
+        opacity: 0;
+      }
+
+      .hero-title .title-scribble {
+        display: none;
+      }
+
+      /* heading: left-aligned stack, scaling with the screen so the text-to-photo proportion
+         stays the same from small phones to Pro Max */
+      .hero-title {
+        width: fit-content;
+        align-items: flex-start;
+        margin: 0 0 0 -0.3em;
+        font-size: clamp(19px, 5.6vw, 31px);
+      }
+
+      .hero-head {
+        align-self: center;
+      }
+
+      /* each group is only as wide as its word; the arrows hang from the group's left edge at
+         the middle of "Journalist" (4.76em wide), so they share one axis at any font size */
+      .hero-title .role-group {
+        align-self: flex-start;
+        align-items: flex-start;
+      }
+
+      .hero-title .role-arrow {
+        align-self: flex-start;
+        width: 1em;
+        text-align: center;
+        margin-left: calc(2.38em - 0.5em);
+      }
+
+      /* a true 3:4 portrait in the right column, taller than the stack and running off the right
+         edge; the heading sits centred beside it */
+      .portrait-frame {
+        align-self: start;
+        justify-self: stretch;
+        width: auto;
+        aspect-ratio: 3 / 4;
+        /* negative margin = the page gutter, so it always runs to the screen edge */
+        margin: 0 calc(var(--gutter) * -1) 0 0;
+        border-right: 0;
+      }
+
+      .portrait {
+        object-position: 32% 12%;
+      }
+
+      .ecotone {
+        margin-top: 1.75rem;
+        font-size: 15.5px;
+        line-height: 1.65;
+      }
+
+      /* the dots sit the same distance from the note above and the story below */
+      .ecotone::after {
+        margin-top: 2.5rem;
+      }
+
+      .prose {
+        margin-top: 2.3rem;
+      }
+
+      /* buttons after the story (under "Read more"): "See work" and "Resume" on one row, "Contact me" below */
+      .hero-cta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.7rem;
+        margin-top: 2rem;
+      }
+
+      .hero-btn {
+        min-height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.7rem 0.5rem;
+        font-size: 12.5px;
+        letter-spacing: 0.06em;
+      }
+
+      /* "Contact me" is half the row; "See work" and "Resume" are a bit narrower so the rows are not
+         perfectly symmetrical. All widths come from the row, so they scale with the screen. */
+      .hero-btn {
+        flex: 0 0 auto;
+        width: calc(50% - 0.35rem);
+      }
+
+      .hero-btn:nth-child(-n + 2) {
+        width: calc((50% - 0.35rem) * 0.82);
+      }
+
+      /* paragraphs 3-5 fold behind "Read more" */
+      .prose-more {
+        display: none;
+      }
+
+      .prose-more.open {
+        display: block;
+      }
+
+      .read-more {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+        min-height: 44px;
+        margin: 0.25rem 0 0.75rem;
+        padding: 0.4rem 0;
+        font-family: var(--mono);
+        font-size: 12px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--teal);
+        background: none;
+        border: 0;
+        border-bottom: 1.5px solid currentColor;
+        cursor: pointer;
+      }
+
+      .read-more::after {
+        content: '';
+        width: 7px;
+        height: 7px;
+        border-right: 1.5px solid currentColor;
+        border-bottom: 1.5px solid currentColor;
+        transform: translateY(-2px) rotate(45deg);
+        transition: transform 0.25s var(--ease);
+      }
+
+      .read-more[aria-expanded="true"]::after {
+        transform: translateY(2px) rotate(-135deg);
+      }
+
+      .read-more:focus-visible {
+        outline: 2px solid var(--teal);
+        outline-offset: 3px;
+      }
+
+      /* in-text links: the tap area grows to about 44px tall without changing the line spacing */
+      .prose a {
+        padding-block: 0.7rem;
+        background-clip: content-box;
+      }
+
+      .section-label {
+        margin-bottom: 1.5rem;
+      }
+
+      .kit-row {
+        padding: 0.9rem 0;
+      }
+
+      /* core skills: lighter, outlined chips instead of solid dark blocks */
+      .tag.tag-core {
+        color: #0a3d3d;
+        background: rgba(26, 107, 107, 0.1);
+        border-color: rgba(26, 107, 107, 0.35);
+      }
+
+      .currently {
+        display: none;
+      }
+    }
+
+    @media (max-width: 860px) and (max-height: 500px) {
+      :root {
+        --sec: 1.75rem;
+      }
+
+      /* phones on their side: the note with the portrait right beside it, the pair centred so the
+         space left of the note equals the space right of the photo; the story runs full width
+         below both; the "currently" list is left out */
+      .hero {
+        grid-template-columns: 1fr minmax(0, 24rem) clamp(170px, 30vw, 250px) 1fr;
+        grid-template-areas:
+          "head  head  head  head"
+          ".     note  photo ."
+          "prose prose prose prose"
+          "cta   cta   cta   cta";
+        column-gap: 0;
         padding-top: 5.5rem;
+      }
+
+      /* a wider photo, cropped top and bottom so it stays about as tall as the note beside it */
+      .portrait-frame {
+        align-self: start;
+        aspect-ratio: 4 / 3;
+      }
+
+      .portrait {
+        object-position: 30% 22%;
+      }
+
+      /* heading centred across the page */
+      .hero-title {
+        justify-content: center;
+        margin: 0;
+      }
+
+      .hero-title .title-scribble {
+        margin: -0.2rem auto 0;
+      }
+
+      /* a bigger note with room on both sides, so it stands about as tall as the portrait */
+      .ecotone {
+        align-self: center;
+        font-size: 17px;
+        line-height: 1.7;
+        max-width: 26rem;
+        padding: 0 clamp(1.75rem, 6vw, 3rem) 0 0;
+      }
+
+      /* the dots now sit centred under both, above the full-width story */
+      .ecotone::after {
+        display: none;
+      }
+
+      .prose {
+        margin-top: 0.95rem;
+      }
+
+      .prose::before {
+        content: '';
+        display: block;
+        width: 30px;
+        height: 6px;
+        margin: 0 auto 1.95rem;
+        background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 6' fill='%231a6b6b'%3E%3Ccircle cx='4' cy='3' r='2.1'/%3E%3Ccircle cx='15' cy='3' r='2.1'/%3E%3Ccircle cx='26' cy='3' r='2.1'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+      }
+
+      .prose p {
+        max-width: none;
+      }
+
+      .currently {
+        display: none;
       }
     }
   </style>
@@ -1554,6 +1897,10 @@
             </svg>
           </span>
         </span>
+        <svg class="title-scribble" viewBox="0 0 600 16" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M2 9 C40 3 78 13 128 7 S222 12 282 6 S384 12 442 7 S542 11 598 5" />
+          <path d="M30 13 C90 9 150 14 230 11 S380 14 470 11" />
+        </svg>
       </h1>
     </div>
 
@@ -1567,9 +1914,9 @@
           changed how I read the
           stories around me. I saw how economics governed the social fabric of our lives, and how identity, power, and
           politics were intertwined. I also saw the gap between what gets designed on paper and what actually gets built
-          once corruption and competing interests enter the picture. That led me to a fellowship at the World Resources
-          Institute,
-          researching water and sanitation access for women in low-income Muslim neighborhoods in Ahmedabad. From
+          once corruption and competing interests enter the picture. That pulled me into research and writing, and my
+          essays were recognized by the Berkeley Essay Prize, the CEPT Essay Prize, and Wipro Earthian. It also led me to a fellowship at the World Resources Institute,
+          researching <a href="https://womenstoriesofwate.wixsite.com/kahaanighar" target="_blank" rel="noopener noreferrer">water and sanitation access for women<span class="sr-only"> (opens in a new tab)</span></a> in low-income Muslim neighborhoods in Ahmedabad. From
           there I moved through editorial fact-checking at a local magazine and scriptwriting with a theater collective.
           Despite the change in medium, <span class="hl">the need to research and build a public-facing narrative to
             convey it stayed the same</span>.</p>
@@ -1578,21 +1925,25 @@
           School at CUNY. I specialized in <span class="hl">international reporting and documentary filmmaking</span>,
           covering immigrant
           communities across the city. I reported on asylum policy, caste, domestic violence, and cultural displacement
-          for Documented, Brooklyn Paper, and Central Desi. My <a href="case-studies/st-joes-hoes.html">short
+          for <a href="https://documentedny.com/author/khushali-haji/" target="_blank" rel="noopener noreferrer">Documented<span class="sr-only"> (opens in a new tab)</span></a>, Brooklyn Paper, and <a href="https://centraldesi.beehiiv.com/p/the-complicated-legacy-of-tibetan-art" target="_blank" rel="noopener noreferrer">Central Desi<span class="sr-only"> (opens in a new tab)</span></a>. My <a href="case-studies/st-joes-hoes.html">short
             documentary</a> about immigrant women artists received a
-          Special Jury Mention at the 2025 Woodstock Film Festival. I later reported from Liberia with New Narratives,
+          Special Jury Mention at the 2025 Woodstock Film Festival, and my reporting earned the
+          <a href="https://www.silurians.org/past-guests-speakers-internal/kushali-haji" target="_blank" rel="noopener noreferrer">Dennis Duggan Award<span class="sr-only"> (opens in a new tab)</span></a>
+          from the Silurians Press Club. I later reported from Liberia with New Narratives,
           co-reporting two <span class="hl">first-reported investigations</span> into carbon credit markets and foreign
           business influence,
           using my outsider identity to build trust with sources who were otherwise hard to reach.</p>
 
+        <button type="button" class="read-more" id="readMore" aria-expanded="false" aria-controls="proseMore"><span class="read-more-label">Read more</span></button>
+        <div class="prose-more" id="proseMore">
         <p data-reveal>I wanted now to solve, and not just document. I went back to my design roots. As
           Research and Engagement Lead with Urbanizer in Varanasi, I conducted
           <span class="hl">40+ interviews with government officials and residents</span> for an infrastructure
           initiative serving 140
           million annual visitors, and co-authored the public report and video that helped support a second round of
-          funding. At On a Map, I designed the <span class="hl">information architecture</span> for a live,
+          funding. At <a href="https://onamap.org/" target="_blank" rel="noopener noreferrer">On a Map<span class="sr-only"> (opens in a new tab)</span></a>, I designed the <span class="hl">information architecture</span> for a live,
           public-facing
-          conflict-monitoring platform and structured 50+ conflict datasets. At Seat at the Table, I built the
+          conflict-monitoring platform and structured 50+ conflict datasets. At <a href="https://seatatthetablefilm.com/" target="_blank" rel="noopener noreferrer">Seat at the Table<span class="sr-only"> (opens in a new tab)</span></a>, I built the
           documentary campaign's visual identity and designed content across web, social, and print, creating a path
           from discovery to registration across 15 screenings.
         </p>
@@ -1616,6 +1967,7 @@
           people to understand what's said and what's left unsaid, and turn that into something <span
             class="hl">tangible and buildable</span>,
           especially for <span class="hl">emerging markets</span> and where technology meets public life.</p>
+        </div>
       </div>
 
       <div class="hero-cta" data-reveal>
@@ -1627,7 +1979,6 @@
     </div>
 
     <aside class="hero-side">
-      <div class="hero-side-inner">
       <div class="portrait-frame" data-frame>
         <img class="portrait" id="portrait" src="images/KH_About.jpg" alt="Portrait of Khushali Haji">
       </div>
@@ -1663,7 +2014,6 @@
           </dd>
         </div>
       </dl>
-      </div>
     </aside>
   </div>
 
@@ -1936,8 +2286,8 @@
       // (a finger on an iPad with a keyboard, the mouse again, or flipping the browser's
       // touch emulation on and off).
       var mq = function (q) { return window.matchMedia(q).matches; };
-      // Phones and portrait tablets (incl. iPad Pro 12.9") are always tap: that is how they are used, and it
-      // keeps a narrowed desktop window or touch emulation consistent with what the note says.
+      // Phones and portrait tablets (incl. iPad Pro 12.9") are always tap: that is how they are used,
+      // and it keeps a narrowed desktop window consistent with what the note says.
       var narrow = function () {
         var w = window.innerWidth;
         return w <= 860 || (w <= 1100 && window.innerHeight > w);   // incl. iPad Pro 12.9" portrait
@@ -1959,19 +2309,19 @@
       ];
 
       var roleData = {
-          urban: {
-            color: '#1a6b6b', shadow: 'rgba(26,107,107,0.55)', fonts: fonts,
-            labels: ['Urban policy', 'City planning', 'Urban economics', 'Governance', 'Graphic design', 'Field research']
-          },
-          journalist: {
-            color: '#2a2218', shadow: 'rgba(42,34,24,0.45)', fonts: fonts,
-            labels: ['Investigative reporting', 'International reporting', 'Documentary filmmaking',
-              'Immigration & policy', 'Data visualization', 'Videography']
-          },
-          ux: {
-            color: '#8a6a0a', shadow: '#c9a227', fonts: fonts,
-            labels: ['Agentic UX', 'AI evals', 'UX research', 'UX design', 'UI design', 'Design engineering']
-          }
+        urban: {
+          color: '#1a6b6b', shadow: 'rgba(26,107,107,0.55)', fonts: fonts,
+          labels: ['Urban policy', 'City planning', 'Urban economics', 'Governance', 'Graphic design', 'Field research']
+        },
+        journalist: {
+          color: '#2a2218', shadow: 'rgba(42,34,24,0.45)', fonts: fonts,
+          labels: ['Investigative reporting', 'International reporting', 'Documentary filmmaking',
+            'Immigration & policy', 'Data visualization', 'Videography']
+        },
+        ux: {
+          color: '#8a6a0a', shadow: '#c9a227', fonts: fonts,
+          labels: ['Agentic UX', 'AI evals', 'UX research', 'UX design', 'UI design', 'Design engineering']
+        }
       };
 
       // Saved positions for the hover labels come from js/role-layout.js
@@ -1987,11 +2337,30 @@
         data: roleData
       });
 
-      // Light up the swipes once the title has settled, then show the hover/tap note
-      triggers.forEach(function (w, k) {
-        setTimeout(function () { w.classList.add('lit'); }, 1200 + k * 220);
-      });
       var invite = document.getElementById('hoverInvite');
+      // "Read more" on phones in portrait: paragraphs 3-5 expand in place
+      var readMore = document.getElementById('readMore');
+      var proseMore = document.getElementById('proseMore');
+      if (readMore && proseMore) {
+        readMore.addEventListener('click', function () {
+          var open = readMore.getAttribute('aria-expanded') !== 'true';
+          readMore.setAttribute('aria-expanded', String(open));
+          proseMore.classList.toggle('open', open);
+          readMore.querySelector('.read-more-label').textContent = open ? 'Show less' : 'Read more';
+          window.dispatchEvent(new Event('scroll'));   // lets the fade-in notice the newly shown text
+          if (!open) readMore.scrollIntoView({ block: 'nearest' });
+        });
+      }
+      // On phones in portrait the note sits at the top right of "Urban Designer", elsewhere at the end of the last role
+      var urbanGroup = document.querySelector('[data-key="urban"]').parentNode;
+      var uxGroup = document.querySelector('[data-key="ux"]').parentNode;
+      var phonePortrait = window.matchMedia('(max-width: 560px) and (orientation: portrait)');
+      var homeInvite = function () {
+        (phonePortrait.matches ? urbanGroup : uxGroup).appendChild(invite);
+      };
+      homeInvite();
+      if (phonePortrait.addEventListener) phonePortrait.addEventListener('change', homeInvite);
+      else phonePortrait.addListener(homeInvite);
       var inviteText = invite && invite.querySelector('.hover-invite-text');
       function setTapMode(on) {
         if (narrow()) on = true;
