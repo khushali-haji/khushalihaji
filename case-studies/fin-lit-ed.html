@@ -1483,6 +1483,7 @@
     }
 
     .tt-row .barfill {
+      display: block;   /* it is a <span>: without this its width and height were ignored, so the bars rendered empty */
       height: 100%;
       background: var(--coral);
       border-radius: 3px;
@@ -2043,6 +2044,225 @@
       }
     }
   </style>
+  <style>
+    /* ---- Top bar: phone behaviour (shared across the case studies) ----
+       The back link gets a 44px touch target without making the bar taller (padding
+       is cancelled by the negative margin), never wraps, and on phones the in-page
+       jump links step aside so the bar stays one tidy line. */
+    .topnav a.nav-back {
+      white-space: nowrap;
+      padding: 12px 10px;
+      margin: -12px -10px;
+    }
+
+    @media (max-width: 720px) {
+      .nav-links a[href^="#"] {
+        display: none;
+      }
+    }
+  </style>
+  <style>
+    /* ---- Phone layout for the map dashboard and charts ----
+       Controls get 44px touch targets, the timeline hint drops under the slider instead of
+       running off the edge, the map is fitted to the width (and shorter), and the side note
+       moves below the map. Desktop is untouched. */
+    .hint-arrow {
+      display: inline-block;
+    }
+
+    section.nsec .gap-after {
+      margin-bottom: 36px;
+    }
+
+    /* Side card: on a phone (or any narrow window) a tapped state opens here, sliding in from the right */
+    .state-drawer {
+      position: fixed;
+      top: 70px;
+      right: 0;
+      z-index: 80;
+      font-family: var(--sans);
+      font-size: 12px;
+      width: min(80vw, 300px);
+      max-height: calc(100vh - 92px);
+      max-height: calc(100dvh - 92px);
+      overflow-y: auto;
+      background: var(--card-paper);
+      border: 2px solid var(--ink);
+      border-right: none;
+      border-radius: 12px 0 0 12px;
+      box-shadow: -6px 6px 0 var(--rule);
+      transform: translateX(108%);
+      visibility: hidden;
+      transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), visibility 0s linear 0.3s;
+    }
+
+    .state-drawer.open {
+      transform: none;
+      visibility: visible;
+      transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .state-drawer__close {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      width: 44px;
+      height: 44px;
+      border: none;
+      background: none;
+      font-size: 28px;
+      line-height: 1;
+      color: var(--ink);
+    }
+
+    .state-drawer .tt-state {
+      padding-right: 52px;
+      font-size: 24px;
+    }
+
+    /* The side note hangs 208px past the map's right edge, which only fits on wide desktops
+       (about 1280px and up). Below that it would sit off-screen, so it moves under the map. */
+    @media (max-width: 1279px) {
+      .viz-note-side {
+        position: static;
+        transform: none;
+        width: auto;
+        margin: 0;
+        padding: 14px 16px 18px;
+        gap: 10px;
+        align-items: flex-start;
+        border-top: 1.5px dashed var(--rule);
+      }
+
+      .viz-note-arrow {
+        transform: rotate(90deg);
+        margin: 6px 4px 0 -2px;
+      }
+
+      .viz-note {
+        font-size: 19px;
+      }
+    }
+
+    @media (max-width: 700px) {
+      .bar {
+        gap: 12px;
+        padding: 14px;
+      }
+
+      #grpSeg {
+        display: flex;
+        width: 100%;
+      }
+
+      #grpSeg button {
+        flex: 1;
+        padding: 11px 6px;
+        line-height: 1.25;
+      }
+
+      .seg button {
+        padding: 12px 14px;
+        font-size: 11px;
+      }
+
+      .msel {
+        font-size: 12px;
+        min-height: 44px;
+        padding: 8px 12px;
+      }
+
+      /* timeline: play + slider + year on one row, hint on the next */
+      .yearctl {
+        flex-wrap: wrap;
+        width: 100%;
+        margin-left: 0;
+        gap: 6px 12px;
+      }
+
+      .yearscale {
+        flex: 1;
+        width: auto;
+        min-width: 0;
+      }
+
+      .play {
+        width: 44px;
+        height: 44px;
+        flex: none;
+      }
+
+      input[type=range]::-webkit-slider-thumb {
+        width: 24px;
+        height: 24px;
+      }
+
+      #yearlabel {
+        min-width: 0;
+      }
+
+      .yearctl .interactive-prompt {
+        flex-basis: 100%;
+        margin: 0 !important;
+        text-align: center;
+      }
+
+      .yearctl .hint-arrow {
+        transform: rotate(90deg);
+      }
+
+      .bar .seg:not(#grpSeg) {
+        flex: 1 1 0;
+      }
+
+      .bar .seg:not(#grpSeg) button {
+        width: 100%;
+      }
+
+      #mapWrap {
+        height: 340px;
+      }
+
+      /* leave room for the bigger slider thumb above the year labels */
+      .ticks {
+        margin-top: 8px;
+      }
+
+      #mapHint {
+        top: 12px !important;
+        left: 50% !important;
+        transform: translateX(-50%);
+        width: max-content;
+        max-width: calc(100% - 24px);
+        text-align: center;
+      }
+
+      #mapHint .map-hint-arrow {
+        display: none;
+      }
+
+      /* charts: no wasted height, bigger labels */
+      .chartM {
+        height: 300px;
+        padding: 10px 8px;
+      }
+
+      .chartL {
+        height: 440px;
+        padding: 12px 8px;
+      }
+    }
+  </style>
+  <style>
+    /* ---- Phone: tighter breaks between sections ----
+       9vh above and below each section left ~180-200px of empty screen at every break. */
+    @media (max-width: 640px) {
+      section,
+      section.nsec {
+        padding: clamp(32px, 4.5vh, 40px) 0;
+      }
+    }
+  </style>
 </head>
 
 <body>
@@ -2053,7 +2273,7 @@
   <div class="cursor-arrow" id="cursorArrow"></div>
 
   <nav class="topnav" id="topNav">
-    <a class="nav-back" href="../index.html"><span>&larr;</span>&nbsp; Back to home</a>
+    <a class="nav-back" href="../index.html#featured"><span aria-hidden="true">&larr;</span>&nbsp; Back to work</a>
     <div class="nav-links">
       <a href="#problem">The problem</a>
       <a href="#strain">The strain</a>
@@ -2266,8 +2486,8 @@
       <p class="note">Each state is a 3D block. <strong>Color is financial vulnerability</strong>
         (darker is worse, averaging five hardships: bills, emergency fund, overspending, overdrafts, predatory
         borrowing). <strong>Height is average income</strong> (taller is higher). A tall dark block means high income
-        but high strain; a short dark block is the poorer, struggling pattern. <strong>Drag to rotate, scroll to
-          zoom</strong>, hover for the detail.</p>
+        but high strain; a short dark block is the poorer, struggling pattern. <strong id="gestureHint">Drag to rotate, scroll to
+          zoom</strong>, <span id="detailHint">hover</span> for the detail.</p>
       <div class="legendbar" id="vlegend"></div>
 
       <div class="viz-title">Vulnerability Map</div>
@@ -2297,7 +2517,7 @@
               <span class="ticks" id="ticks"></span>
             </span>
             <span id="yearlabel">2024</span><span class="interactive-prompt" id="dragPrompt"
-              style="margin-left: -6px;">&larr; Try dragging the timeline</span>
+              style="margin-left: -6px;"><span class="hint-arrow" aria-hidden="true">&larr;</span> Try dragging the timeline</span>
           </span>
           <span class="seg"><button id="viewBtn">Top view</button></span>
           <span class="seg"><button id="resetBtn">Reset view</button></span>
@@ -2307,7 +2527,7 @@
           <div id="mapWrap">
             <div id="map"></div>
             <span class="map-hint" id="mapHint" style="position: absolute; top: 76px; left: 55px; z-index: 10;">
-              <span class="interactive-prompt">Hover over states to see the breakdown</span>
+              <span class="interactive-prompt" id="mapHintText">Hover over states to see the breakdown</span>
               <svg class="map-hint-arrow" viewBox="0 0 26 40" fill="none" stroke="currentColor" stroke-linecap="round"
                 stroke-linejoin="round">
                 <path d="M 22 4 C 18 14, 10 26, 4 38" stroke-width="1.7" />
@@ -2326,6 +2546,10 @@
           </div>
         </div>
       </div>
+      <aside id="stateDrawer" class="state-drawer" aria-label="State breakdown">
+        <button type="button" class="state-drawer__close" id="stateClose" aria-label="Close state breakdown">&times;</button>
+        <div id="stateCard" class="state-card" aria-live="polite"></div>
+      </aside>
       <p class="srcline">3D map built with Deck.gl.</p>
     </section>
 
@@ -2359,7 +2583,7 @@
         </ul>
       </div>
 
-      <div class="exttag">
+      <div class="exttag gap-after">
         <div class="exttag-h">The data gap</div>
         <p>How recently someone immigrated shapes money habits <b>more than a broad race label does</b>. The catch:
           our survey never asks where someone was born. Pulling it from the Census or the Fed means merging datasets
@@ -2369,7 +2593,7 @@
           they don't back claims about any specific group.</p>
       </div>
 
-      <p class="note">The spread inside one label can be extreme, not just varied. In NYC, Asian American households
+      <p class="note gap-after">The spread inside one label can be extreme, not just varied. In NYC, Asian American households
         with less than a high school education report a starkly lower median income than those with a graduate
         degree. This is a gap wide enough that the group's own average sits between two real populations,
         representing neither. The lower end gets less support than a Black or Hispanic household at the same income,
@@ -2448,6 +2672,11 @@
 
       // ---- Section 1: indexed to 2009 = 100, all bands together ----
       function indexed(arr) { const b = arr[0]; return arr.map(v => v == null || b == null ? null : Math.round(v / b * 1000) / 10); }
+      // The 2021-2024 band is only ~65px wide on a phone, so the label shortens and wraps there
+      const isNarrow = el => el.clientWidth < 520;
+      function reversalText() { return isNarrow(document.getElementById('s1b')) ? '2021–24\nreversal' : '2021 to 2024 reversal'; }
+      // two-line label sits in the empty strip just above the 100 line, clear of the rising dashed lines
+      function reversalOffset() { return isNarrow(document.getElementById('s1b')) ? [0, -30] : [0, 0]; }
       function optB() {
         const c = echarts.init(document.getElementById('s1b'));
         const series = [];
@@ -2465,13 +2694,14 @@
         series[0].markLine = {
           silent: true, symbol: 'none', data: [{ yAxis: 100 }],
           lineStyle: { color: '#8a857d', type: 'solid', width: 1.4 },
-          label: { formatter: '2009 level = 100', color: '#8a857d', fontFamily: 'DM Mono', fontSize: 10, position: 'insideStartTop' }
+          // mid-chart, just above the line: the ends are where the series cross it
+          label: { formatter: '2009 level = 100', color: '#8a857d', fontFamily: 'DM Mono', fontSize: 10, position: 'insideMiddleTop' }
         };
         series[0].markArea = {
           silent: true, itemStyle: { color: 'rgba(181,86,47,0.07)' },
           data: [[{ xAxis: '2021' }, { xAxis: '2024' }]],
           label: {
-            show: true, position: 'insideLeft', distance: 8, formatter: '2021 to 2024 reversal', color: '#b5562f',
+            show: true, position: 'insideLeft', distance: 8, formatter: reversalText(), offset: reversalOffset(), color: '#b5562f',
             fontFamily: 'DM Mono', fontSize: 10, backgroundColor: '#f3f0e8', padding: [3, 5], borderRadius: 2
           }
         };
@@ -2483,7 +2713,7 @@
             valueFormatter: v => v == null ? '–' : v
           },
           xAxis: { type: 'category', data: S1.years.map(String), axisLabel: AX, axisLine: { lineStyle: { color: '#cfd4d1' } }, boundaryGap: false },
-          yAxis: { type: 'value', name: 'relative to 2009  (2009 = 100, not absolute level)', nameTextStyle: AX, axisLabel: AX, splitLine: { lineStyle: { color: '#eef1ef' } }, min: 68, max: 130 },
+          yAxis: { type: 'value', name: 'relative to 2009  (2009 = 100, not absolute level)', nameTextStyle: AX, axisLabel: { ...AX, showMinLabel: false }, splitLine: { lineStyle: { color: '#eef1ef' } }, min: 68, max: 130 },
           series
         });
         return c;
@@ -2500,15 +2730,18 @@
         const offn = [W.offered_not[i], NW.offered_not[i]];
         const noff = [W.not_offered[i], NW.not_offered[i]];
         const lab = { show: true, formatter: p => p.value >= 4 ? p.value + '%' : '', color: '#fff', fontFamily: 'DM Mono', fontSize: 11, fontWeight: 600 };
+        const narrow = isNarrow(document.getElementById('s2'));
+        // On a phone the thin amber slice cannot hold its own number, so it sits just above the bar
+        const amberLab = narrow ? { ...lab, position: 'top', distance: 3, color: '#8a6d12' } : { ...lab, color: '#5b4a1f' };
         c.setOption({
-          grid: { left: 96, right: 24, top: 16, bottom: 28 },
+          grid: { left: narrow ? 74 : 96, right: narrow ? 16 : 24, top: narrow ? 34 : 16, bottom: 28 },
           tooltip: { trigger: 'item', textStyle: { fontFamily: 'Inter', fontSize: 11 }, formatter: p => `${p.name}, ${p.seriesName}: <b>${p.value}%</b>` },
           legend: { show: false },
           xAxis: { type: 'value', max: 100, axisLabel: { ...AX, formatter: '{value}%' }, splitLine: { lineStyle: { color: '#eef1ef' } } },
-          yAxis: { type: 'category', data: cats, axisLabel: { fontFamily: 'Cormorant Garamond', fontSize: 17, color: '#181512' }, axisLine: { lineStyle: { color: '#cfd4d1' } }, axisTick: { show: false } },
+          yAxis: { type: 'category', data: cats, axisLabel: { fontFamily: 'Cormorant Garamond', fontSize: narrow ? 15 : 17, color: '#181512' }, axisLine: { lineStyle: { color: '#cfd4d1' } }, axisTick: { show: false } },
           series: [
             { name: 'Took it', type: 'bar', stack: 'x', data: part, label: lab, itemStyle: { color: TEAL }, barWidth: '52%' },
-            { name: 'Offered, skipped', type: 'bar', stack: 'x', data: offn, label: { ...lab, color: '#5b4a1f' }, itemStyle: { color: AMBER } },
+            { name: 'Offered, skipped', type: 'bar', stack: 'x', data: offn, label: amberLab, itemStyle: { color: AMBER } },
             { name: 'Never offered', type: 'bar', stack: 'x', data: noff, label: { ...lab, color: '#6b675f' }, itemStyle: { color: GREY } }
           ]
         });
@@ -2516,7 +2749,10 @@
       }
       const c2 = sec2();
 
-      window.addEventListener('resize', () => { cB.resize(); c2.resize(); });
+      window.addEventListener('resize', () => {
+        cB.resize(); c2.resize();
+        cB.setOption({ series: [{ markArea: { label: { formatter: reversalText(), offset: reversalOffset() } } }] });
+      });
     })();
   </script>
 
@@ -2600,24 +2836,72 @@
         updateTriggers: { getElevation: [yidx, group], getFillColor: [yidx, group, colorField] }
       });
     }
-    const HOME = { longitude: -98, latitude: 38.5, zoom: 3.02, pitch: 40, bearing: 0, minZoom: 2, maxZoom: 8 };
+    // Fit the country to the frame: 3.02 suits the ~850px desktop map; each halving of the width needs one zoom level less
+    const mapEl = document.getElementById('map');
+    const homeZoom = () => { const w = mapEl.clientWidth || 852; return w >= 760 ? 3.02 : Math.max(1.4, 3.02 + Math.log2(w / 852) + 0.15); };
+    const COARSE = window.matchMedia('(hover: none)').matches;
+    const narrowMQ = window.matchMedia('(max-width: 700px)');
+    // Phones and narrow windows have no room for a hover tooltip inside the map, so a tap opens the side card
+    const cardMode = () => COARSE || narrowMQ.matches;
+    let selState = null;   // state whose card is open
+    const drawer = document.getElementById('stateDrawer');
+    document.body.appendChild(drawer);   // out of the animated section, whose transform would pin a fixed child to itself
+    function renderCard() {
+      const html = selState && cardMode() && ttHTML(selState);
+      if (html) document.getElementById('stateCard').innerHTML = html;
+      drawer.classList.toggle('open', !!html);
+      if (!html) selState = null;
+    }
+    document.getElementById('stateClose').onclick = () => { selState = null; renderCard(); };
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && selState) { selState = null; renderCard(); } });
+    window.addEventListener('resize', () => { if (selState && !cardMode()) { selState = null; renderCard(); } });
+    const HOME = { longitude: mapEl.clientWidth < 760 ? -100.4 : -98, latitude: 38.5, zoom: homeZoom(), pitch: 40, bearing: 0, minZoom: Math.min(2, homeZoom() - 0.6), maxZoom: 8 };
+    window.addEventListener('resize', () => { HOME.zoom = homeZoom(); HOME.minZoom = Math.min(2, HOME.zoom - 0.6); });
     let viewState = { ...HOME };
     const deckgl = new DeckGL({
       container: document.getElementById('map'),
       viewState,
-      controller: true, effects: [lighting],
+      controller: !COARSE,   // phones: see the tap handler below
+      effects: [lighting],
       layers: [layer()],
       onViewStateChange: ({ viewState: vs }) => { viewState = vs; deckgl.setProps({ viewState }); },
       getTooltip: ({ object, x, y }) => {
-        if (!object) return null;
+        if (!object || cardMode()) return null;
         const onRightHalf = x > document.getElementById('map').clientWidth / 2;
         return {
           html: ttHTML(object.properties.name), className: 'dtt',
           style: onRightHalf ? { transform: `translate(calc(${x}px - 100% - 14px), ${y}px)` } : undefined
         };
       },
-      onHover: ({ object }) => { if (object) dismissMapHint(); }
+      onHover: ({ object }) => { if (object) dismissMapHint(); },
     });
+    // Tapping the map picks the state under the finger and opens the side card (tapping empty map, or the x, closes it).
+    // On a real touch screen the canvas also lets touches pass through to the page: its own touch handling
+    // swallowed every swipe that started on the map, so the page could not scroll past a block this tall.
+    if (COARSE) mapEl.style.pointerEvents = 'none';
+    (function wireTap() {
+      const wrap = document.getElementById('mapWrap');
+      let down = null;
+      wrap.addEventListener('pointerdown', e => { down = { x: e.clientX, y: e.clientY }; }, true);
+      wrap.addEventListener('click', e => {
+        if (!cardMode()) return;
+        if (down && Math.hypot(e.clientX - down.x, e.clientY - down.y) > 6) return;   // that was a drag, not a tap
+        const r = mapEl.getBoundingClientRect();
+        const hit = deckgl.pickObject({ x: e.clientX - r.left, y: e.clientY - r.top, radius: 4 });
+        selState = hit && hit.object ? hit.object.properties.name : null;
+        renderCard();
+        if (selState) dismissMapHint();
+      });
+      // leave the map and its card goes with it
+      if ('IntersectionObserver' in window) {
+        new IntersectionObserver(es => { if (!es[0].isIntersecting && selState) { selState = null; renderCard(); } }).observe(wrap);
+      }
+    })();
+    if (cardMode()) {
+      document.getElementById('mapHintText').textContent = 'Tap a state to see the breakdown';
+      document.getElementById('gestureHint').textContent = COARSE ? 'Use Top view to flatten the map' : 'Drag to rotate, pinch or scroll to zoom';
+      document.getElementById('detailHint').textContent = 'tap a state';
+    }
 
     const mapHint = document.getElementById('mapHint');
     function dismissMapHint() { if (mapHint) mapHint.classList.add('dismissed'); }
@@ -2635,7 +2919,7 @@
       deckgl.setProps({ viewState });
     };
 
-    function refresh() { deckgl.setProps({ layers: [layer()] }); drawLegend(); }
+    function refresh() { deckgl.setProps({ layers: [layer()] }); drawLegend(); if (selState) renderCard(); }
     function drawLegend() {
       const [lo, hi] = rangeOf(group, colorField);
       const u = colorField === 'vuln' ? '' : '%';
