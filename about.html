@@ -1972,7 +1972,7 @@
 
       <div class="hero-cta" data-reveal>
         <a class="hero-btn on" href="#featured">See work</a>
-        <a class="hero-btn" href="resume.pdf" target="_blank" rel="noopener">Resume<span class="sr-only"> (opens in a
+        <a class="hero-btn" href="https://drive.google.com/file/d/1Rya0IDWBTAqp28LDFGhyRTde4dUNtyDY/view?usp=sharing" target="_blank" rel="noopener">Resume<span class="sr-only"> (opens in a
             new tab)</span></a>
         <a class="hero-btn" href="#footer-placeholder">Contact me</a>
       </div>
@@ -2334,6 +2334,18 @@
         coarse: coarse,
         introFor: { urban: 'Urban design: ', journalist: 'Journalism: ', ux: 'UX and product: ' },
         layout: layout,
+        // no hover/tap until the headline and every paragraph in view have fully faded in
+        enabled: function () {
+          var vh = window.innerHeight;
+          var els = document.querySelectorAll('.hero-title, .ecotone, .prose p');
+          for (var i = 0; i < els.length; i++) {
+            var r = els[i].getBoundingClientRect();
+            if (!els[i].offsetParent || r.top >= vh * 0.88 || r.bottom <= 0) continue;
+            if (!els[i].classList.contains('is-in') && document.documentElement.classList.contains('js')) return false;
+            if (parseFloat(getComputedStyle(els[i]).opacity) < 0.99) return false;
+          }
+          return true;
+        },
         data: roleData
       });
 

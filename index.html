@@ -2407,7 +2407,7 @@
       </div>
       <div class="hero-cta">
         <a class="hero-btn on" href="#featured">See work</a>
-        <a class="hero-btn" href="resume.pdf" target="_blank" rel="noopener">Resume<span class="sr-only"> (opens in a new tab)</span></a>
+        <a class="hero-btn" href="https://drive.google.com/file/d/1Rya0IDWBTAqp28LDFGhyRTde4dUNtyDY/view?usp=sharing" target="_blank" rel="noopener">Resume<span class="sr-only"> (opens in a new tab)</span></a>
         <a class="hero-btn" href="#footer-placeholder">Contact me</a>
       </div>
     </div>
@@ -2927,6 +2927,8 @@
     function revealBody() {
       const body = document.querySelector('.hero-body');
       if (body) body.classList.add('shown');
+      // the tagline only reacts once the body text has finished fading in (0.9s animation)
+      setTimeout(() => { heroReady = true; }, 950);
     }
 
     // ─── Ray utilities ────────────────────────────────────────────────────────────
@@ -3211,21 +3213,19 @@
         }
       });
 
-      // Bounding box around the whole composition (word + every label), padded so the
-      // cursor can travel out to read a label and the arrangement only collapses once it
-      // leaves this region entirely.
-      let bL = cx - hw, bR = cx + hw, bT = cy - hh, bB = cy + hh;
+      // Hover zones: the word, each label, and the corridor of each leader between them, each
+      // padded a little. The composition collapses as soon as the cursor is outside all of them.
+      const padB = 26;
+      const zone = (l, r, t, b) => ({ left: Math.min(l, r) - padB, right: Math.max(l, r) + padB,
+        top: Math.min(t, b) - padB, bottom: Math.max(t, b) + padB });
+      hoverBounds = [zone(cx - hw, cx + hw, cy - hh, cy + hh)];
       rays.forEach(it => {
         const half = (it.lineH * it.lines.length) / 2;
-        bT = Math.min(bT, it.targetY - half);
-        bB = Math.max(bB, it.targetY + half);
         const lx = it.dir > 0 ? it.dotX : it.dotX - TEXT_GAP - it.maxLineW;
         const rx = it.dir > 0 ? it.dotX + TEXT_GAP + it.maxLineW : it.dotX;
-        bL = Math.min(bL, lx);
-        bR = Math.max(bR, rx);
+        hoverBounds.push(zone(lx, rx, it.targetY - half, it.targetY + half));
+        hoverBounds.push(zone(it.ex, it.dotX, it.ey, it.targetY));
       });
-      const padB = 60;
-      hoverBounds = { left: bL - padB, right: bR + padB, top: bT - padB, bottom: bB + padB };
     }
 
     // Vertical band the labels may occupy: centred on the word, but never under the
@@ -3447,7 +3447,10 @@
 
     // ─── Word trigger interactions ────────────────────────────────────────────────
 
+    let heroReady = false;
+
     function activateWord(el) {
+      if (!heroReady) return;
       startExpand(el.dataset.key);
       triggers.forEach((w) => w.setAttribute('aria-expanded', String(w === el)));
       announceWord(el.dataset.key);
@@ -3520,16 +3523,19 @@
         // bounds watcher below collapses it once the cursor leaves the whole region.
       });
 
-      // While a composition is open, keep it alive until the cursor leaves its padded box.
-      document.addEventListener('mousemove', e => {
-        if (!activeKey || animDir === -1 || !hoverBounds) return;
-        const offY = anchorScrollY - window.scrollY; // composition is pinned to the document
-        const outside =
-          e.clientX < hoverBounds.left || e.clientX > hoverBounds.right ||
-          e.clientY < hoverBounds.top + offY || e.clientY > hoverBounds.bottom + offY;
-        if (outside) collapse();
-      });
     }
+
+    // While a composition is open, keep it alive until the cursor leaves its padded box.
+    // Runs for touch layouts too: a mouse on a narrow window still closes it by drifting away.
+    document.addEventListener('mousemove', e => {
+      if (!activeKey || animDir === -1 || !hoverBounds) return;
+      const offY = anchorScrollY - window.scrollY; // composition is pinned to the document
+      const inside = hoverBounds.some(z =>
+        e.clientX >= z.left && e.clientX <= z.right &&
+        e.clientY >= z.top + offY && e.clientY <= z.bottom + offY);
+      if (!inside) collapse();
+    });
+    document.documentElement.addEventListener('mouseleave', () => { if (activeKey) collapse(); });
 
     // ─── Scroll reveal ────────────────────────────────────────────────────────────
     // Fade/rise elements below the hero into view as the user scrolls down to them.

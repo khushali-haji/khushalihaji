@@ -345,17 +345,18 @@
         viewW >= (all.minWidth || 700) && viewH >= (all.minHeight || 520);
       var items = useSaved ? configItems(key, m, all, role) : autoItems(key, m);
 
-      // Box around the word and every label, padded so the cursor can travel out to
-      // read a label; the composition only collapses once it leaves this region.
-      var bL = m.cx - m.hw, bR = m.cx + m.hw, bT = m.cy - m.hh, bB = m.cy + m.hh;
+      // Hover zones: the word, each label, and the leader corridor between them, each padded a
+      // little. The composition collapses as soon as the cursor is outside all of them.
+      var padB = 26;
+      function zone(l, r, t, b) {
+        return { left: Math.min(l, r) - padB, right: Math.max(l, r) + padB,
+          top: Math.min(t, b) - padB, bottom: Math.max(t, b) + padB };
+      }
+      hoverBounds = [zone(m.cx - m.hw, m.cx + m.hw, m.cy - m.hh, m.cy + m.hh)];
       items.forEach(function (it) {
-        bL = Math.min(bL, it.bx, it.anchor.x);
-        bR = Math.max(bR, it.bx + it.w, it.anchor.x);
-        bT = Math.min(bT, it.attach.y - it.h / 2, it.anchor.y);
-        bB = Math.max(bB, it.attach.y + it.h / 2, it.anchor.y);
+        hoverBounds.push(zone(it.bx, it.bx + it.w, it.attach.y - it.h / 2, it.attach.y + it.h / 2));
+        hoverBounds.push(zone(it.anchor.x, it.attach.x, it.anchor.y, it.attach.y));
       });
-      var padB = 50;
-      hoverBounds = { left: bL - padB, right: bR + padB, top: bT - padB, bottom: bB + padB };
       return items;
     }
 
@@ -486,7 +487,11 @@
     live.setAttribute('aria-live', 'polite');
     triggers[triggers.length - 1].parentNode.appendChild(live);
 
+    // Optional gate (opts.enabled): the words stay inert until the page text has finished loading in
+    function ready() { return typeof opts.enabled !== 'function' || !!opts.enabled(); }
+
     function activateWord(el) {
+      if (!ready()) return;
       var key = el.dataset.key;
       startExpand(key);
       triggers.forEach(function (w) { w.setAttribute('aria-expanded', String(w === el)); });
@@ -531,14 +536,19 @@
     document.addEventListener('click', function () { if (isTap() && activeKey) collapse(); });
 
     // Stay open while the cursor is anywhere inside the composition's padded box
+    // (also in tap mode: a mouse on a narrow window still closes it by drifting away, no click needed)
     document.addEventListener('mousemove', function (e) {
-      if (isTap() || !activeKey || animDir === -1 || !hoverBounds) return;
+      if (!activeKey || animDir === -1 || !hoverBounds) return;
       var offY = anchorScrollY - window.scrollY;
-      var outside =
-        e.clientX < hoverBounds.left || e.clientX > hoverBounds.right ||
-        e.clientY < hoverBounds.top + offY || e.clientY > hoverBounds.bottom + offY;
-      if (outside) collapse();
+      var inside = hoverBounds.some(function (z) {
+        return e.clientX >= z.left && e.clientX <= z.right &&
+          e.clientY >= z.top + offY && e.clientY <= z.bottom + offY;
+      });
+      if (!inside) collapse();
     });
+
+    // Pointer leaves the window altogether: close it too
+    document.documentElement.addEventListener('mouseleave', function () { if (activeKey) collapse(); });
 
     return { collapse: collapse };
   }
