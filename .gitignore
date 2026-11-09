@@ -5,3 +5,14 @@
 /case-studies/seat-at-the-table.html
 /case-studies/Seat at the Table/
 /images/card-seat-at-the-table.jpg
+
+# Local testing tool (phone/tablet toggle), not part of the site
+/tools/device-preview.html
+
+# Working files kept locally, not part of the site
+/case-studies/PITCH_St. Joes with Text.pptx
+/case-studies/Excalidraw/Figma_recording.mov
+/case-studies/conflict-lens.md
+/case-studies/excalidraw-attribution-vision.md
+/tools/ipad-editor.html
+/tools/ipad-layout.json
