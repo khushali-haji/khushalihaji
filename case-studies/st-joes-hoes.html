@@ -1120,6 +1120,11 @@
         max-width: none;
       }
 
+      /* quicker fade-in so a fast swipe does not outrun the picture */
+      .js .protagonist__bg {
+        transition: opacity 0.5s ease, transform 1.2s var(--ease);
+      }
+
       /* no room to sit beside the subject — cover the frame instead */
       .protagonist[data-side="left"] .protagonist__scrim,
       .protagonist[data-side="right"] .protagonist__scrim {
@@ -1525,6 +1530,23 @@
       color: #fff;
     }
   </style>
+  <style>
+    /* ---- Top bar: phone behaviour (shared across the case studies) ----
+       The back link gets a 44px touch target without making the bar taller (padding
+       is cancelled by the negative margin), never wraps, and on phones the in-page
+       jump links step aside so the bar stays one tidy line. */
+    .topnav a.nav-back {
+      white-space: nowrap;
+      padding: 12px 10px;
+      margin: -12px -10px;
+    }
+
+    @media (max-width: 720px) {
+      .nav-links a[href^="#"] {
+        display: none;
+      }
+    }
+  </style>
 </head>
 
 <body>
@@ -1536,7 +1558,7 @@
   <div class="cursor-arrow" id="cursorArrow" aria-hidden="true"></div>
 
   <nav class="topnav" id="topNav" aria-label="Case study">
-    <a class="nav-back" href="../index.html"><span aria-hidden="true">&larr;</span> Back to Work</a>
+    <a class="nav-back" href="../index.html#featured"><span aria-hidden="true">&larr;</span>&nbsp; Back to work</a>
     <div class="nav-links">
       <a href="#premise">Premise</a>
       <a href="#cast">Cast</a>
@@ -2145,6 +2167,8 @@
       var TEXT_AT = 0.32;
       var FADE_OUT_AT = 0.8;
 
+      var smallScreen = window.matchMedia('(max-width: 820px)');
+
       function paintProtagonists() {
         var vh = window.innerHeight;
         protagonists.forEach(function (el) {
@@ -2157,7 +2181,9 @@
           // holding them until the sticky frame physically slides away, so
           // attention lands on the incoming character, not the outgoing one.
           var leaving = p > FADE_OUT_AT;
-          el.classList.toggle('img-in', inView && !leaving);
+          // On a phone the picture stays up while the frame slides away (only the copy and scrim
+          // step aside). Fading the photo out too left a full screen of empty dark between characters.
+          el.classList.toggle('img-in', inView && (!leaving || smallScreen.matches));
           el.classList.toggle('text-in', p >= TEXT_AT && !leaving);
         });
       }

@@ -1367,6 +1367,118 @@
       }
     }
   </style>
+  <style>
+    /* ---- Top bar: phone behaviour (shared across the case studies) ----
+       The back link gets a 44px touch target without making the bar taller (padding
+       is cancelled by the negative margin), never wraps, and on phones the in-page
+       jump links step aside so the bar stays one tidy line. */
+    .topnav a.nav-back {
+      white-space: nowrap;
+      padding: 12px 10px;
+      margin: -12px -10px;
+    }
+
+    @media (max-width: 720px) {
+      .nav-links a[href^="#"] {
+        display: none;
+      }
+    }
+  </style>
+  <style>
+    /* ---- Wide tables on phones ---- */
+    .scroll-hint {
+      display: none;
+      margin: 1.4rem 0 -1.2rem;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--teal);
+    }
+
+    .scroll-hint span {
+      display: inline-block;
+      animation: nudgeX 1.6s ease-in-out infinite;
+    }
+
+    @keyframes nudgeX {
+      0%, 100% { transform: translateX(0); }
+      50% { transform: translateX(5px); }
+    }
+
+    @media (max-width: 640px) {
+      .scroll-hint {
+        display: block;
+      }
+
+      .matrix-scroll,
+      .table-scroll {
+        padding-bottom: 12px;
+        scrollbar-width: thin;
+        scrollbar-color: var(--ink) rgba(40, 36, 33, 0.12);
+      }
+
+      /* a bar that stays visible (iOS hides the default one until you touch it) */
+      .matrix-scroll::-webkit-scrollbar,
+      .table-scroll::-webkit-scrollbar {
+        height: 6px;
+      }
+
+      .matrix-scroll::-webkit-scrollbar-track,
+      .table-scroll::-webkit-scrollbar-track {
+        background: rgba(40, 36, 33, 0.1);
+        border-radius: 3px;
+      }
+
+      .matrix-scroll::-webkit-scrollbar-thumb,
+      .table-scroll::-webkit-scrollbar-thumb {
+        background: var(--ink);
+        border-radius: 3px;
+      }
+
+      /* soft fade on the edge that still has more behind it */
+      .matrix-scroll.has-more,
+      .table-scroll.has-more {
+        -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 40px), transparent);
+        mask-image: linear-gradient(to right, #000 calc(100% - 40px), transparent);
+      }
+    }
+
+    @media (max-width: 640px) {
+      table.matrix {
+        min-width: 0;
+      }
+
+      table.matrix th,
+      table.matrix td {
+        padding: 0.65rem 0.7rem;
+        font-size: 14px;
+        overflow-wrap: anywhere;
+      }
+
+      table.matrix thead th {
+        font-size: 9.5px;
+      }
+    }
+  </style>
+  <style>
+    /* ---- Phone: tighter breaks between sections ----
+       9vh above and below each section left ~180-200px of empty screen at every break. */
+    @media (max-width: 640px) {
+      section {
+        padding: clamp(32px, 4.5vh, 40px) 0;
+      }
+    }
+
+    /* four stats: a tidy 2 x 2 instead of three across and one left alone underneath */
+    @media (max-width: 640px) {
+      .stat-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.4rem 1rem;
+      }
+    }
+  </style>
 </head>
 
 <body>
@@ -1378,7 +1490,7 @@
   <div class="progress-line" id="progressBar" aria-hidden="true"></div>
 
   <nav class="topnav" id="topNav">
-    <a class="nav-back" href="../index.html"><span>&larr;</span>&nbsp; Back to home</a>
+    <a class="nav-back" href="../index.html#featured"><span aria-hidden="true">&larr;</span>&nbsp; Back to work</a>
     <div class="nav-links">
       <a href="#brief">Brief</a>
       <a href="#research">Research</a>
@@ -2095,6 +2207,36 @@
     })();
   </script>
 
+
+  <script>
+    // Wide tables on phones: show a "swipe" cue, fade the cut-off edge, and drop both
+    // once the reader has scrolled sideways. Does nothing when the table already fits.
+    (function () {
+      var wraps = document.querySelectorAll('.matrix-scroll, .table-scroll');
+      wraps.forEach(function (w) {
+        var hint = null, touched = false;
+        function sync() {
+          var more = w.scrollWidth - w.clientWidth - w.scrollLeft > 2;
+          w.classList.toggle('has-more', more);
+          var scrollable = w.scrollWidth - w.clientWidth > 2;
+          if (scrollable && !touched && !hint) {
+            hint = document.createElement('p');
+            hint.className = 'scroll-hint';
+            hint.setAttribute('aria-hidden', 'true');
+            hint.innerHTML = 'Swipe sideways to see every column <span>&rarr;</span>';
+            w.parentNode.insertBefore(hint, w);
+          }
+          if ((!scrollable || touched) && hint) { hint.remove(); hint = null; }
+        }
+        w.addEventListener('scroll', function () {
+          if (w.scrollLeft > 8) touched = true;
+          sync();
+        }, { passive: true });
+        window.addEventListener('resize', sync);
+        sync();
+      });
+    })();
+  </script>
 </body>
 
 </html>

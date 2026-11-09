@@ -3461,6 +3461,121 @@
       }
     }
   </style>
+  <style>
+    /* ---- Top bar: phone behaviour (shared across the case studies) ----
+       The back link gets a 44px touch target without making the bar taller (padding
+       is cancelled by the negative margin), never wraps, and on phones the in-page
+       jump links step aside so the bar stays one tidy line. */
+    .topnav a.nav-back {
+      white-space: nowrap;
+      padding: 12px 10px;
+      margin: -12px -10px;
+    }
+
+    @media (max-width: 720px) {
+      .nav-links a[href^="#"] {
+        display: none;
+      }
+    }
+  </style>
+  <style>
+    /* ---- Wide tables on phones ---- */
+    .scroll-hint {
+      display: none;
+      margin: 1.4rem 0 -1.2rem;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--teal);
+    }
+
+    .scroll-hint span {
+      display: inline-block;
+      animation: nudgeX 1.6s ease-in-out infinite;
+    }
+
+    @keyframes nudgeX {
+      0%, 100% { transform: translateX(0); }
+      50% { transform: translateX(5px); }
+    }
+
+    @media (max-width: 640px) {
+      .scroll-hint {
+        display: block;
+      }
+
+      .matrix-scroll,
+      .table-scroll {
+        padding-bottom: 12px;
+        scrollbar-width: thin;
+        scrollbar-color: var(--ink) rgba(40, 36, 33, 0.12);
+      }
+
+      /* a bar that stays visible (iOS hides the default one until you touch it) */
+      .matrix-scroll::-webkit-scrollbar,
+      .table-scroll::-webkit-scrollbar {
+        height: 6px;
+      }
+
+      .matrix-scroll::-webkit-scrollbar-track,
+      .table-scroll::-webkit-scrollbar-track {
+        background: rgba(40, 36, 33, 0.1);
+        border-radius: 3px;
+      }
+
+      .matrix-scroll::-webkit-scrollbar-thumb,
+      .table-scroll::-webkit-scrollbar-thumb {
+        background: var(--ink);
+        border-radius: 3px;
+      }
+
+      /* soft fade on the edge that still has more behind it */
+      .matrix-scroll.has-more,
+      .table-scroll.has-more {
+        -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 40px), transparent);
+        mask-image: linear-gradient(to right, #000 calc(100% - 40px), transparent);
+      }
+    }
+
+    @media (max-width: 640px) {
+      table.matrix {
+        min-width: 470px;
+      }
+
+      table.matrix th,
+      table.matrix td {
+        padding: 0.75rem 0.55rem;
+      }
+
+      table.matrix thead th {
+        font-size: 9.5px;
+      }
+
+      table.matrix th:first-child {
+        position: sticky;
+        left: 0;
+        z-index: 1;
+        width: 92px;
+        min-width: 92px;
+        background: var(--paper);
+        box-shadow: 1px 0 0 var(--ink);
+      }
+
+      table.matrix thead th:first-child {
+        background: #efebe2;
+      }
+    }
+  </style>
+  <style>
+    /* ---- Phone: tighter breaks between sections ----
+       9vh above and below each section left ~180-200px of empty screen at every break. */
+    @media (max-width: 640px) {
+      section {
+        padding: clamp(32px, 4.5vh, 40px) 0;
+      }
+    }
+  </style>
 </head>
 
 <body>
@@ -3473,7 +3588,7 @@
 
   <!-- Sticky Top Nav -->
   <nav class="topnav" id="topNav">
-    <a class="nav-back" href="../index.html"><span>&larr;</span>&nbsp; Back to home</a>
+    <a class="nav-back" href="../index.html#featured"><span aria-hidden="true">&larr;</span>&nbsp; Back to work</a>
     <div class="nav-links">
       <a href="#problem">Problem</a>
       <a href="#research">Research</a>
@@ -3525,7 +3640,7 @@
             <div class="o2-phone-body">
               <div class="o2-phone-notch"></div>
               <div class="o2-phone-screen">
-                <img src="Images/hero-deck-mobile.png"
+                <img width="986" height="1346" src="Images/hero-deck-mobile.png"
                   alt="Conflict Lens on mobile, the lead-up events timeline sheet slid up over the map" loading="lazy">
               </div>
             </div>
@@ -3551,7 +3666,7 @@
           <div class="o2-card desktop c-placeholder">
             <div class="o2-card-inner">
               <div class="o2-mini-chrome"><span></span><span></span><span></span></div>
-              <img src="Images/hero-deck-briefing.png"
+              <img width="2859" height="1335" src="Images/hero-deck-briefing.png"
                 alt="Conflict Lens briefing dashboard, showing the map, key details, incident summary, and lead-up events timeline">
             </div>
             <span class="o2-tag">03 &mdash; Briefing</span>
@@ -3615,7 +3730,7 @@
       <div class="persona-row">
         <div class="persona-col">
           <div class="persona-icon">
-            <img src="Conflict%20Lens/User1_Jamila_crop.png" loading="lazy" alt="Illustrated portrait of Jamila">
+            <img width="969" height="1180" src="Conflict%20Lens/User1_Jamila_crop.png" loading="lazy" alt="Illustrated portrait of Jamila">
           </div>
           <p class="persona-role">Journalist</p>
           <p class="persona-text"><strong>Jamila</strong> is a journalist, who wants a <strong>fast synthesis</strong>
@@ -3624,7 +3739,7 @@
         </div>
         <div class="persona-col">
           <div class="persona-icon">
-            <img src="Conflict%20Lens/User2_Zaif_crop.png" loading="lazy" alt="Illustrated portrait of Zaif">
+            <img width="1055" height="1285" src="Conflict%20Lens/User2_Zaif_crop.png" loading="lazy" alt="Illustrated portrait of Zaif">
           </div>
           <p class="persona-role">Researcher &amp; Tutor</p>
           <p class="persona-text"><strong>Zaif</strong> is a tutor teaching an international affairs
@@ -3634,7 +3749,7 @@
         </div>
         <div class="persona-col">
           <div class="persona-icon">
-            <img src="Conflict%20Lens/User3_Amara_crop.png" loading="lazy" alt="Illustrated portrait of Amara"
+            <img width="977" height="1252" src="Conflict%20Lens/User3_Amara_crop.png" loading="lazy" alt="Illustrated portrait of Amara"
               style="transform: translateY(10px);">
           </div>
           <p class="persona-role">Reader</p>
@@ -3658,7 +3773,7 @@
           </div>
           <div class="switcher-content" id="problemSwitcherContent">
             <div class="tab-shot" id="problemTabV1">
-              <img src="Images/Screenshot%202026-07-08%20at%206.23.06%20AM.png" loading="lazy"
+              <img width="2553" height="1407" src="Images/Screenshot%202026-07-08%20at%206.23.06%20AM.png" loading="lazy"
                 alt="Nine browser windows open at once to research a single conflict: maps, Wikipedia, news outlets, a live conflict map, a bias tool, and a paywall." />
             </div>
           </div>
@@ -3899,7 +4014,7 @@
         <div class="phone-shots">
           <figure class="phone-shot">
             <div class="android-frame">
-              <img src="Images/Mobile%20View/Screenshot%202026-07-09%20at%202.29.56%20AM.png"
+              <img width="992" height="1346" src="Images/Mobile%20View/Screenshot%202026-07-09%20at%202.29.56%20AM.png"
                 alt="Conflict Lens on mobile, the map view with event pins and a bottom navigation bar"
                 loading="lazy" />
             </div>
@@ -3907,7 +4022,7 @@
           </figure>
           <figure class="phone-shot">
             <div class="android-frame">
-              <img src="Images/Mobile%20View/Screenshot%202026-07-09%20at%202.31.02%20AM.png"
+              <img width="986" height="1346" src="Images/Mobile%20View/Screenshot%202026-07-09%20at%202.31.02%20AM.png"
                 alt="Conflict Lens on mobile, the lead-up events timeline sheet slid up over the map" loading="lazy" />
             </div>
             <figcaption>The timeline sheet slides up over the map, never covering it fully.</figcaption>
@@ -4521,7 +4636,7 @@
 
     const problemTabsV1Html = `
       <div class="tab-shot" id="problemTabV1">
-        <img src="Images/Screenshot%202026-07-08%20at%206.23.06%20AM.png" loading="lazy"
+        <img width="2553" height="1407" src="Images/Screenshot%202026-07-08%20at%206.23.06%20AM.png" loading="lazy"
           alt="Nine browser windows open at once to research a single conflict: maps, Wikipedia, news outlets, a live conflict map, a bias tool, and a paywall." />
       </div>
     `;
@@ -4720,6 +4835,36 @@
       });
     })();
 
+  </script>
+
+  <script>
+    // Wide tables on phones: show a "swipe" cue, fade the cut-off edge, and drop both
+    // once the reader has scrolled sideways. Does nothing when the table already fits.
+    (function () {
+      var wraps = document.querySelectorAll('.matrix-scroll, .table-scroll');
+      wraps.forEach(function (w) {
+        var hint = null, touched = false;
+        function sync() {
+          var more = w.scrollWidth - w.clientWidth - w.scrollLeft > 2;
+          w.classList.toggle('has-more', more);
+          var scrollable = w.scrollWidth - w.clientWidth > 2;
+          if (scrollable && !touched && !hint) {
+            hint = document.createElement('p');
+            hint.className = 'scroll-hint';
+            hint.setAttribute('aria-hidden', 'true');
+            hint.innerHTML = 'Swipe sideways to see every column <span>&rarr;</span>';
+            w.parentNode.insertBefore(hint, w);
+          }
+          if ((!scrollable || touched) && hint) { hint.remove(); hint = null; }
+        }
+        w.addEventListener('scroll', function () {
+          if (w.scrollLeft > 8) touched = true;
+          sync();
+        }, { passive: true });
+        window.addEventListener('resize', sync);
+        sync();
+      });
+    })();
   </script>
 </body>
 
