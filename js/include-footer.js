@@ -4,7 +4,7 @@
 (function () {
   var s = document.currentScript;
   var base = s ? s.src.replace(/js\/[^/]*$/, '') : '/khushalihaji/';
-  fetch(base + 'includes/footer.html?v=7')
+  fetch(base + 'includes/footer.html?v=8')
     .then(function (response) { return response.text(); })
     .then(function (html) {
       var ph = document.getElementById('footer-placeholder');
@@ -13,7 +13,7 @@
       var footer = ph.querySelector('.site-footer');
       if (!footer) return;
 
-      // Pages can override the default "Let's make something" heading via
+      // Pages can override the default "Have a project? Say hi." heading via
       // data-heading on the placeholder (e.g. the homepage's own greeting).
       if (ph.dataset.heading) {
         var heading = footer.querySelector('#sfHeading');
