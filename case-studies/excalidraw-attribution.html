@@ -1272,6 +1272,11 @@
       .hero-wide-image figcaption {
         font-size: 12px;
       }
+
+      /* the hero image still drifts, but with less empty frame around it */
+      .hero-wide-frame {
+        --hero-travel: 32px;
+      }
     }
 
     /* 44px tap areas on touch screens, without changing how anything looks */
@@ -1692,7 +1697,7 @@
 
     <h2 class="section-head" id="figma" style="margin-top: 3.5rem;">Figma Prototype</h2>
 
-    <video class="proto-video" controls preload="metadata" playsinline>
+    <video class="proto-video" controls preload="metadata" playsinline poster="Excalidraw/Figma_poster.jpg">
       <source src="Excalidraw/Figma_recording.mp4" type="video/mp4" />
       Your browser cannot play this video.
     </video>
