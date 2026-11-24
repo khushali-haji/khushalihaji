@@ -553,6 +553,19 @@
       color: rgba(40, 36, 33, 0.55);
     }
 
+    /* Once a persona has a drawing, drop the dashed placeholder frame */
+    .persona-icon.has-art {
+      background: none;
+      border: 0;
+      color: var(--ink);
+    }
+
+    .persona-icon.has-art svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
     .persona-role {
       font-family: var(--mono);
       font-weight: 500;
@@ -565,10 +578,10 @@
     }
 
     .persona-col p.persona-text {
-      font-family: var(--serif);
-      font-weight: 500;
-      font-size: 15.5px;
-      line-height: 1.62;
+      font-family: var(--sans);
+      font-weight: 400;
+      font-size: 14.5px;
+      line-height: 1.65;
       color: rgba(40, 36, 33, 0.85);
       text-align: left;
     }
@@ -835,6 +848,20 @@
     ul.decision-list li strong {
       font-weight: 600;
       color: var(--ink);
+    }
+
+    ul.decision-list li .dd {
+      display: block;
+      margin-top: 0.15rem;
+    }
+
+    ul.decision-list li .dd-label {
+      font-family: var(--sans);
+      font-size: 0.78em;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      color: var(--teal);
+      margin-right: 0.45em;
     }
 
     details.log ul.decision-list {
@@ -1493,12 +1520,12 @@
   <nav class="topnav" id="topNav">
     <a class="nav-back" href="../index.html#featured"><span aria-hidden="true">&larr;</span>&nbsp; Back to work</a>
     <div class="nav-links">
-      <a href="#brief">Brief</a>
+      <a href="#brief">Problem</a>
       <a href="#research">Research</a>
       <a href="#design">Design</a>
-      <a href="#ai">AI + Build</a>
-      <a href="#team">Team</a>
-      <a href="#reflections">Reflections</a>
+      <a href="#ai">Coding with AI</a>
+      <a href="#team">Teamwork</a>
+      <a href="#reflections">Results</a>
     </div>
   </nav>
 
@@ -1508,11 +1535,10 @@
     <h1 class="hero-title"><span class="line-mask"><i>Made with Excalidraw</i></span></h1>
     <p class="hero-tagline">Increasing marketing visibility for an open source platform</p>
     <p class="hero-oneliner">
-      Shipped features for Excalidraw, an open source whiteboard tool. The marketing KPI: grow the share of
-      exports that carry visible attribution, to increase the platform's visibility and support growth. Worked
-      as UX researcher and product designer inside a shared GitHub repo with three other contributors. Led
-      product design and ideation on subtle UX changes including QR codes, default credit line, and a short opt-out
-      survey. Also contributed UX edits to the export-tracking dashboard built by team to measure the KPI.
+      <strong>TLDR:</strong> Excalidraw is an open source whiteboard tool, and its drawings get shared everywhere, but almost none credit
+      where they came from, and Excalidraw couldn't measure it. I led the UX design of subtle changes to meet the
+      marketing KPI and make it measurable, like a default, free-to-remove credit line and better export options,
+      so the team can track how visible the brand is.
     </p>
 
     <div class="meta-row">
@@ -1553,114 +1579,277 @@
 
   <!-- ============ 1. THE BRIEF ============ -->
   <section id="brief" class="wrap">
-    <p class="eyebrow">01 &middot; The Brief</p>
-    <h2 class="section-head">A marketing KPI that the existing analytics could not measure</h2>
+    <p class="eyebrow">01 &middot; The Problem</p>
+    <h2 class="section-head">A credit that doesn't travel with its drawings</h2>
     <p class="body lede">
-      The stakeholder was Excalidraw's Head of Marketing, played by a Pursuit staff member. Their KPI was
-      <strong>brand visibility rate</strong>: the share of exported or shared drawings that carry visible
-      Excalidraw attribution.
+      Picture a developer sketching how their app works in Excalidraw, then pasting the picture into a document for
+      their team. Or a teacher dropping one onto a class slide. Or a student posting one on LinkedIn. The drawing
+      travels far, but the name of the tool that made it stays behind.
     </p>
     <p class="body">
-      Two constraints shaped the work. First, Excalidraw is <strong>local-first</strong>. There are no accounts,
-      and no server ever sees a drawing. Any idea that needed a login, a database or a tracked user was ruled out.
-      That is why the plan relies on small, transparent, optional UX changes.
+      This was the problem: every shared drawing could quietly introduce someone new to Excalidraw and expand its
+      reach, but currently almost none say where they came from. Also, Excalidraw couldn't tell how often this
+      happened. Its analytics had no way to see whether a drawing carried the Excalidraw name, so the team had no
+      starting number to improve on.
     </p>
     <p class="body">
-      Second, there was <strong>no baseline</strong>. Existing analytics couldn't tell whether an export carried
-      attribution, so there was no clean export rate. Rebuilding the export dashboard around this KPI became part
-      of the deliverables.
+      Excalidraw's Head of Marketing, represented by a Pursuit staff member for simulated client engagement, wanted
+      that to change. The goal was to move one number, the <strong>brand visibility rate</strong>, or the share of
+      shared drawings that carry visible Excalidraw credit.
+    </p>
+    <p class="body">Two things made it harder:</p>
+    <ul class="plain">
+      <li><strong>No accounts, no tracking.</strong> Excalidraw works entirely in your browser. There are no logins,
+        and no server ever sees what you draw. Any idea that needed to know who someone was, or follow their drawing
+        around, was off the table. That is why the solution relies on small, transparent, optional changes.</li>
+      <li><strong>Nothing to measure against.</strong> Because the analytics couldn't see credit, there was no
+        baseline. Rebuilding the export dashboard around this goal became part of the work.</li>
+    </ul>
+    <p class="body">
+      The question my team set out to answer was: how do we make Excalidraw more visible on the drawings people
+      share, without logins, a loud watermark or tracking anyone, and how do we measure it?
     </p>
   </section>
 
   <!-- ============ 2. RESEARCH ============ -->
   <section id="research" class="wrap">
     <p class="eyebrow">02 &middot; Research</p>
-    <h2 class="section-head">Where exports go, and what competitors do</h2>
+    <h2 class="section-head">Most drawings never use the Export button</h2>
     <p class="body">
-      Most Excalidraw drawings do not leave through a "File &gt; Export" menu. They leave as a copy-pasted PNG,
-      dropped straight into a GitHub pull request, a README, a blog post, or a slide. Any attribution that only
-      lived inside an export dialog, or behind an opt-in toggle, would miss most of the real usage.
+      We started by asking where Excalidraw drawings really go. Most don't leave through the Export menu at all.
+      People copy and paste them straight into a document, a code project, a blog post or a slide. That mattered
+      since any credit that lived only in the export screen, or sat behind an opt-in switch, would miss most real
+      use. A quick competitive audit followed.
     </p>
 
-    <h3 class="sub">A quick competitive scan</h3>
     <div class="table-scroll">
       <table class="matrix">
         <thead>
           <tr>
-            <th>Tool</th>
-            <th>Free-tier export attribution</th>
+            <th>On the free plan</th>
+            <th>Tools</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td>Miro, Whimsical, Napkin.ai</td>
-            <td class="ours">Attribute on the free tier</td>
+            <td class="ours">Credit on exports</td>
+            <td>Napkin.ai, Whimsical, Miro (watermarked, low-resolution PDFs)</td>
           </tr>
           <tr>
-            <td>tldraw.com, FigJam, draw.io</td>
-            <td>No watermark on export</td>
+            <td>Credit only sometimes</td>
+            <td>Canva (only when premium elements are used)</td>
           </tr>
           <tr>
-            <td>Canva</td>
-            <td>Watermarks only when premium elements are used</td>
+            <td class="ours">Credit on free videos</td>
+            <td>Loom (a "Made with Loom" badge)</td>
           </tr>
           <tr>
-            <td>Loom</td>
-            <td class="ours">Badge on nearly every free video</td>
+            <td>No credit found</td>
+            <td>FigJam, draw.io</td>
           </tr>
         </tbody>
       </table>
     </div>
     <p class="body" style="margin-top: 1.2rem;">
-      Loom puts its badge on nearly every free video automatically, which is why it works. But Loom is a private,
-      commercial product, and it later charged people to remove the badge. Users called that a "tax." Excalidraw is
-      open source and free, so that would go down even worse here. My rule for this project: the credit is on by
-      default, but turning it off always stays free.
+      Loom's badge works because it shows up automatically. But Loom is a private, commercial product, and removing
+      the badge is a paid feature. Excalidraw is open source and free, so charging to remove its credit would go
+      down even worse here. Our rule for this project: the credit is on by default, but turning it off always stays
+      free.
     </p>
 
     <h3 class="sub">User Stories</h3>
     <div class="persona-row">
       <div class="persona-col">
-        <div class="persona-icon">portrait</div>
+        <div class="persona-icon has-art">
+          <svg viewBox="0 0 128 165" role="img" aria-label="Sketch portrait of Anaya, a developer"
+            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <filter id="anayaWobble" x="-5%" y="-5%" width="110%" height="110%">
+              <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="11" result="n" />
+              <feDisplacementMap in="SourceGraphic" in2="n" scale="2.2" />
+            </filter>
+            <g filter="url(#anayaWobble)">
+              <!-- hair: crown, side part and swept strands -->
+              <path d="M41 62 C35 42 50 26 66 27 C83 28 93 44 87 62" />
+              <path d="M58 29 C53 41 46 51 41 59" />
+              <path d="M58 29 C68 35 80 42 87 58" />
+              <!-- hair: falling to the shoulders, with a little wave -->
+              <path d="M38 66 C34 86 35 104 27 126" />
+              <path d="M90 66 C94 86 93 104 101 126" />
+              <!-- face: soft jaw and ears with small studs -->
+              <path d="M41 62 C40 80 46 92 56 97 C61 99 67 99 72 97 C82 92 88 80 87 62" />
+              <path d="M41 66 C36 65 35 74 40 79" />
+              <path d="M87 66 C92 65 93 74 88 79" />
+              <circle cx="39" cy="82" r="1.4" />
+              <circle cx="89" cy="82" r="1.4" />
+              <!-- round glasses with eyes, lashes and brows -->
+              <circle cx="55.5" cy="67.5" r="7.5" />
+              <circle cx="72.5" cy="67.5" r="7.5" />
+              <path d="M63 66 q1 -2 2 0" />
+              <path d="M48 66 L41 64" />
+              <path d="M80 66 L87 64" />
+              <path d="M51 67 q4.5 -3.5 9 0" />
+              <path d="M68 67 q4.5 -3.5 9 0" />
+              <circle cx="55.5" cy="67.8" r="1.7" fill="currentColor" />
+              <circle cx="72.5" cy="67.8" r="1.7" fill="currentColor" />
+              <path d="M51 67 l-1.8 -1.6 M77 67 l1.8 -1.6" />
+              <path d="M48 57 q7 -4 14 -1" />
+              <path d="M66 56 q7 -3 14 1" />
+              <!-- nose, mouth, light cheek shading -->
+              <path d="M64.5 71 q-3 7 -1 10 q2 1.5 5 0" />
+              <path d="M57 87 q7 5.5 14 0" />
+              <path d="M61 90.5 q3 1.5 6 0" />
+              <path d="M81 80 l-4 5 M84 74 l-4 5" opacity="0.4" />
+              <!-- neck with a little shadow under the chin -->
+              <path d="M55 97 L55 113" />
+              <path d="M73 97 L73 113" />
+              <path d="M57 101 l8 3 M57 105 l8 3 M58 109 l6 2" opacity="0.45" />
+              <!-- hoodie: shoulders, hood rim, collar, seam, drawstrings -->
+              <path d="M55 113 C42 117 22 122 14 140 L11 165" />
+              <path d="M73 113 C86 117 106 122 114 140 L117 165" />
+              <path d="M55 119 C45 122 32 127 25 139" opacity="0.6" />
+              <path d="M73 119 C83 122 96 127 103 139" opacity="0.6" />
+              <path d="M55 113 C58 128 70 128 73 113" />
+              <path d="M22 132 C27 144 27 155 24 165" opacity="0.55" />
+              <path d="M106 132 C101 144 101 155 104 165" opacity="0.55" />
+              <path d="M59 124 L58 144" />
+              <path d="M69 124 L70 144" />
+              <circle cx="58" cy="146" r="1.6" />
+              <circle cx="70" cy="146" r="1.6" />
+              <path d="M30 148 q6 -4 12 -3 M98 148 q-6 -4 -12 -3" opacity="0.45" />
+            </g>
+          </svg>
+        </div>
         <p class="persona-role">Developer</p>
-        <p class="persona-text"><strong>Lola</strong> is a developer, who wants to drop a <strong>clean diagram</strong>
-          into a pull request or README in seconds, so that reviewers get context without a screenshot tool or extra
-          editing. She has used Excalidraw for years and likes its no-pressure, local-first approach. If that
-          changed, she would switch quickly.</p>
+        <p class="persona-text"><strong>Anaya</strong> wants to drop a <strong>clean diagram</strong> into her team's
+          document in seconds, with no screenshot tool or extra editing. She has used Excalidraw for years and likes
+          its no-pressure, local-first feel. If that changed, she would switch quickly.</p>
       </div>
       <div class="persona-col">
-        <div class="persona-icon">portrait</div>
+        <div class="persona-icon has-art">
+          <svg viewBox="0 0 128 165" role="img" aria-label="Sketch portrait of Mr. Smith, a teacher"
+            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <filter id="smithWobble" x="-5%" y="-5%" width="110%" height="110%">
+              <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="5" result="n" />
+              <feDisplacementMap in="SourceGraphic" in2="n" scale="2.2" />
+            </filter>
+            <g filter="url(#smithWobble)">
+              <!-- hair: short, receding, side part, a little grey hatching -->
+              <path d="M41 63 C37 44 48 29 64 29 C81 29 91 44 87 63" />
+              <path d="M45 52 C52 43 60 46 64 43 C70 46 78 43 83 52" />
+              <path d="M52 33 C56 39 57 44 55 49" />
+              <path d="M47 41 l-3 5 M52 37 l-3 5 M78 36 l5 4 M82 41 l4 4" opacity="0.4" />
+              <path d="M41 63 L41 72 M87 63 L87 72" />
+              <!-- face: strong jaw and ears -->
+              <path d="M41 62 C40 82 46 94 57 99 C62 101 66 101 71 99 C82 94 88 82 87 62" />
+              <path d="M41 65 C35 64 34 75 40 80" />
+              <path d="M87 65 C93 64 94 75 88 80" />
+              <!-- brows, eyes, nose, smile, laugh lines -->
+              <path d="M47 58 q7 -4.5 15 -1" />
+              <path d="M66 57 q8 -3.5 15 1" />
+              <path d="M50 67 q5 -4 10 0" />
+              <path d="M68 67 q5 -4 10 0" />
+              <circle cx="55" cy="67.8" r="1.7" fill="currentColor" />
+              <circle cx="73" cy="67.8" r="1.7" fill="currentColor" />
+              <path d="M64.5 70 q-3.5 8 -1.5 11 q3 2 6.5 0" />
+              <path d="M56 87 q8 6 16 0" />
+              <path d="M52 80 q-2 5 1 9 M76 80 q2 5 -1 9" opacity="0.45" />
+              <!-- neck with a little shadow -->
+              <path d="M54 99 L54 108" />
+              <path d="M74 99 L74 108" />
+              <path d="M56 103 l8 2.5" opacity="0.45" />
+              <!-- cardigan only: V-neck, shoulders, centre placket and buttons -->
+              <path d="M54 108 C42 113 21 121 12 140 L9 165" />
+              <path d="M74 108 C86 113 107 121 116 140 L119 165" />
+              <path d="M54 108 L64 128 L74 108" />
+              <path d="M64 128 L64 165" />
+              <circle cx="64" cy="139" r="1.7" /><circle cx="64" cy="150" r="1.7" /><circle cx="64" cy="160" r="1.7" />
+              <path d="M30 146 q6 -4 12 -3 M98 146 q-6 -4 -12 -3" opacity="0.4" />
+            </g>
+          </svg>
+        </div>
         <p class="persona-role">Teacher</p>
-        <p class="persona-text"><strong>Mr. Smith</strong> is a teacher with no tech background, who wants to
-          <strong>export a drawing</strong> for a class slide in one step, and turn off anything he doesn't understand
-          without getting stuck. He doesn't use Excalidraw yet and hears about FigJam and Miro instead. He would try
-          it if it were easy for non-technical people to navigate, and if he could export in different formats and
-          aspect ratios for slides.
-        </p>
+        <p class="persona-text"><strong>Mr. Smith</strong> has no tech background. He wants to
+          <strong>export a drawing</strong> for a class slide in one step, and switch off anything he doesn't
+          understand without getting stuck. He hears about FigJam and Miro, not Excalidraw, but would try it if it
+          felt easy and offered slide-friendly formats and aspect ratios.</p>
       </div>
       <div class="persona-col">
-        <div class="persona-icon">portrait</div>
+        <div class="persona-icon has-art">
+          <svg viewBox="0 0 128 165" role="img" aria-label="Sketch portrait of Camila, a student"
+            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <filter id="camilaWobble" x="-5%" y="-5%" width="110%" height="110%">
+              <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="23" result="n" />
+              <feDisplacementMap in="SourceGraphic" in2="n" scale="2.2" />
+            </filter>
+            <g filter="url(#camilaWobble)">
+              <!-- hair: high curly bun, centre part, curtain strands, loose curls -->
+              <path d="M50 28 C44 16 58 9 66 14 C74 8 88 17 80 28" />
+              <path d="M58 19 q5 -5 10 0 q2 5 -4 6 M70 17 q5 1 5 6" opacity="0.6" />
+              <path d="M41 62 C36 44 48 29 64 29 C80 29 92 44 87 62" />
+              <path d="M64 30 C56 35 48 44 44 57" />
+              <path d="M64 30 C72 35 80 44 84 57" />
+              <path d="M60 32 C54 38 49 45 47 52" opacity="0.6" />
+              <path d="M68 32 C74 38 79 45 81 52" opacity="0.6" />
+              <path d="M41 64 c-5 3 -4 9 1 10 c-4 3 -1 8 3 6" />
+              <path d="M87 64 c5 3 4 9 -1 10 c4 3 1 8 -3 6" />
+              <path d="M38 80 c-4 3 -2 7 2 7 M90 80 c4 3 2 7 -2 7" opacity="0.5" />
+              <!-- face: rounder, younger, with hoop earrings -->
+              <path d="M42 62 C41 80 47 92 57 97 C61 99 67 99 71 97 C81 92 87 80 86 62" />
+              <circle cx="39.5" cy="86" r="4.2" />
+              <circle cx="88.5" cy="86" r="4.2" />
+              <!-- brows, big bright eyes with lashes, freckles -->
+              <path d="M48 59 q7 -5 14 -1" />
+              <path d="M66 58 q7 -4 14 1" />
+              <path d="M50 67 q5 -4.5 10 0" />
+              <path d="M68 67 q5 -4.5 10 0" />
+              <circle cx="55" cy="68" r="2" fill="currentColor" />
+              <circle cx="73" cy="68" r="2" fill="currentColor" />
+              <path d="M50 67 l-2 -1.6 M78 67 l2 -1.6 M52 65 l-1 -2 M76 65 l1 -2" />
+              <path d="M52 71 q3 1.5 6 0 M70 71 q3 1.5 6 0" opacity="0.45" />
+              <g fill="currentColor" stroke="none" opacity="0.5">
+                <circle cx="50.5" cy="77.5" r="0.5" /><circle cx="53" cy="79.5" r="0.5" />
+                <circle cx="77.5" cy="77.5" r="0.5" /><circle cx="75" cy="79.5" r="0.5" />
+              </g>
+              <!-- nose and a big smile -->
+              <path d="M64 71 q-2 6 -1 8 q2 1.5 4 0" />
+              <path d="M56 86 Q64 95 72 86 Q64 88.5 56 86 Z" />
+              <path d="M81 82 l-3 4 M84 76 l-3 4" opacity="0.35" />
+              <!-- neck and crew-neck tee -->
+              <path d="M56 96 L56 112" />
+              <path d="M72 96 L72 112" />
+              <path d="M58 101 l7 2.5 M58 105 l7 2.5" opacity="0.45" />
+              <path d="M56 112 C44 116 24 121 16 139 L13 165" />
+              <path d="M72 112 C84 116 104 121 112 139 L115 165" />
+              <path d="M56 112 C58 121 70 121 72 112" />
+              <!-- backpack straps with buckles and stitching -->
+              <path d="M43 118 C39 130 37 148 37 165" />
+              <path d="M52 114 C48 128 46 148 46 165" />
+              <path d="M85 118 C89 130 91 148 91 165" />
+              <path d="M76 114 C80 128 82 148 82 165" />
+              <rect x="38" y="141" width="7" height="9" rx="1.2" />
+              <rect x="83" y="141" width="7" height="9" rx="1.2" />
+              <path d="M44.5 118 C41 130 39.5 148 39.5 165 M50 116 C47 128 45 148 45 165 M83.5 118 C87 130 88.5 148 88.5 165 M78 116 C81 128 83 148 83 165" opacity="0.35" stroke-dasharray="2 4" />
+            </g>
+          </svg>
+        </div>
         <p class="persona-role">Student</p>
-        <p class="persona-text"><strong>Camila</strong> is a student preparing for system design interviews, who wants
-          to <strong>share diagrams</strong> with her study group and on LinkedIn, so that others see her thinking.
-          She is happy to credit Excalidraw, and her friends would rather back an open source tool than a private
-          one. But she can't tell how to export at a set aspect ratio, and her homework needs to look consistent.</p>
+        <p class="persona-text"><strong>Camila</strong> is preparing for system design interviews. She wants to
+          <strong>share diagrams</strong> with her study group and on LinkedIn so others see her thinking. She is
+          happy to credit Excalidraw, and her friends prefer open source. But she can't set an aspect ratio, and her
+          homework needs to look consistent.</p>
       </div>
     </div>
 
-    <h3 class="sub">Strategy: grow the base you already have</h3>
-    <p class="body">
-      The direction we chose was to capture more visibility from Excalidraw's existing, engaged developer base,
-      rather than build new features to chase a new segment like classrooms. Formal use in education was ruled out
-      early. It needs procurement approval, stricter privacy handling, and classroom features Excalidraw does not
-      have. Putting the same effort into the audience already producing shareable drawings every day was the
-      higher-leverage bet.
-    </p>
-    <p class="body">
-      Teachers and students who do find their way here still matter, whether they are tech students or non-technical
-      tutors. So we made exporting easier for them, with more formats and aspect ratios. That gives them more ways
-      to export and more reasons to keep using the tool.
-    </p>
+    <h3 class="sub">Strategy: Grow the base you already have</h3>
+    <ul class="plain">
+      <li><strong>Focus on developers who already share</strong> and are an existing, engaged user base. They already
+        make shareable drawings every day, so the same effort goes further.</li>
+      <li><strong>Not chasing classrooms.</strong> Formal use in education was ruled out early. It needs procurement
+        approval, stricter privacy handling and classroom features Excalidraw does not have.</li>
+      <li><strong>Teachers and students who find their way here are still included.</strong> Whether they are tech
+        students or non-technical tutors, they get easier exports, with more formats and aspect ratios, and more
+        reasons to keep using the tool.</li>
+    </ul>
   </section>
 
   <!-- ============ 3. DESIGN: SCOPE ============ -->
@@ -1668,9 +1857,10 @@
     <p class="eyebrow">03 &middot; Design</p>
     <h2 class="section-head">Scoping the Work</h2>
     <p class="body">
-      The plan favored small, quiet signals that add up, rather than one loud watermark, like a credit line in the
-      export margin by default, a QR code on shared collaboration links, and a survey that only appears if someone
-      turns attribution off. Below is how they were ranked.
+      Every idea had to pass two tests: would it move the brand visibility rate, and would it work with no login and
+      no tracking? Instead of one loud watermark, we chose small, quiet design changes that add up. A credit line in
+      the export margin by default, a QR code on shared collaboration links, and a short survey that appears only if
+      someone turns the credit off. Here is how we ranked them.
     </p>
 
     <div class="table-scroll">
@@ -1683,7 +1873,7 @@
         </thead>
         <tbody>
           <tr>
-            <td class="tier">P0<span>Core to the KPI</span></td>
+            <td class="tier">P0<span>Must have for the goal</span></td>
             <td>
               <ul>
                 <li>Default export credit, in the margin</li>
@@ -1693,7 +1883,7 @@
             </td>
           </tr>
           <tr>
-            <td class="tier">P1<span>Supports the KPI</span></td>
+            <td class="tier">P1<span>Helps the goal</span></td>
             <td>
               <ul>
                 <li>More export formats and social aspect ratios</li>
@@ -1704,7 +1894,7 @@
             </td>
           </tr>
           <tr>
-            <td class="tier">P2<span>Next iteration</span></td>
+            <td class="tier">P2<span>Next round</span></td>
             <td>
               <ul>
                 <li><strong>Share straight to Pinterest.</strong> Pinterest's pin flow needs a public image URL, and
@@ -1720,11 +1910,10 @@
       </table>
     </div>
 
-    <h2 class="section-head" id="figma" style="margin-top: 3.5rem;">Building it in Figma</h2>
+    <h2 class="section-head" id="figma" style="margin-top: 3.5rem;">Figma Prototype</h2>
 
     <video class="proto-video" controls preload="metadata" playsinline>
       <source src="Excalidraw/Figma_recording.mp4" type="video/mp4" />
-      <source src="Excalidraw/Figma_recording.mov" type="video/quicktime" />
       Your browser cannot play this video.
     </video>
 
@@ -1736,12 +1925,15 @@
     <h2 class="section-head" id="decisions" style="margin-top: 3.5rem;">Design Decisions</h2>
 
     <ul class="decision-list">
-      <li><strong>The mark sits in the margin, not over the drawing.</strong> An overlay could cover what the user
-        drew, and the brief rules that out. The cost is a thin strip of whitespace on exports.</li>
-      <li><strong>It is an attribution mark, not a watermark.</strong> "Watermark" implies covering the drawing, so
-        the toggle reads "Hide attribution mark."</li>
-      <li><strong>Removal is free, but gated by a short survey.</strong> Paid removal is Loom's model, and users
-        called it a tax. A four-question survey, under 30 seconds, turns every opt-out into design feedback.</li>
+      <li><strong>Removal is free, but needs a short survey.</strong>
+        <span class="dd"><span class="dd-label">Why</span>I ruled out paid removal, which is Loom's model, because it would feel wrong for a free, open source tool. A four-question survey turns every opt-out into feedback on why people turn the credit off.</span>
+        <span class="dd"><span class="dd-label">Cost</span>A few seconds of friction for anyone who wants the credit gone.</span></li>
+      <li><strong>The credit sits in the margin, not over the drawing.</strong>
+        <span class="dd"><span class="dd-label">Why</span>I kept it out of the drawing area. An overlay could cover what the user drew, and the brief rules that out.</span>
+        <span class="dd"><span class="dd-label">Cost</span>A thin strip of whitespace on exports.</span></li>
+      <li><strong>Opt-out lasts 30 days, then lapses.</strong>
+        <span class="dd"><span class="dd-label">Why</span>I chose 30 days. A permanent opt-out loses that visibility for good, and a reset every session would nag. Thirty days wins some visibility back without that.</span>
+        <span class="dd"><span class="dd-label">Cost</span>Someone who wants it off has to turn it off again each month.</span></li>
     </ul>
 
     <div class="export-compare export-compare--full">
@@ -1783,12 +1975,15 @@
     </div>
 
     <ul class="decision-list">
-      <li><strong>Opt-out lasts 30 days, then lapses.</strong> A permanent opt-out loses that visibility for good,
-        and a reset every session repeats the Loom complaint. Thirty days wins some visibility back without
-        nagging.</li>
-      <li><strong>The QR code stays a quiet, secondary signal.</strong> The logo goes on the existing collaboration
-        QR code instead of a new branding surface, so it reaches a real touchpoint without a new element to
-        dislike.</li>
+      <li><strong>Ask once per opt-out, not per export.</strong>
+        <span class="dd"><span class="dd-label">Why</span>I ask once per opt-out. Someone exporting 20 times is one data point, not twenty.</span>
+        <span class="dd"><span class="dd-label">Cost</span>Fewer survey answers, but cleaner ones.</span></li>
+      <li><strong>One survey question at a time.</strong>
+        <span class="dd"><span class="dd-label">Why</span>I show one question per screen. Hick's Law says the more options a person sees at once, the longer they take to decide, so this keeps each choice small and the survey near the 30-second target.</span>
+        <span class="dd"><span class="dd-label">Cost</span>Four short steps instead of one form.</span></li>
+      <li><strong>The QR code stays a quiet, secondary signal.</strong>
+        <span class="dd"><span class="dd-label">Why</span>I put the logo on the existing collaboration QR code instead of adding a new branding surface, so it reaches a real touchpoint without a new element to dislike.</span>
+        <span class="dd"><span class="dd-label">Cost</span>A small signal that is easy to miss.</span></li>
     </ul>
 
     <figure class="export-col qr-figure">
@@ -1808,75 +2003,53 @@
     </figure>
 
     <ul class="decision-list">
-      <li><strong>One survey question at a time.</strong> All four at once feels longer, and the target is 30
-        seconds.</li>
-      <li><strong>Ask once per opt-out, not per export.</strong> Someone exporting 20 times is one data point, not
-        twenty.</li>
-      <li><strong>Aspect ratio grows the canvas, never crops.</strong> Cropping could cut off the user's own
-        content.</li>
+      <li><strong>Aspect ratio grows the canvas, never crops.</strong>
+        <span class="dd"><span class="dd-label">Why</span>I grow the canvas to fit. Cropping could cut off the user's own content.</span>
+        <span class="dd"><span class="dd-label">Cost</span>Exports at a fixed ratio can have extra empty space around the drawing.</span></li>
+      <li><strong>It is an attribution mark, not a watermark.</strong>
+        <span class="dd"><span class="dd-label">Why</span>"Watermark" implies covering the drawing, so I named it an attribution mark, and the toggle reads "Hide attribution mark."</span>
+        <span class="dd"><span class="dd-label">Cost</span>None. It is a wording choice.</span></li>
     </ul>
   </section>
 
   <!-- ============ 6. AI + BUILD ============ -->
   <section id="ai" class="wrap">
     <p class="eyebrow">04 &middot; Building It</p>
-    <h2 class="section-head">Building with an AI coding pair</h2>
+    <h2 class="section-head">Coding with AI</h2>
     <p class="body">
-      The implementation was coded with Claude Code, while the team directed and oversaw the product decisions, the
-      design review, and the QA. Each result was checked on a local dev server before it was committed.
+      I used Claude Code for the implementation and kept the product calls, the design review and the QA with the
+      team. The scope and trade-offs were fixed before the first prompt. When Claude Code suggested louder branding,
+      mandatory on every export, I directed against it: the credit stays on by default, but turning it off is always
+      free. After building, we ran QA and manual testing to catch bugs that the automated checks had not caught:
     </p>
+    <ul class="plain">
+      <li><strong>Double-scaled mark.</strong> The mark rendered mid-image and too small, not in the bottom-right
+        corner. Excalidraw's renderer had already scaled the canvas context, and the new drawing code applied the
+        scale again. The fix was to draw inside the context that was already scaled.</li>
+      <li><strong>Hardcoded margin.</strong> The mark was cropped on small or tightly zoomed exports, because the
+        reserved margin was a guessed fixed size. The margin is now derived from the mark's measured size, clamped
+        so it can't leave the canvas.</li>
+    </ul>
     <p class="body">
-      The scope and the trade-offs were fixed before any code was written.
-    </p>
-
-    <h3 class="sub">Bugs found in review</h3>
-    <div class="compare-row">
-      <div class="compare-side v1">
-        <p class="compare-label">Bug</p>
-        <p class="compare-text">The mark rendered in the middle of the image, and too small, instead of the
-          bottom-right corner.</p>
-      </div>
-      <div class="compare-side v2">
-        <p class="compare-label">Cause and fix</p>
-        <p class="compare-text">The canvas was already scaled by the renderer, and the new mark code scaled it a
-          second time. Fixed by drawing inside the context that was already scaled.</p>
-      </div>
-    </div>
-    <div class="compare-row">
-      <div class="compare-side v1">
-        <p class="compare-label">Bug</p>
-        <p class="compare-text">The mark got cropped off on small or tightly zoomed exports.</p>
-      </div>
-      <div class="compare-side v2">
-        <p class="compare-label">Cause and fix</p>
-        <p class="compare-text">The margin reserved for the mark was a guessed fixed size, too small for the mark
-          it needed to hold. Fixed by computing the margin from the mark's real size, with a clamp so it can never
-          land off-canvas.</p>
-      </div>
-    </div>
-
-    <p class="body">
-      Testing has a real limit since the test environment cannot rasterize a canvas, so pixel position bugs like these
-      cannot be caught by an automated test alone. They were verified visually myself, using the SVG output, which can
-      be inspected directly
+      The test environment can't rasterize a canvas, so position bugs like these get past unit tests. I verified
+      them against the SVG output, which exposes coordinates directly.
     </p>
   </section>
 
   <!-- ============ 7. TEAM / REPO ============ -->
   <section id="team" class="wrap">
     <p class="eyebrow">05 &middot; Teamwork</p>
-    <h2 class="section-head">Version Control in a Shared Repo</h2>
+    <h2 class="section-head">Shipping in a shared repo</h2>
     <p class="body">
-      The work landed as three commits on one branch, in one pull request. Three teammates worked on their own
-      branches in the same repository, so we kept each unit small and checked what others were building before
-      starting the next one.
+      Four contributors worked in one repository, the project's shared codebase, each on a separate branch, a
+      parallel copy of the code that merges back once reviewed. To avoid collisions, we kept each unit of work small
+      and checked what teammates were building before starting the next one.
     </p>
     <p class="body">
-      The commits are ordered by dependency: mark and opt-out first, then export formats, then survey reporting.
-      Each one was typechecked, linted and tested when it was made, so any commit can be reviewed alone or undone
-      with <code>git revert</code> without breaking the others.
+      My work landed as three feature commits, saved checkpoints in the code history, ordered by dependency: the
+      attribution mark and opt-out first, then export formats, then survey reporting. Each commit passed automated
+      checks (typecheck, lint, tests), so any one can be reviewed alone or reverted without breaking the others.
     </p>
-
     <div class="table-scroll">
       <table class="matrix">
         <thead>
@@ -1906,60 +2079,52 @@
       </table>
     </div>
 
+    <p class="body">
+      After merging in our team repo, a pull request was opened in the main Excalidraw repo
+      (<a href="https://github.com/excalidraw/excalidraw/pull/12190" target="_blank" rel="noopener">#12190</a>).
+    </p>
     <figure class="pr-figure">
       <a class="pr-frame" href="Excalidraw/PR.png" target="_blank" rel="noopener">
         <img src="Excalidraw/PR.png" loading="lazy"
           alt="The GitHub pull request page for Export view, number 12190, open, with four commits: the export attribution mark with opt-out survey, WebP, JPEG and .excalidraw export with aspect ratios, survey answers reported as anonymous events, and a merge of master into the branch.">
       </a>
-      <figcaption class="export-col-caption">The pull request on GitHub. The fourth commit is a merge of master into
-        the branch, to keep it current.</figcaption>
+      <figcaption class="export-col-caption">The pull request on GitHub, currently open. The fourth commit merges master, the
+        project's main branch, into ours to keep it current.</figcaption>
     </figure>
   </section>
 
   <!-- ============ 8 & 9. REFLECTIONS ============ -->
   <section id="reflections" class="wrap">
     <p class="eyebrow">06 &middot; Results</p>
-    <h2 class="section-head">What Shipped</h2>
+    <h2 class="section-head">The credit now travels with the drawing</h2>
     <p class="body">
-      What's built: a default attribution credit on PNG, JPEG, WebP, and SVG exports and on copy-paste, a
-      hide-attribution toggle gated by the survey with a 30-day expiry, a redesigned export dialog with more
-      formats, and an aspect ratio picker. Survey answers are reported as anonymous analytics events.
+      The question was how to make Excalidraw more visible on shared drawings, without logins, a loud watermark or
+      tracking, and how to measure it. Partly answered:
     </p>
-
-    <div class="stat-row">
-      <div class="stat">
-        <span class="num">3</span>
-        <span class="lbl">Commits, one PR</span>
-      </div>
-      <div class="stat">
-        <span class="num">18</span>
-        <span class="lbl">Files changed</span>
-      </div>
-      <div class="stat">
-        <span class="num">28</span>
-        <span class="lbl">New tests</span>
-      </div>
-      <div class="stat">
-        <span class="num">0</span>
-        <span class="lbl">Existing tests broken</span>
-      </div>
-    </div>
-
-    <p class="body">
-      What is not proven yet: there was no attribution baseline before this work, so I cannot say the KPI moved, only
-      that it
-      can now be measured. The analytics dashboard built by team still runs on mock data, and is not yet connected.
-      Cross-browser testing is yet to be reviewed, since the mark uses canvas features that can vary between browsers.
-    </p>
-
-    <h2 class="section-head" style="margin-top: 2rem;">What we'd do differently</h2>
     <ul class="plain">
-      <li>Set up cross-browser testing earlier. Unit tests cannot catch canvas rendering bugs at the pixel level.
-      </li>
-      <li>Agree on the measurement plan with the dashboard owner from day one, so the events and the dashboard get
-        designed together instead of connected after the fact.</li>
-      <li>Ship the KPI baseline before the feature. The brief itself said instrumentation was a prerequisite, and the
-        feature was built before there was anything to measure it against.</li>
+      <li><strong>More visible.</strong> Every PNG, JPEG, WebP and SVG export, and every copy-paste, now carries the
+        credit by default.</li>
+      <li><strong>Without the cost.</strong> It sits in the margin, never over the drawing, and turning it off is
+        always free. Nothing identifies anyone.</li>
+      <li><strong>Measurable.</strong> The export dashboard counts exports by format, and survey answers are reported
+        as anonymous events.</li>
+    </ul>
+
+    <h3 class="sub">What is not proven yet</h3>
+    <p class="body">
+      Since there was no attribution baseline before this work, we can't say the KPI moved, only that it can now be
+      measured. The analytics dashboard the team built still runs on mock data and is not connected yet.
+      Cross-browser testing is still needed, since the mark uses canvas features that can vary between browsers.
+    </p>
+
+    <h3 class="sub">What we'd do differently</h3>
+    <ul class="plain">
+      <li><strong>Ship the baseline before the feature.</strong> The brief itself said instrumentation was a
+        prerequisite, but the feature was built first, so there was nothing to measure it against.</li>
+      <li><strong>Agree the measurement plan on day one.</strong> Design the events and the dashboard together with
+        the dashboard owner, so they connect from the start.</li>
+      <li><strong>Test across browsers earlier.</strong> Unit tests can't catch canvas rendering bugs at the pixel
+        level.</li>
     </ul>
   </section>
 

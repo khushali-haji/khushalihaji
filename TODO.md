@@ -10,7 +10,7 @@ Next things to work on. Tick a box when it's done.
 
 ## Clean-up
 
-- [ ] Look into deleting `case-studies/Excalidraw/Figma_recording.mov` (18MB). It is the same recording as the `.mp4`, and the page only uses it as a fallback that browsers skip. If it goes, also remove its `<source>` line in `excalidraw-attribution.html`. It stays in git history either way.
+- [x] Look into deleting `case-studies/Excalidraw/Figma_recording.mov` (18MB). It is the same recording as the `.mp4`, and the page only uses it as a fallback that browsers skip. If it goes, also remove its `<source>` line in `excalidraw-attribution.html`. It stays in git history either way.
 - [ ] Check the other files in `case-studies/Excalidraw/` for unused images (`Before.png`, `After.png`, `Before_1.png`, `After_1.png` are not used on the page)
 - [ ] Decide what to do with files no page mentions (case study screenshots and old hero images, about 36 files, roughly 45MB): `case-studies/Images/` (image2 to image23, two Screenshot files, `Mobile View/`, `world-map.svg`, `map-poster.jpg`), `case-studies/Conflict Lens/User1_Jamila.png`, `User2_Zaif.png`, `User3_Amara.png`, `case-studies/Fin Lit_image.png`, `case-studies/Excalidraw/QR Code.png`, `icons/` (city, globe, grid, video), `images/hero-02`, `hero-03`, `hero-04`, `hero-06`, `hero-09`
 
