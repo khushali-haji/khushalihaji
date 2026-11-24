@@ -36,17 +36,17 @@
   }
 
   .site-footer .sf-hl {
-    background-image: linear-gradient(transparent 40%, rgba(201, 162, 39, 0.4) 40%, rgba(201, 162, 39, 0.4) 70%, transparent 70%);
+    background-image: linear-gradient(transparent 32%, rgba(214, 170, 30, 0.55) 32%, rgba(214, 170, 30, 0.55) 80%, transparent 80%);
     background-repeat: no-repeat;
     background-position: left center;
     background-size: 0% 100%;
-    padding: 0 0.08em;
+    padding: 0 0 0 0.08em;
     white-space: nowrap; /* "Say hi." never splits across two lines */
     transition: background-size 0.65s ease;
   }
 
   .site-footer.in .sf-hl {
-    background-size: 100% 100%;
+    background-size: calc(100% - 0.02em) 100%; /* ends at the full stop, no extra tail */
     transition-delay: 0.5s;
   }
 
