@@ -315,14 +315,6 @@
       box-shadow: 4px 4px 0 var(--rule);
     }
 
-    p.body code {
-      font-family: var(--mono);
-      font-size: 0.82em;
-      background: rgba(40, 36, 33, 0.06);
-      padding: 0.1em 0.4em;
-      border-radius: 3px;
-    }
-
     p.body a {
       color: var(--teal);
       font-weight: 600;
@@ -408,12 +400,6 @@
       margin-bottom: 0.4rem;
     }
 
-    .hero-title em {
-      font-style: italic;
-      color: var(--teal);
-      font-weight: normal;
-    }
-
     .hero-tagline {
       font-family: var(--sans);
       font-weight: 200;
@@ -491,38 +477,6 @@
       font-weight: bold;
     }
 
-    /* Placeholder blocks for screenshots, the Figma prototype, or video that
-       have not been added yet. Kept visually distinct from real content. */
-    .media-placeholder {
-      width: 100%;
-      min-height: 160px;
-      margin: 1.6rem 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-      background: repeating-linear-gradient(135deg, rgba(40, 36, 33, 0.03) 0 10px, transparent 10px 20px);
-      border: 2px dashed var(--rule);
-      border-radius: 6px;
-      padding: 1.5rem;
-      text-align: center;
-    }
-
-    .media-placeholder .ph-icon {
-      font-size: 22px;
-      color: var(--yellow);
-    }
-
-    .media-placeholder .ph-label {
-      font-family: var(--mono);
-      font-size: 11px;
-      letter-spacing: 0.02em;
-      color: rgba(40, 36, 33, 0.55);
-      max-width: 480px;
-      line-height: 1.6;
-    }
-
     /* User stories: three persona snapshots, same pattern as Conflict Lens */
     .persona-row {
       display: grid;
@@ -598,140 +552,6 @@
       }
     }
 
-    /* Decision blocks */
-    .decision {
-      padding: 1.5rem;
-      background: var(--card-paper);
-      border: 2px solid var(--ink);
-      border-radius: 4px;
-      margin-bottom: 1.2rem;
-      box-shadow: 3px 3px 0 var(--rule);
-      transition: var(--transition);
-    }
-
-    .decision:hover {
-      background: #fff;
-      transform: translateX(4px);
-      box-shadow: 3px 3px 0 var(--ink);
-    }
-
-    .decision h4 {
-      font-family: var(--serif);
-      font-weight: bold;
-      font-size: 18.5px;
-      margin-bottom: 0.6rem;
-      color: var(--ink);
-    }
-
-    .decision .line {
-      font-family: var(--serif);
-      font-weight: 500;
-      font-size: 15px;
-      line-height: 1.45;
-      color: rgba(40, 36, 33, 0.85);
-      margin-bottom: 0.3rem;
-    }
-
-    .decision .line b {
-      font-family: var(--mono);
-      font-size: 9.5px;
-      text-transform: uppercase;
-      color: var(--teal);
-      margin-right: 0.5rem;
-      font-weight: bold;
-    }
-
-    .decision .why {
-      font-family: var(--mono);
-      font-size: 11px;
-      color: var(--yellow);
-      margin-top: 0.6rem;
-      font-weight: bold;
-    }
-
-    /* Failure / lesson callout, left-rule style */
-    .fail {
-      margin-bottom: 1.5rem;
-      padding-left: 1.2rem;
-      border-left: 2px solid var(--ink);
-    }
-
-    .fail h4 {
-      font-family: var(--serif);
-      font-style: italic;
-      font-weight: bold;
-      font-size: 18px;
-      color: var(--teal);
-      margin-bottom: 0.3rem;
-    }
-
-    .fail p {
-      font-family: var(--serif);
-      font-weight: 500;
-      font-size: 15px;
-      line-height: 1.5;
-      color: rgba(40, 36, 33, 0.85);
-    }
-
-    /* Compare grid, Figma vs built */
-    .compare-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-      margin-bottom: 1.2rem;
-      padding-bottom: 1rem;
-      border-bottom: 1.5px dashed var(--rule);
-    }
-
-    .compare-row:last-of-type {
-      border-bottom: none;
-    }
-
-    .compare-side {
-      padding: 0.8rem;
-      border: 1.5px solid var(--ink);
-      border-radius: 4px;
-      box-shadow: 2px 2px 0 var(--rule);
-      transition: var(--transition);
-    }
-
-    .compare-side:hover {
-      background: #fff;
-      transform: translateY(-2px);
-      box-shadow: 4px 4px 0 var(--ink);
-    }
-
-    .compare-side.v1 {
-      background: #faf4f2;
-    }
-
-    .compare-side.v2 {
-      background: #f1f6f4;
-    }
-
-    .compare-label {
-      font-family: var(--mono);
-      font-size: 9px;
-      text-transform: uppercase;
-      margin-bottom: 0.3rem;
-      font-weight: bold;
-    }
-
-    .compare-side.v1 .compare-label {
-      color: var(--coral);
-    }
-
-    .compare-side.v2 .compare-label {
-      color: var(--teal);
-    }
-
-    .compare-text {
-      font-family: var(--serif);
-      font-size: 14.5px;
-      line-height: 1.45;
-      color: var(--ink);
-    }
-
     table.matrix {
       width: 100%;
       border-collapse: collapse;
@@ -795,37 +615,6 @@
       font-weight: bold;
     }
 
-    .stat-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1.5rem 2.5rem;
-      margin: 1.8rem 0;
-      padding: 1.4rem 0;
-      border-top: 1.5px dashed var(--rule);
-      border-bottom: 1.5px dashed var(--rule);
-    }
-
-    .stat {
-      display: flex;
-      flex-direction: column;
-      gap: 0.15rem;
-    }
-
-    .stat .num {
-      font-family: var(--serif);
-      font-weight: 600;
-      font-size: 28px;
-      color: var(--teal);
-    }
-
-    .stat .lbl {
-      font-family: var(--mono);
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: rgba(40, 36, 33, 0.6);
-    }
-
     ul.decision-list {
       list-style: disc;
       padding-left: 1.3rem;
@@ -862,31 +651,6 @@
       letter-spacing: 0.01em;
       color: var(--teal);
       margin-right: 0.45em;
-    }
-
-    details.log ul.decision-list {
-      margin: 1rem 0 0;
-    }
-
-    details.log {
-      margin: 1.5rem 0;
-      border: 1.5px solid var(--rule);
-      border-radius: 6px;
-      padding: 1rem 1.2rem;
-      background: var(--card-paper);
-    }
-
-    details.log summary {
-      font-family: var(--mono);
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--teal);
-      cursor: pointer;
-    }
-
-    details.log .decision {
-      margin-top: 1rem;
     }
 
     /* Export dialog before/after. The two screenshots have different native
@@ -983,15 +747,6 @@
       border: 1px solid var(--rule);
       border-radius: 3px;
       box-shadow: 0 1px 3px rgba(40, 36, 33, 0.1);
-    }
-
-    .export-card-caption {
-      padding: 0 0.9rem 0.9rem;
-      font-family: var(--mono);
-      font-size: 10.5px;
-      letter-spacing: 0.01em;
-      line-height: 1.55;
-      color: rgba(40, 36, 33, 0.55);
     }
 
     .export-compare--full {
@@ -1142,11 +897,6 @@
     }
 
     @media (max-width: 640px) {
-
-      .compare-row,
-      .stat-row {
-        grid-template-columns: 1fr;
-      }
 
       .hero-wide-image {
         margin-left: 0;
@@ -1497,14 +1247,6 @@
       }
     }
 
-    /* four stats: a tidy 2 x 2 instead of three across and one left alone underneath */
-    @media (max-width: 640px) {
-      .stat-row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1.4rem 1rem;
-      }
-    }
   </style>
   <script src="../js/cursor-handoff.js"></script>
 </head>
@@ -1577,7 +1319,7 @@
     </figure>
   </header>
 
-  <!-- ============ 1. THE BRIEF ============ -->
+  <!-- ============ 1. THE PROBLEM ============ -->
   <section id="brief" class="wrap">
     <p class="eyebrow">01 &middot; The Problem</p>
     <h2 class="section-head">A credit that doesn't travel with its drawings</h2>
@@ -1852,7 +1594,7 @@
     </ul>
   </section>
 
-  <!-- ============ 3. DESIGN: SCOPE ============ -->
+  <!-- ============ 3. DESIGN ============ -->
   <section id="design" class="wrap">
     <p class="eyebrow">03 &middot; Design</p>
     <h2 class="section-head">Scoping the Work</h2>
@@ -2012,7 +1754,7 @@
     </ul>
   </section>
 
-  <!-- ============ 6. AI + BUILD ============ -->
+  <!-- ============ 4. CODING WITH AI ============ -->
   <section id="ai" class="wrap">
     <p class="eyebrow">04 &middot; Building It</p>
     <h2 class="section-head">Coding with AI</h2>
@@ -2036,7 +1778,7 @@
     </p>
   </section>
 
-  <!-- ============ 7. TEAM / REPO ============ -->
+  <!-- ============ 5. TEAMWORK ============ -->
   <section id="team" class="wrap">
     <p class="eyebrow">05 &middot; Teamwork</p>
     <h2 class="section-head">Shipping in a shared repo</h2>
@@ -2093,7 +1835,7 @@
     </figure>
   </section>
 
-  <!-- ============ 8 & 9. REFLECTIONS ============ -->
+  <!-- ============ 6. RESULTS ============ -->
   <section id="reflections" class="wrap">
     <p class="eyebrow">06 &middot; Results</p>
     <h2 class="section-head">The credit now travels with the drawing</h2>
@@ -2327,11 +2069,10 @@
     (function () {
       var targets = document.querySelectorAll([
         '.hero > *:not(h1)',
-        'section > *:not(ul.decision-list):not(ul.plain):not(.persona-row):not(.stat-row)',
+        'section > *:not(ul.decision-list):not(ul.plain):not(.persona-row)',
         '.decision-list > li',
         'ul.plain > li',
-        '.persona-col',
-        '.stat'
+        '.persona-col'
       ].join(','));
       var pending = Array.prototype.slice.call(targets);
       pending.forEach(function (el) { el.setAttribute('data-reveal', ''); });
