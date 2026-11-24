@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Excalidraw Attribution Case Study — Khushali Haji</title>
+  <title>Made with Excalidraw: Case Study — Khushali Haji</title>
   <script>document.documentElement.classList.add('js');</script>
   <link
     href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300;1,600&family=DM+Mono:wght@400;500&family=Inter:wght@200;300;400;500;600;700&family=Caveat:wght@400;600&display=swap"
@@ -1290,11 +1290,61 @@
       }
     }
   
+    /* ---- Accessibility ---- */
+    .skip-link {
+      position: fixed;
+      top: 0.6rem;
+      left: 0.6rem;
+      z-index: 200;
+      padding: 0.7rem 1.1rem;
+      background: var(--ink);
+      color: var(--paper);
+      font-family: var(--mono);
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      text-decoration: none;
+      border-radius: 3px;
+      transform: translateY(-200%);
+    }
+
+    .skip-link:focus {
+      transform: none;
+      outline: 2px solid var(--yellow);
+      outline-offset: 2px;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
+    }
+
+    a:focus-visible,
+    video:focus-visible {
+      outline: 2px solid var(--teal);
+      outline-offset: 3px;
+    }
+
+    /* small grey labels and captions were just under 4.5:1 */
+    figcaption,
+    .export-col-caption,
+    table.matrix td.tier span {
+      color: rgba(40, 36, 33, 0.74);
+    }
+
+    .export-card.v1 .chrome-title {
+      color: #a8402c;
+    }
   </style>
   <script src="../js/cursor-handoff.js"></script>
 </head>
 
 <body>
+
+  <a class="skip-link" href="#main">Skip to main content</a>
 
   <canvas id="mapGrid"></canvas>
   <div class="cursor-arrow" id="cursorArrow" aria-hidden="true"></div>
@@ -1302,7 +1352,7 @@
 
   <div class="progress-line" id="progressBar" aria-hidden="true"></div>
 
-  <nav class="topnav" id="topNav">
+  <nav class="topnav" id="topNav" aria-label="Case study sections">
     <a class="nav-back" href="../index.html#featured"><span aria-hidden="true">&larr;</span>&nbsp; Back to work</a>
     <div class="nav-links">
       <a href="#brief">Problem</a>
@@ -1313,6 +1363,8 @@
       <a href="#reflections">Results</a>
     </div>
   </nav>
+
+  <main id="main">
 
   <!-- ============ 0. HERO ============ -->
   <header class="hero wrap" id="top">
@@ -1346,14 +1398,14 @@
       <div class="meta-item">
         <span class="meta-label">Code</span>
         <span class="meta-val"><a href="https://github.com/vincentmizhquiri/excalidrawCycle2" target="_blank"
-            rel="noopener">GitHub repo &nearr;</a></span>
+            rel="noopener">GitHub repo &nearr;<span class="sr-only"> (opens in a new tab)</span></a></span>
       </div>
     </div>
 
     <figure class="hero-wide-image">
       <div class="hero-wide-frame">
         <img src="Excalidraw/With_notes.png"
-          alt="Annotated before/after of the export dialog. Before: a plain scale picker and PNG/SVG/copy actions, with open questions noted on which formats to add and whether to use a watermark or attribution, while keeping the existing look for current users. After: a tooltip added on Embed scene, an attribution mark added by default with an opt-out (kept for open-source transparency), more export formats (WebP, JPEG, .excalidraw), and aspect-ratio presets, aimed at also making export easy for non-technical users.">
+          alt="Annotated before and after of the export dialog. Before: open questions on formats and whether to credit. After: the credit mark, a tooltip, more export formats and aspect ratio presets.">
       </div>
       <figcaption>
         <b>Export dialog, before and after:</b> The notes mark what changed and why. The credit line is on by
@@ -1408,11 +1460,11 @@
     </p>
 
     <div class="table-scroll">
-      <table class="matrix">
+      <table class="matrix" aria-label="What other tools credit on the free plan">
         <thead>
           <tr>
-            <th>On the free plan</th>
-            <th>Tools</th>
+            <th scope="col">On the free plan</th>
+            <th scope="col">Tools</th>
           </tr>
         </thead>
         <tbody>
@@ -1649,11 +1701,11 @@
     </p>
 
     <div class="table-scroll">
-      <table class="matrix">
+      <table class="matrix" aria-label="Features ranked by priority">
         <thead>
           <tr>
-            <th>Priority</th>
-            <th>Features</th>
+            <th scope="col">Priority</th>
+            <th scope="col">Features</th>
           </tr>
         </thead>
         <tbody>
@@ -1697,14 +1749,18 @@
 
     <h2 class="section-head" id="figma" style="margin-top: 3.5rem;">Figma Prototype</h2>
 
-    <video class="proto-video" controls preload="metadata" playsinline poster="Excalidraw/Figma_poster.jpg">
+    <video class="proto-video" controls preload="metadata" playsinline poster="Excalidraw/Figma_poster.jpg"
+      aria-label="Recording of the Figma prototype of the export dialog" aria-describedby="protoDesc">
       <source src="Excalidraw/Figma_recording.mp4" type="video/mp4" />
       Your browser cannot play this video.
     </video>
 
+    <p class="sr-only" id="protoDesc">A 55 second silent screen recording of the Figma prototype. The export dialog
+      shows a preview with the attribution mark in the corner, format and aspect ratio options, and a toggle to hide
+      the mark. Turning the toggle on opens a four-question survey before the mark is removed.</p>
     <p class="body">
       <a href="https://crown-prize-58874771.figma.site/" target="_blank" rel="noopener">Open the Figma prototype
-        &rarr;</a>
+        &rarr;<span class="sr-only"> (opens in a new tab)</span></a>
     </p>
 
     <h2 class="section-head" id="decisions" style="margin-top: 3.5rem;">Design Decisions</h2>
@@ -1731,7 +1787,7 @@
           <div class="export-card-frame">
             <a href="Excalidraw/Export_1.png" target="_blank" rel="noopener">
               <img src="Excalidraw/Export_1.png" loading="lazy"
-                alt="The new export dialog with the attribution mark on: the Hide attribution mark toggle is off, the preview shows the mark in the bottom-right margin, and format and aspect ratio pills sit below.">
+                alt="The new export dialog with the attribution mark on: the Hide attribution mark toggle is off, the preview shows the mark in the bottom-right margin, and format and aspect ratio pills sit below."><span class="sr-only"> (opens full size in a new tab)</span>
             </a>
           </div>
         </div>
@@ -1750,7 +1806,7 @@
           <div class="export-card-frame">
             <a href="Excalidraw/Export_2.png" target="_blank" rel="noopener">
               <img src="Excalidraw/Export_2.png" loading="lazy"
-                alt="The export dialog after the survey: Hide attribution mark is on, the four survey questions each show a done mark with the chosen answer, and the preview no longer shows the mark.">
+                alt="The export dialog after the survey: Hide attribution mark is on, the four survey questions each show a done mark with the chosen answer, and the preview no longer shows the mark."><span class="sr-only"> (opens full size in a new tab)</span>
             </a>
           </div>
         </div>
@@ -1779,7 +1835,7 @@
         <div class="export-card-frame">
           <a href="Excalidraw/QR%20Code.png" target="_blank" rel="noopener">
             <img src="Excalidraw/QR%20Code.png" loading="lazy"
-              alt="The Live collaboration dialog with a name field, a link with a Copy link button, and a QR code with the Excalidraw logo in its center.">
+              alt="The Live collaboration dialog with a name field, a link with a Copy link button, and a QR code with the Excalidraw logo in its center."><span class="sr-only"> (opens full size in a new tab)</span>
           </a>
         </div>
       </div>
@@ -1836,11 +1892,11 @@
       checks (typecheck, lint, tests), so any one can be reviewed alone or reverted without breaking the others.
     </p>
     <div class="table-scroll">
-      <table class="matrix matrix--people">
+      <table class="matrix matrix--people" aria-label="Who built what">
         <thead>
           <tr>
-            <th>Contributor</th>
-            <th>Work</th>
+            <th scope="col">Contributor</th>
+            <th scope="col">Work</th>
           </tr>
         </thead>
         <tbody>
@@ -1866,12 +1922,12 @@
 
     <p class="body">
       After merging in our team repo, a pull request was opened in the main Excalidraw repo
-      (<a href="https://github.com/excalidraw/excalidraw/pull/12190" target="_blank" rel="noopener">#12190</a>).
+      (<a href="https://github.com/excalidraw/excalidraw/pull/12190" target="_blank" rel="noopener">#12190<span class="sr-only"> (opens in a new tab)</span></a>).
     </p>
     <figure class="pr-figure">
       <a class="pr-frame" href="Excalidraw/PR.png" target="_blank" rel="noopener">
         <img src="Excalidraw/PR.png" loading="lazy"
-          alt="The GitHub pull request page for Export view, number 12190, open, with four commits: the export attribution mark with opt-out survey, WebP, JPEG and .excalidraw export with aspect ratios, survey answers reported as anonymous events, and a merge of master into the branch.">
+          alt="The GitHub pull request page for Export view, number 12190, open, with four commits: the export attribution mark with opt-out survey, WebP, JPEG and .excalidraw export with aspect ratios, survey answers reported as anonymous events, and a merge of master into the branch."><span class="sr-only"> (opens full size in a new tab)</span>
       </a>
       <figcaption class="export-col-caption">The pull request on GitHub, currently open. The fourth commit merges master, the
         project's main branch, into ours to keep it current.</figcaption>
@@ -1912,6 +1968,8 @@
         level.</li>
     </ul>
   </section>
+
+  </main>
 
   <!-- ===================== CTA + MORE WORK ===================== -->
   <aside class="more-work" aria-labelledby="mwTitle">
