@@ -2295,33 +2295,6 @@
 
   <a class="skip-link" href="#featured">Skip to featured work</a>
 
-  <div class="construction-overlay" id="constructionOverlay" role="dialog" aria-modal="true"
-    aria-labelledby="constructionTitle">
-    <div class="construction-card">
-      <svg class="construction-icon" viewBox="0 0 60 60" fill="none" stroke="currentColor" stroke-width="2"
-        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <filter id="doodleWobble">
-          <feTurbulence type="fractalNoise" baseFrequency="0.045" numOctaves="2" seed="7" result="n" />
-          <feDisplacementMap in="SourceGraphic" in2="n" scale="2.6" />
-        </filter>
-        <g filter="url(#doodleWobble)">
-          <!-- lopsided warning triangle -->
-          <path d="M30 7 L54 50 Q30 54 6 50 Z" />
-          <!-- exclamation mark -->
-          <path d="M30 22 L29.5 37" />
-          <circle cx="29.7" cy="44" r="1.6" fill="currentColor" stroke="none" />
-          <!-- a couple of stray sketch lines for extra doodle texture -->
-          <path d="M17 44 Q15 46 13 45" stroke-width="1.3" opacity="0.6" />
-          <path d="M47 43 Q49 45 51 44" stroke-width="1.3" opacity="0.6" />
-        </g>
-      </svg>
-      <h2 class="construction-title" id="constructionTitle">Pardon the dust!</h2>
-      <p class="construction-body">Just a few finishing touches left. Some links aren’t live yet.
-        Thanks for your patience as I finish tinkering.</p>
-      <button class="construction-btn" id="constructionCancel" data-clickable>Proceed</button>
-    </div>
-  </div>
-
   <nav class="nav" id="nav" aria-label="Primary">
     <a class="nav-brand" href="index.html">Khushali Haji</a>
     <span class="nav-loc"><span class="loc-dot" aria-hidden="true"></span><span class="sr-only">Currently in </span>New York</span>
@@ -3641,7 +3614,7 @@
     (function initConstructionNotice() {
       const overlay = document.getElementById('constructionOverlay');
       const cancelBtn = document.getElementById('constructionCancel');
-      if (!overlay || !cancelBtn) return;
+      if (!overlay || !cancelBtn) { typewriter(); return; } // banner removed for now: start the hero straight away
 
       const SEEN_KEY = 'khConstructionNoticeSeen';
 
