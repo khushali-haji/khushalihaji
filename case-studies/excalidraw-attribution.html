@@ -1247,6 +1247,44 @@
       }
     }
 
+  
+    /* ---- Phone and touch refinements ---- */
+    @media (max-width: 640px) {
+
+      /* names and the "Contributor" header no longer break mid-word */
+      table.matrix--people th:first-child,
+      table.matrix--people td:first-child {
+        white-space: nowrap;
+      }
+
+      /* the smallest mono labels get a little larger on phones */
+      .meta-label,
+      table.matrix thead th {
+        font-size: 10.5px;
+      }
+
+      table.matrix td.tier span,
+      .chrome-title {
+        font-size: 11px;
+      }
+
+      .export-col-caption,
+      .hero-wide-image figcaption {
+        font-size: 12px;
+      }
+    }
+
+    /* 44px tap areas on touch screens, without changing how anything looks */
+    @media (pointer: coarse) {
+      .nav-links a,
+      .meta-val a,
+      #design p.body > a:only-child {
+        display: inline-block;
+        padding: 14px 0;
+        margin: -14px 0;
+      }
+    }
+  
   </style>
   <script src="../js/cursor-handoff.js"></script>
 </head>
@@ -1793,7 +1831,7 @@
       checks (typecheck, lint, tests), so any one can be reviewed alone or reverted without breaking the others.
     </p>
     <div class="table-scroll">
-      <table class="matrix">
+      <table class="matrix matrix--people">
         <thead>
           <tr>
             <th>Contributor</th>
