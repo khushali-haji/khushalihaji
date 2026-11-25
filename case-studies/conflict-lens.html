@@ -490,35 +490,141 @@
       border-radius: 2px;
     }
 
-    /* Reflection section highlights in the site's teal instead of the
-       default yellow, so the roadmap items don't compete visually with
-       the highlighted terms used everywhere else */
-    #reflection mark {
-      background: rgba(26, 107, 107, 0.16);
+    /* Read by screen readers, hidden visually */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
     }
 
-    /* Plain bullets for the reflection roadmap — no dividers, just a list */
-    .reflection-list {
-      list-style: disc;
-      padding-left: 1.3rem;
-      margin: 1rem 0 1.8rem;
+    /* Results: scorecard of the How Might We, one row per part */
+    .scorecard {
+      list-style: none;
+      padding: 0;
+      margin: 2.2rem 0 4.5rem;
+      /* hand-drawn wavy rule above the first row */
+      --squiggle: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='6' viewBox='0 0 120 6'%3E%3Cpath d='M0 3.2 C8 1.4 14 1.8 22 3.4 S38 4.6 48 3 S62 1.2 74 3.1 S92 4.4 102 2.9 S114 2.2 120 3.2' fill='none' stroke='%23282421' stroke-width='1.1' stroke-linecap='round'/%3E%3C/svg%3E");
     }
 
-    .reflection-list li {
+    .scorecard::before,
+    .scorecard::after {
+      content: '';
+      display: block;
+      height: 6px;
+      background: var(--squiggle) repeat-x left center / 120px 6px;
+    }
+
+    .scorecard li:last-child {
+      border-bottom: none;
+    }
+
+    .scorecard li {
+      display: grid;
+      grid-template-columns: 1.6rem 11rem 1fr;
+      gap: 0 1rem;
+      align-items: baseline;
+      padding: 1.25rem 0.2rem;
+      border-bottom: 1.5px dashed var(--rule);
       font-family: var(--serif);
       font-weight: 500;
-      font-size: clamp(16.5px, 1.4vw, 19px);
-      line-height: 1.76;
+      font-size: clamp(16px, 1.3vw, 18px);
+      line-height: 1.5;
       color: rgba(40, 36, 33, 0.85);
-      margin-bottom: 0.9rem;
     }
 
-    .reflection-list li::marker {
+    .scorecard li strong {
       color: var(--ink);
+      font-weight: 700;
     }
 
-    .reflection-list li:last-child {
-      margin-bottom: 0;
+    .scorecard .sc-mark {
+      font-family: var(--sans);
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .scorecard .done .sc-mark { color: var(--teal); }
+    .scorecard .testing .sc-mark { color: var(--yellow); }
+
+    #reflection h3.sub {
+      margin-top: 3.4rem;
+      margin-bottom: 2.4rem; /* same gap under every Results subheading */
+    }
+
+    #reflection .scorecard + h3.sub {
+      margin-top: 0;
+    }
+
+    .pullquote.learned {
+      margin: 0 0 2rem;
+      text-align: center;
+    }
+
+    .pullquote.learned::before {
+      content: none;
+    }
+
+    /* What's next: three short themed columns */
+    .next-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.4rem;
+      margin-top: 0;
+    }
+
+    .next-grid > div {
+      padding: 1.1rem 1.2rem;
+      background: var(--card-paper);
+      border: 1.5px solid var(--ink);
+      border-radius: 4px;
+      box-shadow: 3px 3px 0 var(--rule);
+      transition: var(--transition);
+    }
+
+    /* same hover as the decision cards */
+    .next-grid > div:hover {
+      background: #fff;
+      transform: translateX(4px);
+      box-shadow: 3px 3px 0 var(--ink);
+    }
+
+    .next-grid h4 {
+      font-family: var(--sans);
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      color: var(--teal);
+      margin: 0 0 0.5rem;
+    }
+
+    .next-grid ul {
+      list-style: disc;
+      padding-left: 1.1rem;
+      margin: 0;
+    }
+
+    .next-grid li {
+      font-family: var(--serif);
+      font-weight: 500;
+      font-size: 16px;
+      line-height: 1.45;
+      color: rgba(40, 36, 33, 0.85);
+      margin-bottom: 0.4rem;
+    }
+
+    @media (max-width: 720px) {
+      .scorecard li {
+        grid-template-columns: 1.4rem 1fr;
+      }
+      .scorecard li > span:not(.sc-mark):not(.sr-only) {
+        grid-column: 2;
+      }
+      .next-grid {
+        grid-template-columns: 1fr;
+      }
     }
 
     /* Users — three persona snapshots, sitting above the How Might We */
@@ -3847,7 +3953,7 @@
     <!-- ============ 4. THE INTERFACE (DESKTOP) ============ -->
     <section id="interface">
       <p class="eyebrow">04 / The Product</p>
-      <h2 class="section-head">One flow, desktop and mobile</h2>
+      <h2 class="section-head">Designing for every screen</h2>
 
       <p class="body">Three screens, one continuous flow. Each is shown as a wireframe, and the recording below is the
         built product.</p>
@@ -4082,7 +4188,7 @@
 
     <!-- ============ 9. THE STACK / ARCHITECTURE ============ -->
     <section id="stack">
-      <p class="eyebrow">07 / Technical Architecture</p>
+      <p class="eyebrow">07 / System Architecture</p>
       <h2 class="section-head">Under the hood</h2>
 
       <p class="body">Conflict Lens is four parts working together.</p>
@@ -4182,53 +4288,63 @@
     <!-- ============ 10. REFLECTION ============ -->
     <section id="reflection">
       <p class="eyebrow">08 / Results</p>
-      <h2 class="section-head">One article in, one briefing out</h2>
+      <h2 class="section-head">From 12 tabs to one screen</h2>
       <p class="body">
         The question was how to take someone from a single article to a map-based, bias-aware understanding of an
-        event in under a minute. Partly answered:
+        event in under a minute. Where it stands:
       </p>
-      <ul class="reflection-list">
-        <li><strong>From one article.</strong> Paste a link, or upload a PDF when the article is paywalled.</li>
-        <li><strong>Map-based.</strong> Every event and actor is pinned to the map, with timeline markers that match
-          the map pins.</li>
-        <li><strong>Bias-aware.</strong> A dedicated panel reads the article's framing, clearly labeled as the
-          model's view.</li>
-        <li><strong>Under a minute.</strong> Results arrive in stages, so the map and key details show up first.
-          The first run can take up to a minute while the free server wakes up.</li>
-      </ul>
 
-      <h3 class="sub">What is not proven yet</h3>
-      <p class="body">
-        Whether the briefings are accurate, and whether readers come away understanding the event better. Both are
-        being tested now: an accuracy check of outputs against their source articles, and usability sessions with
-        target readers.
-      </p>
+      <ul class="scorecard">
+        <li class="done"><span class="sc-mark" aria-hidden="true">&#10003;</span><strong>From one article</strong>
+          <span>Paste a link, or upload a PDF if it's paywalled.</span><span class="sr-only">Done.</span></li>
+        <li class="done"><span class="sc-mark" aria-hidden="true">&#10003;</span><strong>Map-based</strong>
+          <span>Every event and actor is pinned to the map.</span><span class="sr-only">Done.</span></li>
+        <li class="done"><span class="sc-mark" aria-hidden="true">&#10003;</span><strong>Bias-aware</strong>
+          <span>A framing panel, labeled as the model's view.</span><span class="sr-only">Done.</span></li>
+        <li class="done"><span class="sc-mark" aria-hidden="true">&#10003;</span><strong>Under a minute</strong>
+          <span>Loads in stages. The first run takes up to a minute while the free server wakes up.</span><span class="sr-only">Done.</span></li>
+        <li class="testing"><span class="sc-mark" aria-hidden="true">&#9680;</span><strong>Accurate</strong>
+          <span>Testing now: outputs checked against their source articles.</span></li>
+        <li class="testing"><span class="sc-mark" aria-hidden="true">&#9680;</span><strong>Useful to readers</strong>
+          <span>Testing now: usability sessions with target readers.</span></li>
+      </ul>
 
       <h3 class="sub">What I learned</h3>
+      <blockquote class="pullquote learned">
+        Designing with AI is designing for volatility.
+      </blockquote>
       <p class="body">
-        Conflict Lens taught me that designing with AI is really about designing for <mark>volatility</mark>. We
-        cannot control what the API returns, so the interface has to act as a filter. Keeping the system feeling
-        fast with skeleton loading, setting honest expectations with clear waiting copy, and offering a next step
-        when something fails can turn a fragile AI script into a trustable product.
+        The model's output can't be controlled, so the interface has to filter it: fast loading, honest wait times,
+        and a next step when something fails. That is what turns a fragile AI script into a product people can trust.
       </p>
+
       <h3 class="sub">What's next</h3>
-      <ul class="reflection-list">
-        <li>A <mark>domain allowlist</mark> to flag unreliable sources before they're ever scraped, no model judgment
-          required.</li>
-        <li>Turning the existing verification links into <mark>real corroboration</mark>, fetching a competing
-          outlet's coverage instead of just pointing to it.</li>
-        <li>A <mark>second, differently-trained model</mark> run in parallel as a divergence check. Useful for
-          catching the model hallucinating, though two models agreeing on a bad source still wouldn't make it
-          true.</li>
-        <li>On the interface: a chronological <mark>playback tool</mark> that animates the timeline and flies the map
-          to each event, plus keyboard shortcuts to browse events.</li>
-        <li>An option to increase or decrease font size for better readability, plus features for increasing
-          accessibility like a
-          <mark>high-contrast mode</mark>, <mark>colorblind-safe pins</mark> so actors aren't identified by color
-          alone, and
-          proper labels for screen readers on the map and timeline.
-        </li>
-      </ul>
+      <div class="next-grid">
+        <div>
+          <h4>Trust</h4>
+          <ul>
+            <li>Flag unreliable sources before they're scraped, using a fixed list, not the model's judgment</li>
+            <li>Show how another outlet reported the same event, instead of only linking to a search for it</li>
+            <li>A second model to catch hallucinations, though two models agreeing still doesn't make a claim true</li>
+          </ul>
+        </div>
+        <div>
+          <h4>Interface</h4>
+          <ul>
+            <li>Timeline playback that flies the map to each event</li>
+            <li>Keyboard shortcuts to move between events</li>
+          </ul>
+        </div>
+        <div>
+          <h4>Accessibility</h4>
+          <ul>
+            <li>Adjustable font size</li>
+            <li>High-contrast mode</li>
+            <li>Colorblind-safe pins</li>
+            <li>Screen-reader labels on the map and timeline</li>
+          </ul>
+        </div>
+      </div>
     </section>
 
   </main>
